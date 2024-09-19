@@ -7,8 +7,6 @@ export default function App() {
   const dispatch = useDispatch()
 
   return (
-    <div>
-      <p className='text-red-500' > Lol </p>
-    </div>
+    
   )
 }

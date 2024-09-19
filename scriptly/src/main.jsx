@@ -5,12 +5,13 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import App from "./App";
 import { Provider } from "react-redux";
 import { store } from "./state/store";
 import Login from "./pages/auth/Login";
 import Home from "./pages/home/Home";
 import HomeLayout from "./layout/HomeLayout";
+import CreateAccount from "./pages/auth/CreateAccount";
+import AuthLayout from "./layout/AuthLayout";
 const router = createBrowserRouter([
   {
     path: '/',
@@ -22,10 +23,19 @@ const router = createBrowserRouter([
       },
     ]
   },
-
   {
-    path: "/login",
-    element: <Login />
+    path: '/',
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "/login",
+        element: <Login />
+      },
+      {
+        path: "/create-account",
+        element: <CreateAccount />
+      },
+    ]
   },
 ]);
 

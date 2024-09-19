@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Login = () => {
+const CreateAccount = () => {
     return (
         <form action="#" className="mt-8 grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
@@ -67,4 +67,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default CreateAccount

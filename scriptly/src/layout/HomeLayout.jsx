@@ -4,8 +4,10 @@ import { Outlet } from 'react-router-dom'
 const HomeLayout = ({ children }) => {
     return (
         <>
-            <Navbar />
-            <Outlet />
+            <div className='bg-red-100/50 min-h-[100vh]'>
+                <Navbar />
+                <Outlet />
+            </div>
         </>
 
     )

@@ -7,6 +7,7 @@ export default function App() {
   const dispatch = useDispatch()
 
   return (
-    
+    <>
+    </>
   )
 }

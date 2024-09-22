@@ -35,7 +35,6 @@ const CreateAccount = () => {
                         name="marketing_accept"
                         className="size-5 rounded-md border-gray-200 bg-white shadow-sm"
                     />
-
                     <span className="text-sm text-gray-700">
                         I want to receive emails about events, product updates and company announcements.
                     </span>

@@ -1,26 +1,50 @@
 import React from 'react'
-import Navbar from '../../components/Navbar'
-import HomeLayout from '../../layout/HomeLayout'
 import Genres from '../../components/Genres'
 
 const Home = () => {
     return (
         <>
             {/* <Genres /> */}
-
             <div className='grid grid-cols-4 gap-6 m-4' >
-
                 <div className='col-span-3 flex flex-col gap-6'>
                     <div className='my-4 flex justify-between'>
-                        <h3 className='font-sans text-4xl font-semibold  text-gray-800' >
+                        <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
                             Explore
                         </h3>
-                        <input type="text" id="first_name" class="outline-none text-gray-900 text-sm rounded-lg focus:ring-blue-500  focus:border-blue-500 block p-2.5 w-52" placeholder="Search" required autoComplete='off' />
+                        <div class="relative">
+                            <label for="Search" class="sr-only"> Search </label>
+                            <input
+                                type="text"
+                                id="Search"
+                                placeholder="Search for..."
+                                class="w-72 rounded-md border-gray-200 py-2.5 pe-10  shadow-sm sm:text-sm outline-none px-3"
+                            />
+                            <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
+                                <button type="button" class="text-gray-600 hover:text-gray-700">
+                                    <span class="sr-only">Search ...</span>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="1.5"
+                                        stroke="currentColor"
+                                        class="size-4"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                                        />
+                                    </svg>
+                                </button>
+                            </span>
+                        </div>
                     </div>
+                    <Genres />
                     {
                         Array(4).fill(0).map(e => {
                             return (
-                                <div className=' bg-white rounded-md p-3 flex gap-3  shadow-md border-s-4 border-s-indigo-600 ' >
+                                <div className=' bg-white rounded-md p-3 flex gap-3 ' >
                                     <div className='rounded-md w-max m-auto'>
                                         <img src="/noimage.png" alt="" width="100%" />
                                     </div>
@@ -54,7 +78,6 @@ const Home = () => {
                                             </div>
                                         </div>
                                         <p className='text-lg text-gray-600 font-semibold ' > Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla fugit officia id sequi deserunt mollitia? Blanditiis aperiam fugit nihil ea voluptates dignissimos doloremque labore vitae cumque eius. Non, laborum reiciendis. Lorem, ipsum dolor sit amet consectetur adipisicing elit.eaque... </p>
-
                                     </div>
                                 </div>
                             )

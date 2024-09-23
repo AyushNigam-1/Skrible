@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 const Genres = () => {
     const genres = [
         { name: "Fantasy", color: "bg-purple-100", textColor: "text-purple-600" },
@@ -24,21 +24,48 @@ const Genres = () => {
     ];
 
 
+    const genresRef = useRef(null);
+
+    const scrollBackward = () => {
+        genresRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    };
+
+    const scrollForward = () => {
+        genresRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    };
 
     return (
         <>
-            <div className='flex gap-2 overflow-visible m-4' >
-                {
-                    genres.map((e) => {
-                        return (
-                            <button className={`bg-white ${e.textColor} flex gap-1 items-center bg p-2 font-bold text-nowrap rounded-md shadow-sm`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
-                            </svg>
-                                {e.name} </button>
-                        )
-                    })
-                }
+            <div className='flex gap-2 overflow-visible' >
+                <button className='bg-indigo-100 text-indigo-800  px-2.5 rounded-full' >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5" onClick={scrollBackward} >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+                <div
+                    ref={genresRef}
+                    className="flex gap-4 overflow-x-hidden no-scrollbar"
+                >
+                    {
+                        genres.map((e) => {
+                            return (
+                                <button className={`bg-white text-gray-600 flex gap-2 items-center bg p-2 font-bold text-nowrap rounded-md shadow-sm`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+                                </svg>
+                                    {e.name} </button>
+                            )
+                        })
+                    }
+                </div>
+                <button
+                    className="bg-indigo-100 text-indigo-800 px-2.5 rounded-full"
+                    onClick={scrollForward}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 19.5L15.75 12 8.25 4.5" />
+                    </svg>
+                </button>
             </div >
         </>
     )

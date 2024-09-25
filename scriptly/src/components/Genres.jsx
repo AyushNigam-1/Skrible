@@ -37,7 +37,7 @@ const Genres = () => {
     return (
         <>
             <div className='flex gap-2 overflow-visible' >
-                <button className='bg-indigo-100 text-indigo-800  px-2.5 rounded-full' >
+                <button className='bg-white border border-gray-200 text-indigo-800  px-2.5 rounded-full' >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5" onClick={scrollBackward} >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
@@ -59,7 +59,7 @@ const Genres = () => {
                     }
                 </div>
                 <button
-                    className="bg-indigo-100 text-indigo-800 px-2.5 rounded-full"
+                    className="bg-white border border-gray-200 text-indigo-800  px-2.5 rounded-full"
                     onClick={scrollForward}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5">

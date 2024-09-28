@@ -17,18 +17,38 @@ async function startServer(params) {
         phone:String!
         }
         type Todo {
+        userId:ID!
         id:ID!
         title:String!
         completed:Boolean
+        user:User
         }
         type Query {
         getTodos:[Todo]
-        getAllUser:[User]
+        getAllUsers:[User]
+        getUser(id:ID!):User
         }
         `,
         resolvers: {
+            Todo: {
+                user: async (todo) => {
+                    const response = await axios.get(`https://jsonplaceholder.typicode.com/users/${todo.userId}`);
+                    return response.data;
+                }
+            },
             Query: {
-                geTodos: async () => (await axios.get("https://jsonplaceholder.typicode.com/todos/1")).data
+                getTodos: async () => {
+                    const response = await axios.get("https://jsonplaceholder.typicode.com/todos");
+                    return response.data;
+                },
+                getAllUsers: async () => {
+                    const response = await axios.get("https://jsonplaceholder.typicode.com/users");
+                    return response.data;
+                },
+                getUser: async (parent, { id }) => {
+                    const response = await axios.get(`https://jsonplaceholder.typicode.com/users/${id}`);
+                    return response.data;
+                },
             }
         }
     })

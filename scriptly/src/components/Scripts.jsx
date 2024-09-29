@@ -2,9 +2,6 @@ import React from 'react'
 import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
 
-
-
-
 const Scripts = () => {
 
     const avatar = createAvatar(glass, {

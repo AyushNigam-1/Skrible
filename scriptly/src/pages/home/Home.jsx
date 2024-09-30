@@ -3,7 +3,7 @@ import Genres from '../../components/Genres'
 import Filters from '../../components/Filters'
 import Search from '../../components/Search'
 import Scripts from '../../components/Scripts'
-import { useQuery, gql, useQuery } from '@apollo/client'
+import { useQuery, gql } from '@apollo/client'
 
 const query = gql`
 query GetTodosWithUser {

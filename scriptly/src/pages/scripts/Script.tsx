@@ -1,5 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
+import ToggleSwitch from '../../components/Checkbox';
 const Script = () => {
     const { id } = useParams()
     const contributions = [
@@ -31,35 +32,54 @@ const Script = () => {
     ];
 
     return (
-        <div className='container mx-auto m-4 flex flex-col gap-3'>
-            <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
-                Untitled
-            </h3>
-            <hr />
-            <div className='flex flex-col gap-3' >
-                {
-                    contributions.map(contribution =>
-                        <div className='flex gap-3 word-spacing-1 rounded-md text-xl text-gray-800 relative' >
-                            <div className='relative' >
-                                <div className='bg-white rounded-full p-2 text-indigo-600 border w-full'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
+        <div className='m-4 gap-3 grid grid-cols-8 '>
+            <div className='flex flex-col gap-3 col-span-6'>
+                <div className='flex justify-between' >
+                    <div className='flex gap-3'>
+                        <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
+                            Untitled
+                        </h3>
+                        <button className='rounded-full p-2 bg-white ' >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 text-indigo-600">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                            </svg>
+
+                        </button>
+                    </div>
+                    <div className='flex gap-2 text-xl items-center ' >
+                        <ToggleSwitch /> <h6>Show Annotions</h6>
+                    </div>
+                </div>
+
+                <hr />
+                <div className='flex flex-col gap-3' >
+                    {
+                        contributions.map(contribution =>
+                            <div className='flex gap-3 word-spacing-1 rounded-md text-xl text-gray-800 relative' >
+                                <div className='relative flex flex-col gap-3 items-center' >
+                                    <div className='bg-white rounded-full p-2 text-indigo-600 border w-full'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <div className='-rotate-90' >
+                                        <p className='text-sm font-semibold'>
+                                            {contribution.contributorName}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className='-rotate-90' >
-                                    <p className='text-sm font-semibold'>
-                                        {contribution.contributorName}
+                                <div className='bg-white' >
+                                    <p className='p-4'>
+                                        {contribution.para}
                                     </p>
                                 </div>
                             </div>
-                            <div className='bg-white' >
-                                <p className='p-4'>
-                                    {contribution.para}
-                                </p>
-                            </div>
-                        </div>
-                    )
-                }
+                        )
+                    }
+                </div>
+            </div>
+            <div className='col-span-2 bg-white rounded-md' >
+
             </div>
         </div>
     )

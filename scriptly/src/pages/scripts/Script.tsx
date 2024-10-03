@@ -32,8 +32,8 @@ const Script = () => {
     ];
 
     return (
-        <div className='m-4 gap-3 grid grid-cols-8 '>
-            <div className='flex flex-col gap-3 col-span-6'>
+        <div className='m-4 gap-3 '>
+            <div className='flex flex-col gap-3 '>
                 <div className='flex justify-between' >
                     <div className='flex gap-3'>
                         <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
@@ -43,43 +43,62 @@ const Script = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 text-indigo-600">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
                             </svg>
-
                         </button>
                     </div>
                     <div className='flex gap-2 text-xl items-center ' >
                         <ToggleSwitch /> <h6>Show Annotions</h6>
                     </div>
                 </div>
-
                 <hr />
-                <div className='flex flex-col gap-3' >
-                    {
-                        contributions.map(contribution =>
-                            <div className='flex gap-3 word-spacing-1 rounded-md text-xl text-gray-800 relative' >
-                                <div className='relative flex flex-col gap-3 items-center' >
-                                    <div className='bg-white rounded-full p-2 text-indigo-600 border w-full'>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
+                <div className='grid-cols-8 grid gap-4'>
+                    <div className='flex flex-col gap-4 col-span-6' >
+                        {
+                            contributions.map(contribution =>
+                                <div className='flex gap-3 word-spacing-1 rounded-lg text-xl text-gray-800 relative' >
+                                    <div className='relative flex flex-col gap-3 items-center' >
+                                        <div className='bg-white rounded-full p-2 text-indigo-600 border w-full'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        {/* <div className='-rotate-90' >
+                                            <p className='text-sm font-semibold'>
+                                                {contribution.contributorName}
+                                            </p>
+                                        </div> */}
                                     </div>
-                                    <div className='-rotate-90' >
-                                        <p className='text-sm font-semibold'>
-                                            {contribution.contributorName}
+                                    <div className='bg-white' >
+                                        <p className='p-4'>
+                                            {contribution.para}
                                         </p>
                                     </div>
                                 </div>
-                                <div className='bg-white' >
-                                    <p className='p-4'>
-                                        {contribution.para}
-                                    </p>
-                                </div>
-                            </div>
-                        )
-                    }
-                </div>
-            </div>
-            <div className='col-span-2 bg-white rounded-md' >
+                            )
+                        }
+                    </div>
 
+                    <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col' >
+                        <h4 className='text-lg text-gray-800' > Author </h4>
+                        <span className='flex items-center gap-2' >
+                            <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
+                            <p>Ayush Nigam</p>
+                        </span>
+                        <h4 className='text-lg text-gray-800' > Contributors </h4>
+                        <span className='flex items-center gap-2' >
+                            <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
+                            <p>Ayush Nigam</p>
+                        </span>
+                        <h4 className='text-lg text-gray-800' > Contribution History </h4>
+                        {Array()}
+                        <span className='flex items-center gap-2 bg-gray bg-gray-100 p-3' >
+                            <img className="w-10 h-10 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
+                            <div>
+                            <p className='font-semibold text-lg'>Ayush Nigam</p>
+                            <p className='text-md text-indigo-800' >Added 64 New Lines </p>
+                            </div>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     )

@@ -10,7 +10,7 @@ const ToggleSwitch = () => {
     return (
         <label
             htmlFor="AcceptConditions"
-            className={`relative inline-block h-8 w-14 cursor-pointer rounded-full transition ${isChecked ? 'bg-green-500' : 'bg-gray-300'
+            className={`relative inline-block h-8 w-14 cursor-pointer rounded-full transition ${isChecked ? 'bg-indigo-500' : 'bg-gray-300'
                 }`}
         >
             <input
@@ -22,7 +22,7 @@ const ToggleSwitch = () => {
             />
 
             <span
-                className={`absolute inset-y-0 m-1 inline-flex size-6 items-center justify-center rounded-full bg-white transition-all ${isChecked ? 'start-6 text-green-600' : 'text-gray-400 start-0'
+                className={`absolute inset-y-0 m-1 inline-flex size-6 items-center justify-center rounded-full bg-white transition-all ${isChecked ? 'start-6 text-indigo-600' : 'text-gray-400 start-0'
                     }`}
             >
                 {/* SVG for unchecked state */}

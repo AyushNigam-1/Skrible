@@ -78,25 +78,32 @@ const Script = () => {
                     </div>
 
                     <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col' >
-                        <h4 className='text-lg text-gray-800' > Author </h4>
+                        <h4 className='text-lg text-gray-800 font-bold' > Author </h4>
                         <span className='flex items-center gap-2' >
                             <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
                             <p>Ayush Nigam</p>
                         </span>
-                        <h4 className='text-lg text-gray-800' > Contributors </h4>
+                        <h4 className='text-lg text-gray-800 font-bold' > Contributors </h4>
                         <span className='flex items-center gap-2' >
                             <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
                             <p>Ayush Nigam</p>
                         </span>
-                        <h4 className='text-lg text-gray-800' > Contribution History </h4>
-                        {Array()}
-                        <span className='flex items-center gap-2 bg-gray bg-gray-100 p-3' >
-                            <img className="w-10 h-10 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
-                            <div>
-                            <p className='font-semibold text-lg'>Ayush Nigam</p>
-                            <p className='text-md text-indigo-800' >Added 64 New Lines </p>
-                            </div>
-                        </span>
+                        <h4 className='text-lg text-gray-800 font-bold' > Contribution History </h4>
+                        {Array(5).fill(0).map(() => {
+                            return <span className='flex items-center gap-2 bg-gray border border-gray-400 p-2 rounded-lg' >
+                                <img className="w-12 h-12 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
+                                <div>
+                                    <p className='font-semibold text-lg'>Ayush Nigam</p>
+                                    <div className='flex items-center justify-center gap-1 p- p-0.5 px-2 rounded-lg text-green-800 bg-green-100' >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        <p className='text-md font-medium' >Added 64 New Lines </p>
+                                    </div>
+                                </div>
+                            </span>
+                        })}
+
                     </div>
                 </div>
             </div>

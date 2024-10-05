@@ -50,8 +50,8 @@ const Script = () => {
                     </div>
                 </div>
                 <hr />
-                <div className='grid-cols-8 grid gap-4'>
-                    <div className='flex flex-col gap-4 col-span-6' >
+                <div className='grid-cols-10 grid gap-4'>
+                    <div className='flex flex-col gap-4 col-span-8' >
                         {
                             contributions.map(contribution =>
                                 <div className='flex gap-3 word-spacing-1 rounded-lg text-xl text-gray-800 relative' >
@@ -76,34 +76,47 @@ const Script = () => {
                             )
                         }
                     </div>
-
                     <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col' >
-                        <h4 className='text-lg text-gray-800 font-bold' > Author </h4>
-                        <span className='flex items-center gap-2' >
-                            <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
-                            <p>Ayush Nigam</p>
-                        </span>
-                        <h4 className='text-lg text-gray-800 font-bold' > Contributors </h4>
-                        <span className='flex items-center gap-2' >
-                            <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
-                            <p>Ayush Nigam</p>
-                        </span>
-                        <h4 className='text-lg text-gray-800 font-bold' > Contribution History </h4>
+                        <div>
+                            <h4 className='text-lg text-gray-600 font-bold flex items-center gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                                Author </h4>
+                            <span className='flex items-center gap-2' >
+                                {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
+                                <p className='text-lg font-bold' >Ayush Nigam</p>
+                            </span>
+                        </div>
+                        <div>
+                            <h4 className='text-lg text-gray-600 font-bold flex items-center gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                            </svg>
+                                Contributors </h4>
+                            <span className='flex items-center gap-2' >
+                                {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
+                                <p className='text-lg font-bold' > Ayush Nigam</p>
+                            </span>
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                        <h4 className='text-lg text-gray-600 font-bold flex items-center gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+ Contribution History </h4>
                         {Array(5).fill(0).map(() => {
                             return <span className='flex items-center gap-2 bg-gray border border-gray-400 p-2 rounded-lg' >
-                                <img className="w-12 h-12 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
+                                <img className="w-10 h-10 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
                                 <div>
                                     <p className='font-semibold text-lg'>Ayush Nigam</p>
-                                    <div className='flex items-center justify-center gap-1 p- p-0.5 px-2 rounded-lg text-green-800 bg-green-100' >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                    <div className='flex items-center justify-center gap-1 p-0.5 px-2 rounded-lg text-green-800 bg-green-100' >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                         </svg>
-                                        <p className='text-md font-medium' >Added 64 New Lines </p>
+                                        <p className='text-sm font-medium' >Added 64 New Lines </p>
                                     </div>
                                 </div>
                             </span>
                         })}
-
+                        </div>
                     </div>
                 </div>
             </div>

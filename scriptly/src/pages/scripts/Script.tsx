@@ -45,21 +45,25 @@ const Script = () => {
                             </svg>
                         </button>
                     </div>
-                    <div className='flex gap-2 text-xl items-center ' >
-                        <ToggleSwitch /> <h6>Show Annotions</h6>
-                    </div>
+                    <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 rounded-md' >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
+                        <h6>Zen Mode</h6>
+                    </button>
                 </div>
                 <hr />
                 <div className='grid-cols-10 grid gap-4'>
-                    <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col' >
+                    <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col shadow-md' >
                         <div className='flex gap-1 flex-col'>
-                            <h4 className='text-lg text-gray-600 font-medium flex items-center gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                            </svg>
+                            <h4 className='text-lg text-gray-600 font-medium flex items-center gap-1' >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                </svg>
                                 Author </h4>
                             <span className='flex items-center gap-2' >
                                 {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                                <p className='text-xl font-bold' >Ayush Nigam</p>
+                                <p className='text-xl font-semibold' >Ayush Nigam</p>
                             </span>
                         </div>
                         <div className='flex gap-1 flex-col'>
@@ -70,7 +74,7 @@ const Script = () => {
                                 Language </h4>
                             <span className='flex items-center gap-2' >
                                 {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                                <p className='text-xl font-bold' >English</p>
+                                <p className='text-xl font-semibold' >English</p>
                             </span>
                         </div>
                         <div className='flex gap-1 flex-col'>
@@ -83,7 +87,7 @@ const Script = () => {
                             </h4>
                             <span className='flex items-center gap-2' >
                                 {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                                <p className='text-xl font-bold' > Ayush Nigam</p>
+                                <p className='text-xl font-semibold' > Ayush Nigam</p>
                             </span>
                         </div>
                         <div className='flex gap-2 flex-col'>
@@ -107,10 +111,11 @@ const Script = () => {
                                         { genre: 'Mystery', bg: 'bg-gray-100', color: 'text-gray-800' },
                                         { genre: 'Animation', bg: 'bg-teal-100', color: 'text-teal-800' }
                                     ].map(({ genre, bg, color }) => {
-                                        return <span className={`flex items-center gap-3 text-sm ${bg} ${color} px-2 rounded-full`} >
-                                            {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                                            <p className='text-lg   p-1' >{genre}</p>
-                                        </span>
+                                        return <p className='text-xl font-semibold' >{genre} , </p>
+                                        // <span className={`flex items-center gap-3 text-sm rounded-full`} >
+                                        //     {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
+                                        //     <p className='text-lg   p-1' >{genre}</p>
+                                        // </span>
                                     })
                                 }
 
@@ -128,14 +133,14 @@ const Script = () => {
                             </h4>
                             <div className='flex flex-col gap-5' >
                                 {Array(5).fill(0).map(() => {
-                                    return <span className='flex justify-between bg-red-100/50  gap-2 p-2 rounded-lg' >
+                                    return <span className='flex justify-between bg-gray-100  gap-2 p-2 rounded-lg' >
                                         <div className='flex gap-2 items-center' >
                                             <div className='flex flex-col gap-1'>
                                                 <div className='flex gap-2 items-center' >
                                                     <img className="w-6 h-6 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
                                                     <p className='font-semibold text-lg text-gray-800' >Ayush Nigam</p>
                                                 </div>
-                                                <p className='text-sm font-medium bg-green-100 text-green-800 rounded-full p-0.5 px-2 ' >Added 64 New Lines </p>
+                                                {/* <p className='text-sm font-medium bg-green-100 text-green-800 rounded-full p-0.5 px-2 ' >Added 64 New Lines </p> */}
                                             </div>
                                             {/* <div className='flex items-center justify-center gap-1 p-0.5 px-2 rounded-lg text-green-800 bg-green-100' >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
@@ -155,20 +160,14 @@ const Script = () => {
                     <div className='flex flex-col gap-4 col-span-8' >
                         {
                             contributions.map(contribution =>
-                                <div className='flex gap-3 word-spacing-1 rounded-lg text-xl text-gray-800 relative' >
-                                    <div className='relative flex flex-col gap-3 items-center' >
-                                        <div className='bg-white rounded-full p-2 text-indigo-600 border w-full'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
+                                <div className='word-spacing-1 flex flex-col relative gap-1' >
+                                    <div className='flex gap-2 justify-between' >
+                                        <div className='text-gray-800 flex gap-2' >
+                                            <img src="/person.jpg" className='rounded-full w-5 h-5' alt="" /> John Doe
                                         </div>
-                                        {/* <div className='-rotate-90' >
-                                            <p className='text-sm font-semibold'>
-                                                {contribution.contributorName}
-                                            </p>
-                                        </div> */}
+                                        12/3/2023 - 09:30
                                     </div>
-                                    <div className='bg-white' >
+                                    <div className='bg-white shadow-md rounded-lg   text-xl text-gray-800' >
                                         <p className='p-4'>
                                             {contribution.para}
                                         </p>

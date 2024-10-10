@@ -45,16 +45,24 @@ const Script = () => {
                             </svg>
                         </button>
                     </div>
-                    <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 rounded-md' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <div className='flex gap-2' >
+                        <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 py-2 rounded-md' >
+                            {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                        </svg>
-                        <h6>Zen Mode</h6>
-                    </button>
+                            </svg> */}
+                            <h6>Contribute</h6>
+                        </button>
+                        <button className='flex gap-2 items-center bg-indigo-500 text-white text-md  px-3 py-2  rounded-md' >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                            </svg>
+                            <h6>Zen Mode</h6>
+                        </button>
+                    </div>
                 </div>
                 <hr />
                 <div className='grid-cols-10 grid gap-4'>
-                    <div className='col-span-2 bg-white rounded-md p-4 gap-5 flex flex-col shadow-md' >
+                    <div className='col-span-2 sticky top-4 bg-white rounded-md p-4 gap-5 flex flex-col shadow-md' >
                         <div className='flex gap-1 flex-col'>
                             <h4 className='text-lg text-gray-600 font-medium flex items-center gap-1' >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -127,11 +135,9 @@ const Script = () => {
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                 </svg>
-                                Contribution History
-                                {/* <span className='bg-indigo-500 rounded-full p-1 px-2.5 text-white text-sm' > 2
-                                </span> */}
+                                Recent Contributions
                             </h4>
-                            <div className='flex flex-col gap-5' >
+                            <div className='flex flex-col gap-3' >
                                 {Array(5).fill(0).map(() => {
                                     return <span className='flex justify-between bg-gray-100  gap-2 p-2 rounded-lg' >
                                         <div className='flex gap-2 items-center' >
@@ -153,6 +159,9 @@ const Script = () => {
                                         </span>
                                     </span>
                                 })}
+                                <button className='bg-indigo-500 p-2 rounded-md text-white' >
+                                    See All Contributions
+                                </button>
                             </div>
 
                         </div>
@@ -162,10 +171,15 @@ const Script = () => {
                             contributions.map(contribution =>
                                 <div className='word-spacing-1 flex flex-col relative gap-1' >
                                     <div className='flex gap-2 justify-between' >
-                                        <div className='text-gray-800 flex gap-2' >
-                                            <img src="/person.jpg" className='rounded-full w-5 h-5' alt="" /> John Doe
-                                        </div>
-                                        12/3/2023 - 09:30
+                                        <span className='text-gray-600 flex gap-2' >
+                                            <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
+                                            <p>
+                                                John Doe
+                                            </p>
+                                        </span>
+                                        <p className='text-gray-600' >
+                                            12/3/2023 - 09:30
+                                        </p>
                                     </div>
                                     <div className='bg-white shadow-md rounded-lg   text-xl text-gray-800' >
                                         <p className='p-4'>

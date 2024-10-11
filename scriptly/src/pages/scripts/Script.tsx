@@ -34,7 +34,7 @@ const Script = () => {
     return (
         <div className='m-4 gap-3 '>
             <div className='flex flex-col gap-3 '>
-                <div className='flex justify-between' >
+                <div className='flex justify-between sticky top-2 ' >
                     <div className='flex gap-3'>
                         <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
                             Untitled
@@ -62,7 +62,7 @@ const Script = () => {
                 </div>
                 <hr />
                 <div className='grid-cols-10 grid gap-4'>
-                    <div className='col-span-2 sticky top-4 bg-white rounded-md p-4 gap-5 flex flex-col shadow-md' >
+                    <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-5 flex flex-col shadow-md' >
                         <div className='flex gap-1 flex-col'>
                             <h4 className='text-lg text-gray-600 font-medium flex items-center gap-1' >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -169,8 +169,8 @@ const Script = () => {
                     <div className='flex flex-col gap-4 col-span-8' >
                         {
                             contributions.map(contribution =>
-                                <div className='word-spacing-1 flex flex-col relative gap-1' >
-                                    <div className='flex gap-2 justify-between' >
+                                <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4' >
+                                    <div className='flex gap-2 justify-between ' >
                                         <span className='text-gray-600 flex gap-2' >
                                             <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
                                             <p>
@@ -181,8 +181,8 @@ const Script = () => {
                                             12/3/2023 - 09:30
                                         </p>
                                     </div>
-                                    <div className='bg-white shadow-md rounded-lg   text-xl text-gray-800' >
-                                        <p className='p-4'>
+                                    <div className='  text-xl text-gray-800' >
+                                        <p className=''>
                                             {contribution.para}
                                         </p>
                                     </div>

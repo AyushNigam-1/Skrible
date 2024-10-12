@@ -14,6 +14,7 @@ import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layout/AuthLayout";
 import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
 import Script from "./pages/scripts/Script";
+import Wishlist from "./pages/wishlist/Wishlist";
 const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
   cache: new InMemoryCache()
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
         path: "/script/:id",
         element: <Script />
       },
+      {
+        path: "/wishlist",
+        element: <Wishlist />
+      }
     ]
   },
   {

@@ -23,7 +23,20 @@ const Scripts = () => {
                                     <div className='flex flex-col gap-2 w-full' >
                                         <div className='flex justify-between w-full items-center'  >
                                             <h1 className='text-3xl font-bold' >Untitled Draft</h1>
-                                            <Dropdown />
+                                            <Dropdown cnt={<svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                                                />
+                                            </svg>} />
                                         </div>
                                         <div className='flex gap-2' >
                                             <span className='flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-0.5 rounded-full w-max' >

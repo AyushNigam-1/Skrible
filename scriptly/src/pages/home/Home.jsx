@@ -27,7 +27,7 @@ const Home = () => {
     // console.log(data)
     return (
         <>
-            <div className='container mx-auto m-4' >
+            <div className='container mx-auto' >
                 <div className='flex flex-col gap-6'>
                     <div className='my-4 flex justify-between'>
                         <h3 className='font-sans text-4xl font-bold text-gray-800 ' >

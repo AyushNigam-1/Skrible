@@ -24,7 +24,6 @@ const Contributions = () => {
                                         <img className="w-14 h-14 rounded-md" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />
                                         <div className='flex flex-col justify-between'>
                                             <p className='font-semibold text-lg text-gray-800' >John Doe</p>
-                                            {/* <p className='text-gray-600' >I am kind of person who is always willing to write something great</p> */}
                                             <div className='flex gap-3'  >
                                                 <p className='text-sm font-medium bg-gray-200 text-gray-900 justify-end rounded-md p-0.5 px-2 flex gap-1 items-center' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />

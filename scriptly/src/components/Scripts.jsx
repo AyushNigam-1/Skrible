@@ -25,7 +25,7 @@ const Scripts = () => {
                                         <div className='flex flex-col gap-2 w-full' >
                                             <div className='flex justify-between w-full items-center'  >
                                                 <h1 className='text-3xl font-bold' >Untitled Draft</h1>
-                                                <Dropdown cnt={<svg
+                                                <Dropdown icon={<svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     className="h-6 w-6"
                                                     fill="none"

@@ -25,16 +25,15 @@ const Contributions = () => {
                                         <div className='flex flex-col justify-between'>
                                             <p className='font-semibold text-lg text-gray-800' >John Doe</p>
                                             <div className='flex gap-3'  >
-                                                <p className='text-sm font-medium bg-gray-200 text-gray-900 justify-end rounded-md p-0.5 px-2 flex gap-1 items-center' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                                <p className='text-sm bg-orange-100 text-orange-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
                                                 </svg>
-
                                                     64 </p>
-                                                <p className='text-sm font-medium bg-green-100 text-green-800 justify-end rounded-md p-0.5 px-2 flex gap-1 items-center' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                                <p className='text-sm bg-green-100 text-green-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                                 </svg>
                                                     Added 64 New Lines </p>
-                                                <p className='text-sm font-medium bg-indigo-100 text-indigo-800 justify-end rounded-md p-0.5 px-2 flex gap-1 items-center'>
+                                                <p className='text-sm bg-indigo-100 text-indigo-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold'>
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                     </svg>  Tue, 19 Nov 2024, 22:30

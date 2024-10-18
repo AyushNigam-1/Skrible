@@ -1,8 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ToggleSwitch from '../../components/Checkbox';
 const Script = () => {
     const { id } = useParams()
+    const [cursorClass, setCursorClass] = useState('cursor-default'); // Default cursor
+    const [pinnedCard, setPinnedCard] = useState(null);
+
+    const handlePinClick = () => {
+        setCursorClass('cursor-pin'); // Change to pin cursor on click
+    };
+    const handleCardClick = (index) => {
+        setPinnedCard(index); // Mark the card as pinned
+        setCursorClass('cursor-default'); // Reset cursor to default
+    };
     const contributions = [
         {
             contributorName: "John Doe",
@@ -87,7 +97,7 @@ const Script = () => {
     }]
 
     return (
-        <div className='flex flex-col gap-3 sticky'>
+        <div className={`flex flex-col gap-3 sticky ${cursorClass}`}>
             <div className='flex justify-between top-2 ' >
                 <div className='flex gap-3'>
                     <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
@@ -100,6 +110,13 @@ const Script = () => {
                     </button>
                 </div>
                 <div className='flex gap-2' >
+                    <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 py-2 rounded-md' onClick={handlePinClick} >
+                        <img src="/pin.png" alt="" width="24px" />
+                        {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25 1.5 1.5.75-.75V8.758l2.276-.61a3 3 0 1 0-3.675-3.675l-.61 2.277H12l-.75.75 1.5 1.5M15 11.25l-8.47 8.47c-.34.34-.8.53-1.28.53s-.94.19-1.28.53l-.97.97-.75-.75.97-.97c.34-.34.53-.8.53-1.28s.19-.94.53-1.28L12.75 9M15 11.25 12.75 9" />
+                        </svg> */}
+                        <h6>Pin</h6>
+                    </button>
                     <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 py-2 rounded-md' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -204,13 +221,7 @@ const Script = () => {
                                                 <p className='font-semibold text-lg text-gray-800' >Ayush Nigam</p>
                                                 <a href="#123" className='underline'>#{Math.floor(Math.random() * 20) + 1}</a>
                                             </div>
-                                            {/* <p className='text-sm font-medium bg-green-100 text-green-800 rounded-full p-0.5 px-2 ' >Added 64 New Lines </p> */}
                                         </div>
-                                        {/* <div className='flex items-center justify-center gap-1 p-0.5 px-2 rounded-lg text-green-800 bg-green-100' >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                            </div> */}
                                     </div>
                                     <span className='text-sm self-end ' >
                                         23 Min Ago
@@ -241,8 +252,8 @@ const Script = () => {
                 </div>
                 <div className='flex flex-col gap-4 col-span-8' >
                     {
-                        contributions.map(contribution =>
-                            <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4' >
+                        contributions.map((contribution, index) =>
+                            <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4' onClick={() => handleCardClick(index)}>
                                 <div className='flex gap-2 justify-between ' >
                                     <span className='text-gray-600 flex gap-2' >
                                         <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
@@ -250,7 +261,14 @@ const Script = () => {
                                             John Doe
                                         </p>
                                     </span>
-
+                                    <div className='flex gap-2' >
+                                        {pinnedCard === index && (
+                                            <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded">
+                                                Pinned
+                                            </span>
+                                        )}
+                                        <p className='text-gray-600'> Tue, 19 Nov 2024, 22:30</p>
+                                    </div>
                                 </div>
                                 <div className='  text-xl text-gray-800' >
                                     <p className=''>

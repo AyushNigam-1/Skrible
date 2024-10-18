@@ -5,26 +5,7 @@ import Search from '../../components/Search'
 import Scripts from '../../components/Scripts'
 import { useQuery, gql } from '@apollo/client'
 
-// const query = gql`
-// query GetTodosWithUser {
-// getTodos {
-// id
-// title
-// completed
-// user {
-// id
-// name
-// }
-// }
-// }
-// `
-
 const Home = () => {
-    // const { data, loading } = useQuery(query)
-
-    // if (loading) return <h1>loading ...</h1>
-
-    // console.log(data)
     return (
         <>
             <div className='container mx-auto' >

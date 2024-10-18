@@ -2,3 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.cursor-pin {
+    cursor: url('/cursor-pin.png'), auto;
+}
+
+.cursor-default {
+    cursor: auto;
+}

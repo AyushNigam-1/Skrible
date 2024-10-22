@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import Tabs from '../../components/Tabs';
 const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default'); // Default cursor
@@ -183,6 +184,7 @@ const Script = () => {
                 </div>
             </div>
             <hr />
+            <Tabs />
             <div className='grid-cols-10 grid gap-4'>
                 <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >
                     <div className='flex gap-1 flex-col'>
@@ -274,7 +276,7 @@ const Script = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <span className='text-sm self-end ' >
+                                    <span className='text-xs self-end ' >
                                         23 Min Ago
                                     </span>
                                 </span>

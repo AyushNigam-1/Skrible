@@ -8,3 +8,5 @@ langchain_community
 langchain-ollama
 langchain_groq
 opencv-python
+pytesseract
+mss

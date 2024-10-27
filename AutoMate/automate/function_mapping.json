@@ -1,0 +1,99 @@
+{
+    "functionMappings": [
+        {
+            "functionName": "open",
+            "description": "Opens the specified application by its name.",
+            "parameters": {
+                "app_name": {
+                    "type": "str",
+                    "description": "The name of the application to open."
+                }
+            },
+            "returns": "None",
+            "example": "open('Visual Studio Code')"
+        },
+        {
+            "functionName": "detect_and_click",
+            "description": "Detects an element on the screen using a template or text and clicks at its center if found. Use this function when the element is expected to be at the top of the page or visible immediately (e.g., notifications or search bars).",
+            "parameters": {
+                "template_path": {
+                    "type": "str",
+                    "description": "The path to the template image used for detecting the element."
+                },
+                "text": {
+                    "type": "str",
+                    "description": "The text to search for if no template is provided (optional)."
+                },
+                "timeout": {
+                    "type": "int",
+                    "description": "The maximum time to wait for the element to appear before giving up (default is 10 seconds)."
+                }
+            },
+            "example": "detect_and_click('path/to/template.png', text='target text')"
+        },
+        {
+            "functionName": "detect_and_write",
+            "description": "Detects an element on the screen and writes specified text at the detected position, with an option to press Enter afterward.",
+            "parameters": {
+                "template_path": {
+                    "type": "str",
+                    "description": "The path to the template image used for detecting the element."
+                },
+                "text_to_write": {
+                    "type": "str",
+                    "description": "The text to write at the detected position."
+                },
+                "press_enter": {
+                    "type": "bool",
+                    "description": "Whether to press the Enter key after writing the text (default is False)."
+                },
+                "timeout": {
+                    "type": "int",
+                    "description": "The maximum time to wait for the element to appear before giving up (default is 10 seconds)."
+                }
+            },
+            "example": "detect_and_write('path/to/template.png', 'Hello, World!', press_enter=True)"
+        },
+        {
+            "functionName": "detect_and_scroll",
+            "description": "Detects an element on the screen and scrolls within a specific region to bring it into view. Use this function when you need to search only in a scrollable region, like a sidebar on WhatsApp Web or LinkedIn. It is particularly useful when the target element may not be visible initially; the function will first center the detected template on the screen before starting the scroll to locate the relevant target element.",
+            "parameters": {
+                "template_path": {
+                    "type": "str",
+                    "description": "The path to the template image used for detecting the element."
+                },
+                "text": {
+                    "type": "str",
+                    "description": "The text to search for if no template is provided."
+                },
+                "threshold": {
+                    "type": "float",
+                    "description": "The similarity threshold for matching the template. A value closer to 1.0 enforces stricter matching.",
+                    "default": 0.8
+                },
+                "scroll_amount": {
+                    "type": "int",
+                    "description": "The amount to scroll per attempt. Negative values scroll up, positive values scroll down.",
+                    "default": -10
+                },
+                "max_attempts": {
+                    "type": "int",
+                    "description": "The maximum number of attempts to scroll and detect the element.",
+                    "default": 10
+                },
+                "scroll_until": {
+                    "type": "str",
+                    "description": "The path to a template image of the target element. Scrolling stops when this element is found.",
+                    "default": null
+                },
+                "click_on_detect": {
+                    "type": "bool",
+                    "description": "Whether to click on the detected element once found.",
+                    "default": false
+                }
+            },
+            "returns": "None",
+            "example": "detect_and_scroll('/path/to/template.png', text='Search', click_on_detect=True)"
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "templateMappings": [
+        {
+            "description": "This image represents the YouTube icon that appears on the Microsoft Edge home screen. It is used to identify and click the icon to launch the YouTube application.",
+            "path": "/home/ayush/Code/AutoMate/templates/youtube_icon.png"
+        },
+        {
+            "description": "This image depicts the YouTube search bar on the home page. It is utilized to find and interact with the input area where users can type their search queries on YouTube.",
+            "path": "/home/ayush/Code/AutoMate/templates/youtube_search.png"
+        },
+        {
+            "description": "This image shows what the YouTube page looks like after a user has performed a search. It is used to identify and interact with different elements on the search results page, such as video thumbnails and titles.",
+            "path": "/home/ayush/Code/AutoMate/templates/youtube_search_home.png"
+        },
+        {
+            "description": "This image represents the chat input box that appears when a user selects a specific contact to chat with on LinkedIn. It is used to detect and interact with the chat interface.",
+            "path": "/home/ayush/Code/AutoMate/templates/chat_input_box.png"
+        },
+        {
+            "description": "This image depicts the LinkedIn link that appears in the search results when the user searches for LinkedIn through Microsoft Edge. It is used to detect and click the link to navigate to LinkedIn.",
+            "path": "/home/ayush/Code/AutoMate/templates/linkedin_link.png"
+        },
+        {
+            "description": "This image shows the message icon on the LinkedIn homepage. It is used to navigate to the messaging section by detecting and clicking on the icon.",
+            "path": "/home/ayush/Code/AutoMate/templates/message_icon.png"
+        },
+        {
+            "description": "This image represents the Microsoft Edge search bar on the homepage. It is used to detect and interact with the input field where users can type their queries and search.",
+            "path": "/home/ayush/Code/AutoMate/templates/microsoft_search_bar.png"
+        }
+    ]
+}

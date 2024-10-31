@@ -1,19 +1,18 @@
 import React from 'react'
 import Filters from '../../components/Filters'
 import Search from '../../components/Search'
-import Tabs from '../../components/Tabs'
 
 const Contributions = () => {
     return (
         <div className='flex container m-auto flex-col gap-8' >
             <div className='flex justify-between' >
-                <h3 className=' font-sans text-4xl font-bold text-gray-800 ' >
+                {/* <h3 className=' font-sans text-4xl font-bold text-gray-800 ' >
                     Contributions
-                </h3>
-                <div className='flex gap-3'>
-                    <Search />
-                    <Filters />
-                </div>
+                </h3> */}
+                {/* <div className='flex gap-3'> */}
+                <Search />
+                <Filters />
+                {/* </div> */}
             </div>
             {
                 Array(5).fill(0).map(() => {

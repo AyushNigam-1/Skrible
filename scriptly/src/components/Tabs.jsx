@@ -1,7 +1,6 @@
 import React from 'react'
 
-const Tabs = () => {
-
+const Tabs = ({ tab, setTab }) => {
     const tabs = [
         {
             svg: (
@@ -10,7 +9,6 @@ const Tabs = () => {
                 </svg>
             ),
             name: 'Script',
-            isActive: true,
             count: 34
         },
         {
@@ -20,7 +18,6 @@ const Tabs = () => {
                 </svg>
             ),
             name: 'Requests',
-            isActive: false,
             count: 45
         },
         {
@@ -30,7 +27,6 @@ const Tabs = () => {
                 </svg>
             ),
             name: 'Contributions',
-            isActive: false,
             count: 45
         },
         {
@@ -40,26 +36,33 @@ const Tabs = () => {
                 </svg>
             ),
             name: 'About',
-            isActive: false,
         },
     ]
 
     return (
         <div className='flex flex-col gap-3'>
-            <div className='flex  border-gray-200 text-lg font-semibold text-gray-700 w-full bg-white p-2 rounded-xl' >
-                {tabs.map((tab, i) => {
-                    return <a
-                        href="#"
-                        className={`flex w-full justify-center items-center gap-2 p-2 hover:border-gray-300 hover:text-gray-700 ${tab.isActive ? 'bg-indigo-500 text-white rounded-xl' : null} ${i !== tabs.length - 1 && !tab.isActive ? 'border-r border-gray-400' : null}`}
+            <div className='flex border-gray-200 text-lg font-semibold w-full bg-white p-2 rounded-xl'>
+                {tabs.map((t, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setTab(t.name)}
+                        className={`flex w-full justify-center items-center gap-2 p-2 border-e hover:border-gray-300 
+                                    transition-colors duration-300
+                                    ${tab === t.name ? 'bg-indigo-500 text-white rounded-xl' : ''}
+                                    ${i !== tabs.length - 1 ? 'border-r border-gray-400' : ''}`}
                     >
-                        {tab.svg}
-                        {tab.name}
-                        {
-                            tab.count && <span className={`rounded-full py-1 px-1.5 text-sm  ${!tab.isActive ? 'bg-indigo-500 text-white' : 'bg-white text-indigo-500'}`} >{tab.count}</span>
-                        }
-
-                    </a>
-                })}
+                        {t.svg}
+                        {t.name}
+                        {t.count && (
+                            <span
+                                className={`rounded-full py-1 px-1.5 text-sm transition-colors duration-300
+                                            ${tab === t.name ? 'bg-white text-indigo-500' : 'bg-indigo-500 text-white'}`}
+                            >
+                                {t.count}
+                            </span>
+                        )}
+                    </button>
+                ))}
             </div>
             <hr />
         </div>
@@ -67,4 +70,3 @@ const Tabs = () => {
 }
 
 export default Tabs
-

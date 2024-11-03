@@ -48,7 +48,7 @@ const Tabs = ({ tab, setTab }) => {
                         onClick={() => setTab(t.name)}
                         className={`flex w-full justify-center items-center gap-2 p-2 border-e hover:border-gray-300 
                                     transition-colors duration-300
-                                    ${tab === t.name ? 'bg-indigo-500 text-white rounded-xl' : ''}
+                                    ${tab === t.name ? 'bg-indigo-400 text-white rounded-xl' : ''}
                                     ${i !== tabs.length - 1 ? 'border-r border-gray-400' : ''}`}
                     >
                         {t.svg}
@@ -56,7 +56,7 @@ const Tabs = ({ tab, setTab }) => {
                         {t.count && (
                             <span
                                 className={`rounded-full py-1 px-1.5 text-sm transition-colors duration-300
-                                            ${tab === t.name ? 'bg-white text-indigo-500' : 'bg-indigo-500 text-white'}`}
+                                            ${tab === t.name ? 'bg-white text-indigo-400' : 'bg-indigo-400 text-white'}`}
                             >
                                 {t.count}
                             </span>

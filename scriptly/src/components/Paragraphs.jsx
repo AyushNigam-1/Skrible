@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-
 const Paragraphs = () => {
     const contributions = [
         {
@@ -107,17 +106,17 @@ const Paragraphs = () => {
                     </button>
                 </div>
                 <div className='flex gap-2' >
-                    <button className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 py-2 rounded-md' onClick={handlePinClick} >
+                    <button className='flex gap-2 items-center bg-indigo-400 text-white text-md px-3 py-2 rounded-md' onClick={handlePinClick} >
                         <img src="/pin.png" alt="" width="24px" />
                         <h6>Pin</h6>
                     </button>
-                    <button onClick={handleContributeClick} className='flex gap-2 items-center bg-indigo-500 text-white text-md px-3 py-2 rounded-md' >
+                    <button onClick={handleContributeClick} className='flex gap-2 items-center bg-indigo-400 text-white text-md px-3 py-2 rounded-md' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                         <h6>Contribute</h6>
                     </button>
-                    <button className='flex gap-2 items-center bg-indigo-500 text-white text-md  px-3 py-2  rounded-md' >
+                    <button className='flex gap-2 items-center bg-indigo-400 text-white text-md  px-3 py-2  rounded-md' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                         </svg>
@@ -168,7 +167,7 @@ const Paragraphs = () => {
                 <div className='flex gap-3' >
                     <button
                         onClick={handleAddContribution}
-                        className="px-8 py-2 flex justify-center gap-1 bg-indigo-500 text-gray-200 font-semibold rounded"
+                        className="px-8 py-2 flex justify-center gap-1 bg-indigo-400 text-gray-200 font-semibold rounded"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />

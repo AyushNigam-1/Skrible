@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom'
 import Tabs from '../../components/Tabs';
 import Paragraphs from '../../components/Paragraphs';
 import Contributions from '../contributions/Contributions';
+import Requests from '../requests/Requests';
+import ScriptDetails from '../../components/ScriptDetails';
 const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default'); // Default cursor
@@ -68,7 +70,7 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs /> : tab == "Requests" ? <div></div> : tab == "Contributions" ? <Contributions /> : ""
+                    tab == "Script" ? <Paragraphs /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions /> : <ScriptDetails />
                 }
 
             </div>

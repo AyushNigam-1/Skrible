@@ -4,15 +4,12 @@ import Search from '../../components/Search'
 
 const Contributions = () => {
     return (
-        <div className='flex container m-auto flex-col gap-8' >
+        <div className='flex container m-auto flex-col gap-6' >
             <div className='flex justify-between' >
-                {/* <h3 className=' font-sans text-4xl font-bold text-gray-800 ' >
-                    Contributions
-                </h3> */}
-                {/* <div className='flex gap-3'> */}
                 <Search />
-                <Filters />
-                {/* </div> */}
+                <span>
+                    <Filters />
+                </span>
             </div>
             {
                 Array(5).fill(0).map(() => {
@@ -67,11 +64,9 @@ const Contributions = () => {
                                 </svg>
                             </button>
                             <button className='flex gap-2 rounded-full  bg-white border border-gray-300 p-2 text-indigo-800'>
-
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                                 </svg>
-
                             </button>
                         </div>
                     </div>

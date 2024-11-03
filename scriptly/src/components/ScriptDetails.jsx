@@ -1,5 +1,8 @@
 import React from 'react'
-
+import { Link } from 'react-router-dom'
+const handleContributeClick = () => {
+    setShowTextarea(true);
+};
 const ScriptDetails = () => {
     return (
         <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >
@@ -72,8 +75,8 @@ const ScriptDetails = () => {
                     }
                 </div>
             </div>
-            <hr />
-            <div className='flex flex-col gap-4'>
+            {/* <hr /> */}
+            {/* <div className='flex flex-col gap-4'>
                 <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -117,7 +120,7 @@ const ScriptDetails = () => {
                         <h6>Zen Mode</h6>
                     </button>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

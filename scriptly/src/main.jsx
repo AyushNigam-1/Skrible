@@ -17,6 +17,7 @@ import Script from "./pages/scripts/Script";
 import Wishlist from "./pages/wishlist/Wishlist";
 import Contributions from "./pages/contributions/Contributions";
 import Notifications from "./pages/notification/Notifications";
+import Profile from "./pages/profile/Profile";
 const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
   cache: new InMemoryCache()
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
       {
         path: "/notifications",
         element: <Notifications />
+      },
+      {
+        path: "/profile",
+        element: <Profile />
       },
     ]
   },

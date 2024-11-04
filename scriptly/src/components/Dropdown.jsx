@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const Dropdown = ({ icon, options }) => {
     const [isActive, setIsActive] = useState(false);
@@ -61,15 +62,16 @@ const Dropdown = ({ icon, options }) => {
                     role="menu"
                 >
                     <div className="p-2" >
-                        {options.map(option => <button
+                        {options.map(option => <Link
+                            to={option.route}
                             type="submit"
                             className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold text-green-700 hover:bg-green-50"
                             role="menuitem"
+
                         >
                             {option.svg}
                             {option.name}
-                        </button>)}
-
+                        </Link>)}
                     </div>
                 </div>
             )}

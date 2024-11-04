@@ -66,7 +66,7 @@ const Script = () => {
     }]
 
     return (
-        <div className={`flex flex-col gap-3 sticky ${cursorClass} container mx-auto`}>
+        <div className={`flex flex-col gap-6 sticky ${cursorClass} container mx-auto`}>
             <Tabs tab={tab} setTab={setTab} />
             <div>
                 {

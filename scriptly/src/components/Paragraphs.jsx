@@ -93,7 +93,7 @@ const Paragraphs = () => {
         setShowTextarea(false);
     };
     return (
-        <div className='flex flex-col gap-4' >
+        <div className='flex flex-col gap-6' >
             <div className='flex justify-between top-2 ' >
                 <div className='flex gap-3'>
                     <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
@@ -124,32 +124,36 @@ const Paragraphs = () => {
                     </button>
                 </div>
             </div>
-            <hr />
+            {/* <hr /> */}
             {
                 contributions.map((contribution, index) =>
-                    <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'
-                    // onClick={() => handleCardClick(index)}
-                    >
-                        <div className='flex gap-2 justify-between ' >
-                            <span className='text-gray-600 flex gap-2' >
-                                <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
-                                <p>
-                                    John Doe
-                                </p>
-                            </span>
-                            <div className='flex gap-2' >
-                                {/* {pinnedCard === index && (
+                    <div className='flex gap-1' >
+                        <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'
+
+                        // onClick={() => handleCardClick(index)}
+                        >
+                            {/* <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" /> */}
+                            <div className='flex gap-2 justify-between ' >
+                                <span className='text-gray-600 flex gap-2' >
+                                    <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
+                                    <p>
+                                        John Doe
+                                    </p>
+                                </span>
+                                <div className='flex gap-2' >
+                                    {/* {pinnedCard === index && (
                                     <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded">
                                         Pinned
                                     </span>
                                 )} */}
-                                <p className='text-gray-600'> Tue, 19 Nov 2024, 22:30</p>
+                                    <p className='text-gray-600'> Tue, 19 Nov 2024, 22:30</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className='  text-xl text-gray-800' >
-                            <p className=''>
-                                {contribution.para}
-                            </p>
+                            <div className='  text-xl text-gray-800' >
+                                <p className=''>
+                                    {contribution.para}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )

@@ -41,22 +41,22 @@ const Tabs = ({ tab, setTab }) => {
 
     return (
         <div className='flex flex-col gap-3'>
-            <div className='flex border-gray-200 text-lg font-semibold w-full bg-white p-2 rounded-xl'>
+            <div className='flex border-gray-200 text-lg font-semibold w-full p-2 rounded-xl gap-2'>
                 {tabs.map((t, i) => (
                     <button
                         key={i}
                         onClick={() => setTab(t.name)}
-                        className={`flex w-full justify-center items-center gap-2 p-2 border-e hover:border-gray-300 
+                        className={`flex w-full justify-center items-center gap-2 border-b-2 p-2 
                                     transition-colors duration-300
-                                    ${tab === t.name ? 'bg-indigo-400 text-white rounded-xl' : ''}
-                                    ${i !== tabs.length - 1 ? 'border-r border-gray-400' : ''}`}
+                                    ${tab === t.name ? 'border-indigo-400 text-indigo-400 ' : 'text-gray-600'}
+                                    `}
                     >
                         {t.svg}
                         {t.name}
                         {t.count && (
                             <span
-                                className={`rounded-full py-1 px-1.5 text-sm transition-colors duration-300
-                                            ${tab === t.name ? 'bg-white text-indigo-400' : 'bg-indigo-400 text-white'}`}
+                                className={`rounded-full py-1 px-1.5 text-sm transition-colors duration-300 bg-white text-indigo-400
+                                           `}
                             >
                                 {t.count}
                             </span>
@@ -64,7 +64,7 @@ const Tabs = ({ tab, setTab }) => {
                     </button>
                 ))}
             </div>
-            <hr />
+            {/* <hr /> */}
         </div>
     )
 }

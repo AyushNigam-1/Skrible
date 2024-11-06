@@ -1,8 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-const handleContributeClick = () => {
-    setShowTextarea(true);
-};
+
 const ScriptDetails = () => {
     return (
         <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >

@@ -65,7 +65,7 @@ const Dropdown = ({ icon, options }) => {
                         {options.map(option => <Link
                             to={option.route}
                             type="submit"
-                            className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold text-green-700 hover:bg-green-50"
+                            className={` flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold ${option.color} hover:bg-green-50`}
                             role="menuitem"
 
                         >

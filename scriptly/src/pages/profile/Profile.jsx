@@ -1,114 +1,116 @@
 import React from 'react'
 
 const Profile = () => {
+
+    const userDetails = [{
+        title: 'Name', value: 'Ayush Nigam', svg: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        )
+    }, {
+        title: 'Languages', value: 'English , Hindi', svg: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
+        </svg>)
+    }
+        , {
+        title: "Location", value: 'Not provided', svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+            </svg>
+        )
+    }, {
+        title: 'Bio', value: "Introverted but driven, with a big-picture mindset and a passion for tech. I’m all about deep conversations, connecting on a meaningful level, and personal growth. If you're someone who values growing together mentally and physically, we’ll get along just fine. Let’s inspire each other and see where it goes.", svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+            </svg>
+        )
+    },
+    {
+        title: 'Email', value: 'Not provided', svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" />
+            </svg>
+
+        )
+    }
+    ]
+    const sidebarInfo = [{
+        title: 'Views', value: '45', svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+        ),
+    },
+    {
+        title: 'Likes', value: '12', svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+            </svg>
+        )
+    },
+    {
+        title: 'Followers', value: '12', svg: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+            </svg>
+
+        )
+    },
+    ]
     return (
-        <div className='flex container mx-auto bg-white rounded-md p-4 gap-3' >
-            <div className='flex flex-col gap-3 w-80' >
+        <div className='flex container mx-auto rounded-md p-4 gap-3' >
+            <div className='flex flex-col gap-3 w-96 bg-white p-4 rounded-lg' >
                 <img src="/person.jpg" className='rounded-full ' alt="" />
                 <hr />
-                <div className='flex gap-2 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        </svg>
-
-                        Views  </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' >45</p>
-                    </span>
-                    <hr />
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
-                        </svg>
-
-                        Views  </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' >45</p>
-                    </span>
-
+                <div className='flex gap-3 flex-col'>
+                    {
+                        sidebarInfo.map(info => {
+                            return (
+                                <>
+                                    <div>
+                                        <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+                                            {info.svg}
+                                            {info.title}
+                                        </h4>
+                                        <span className='flex items-center gap-2' >
+                                            <p className='text-lg font-semibold text-gray-800' >{info.value}</p>
+                                        </span>
+                                    </div>
+                                    <hr />
+                                </>
+                            )
+                        })
+                    }
+                    <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                    </svg> Like
+                    </button>
+                    <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                    </svg>
+                        Follow
+                    </button>
                 </div>
             </div>
-
-            <div className='flex gap-3 flex-col' >
-                <div className='flex gap-1 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                        Name  </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' >Ayush Nigam</p>
-                    </span>
-                </div>
-                <hr />
-                <div className='flex gap-1 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
-                        </svg>
-                        Languages
-                    </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' >English , Hindi</p>
-                    </span>
-                </div>
-                <hr />
-                <div className='flex gap-1 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                        </svg>
-                        Location
-                        {/* <span className='bg-indigo-500 rounded-full p-1 px-2.5 text-white text-sm' > 2
-                                </span>  */}
-                    </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' > Not Provided</p>
-                    </span>
-                </div>
-                <hr />
-
-                <div className='flex gap-2 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
-                    </svg>
-                        Bio
-                    </h4>
-                    <span className='flex items-center gap-2' >
-                        {/* <img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" /> */}
-                        <p className='text-lg font-semibold text-gray-800' >
-                            Introverted but driven, with a big-picture mindset and a passion for tech. I’m all about deep conversations, connecting on a meaningful level, and personal growth. If you're someone who values growing together mentally and physically, we’ll get along just fine. Let’s inspire each other and see where it goes.
-                        </p>
-                    </span>
-                    {/* <div className='flex gap-3 flex-wrap' >
-                        {
-                            [
-                                { genre: 'Horror', bg: 'bg-red-100', color: 'text-red-800' },
-                                { genre: 'Action', bg: 'bg-blue-100', color: 'text-blue-800' },
-                                { genre: 'Comedy', bg: 'bg-yellow-100', color: 'text-yellow-800' },
-                                { genre: 'Drama', bg: 'bg-green-100', color: 'text-green-800' },
-                                { genre: 'Sci-Fi', bg: 'bg-purple-100', color: 'text-purple-800' },
-                                { genre: 'Fantasy', bg: 'bg-indigo-100', color: 'text-indigo-800' },
-                                { genre: 'Thriller', bg: 'bg-orange-100', color: 'text-orange-800' },
-                                { genre: 'Romance', bg: 'bg-pink-100', color: 'text-pink-800' },
-                                { genre: 'Mystery', bg: 'bg-gray-100', color: 'text-gray-800' },
-                                { genre: 'Animation', bg: 'bg-teal-100', color: 'text-teal-800' }
-                            ].map(({ genre, bg, color }) => {
-                                return <p className='text-lg font-semibold text-gray-800 py-1 px-2 bg-gray-100 rounded-full' > # {genre}  </p>
-                               
-                            })
-                        }
-                    </div> */}
-                </div>
+            <div className='flex gap-3 flex-col bg-white p-4 rounded-lg' >
+                {userDetails.map(details => {
+                    return (
+                        <>
+                            <div className='flex gap-1 flex-col'>
+                                <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+                                    {details.svg}
+                                    {details.title}  </h4>
+                                <span className='flex items-center gap-2' >
+                                    <p className='text-lg font-semibold text-gray-800' >{details.value}</p>
+                                </span>
+                            </div>
+                            <hr />
+                        </>
+                    )
+                })}
                 <div className='flex gap-1 flex-col'>
                     <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -134,13 +136,12 @@ const Profile = () => {
                             })
                         }
                     </div>
-                    {/* <span className='flex items-center gap-2' >
-                        <p className='text-lg font-semibold text-gray-800' > Not Provided</p>
-                    </span> */}
+                    <div>
+                    </div>
                 </div>
-                {/* </span> */}
             </div>
         </div>
+
     )
 }
 

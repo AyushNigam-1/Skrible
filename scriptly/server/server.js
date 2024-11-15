@@ -54,30 +54,30 @@ async function startServer(params) {
     // })
     // index.js
     const express = require('express');
-    const { ApolloServer, gql } = require('apollo-server-express');
-    const mongoose = require('mongoose');
+    // const { ApolloServer, gql } = require('apollo-server-express');
+    // const mongoose = require('mongoose');
 
-    const typeDefs = require('./schema');
-    const resolvers = require('./resolvers');
+    // const typeDefs = require('./schema');
+    // const resolvers = require('./resolvers');
 
     const app = express();
-    const server = new ApolloServer({ typeDefs, resolvers });
-    server.applyMiddleware({ app });
+    // const server = new ApolloServer({ typeDefs, resolvers });
+    // server.applyMiddleware({ app });
 
-    mongoose.connect('mongodb://localhost:27017/graphql-users', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
+    // mongoose.connect('mongodb://localhost:27017/graphql-users', {
+    //     useNewUrlParser: true,
+    //     useUnifiedTopology: true,
+    // });
 
-    app.listen({ port: 4000 }, () =>
-        console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-    );
-    app.use(bodyParser.json())
-    app.use(cors())
+    // app.listen({ port: 4000 }, () =>
+    //     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+    // );
+    // app.use(bodyParser.json())
+    // app.use(cors())
 
-    await server.start()
+    // await server.start()
 
-    app.use("/graphql", expressMiddleware(server))
+    // app.use("/graphql", expressMiddleware(server))
     app.listen(8000, () => console.log("Server Started at PORT 8000"))
 }
 startServer()

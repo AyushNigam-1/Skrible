@@ -19,7 +19,7 @@ import Contributions from "./pages/contributions/Contributions";
 import Notifications from "./pages/notification/Notifications";
 import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
-import Paragraphs from "./components/Paragraphs";
+import Para from "./pages/para/Para";
 const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
   cache: new InMemoryCache()

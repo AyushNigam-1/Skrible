@@ -8,7 +8,7 @@ import ScriptDetails from '../../components/ScriptDetails';
 const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default'); // Default cursor
-    const [tab, setTab] = useState<string>("Script")
+    const [tab, setTab] = useState("Script")
     const options = [{
         name: "Add to Favourites",
         svg: (

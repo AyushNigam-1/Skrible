@@ -8,7 +8,7 @@ const Search = () => {
                 type="text"
                 id="Search"
                 placeholder="Search for..."
-                class="w-72 rounded-md border-gray-200 py-2.5 pe-10  shadow-sm sm:text-sm outline-none px-3"
+                class="w-72 rounded-md border-gray-200 py-2 pe-10  shadow-sm sm:text-sm outline-none px-3"
             />
             <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
                 <button type="button" class="text-gray-600 hover:text-gray-700">

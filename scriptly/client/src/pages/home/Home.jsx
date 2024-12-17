@@ -10,8 +10,8 @@ const Home = () => {
         <>
             <div className='container mx-auto' >
                 <div className='flex flex-col gap-6'>
-                    <div className='my-4 flex justify-between'>
-                        <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
+                    <div className='mt-2 flex justify-between'>
+                        <h3 className='font-sans text-3xl font-bold text-gray-800 ' >
                             Explore
                         </h3>
                         <div className='flex gap-3'>

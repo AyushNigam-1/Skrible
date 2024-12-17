@@ -108,28 +108,28 @@ const Paragraphs = () => {
         <div className='flex flex-col gap-6' >
             <div className='flex justify-between top-2 ' >
                 <div className='flex gap-3'>
-                    <h3 className='font-sans text-4xl font-bold text-gray-800 ' >
+                    <h3 className='font-sans text-3xl font-bold text-gray-800 ' >
                         Untitled
                     </h3>
-                    <button className='rounded-full p-2 bg-white ' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 text-indigo-600">
+                    <button className='rounded-full p-1 bg-white px-3' >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4 text-indigo-600">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
                         </svg>
                     </button>
                 </div>
                 <div className='flex gap-2' >
-                    <button className='flex gap-2 items-center bg-indigo-400 text-white text-md px-3 py-2 rounded-md' onClick={handlePinClick} >
-                        <img src="/pin.png" alt="" width="24px" />
+                    <button className='flex gap-2 items-center text-sm shadow bg-indigo-400 text-white text-md px-3 py-2 rounded-md' onClick={handlePinClick} >
+                        <img src="/pin.png" alt="" width="20px" />
                         <h6>Pin</h6>
                     </button>
-                    <button onClick={handleContributeClick} className='flex gap-2 items-center bg-indigo-400 text-white text-md px-3 py-2 rounded-md' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <button onClick={handleContributeClick} className='flex gap-2 text-sm items-center bg-indigo-400 text-white shadow text-md px-3 py-2 rounded-md' >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                         <h6>Contribute</h6>
                     </button>
-                    <button className='flex gap-2 items-center bg-indigo-400 text-white text-md  px-3 py-2  rounded-md' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <button className='flex gap-2 items-center shadow text-sm bg-indigo-400 text-white text-md  px-3 py-2  rounded-md' >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                         </svg>
                         <h6>Zen Mode</h6>
@@ -145,10 +145,10 @@ const Paragraphs = () => {
                         // onClick={() => handleCardClick(index)}
                         >
                             {/* <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" /> */}
-                            <div className='flex gap-2 justify-between ' >
-                                <span className='text-gray-600 flex gap-2' >
-                                    <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" />
-                                    <p>
+                            <div className='flex gap-2 justify-between items-center' >
+                                <span className='text-gray-600  gap-2 flex items-center' >
+                                    <img src="/person.jpg" className='rounded-full w-4 h-4 ' alt="" />
+                                    <p className='text-sm'>
                                         John Doe
                                     </p>
                                 </span>
@@ -158,10 +158,10 @@ const Paragraphs = () => {
                                         Pinned
                                     </span>
                                 )} */}
-                                    <p className='text-gray-600'> Tue, 19 Nov 2024, 22:30</p>
+                                    <p className='text-gray-600 text-xs shadow'> Tue, 19 Nov 2024, 22:30</p>
                                 </div>
                             </div>
-                            <div className='  text-xl text-gray-800' >
+                            <div className='  text-md text-gray-800' >
                                 <p className=''>
                                     {contribution.para}
                                 </p>

@@ -41,7 +41,7 @@ const Tabs = ({ tab, setTab }) => {
 
     return (
         <div className='flex flex-col gap-3'>
-            <div className='flex border-gray-200 text-lg font-semibold w-full p-2 rounded-xl gap-2'>
+            <div className='flex border-gray-200 text-md font-semibold w-full p-2 rounded-xl gap-2'>
                 {tabs.map((t, i) => (
                     <button
                         key={i}

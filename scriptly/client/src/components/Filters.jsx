@@ -5,7 +5,7 @@ const Filters = () => {
         <div class="w-full max-w-sm min-w-[200px]">
             <div class="relative">
                 <select
-                    class="w-full bg-white placeholder:text-slate-400 text-slate-700 font-medium text-md rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:shadow-none shadow-sm appearance-none cursor-pointer">
+                    class="w-full bg-white placeholder:text-slate-400 text-gray-600 font-medium text-sm rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:shadow-none shadow-sm appearance-none cursor-pointer">
                     <option value="brazil">Newly Added</option>
                     <option value="bucharest">Bucharest</option>
                     <option value="london">London</option>

@@ -7,7 +7,9 @@ const HomeLayout = ({ children }) => {
             <div className='bg-red-100/50 min-h-[100vh]'>
                 <Navbar />
                 <div className='m-4' >
-                    <Outlet />
+                    <div className='container mx-auto' >
+                        <Outlet />
+                    </div>
                 </div>
             </div>
         </>

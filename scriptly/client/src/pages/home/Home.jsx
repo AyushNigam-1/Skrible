@@ -8,7 +8,6 @@ import { useQuery, gql } from '@apollo/client'
 const Home = () => {
     return (
         <>
-            <div className='container mx-auto' >
                 <div className='flex flex-col gap-6'>
                     <div className='mt-2 flex justify-between'>
                         <h3 className='font-sans text-3xl font-bold text-gray-800 ' >
@@ -21,7 +20,6 @@ const Home = () => {
                     </div>
                     <Genres />
                     <Scripts />
-                </div>
             </div>
         </>
     )

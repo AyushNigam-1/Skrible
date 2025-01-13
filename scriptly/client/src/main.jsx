@@ -20,6 +20,7 @@ import Notifications from "./pages/notification/Notifications";
 import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
 import Para from "./pages/para/Para";
+import Add from "./pages/add/Add";
 const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
   cache: new InMemoryCache()
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "/para/:id",
         element: <Para />
+      },
+      {
+        path: "/add",
+        element: <Add />
       },
     ]
   },

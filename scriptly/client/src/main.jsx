@@ -12,7 +12,7 @@ import Home from "./pages/home/Home";
 import HomeLayout from "./layout/HomeLayout";
 import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layout/AuthLayout";
-import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import Script from "./pages/scripts/Script";
 import Wishlist from "./pages/wishlist/Wishlist";
 import Contributions from "./pages/contributions/Contributions";
@@ -25,17 +25,7 @@ const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
   cache: new InMemoryCache()
 })
-const query = `
-query GetTodos {
-getTodos{
-title
-completed
-user {
-name
-}
-}
-}
-`
+
 const router = createBrowserRouter([
   {
     path: '/',

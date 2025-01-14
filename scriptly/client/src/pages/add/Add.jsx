@@ -24,20 +24,21 @@ const Add = () => {
                 <div className='bg-white rounded-md p-2 w-full shadow-sm flex gap-2 flex-col' >
                     <div className='flex gap-3' >
                         <div className='w-full' >
-                            <label htmlFor="HeadlineAct" className="block text-lg font-bold text-gray-700">Title </label>
+                            <label htmlFor="title" className="block text-lg font-bold text-gray-700">Title </label>
                             <input
                                 type="text"
-                                className="w-full rounded-lg mt-1.5 border-gray-300 border-2 text-gray-700 sm:text-sm bg-transparent p-3 [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                id='title'
+                                className="w-full rounded-lg mt-1.5 border-gray-300 border-2 text-gray-700 sm:text-sm bg-transparent p-3"
                                 placeholder="Please select"
                             />
                         </div>
                         <div className='w-full'>
-                            <label htmlFor="HeadlineAct" className="block text-lg font-bold text-gray-700"> Language </label>
+                            <label htmlFor="language" className="block text-lg font-bold text-gray-700"> Language </label>
                             <div className="relative mt-1.5">
                                 <input
                                     type="text"
                                     list="HeadlineActArtist"
-                                    id="HeadlineAct"
+                                    id="language"
                                     className="w-full rounded-lg border-gray-300 border-2 text-gray-700 sm:text-sm bg-transparent p-3 [&::-webkit-calendar-picker-indicator]:opacity-0"
                                     placeholder="Please select"
                                 />
@@ -70,10 +71,10 @@ const Add = () => {
                             </datalist>
                         </div>
                         <div className='w-full'>
-                            <label htmlFor="HeadlineAct" className="block text-lg font-bold text-gray-700"> Visibility </label>
+                            <label htmlFor="visibility" className="block text-lg font-bold text-gray-700"> Visibility </label>
                             <select
                                 name="HeadlineAct"
-                                id="HeadlineAct"
+                                id="visibility"
                                 className="mt-1.5 w-full rounded-lg  border-gray-300 border-2 text-gray-700 sm:text-sm bg-transparent p-3"
                             >
                                 <option value="">Please select</option>

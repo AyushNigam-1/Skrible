@@ -1,0 +1,36 @@
+import { connectDB } from './database/database';
+import express from 'express';
+import {expressMiddleware } from '@apollo/server/express4'
+import dotenv from 'dotenv';
+import { graphqlServer } from './graphql/server';
+import cors from 'cors'
+dotenv.config();
+
+const startServer = async () => {
+    const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
+    const port = Number(process.env.PORT) || 4000;
+  
+    await connectDB(uri);
+    const server = graphqlServer();
+    await server.start();
+  
+    const app = express();
+    app.use(express.json());
+    app.use(
+        cors({
+          origin: 'http://localhost:5173', // Replace with your frontend URL if different
+          methods: ['GET', 'POST', 'OPTIONS'], // Allowed HTTP methods
+          credentials: true, // Allow cookies if needed
+        })
+      );
+    
+    app.use('/graphql', expressMiddleware(server));
+  
+    app.listen(port, () => console.log(`Server started on port ${port}`));
+  };
+  
+  startServer();
+
+
+
+

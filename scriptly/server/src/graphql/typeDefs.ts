@@ -6,6 +6,14 @@ export const typeDefs = gql`
     createdAt: String!
   }
 
+  type User {
+  id: ID!
+  username: String!
+  email: String
+  bio: String
+  token: String
+  } 
+  
   type Paragraph {
     text: String!
     createdAt: String!
@@ -27,6 +35,7 @@ export const typeDefs = gql`
   type Query {
     getAllScripts: [Script!]!
     getScriptById(id: ID!): Script
+    login(username: String!, password: String!): User
   }
 
   input CommentInput {
@@ -51,7 +60,9 @@ export const typeDefs = gql`
     # paragraphs: [ParagraphInput!]!
   }
 
+
   type Mutation {
+  register(username: String!, password: String!, email: String): User
   createScript(title: String!, visibility: String!, language: String!): Script!
-}
+  }
 `;

@@ -47,11 +47,11 @@ export const typeDefs = gql`
     title: String!
     visibility: String!
     language: String!
-    genre: [String!]!
-    paragraphs: [ParagraphInput!]!
+    # genre: [String!]!
+    # paragraphs: [ParagraphInput!]!
   }
 
   type Mutation {
-    createScript(input: CreateScriptInput!): Script!
-  }
+  createScript(title: String!, visibility: String!, language: String!): Script!
+}
 `;

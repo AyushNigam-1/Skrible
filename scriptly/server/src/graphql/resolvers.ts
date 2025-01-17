@@ -29,7 +29,7 @@ export const resolvers = {
   Mutation: {
     createScript: async (_: any, { title,visibility,language }: any) => {
       try {
-        const newScript = new Script(title,visibility,language);
+        const newScript = new Script({title,visibility,language});
         await newScript.save();
         return newScript;
       } catch (error:any) {

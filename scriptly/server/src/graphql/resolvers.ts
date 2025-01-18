@@ -8,27 +8,6 @@ const JWT_SECRET = 'your_secret_key';
 
 export const resolvers = {
   Query: {
-    login: async (_: any, { username, password }: { username: string; password: string }) => {
-      const user = await User.findOne({ username });
-      if (!user) {
-        throw new GraphQLError('Invalid username or password');
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new GraphQLError('Invalid username or password');
-      }
-
-      const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-
-      return {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        bio: user.bio,
-        token,
-      };
-    },
     getAllScripts: async () => {
       try {
         const scripts = await Script.find();
@@ -62,6 +41,7 @@ export const resolvers = {
         throw new Error(`Failed to create script: ${error.message}`);
       }
     },
+
     register: async (_: any, { username, password, email }: { username: string; password: string; email?: string }) => {
       const existingUser = await User.findOne({ username });
       if (existingUser) {
@@ -83,8 +63,29 @@ export const resolvers = {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
-        bio: newUser.bio,
         token,
+      };
+    },
+
+    login: async (_: any, { username, password }: any) => {
+      const user = await User.findOne({ username });
+      if (!user) {
+        throw new GraphQLError('Invalid username or password');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new GraphQLError('Invalid username or password');
+      }
+
+      const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+
+      return {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        token,
+        // bio: user.bio,
       };
     },
   },

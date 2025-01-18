@@ -21,8 +21,9 @@ import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
 import Para from "./pages/para/Para";
 import Add from "./pages/add/Add";
+import App from "./App";
 const client = new ApolloClient({
-  uri: "http://localhost:3000/graphql",
+  uri: "http://localhost:4000/graphql",
   cache: new InMemoryCache()
 })
 

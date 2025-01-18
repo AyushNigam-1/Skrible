@@ -9,9 +9,8 @@ export const typeDefs = gql`
   type User {
   id: ID!
   username: String!
-  email: String
-  bio: String
-  token: String
+  email: String!
+  token:String!
   } 
   
   type Paragraph {
@@ -63,6 +62,7 @@ export const typeDefs = gql`
 
   type Mutation {
   register(username: String!, password: String!, email: String): User
+  login(username: String!, password: String!): User
   createScript(title: String!, visibility: String!, language: String!): Script!
   }
 `;

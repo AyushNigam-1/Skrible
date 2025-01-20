@@ -18,13 +18,15 @@
     "express": "^4.21.2",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
-    "mongoose": "^8.9.4"
+    "mongoose": "^8.9.4",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/graphql": "^14.2.3",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.5",
     "bcrypt": "^5.1.1",
     "jsonwebtoken": "^9.0.2",

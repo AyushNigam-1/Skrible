@@ -26,8 +26,8 @@ const UserSchema: Schema = new Schema({
     scripts: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
     likes: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     follows: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
-    views: { type: Number, default: 0 },
-    followers: { type: Number, default: 0 },
+    views: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
+    followers: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

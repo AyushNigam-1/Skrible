@@ -57,7 +57,7 @@ export const resolvers = {
 
       await newUser.save();
 
-      const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET, { expiresIn: '1D' });
 
       return {
         id: newUser._id,

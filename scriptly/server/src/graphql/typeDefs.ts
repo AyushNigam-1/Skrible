@@ -6,11 +6,27 @@ export const typeDefs = gql`
     createdAt: String!
   }
 
+  type Script {
+    id: ID!
+    title: String!
+    visibility: String!
+    language: String!
+    genre: [String!]!
+    paragraphs: [Paragraph!]!
+  }
+
   type User {
-  id: ID!
   username: String!
   email: String!
   token:String!
+  languages:String
+  bio:String
+  interests:[String]
+  likes:[ID]!
+  followers:[ID]!
+  views:[ID]!
+  scripts:[ID]!
+  follows:[ID]!
   } 
   
   type Paragraph {
@@ -22,14 +38,6 @@ export const typeDefs = gql`
     comments: [Comment!]!
   }
 
-  type Script {
-    id: ID!
-    title: String!
-    visibility: String!
-    language: String!
-    genre: [String!]!
-    paragraphs: [Paragraph!]!
-  }
 
   type Query {
     getAllScripts: [Script!]!

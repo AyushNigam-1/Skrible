@@ -6,7 +6,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Provider } from "react-redux";
-import { store } from "./state/store";
 import Login from "./pages/auth/Login";
 import Home from "./pages/home/Home";
 import HomeLayout from "./layout/HomeLayout";
@@ -87,9 +86,9 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")).render(
-  <Provider store={store}>
-    <ApolloProvider client={client}>
-      <RouterProvider router={router} />
-    </ApolloProvider>
-  </Provider>
+
+  <ApolloProvider client={client}>
+    <RouterProvider router={router} />
+  </ApolloProvider>
+
 );

@@ -4,6 +4,7 @@ import { LOGIN_MUTATION } from '../../graphql/mutation/mutations';
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import Cookies from 'js-cookie'
 const Login = () => {
     const nav = useNavigate()
 
@@ -18,9 +19,10 @@ const Login = () => {
         const username = `${firstName.trim()}${lastName.trim()}`.toLowerCase();
         try {
             const response = await login({ variables: { username, password } });
-            console.log('Login successful:', response.data.login);
-            localStorage.setItem('token', response.data.login.token);
-            nav("/")
+            const user = response.data.register
+            localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
+            Cookies.set('jwt', user.token)
+            nav('/')
         } catch (err) {
             toast.error(err.message)
             console.error('Login failed:', err.message);
@@ -79,7 +81,7 @@ const Login = () => {
 
                 <p className="mt-4 text-sm text-gray-500 sm:mt-0">
                     DOn't have an account?
-                    <Link to="/login" className="text-gray-700 underline"> Create Account</Link>.
+                    <Link to="/create-account" className="text-gray-700 underline"> Create Account</Link>.
                 </p>
             </div>
             <ToastContainer />

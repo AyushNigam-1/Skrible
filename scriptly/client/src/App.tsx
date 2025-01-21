@@ -1,6 +1,5 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment } from './state/slice'
 import { useQuery, gql, useLazyQuery, useMutation } from '@apollo/client'
 
 

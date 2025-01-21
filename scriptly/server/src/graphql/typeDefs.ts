@@ -16,17 +16,18 @@ export const typeDefs = gql`
   }
 
   type User {
+    id:ID
   username: String!
   email: String!
   token:String!
-  languages:String
+  languages:[String]
   bio:String
   interests:[String]
-  likes:[ID]!
-  followers:[ID]!
-  views:[ID]!
-  scripts:[ID]!
-  follows:[ID]!
+  likes:[ID]
+  followers:[ID]
+  views:[ID]
+  scripts:[ID]
+  follows:[ID]
   } 
   
   type Paragraph {
@@ -43,6 +44,7 @@ export const typeDefs = gql`
     getAllScripts: [Script!]!
     getScriptById(id: ID!): Script
     login(username: String!, password: String!): User
+    getUserProfile(id: ID!): User
   }
 
   input CommentInput {

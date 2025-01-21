@@ -3,11 +3,46 @@ import Script from "../models/Script";
 import User from "../models/User";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'
+import dotenv from 'dotenv';
+dotenv.config();
 
-const JWT_SECRET = 'your_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET
 
 export const resolvers = {
   Query: {
+
+    getUserProfile: async (_: unknown,
+      { id }: { id: string }) => {
+      try {
+        const user = await User.findById(id)
+          .populate('scripts')
+          .populate('likes')
+          .populate('followers')
+          .populate('follows')
+          .populate('views');
+
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        return {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          bio: user.bio,
+          languages: user.languages || [],
+          interests: user.interests || [],
+          likes: user.likes || [],
+          followers: user.followers || [],
+          follows: user.follows || [],
+          scripts: user.scripts || [],
+          views: user.views || [],
+        };
+      } catch (error: any) {
+        throw new Error(error.message);
+      }
+    },
+
     getAllScripts: async () => {
       try {
         const scripts = await Script.find();
@@ -57,13 +92,21 @@ export const resolvers = {
 
       await newUser.save();
 
-      const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET, { expiresIn: '1D' });
+      const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET!, { expiresIn: '1D' });
 
       return {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
         token,
+        languages: newUser.languages,
+        bio: newUser.bio,
+        interests: newUser.interests,
+        likes: newUser.likes,
+        followers: newUser.followers,
+        views: newUser.views,
+        scripts: newUser.scripts,
+        follows: newUser.follows,
       };
     },
 
@@ -78,14 +121,21 @@ export const resolvers = {
         throw new GraphQLError('Invalid username or password');
       }
 
-      const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET!, { expiresIn: '1h' });
 
       return {
         id: user._id,
         username: user.username,
         email: user.email,
         token,
-        // bio: user.bio,
+        languages: user.languages,
+        bio: user.bio,
+        interests: user.interests,
+        likes: user.likes,
+        followers: user.followers,
+        views: user.views,
+        scripts: user.scripts,
+        follows: user.follows,
       };
     },
   },

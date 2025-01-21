@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { REGISTER_MUTATION } from '../../graphql/mutation/mutations';
 import { useMutation } from '@apollo/client';
-import { useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie'
 const CreateAccount = () => {
     const nav = useNavigate()
 
@@ -19,13 +19,15 @@ const CreateAccount = () => {
 
         try {
             const response = await register({ variables: { username, email, password } });
-            console.log('Register successful:', response.data.register);
-            Cookies.set('jwt', response.data.register.token)
+            const user = response.data.register
+            localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
+            Cookies.set('jwt', user.token)
             nav("/")
         } catch (err) {
             console.error('Register failed:', err.message);
         }
     };
+
     return (
         <form action="#" onSubmit={handleSubmit} className="mt-8 grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3" >
@@ -92,7 +94,7 @@ const CreateAccount = () => {
 
                 <p className="mt-4 text-sm text-gray-500 sm:mt-0">
                     Already have an account?
-                    <a href="#" className="text-gray-700 underline">Log in</a>.
+                    <Link to="/login" className="text-gray-700 underline">Log in</Link>.
                 </p>
             </div>
         </form>

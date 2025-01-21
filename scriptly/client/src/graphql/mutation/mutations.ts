@@ -16,6 +16,7 @@ export const LOGIN_MUTATION = gql`
       username
       email
       token
+      
     }
   }`;
 
@@ -26,3 +27,21 @@ export const ADD_SCRIPT = gql(`
       }
     }
     `)
+
+export const GET_USER_PROFILE = gql`
+  query GetUserProfile($id: ID!) {
+    getUserProfile(id: $id) {
+      id
+      username
+      email
+      bio
+      languages
+      interests
+      likes
+      followers
+      follows
+      scripts
+      views
+    }
+  }
+`;

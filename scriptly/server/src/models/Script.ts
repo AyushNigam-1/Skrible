@@ -47,38 +47,38 @@ const scriptSchema = new mongoose.Schema({
     visibility: {
         type: String,
         required: true,
-        // enum: ["public", "private"],
+        enum: ["public", "private"],
     },
     language: {
         type: String,
         required: true,
     },
-    // genre: {
-    //     type: [String],
-    //     required: true,
-    // },
-    // paragraphs: {
-    //     type: [paragraphSchema],
-    //     required: true,
-    // },
+    genre: {
+        type: [String],
+        required: true,
+    },
+    paragraphs: {
+        type: [paragraphSchema],
+        required: true,
+    },
 });
 
 export interface IScript extends Document {
     title: string;
     visibility: string;
     language: string;
-    // genre: string[];
-    // paragraphs: {
-    //     text: string;
-    //     createdAt: string;
-    //     author: string;
-    //     likes: number;
-    //     dislikes: number;
-    //     comments: {
-    //         text: string;
-    //         createdAt: string;
-    //     }[];
-    // }[];
+    genre: string[];
+    paragraphs: {
+        text: string;
+        createdAt: string;
+        author: string;
+        likes: number;
+        dislikes: number;
+        comments: {
+            text: string;
+            createdAt: string;
+        }[];
+    }[];
 }
 
 const Script: Model<IScript> = mongoose.model<IScript>("Script", scriptSchema);

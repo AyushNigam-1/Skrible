@@ -1,6 +1,6 @@
 import { ApolloServer } from "@apollo/server";
-import { typeDefs } from "./typeDefs";
-import { resolvers } from "./resolvers";
+import { typeDefs } from "./typedefs/typedefs";
+import { resolvers } from "./resolvers/resolvers";
 
 export const graphqlServer = () => {
   const server = new ApolloServer({
@@ -10,3 +10,5 @@ export const graphqlServer = () => {
 
   return server
 }
+
+

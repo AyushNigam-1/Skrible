@@ -18,7 +18,6 @@ export const userTypeDefs = gql`
   }
 
   type Query {
-    login(username: String!, password: String!): User
     getUserProfile(id: ID!): User
   }
 

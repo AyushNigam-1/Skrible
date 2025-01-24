@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Dropdown from './Dropdown'
 import Notification from '../pages/notification/Notifications'
-import { useSelector } from 'react-redux'
 
 const Navbar = () => {
     const user = localStorage.getItem('user');

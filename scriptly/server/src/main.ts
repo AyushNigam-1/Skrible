@@ -1,10 +1,12 @@
 import { connectDB } from './database/database';
 import express from 'express';
-import { expressMiddleware } from '@apollo/server/express4'
+import { expressMiddleware } from '@apollo/server/express4';
 import dotenv from 'dotenv';
 import { graphqlServer } from './graphql/server';
-import cors from 'cors'
-import morgan from 'morgan'
+import cors from 'cors';
+import morgan from 'morgan';
+import { authenticate } from './middleware/middleware';
+
 dotenv.config();
 
 const startServer = async () => {
@@ -12,6 +14,7 @@ const startServer = async () => {
   const port = Number(process.env.PORT) || 4000;
 
   await connectDB(uri);
+
   const server = graphqlServer();
   await server.start();
 
@@ -20,19 +23,26 @@ const startServer = async () => {
   app.use(express.json());
   app.use(
     cors({
-      origin: 'http://localhost:5173', // Replace with your frontend URL if different
-      methods: ['GET', 'POST', 'OPTIONS'], // Allowed HTTP methods
-      credentials: true, // Allow cookies if needed
+      origin: 'http://localhost:5173',
+      methods: ['GET', 'POST', 'OPTIONS'],
+      credentials: true,
     })
   );
 
-  app.use('/graphql', expressMiddleware(server));
+  app.use(authenticate);
+
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req, res }) => ({
+        req,
+        res,
+        user: req.user,
+      }),
+    })
+  );
 
   app.listen(port, () => console.log(`Server started on port ${port}`));
 };
 
 startServer();
-
-
-
-

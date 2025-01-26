@@ -4,6 +4,7 @@ const Paragraphs = () => {
     const contributions = [
         {
             contributorName: "John Doe",
+
             date: "2024-09-01",
             para: "In recent years, the rise of web development has transformed how we interact with technology. From simple static websites to complex web applications, the demand for developers with a deep understanding of web technologies has increased dramatically. Web development today involves a variety of frameworks and libraries, such as React, Angular, and Vue, which make building dynamic user interfaces much more efficient. Moreover, backend technologies like Node.js, Django, and Ruby on Rails have streamlined server-side development, allowing developers to focus on creating scalable and maintainable applications. As businesses continue to migrate their operations online, the need for robust, secure, and user-friendly websites will only grow.",
             id: "3"
@@ -136,40 +137,35 @@ const Paragraphs = () => {
                     </button>
                 </div>
             </div>
-            {/* <hr /> */}
-            {
-                contributions.map((contribution, index) =>
-                    <Link className='flex gap-1' to={`/para/${contribution.id}`} >
-                        <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'
 
-                        // onClick={() => handleCardClick(index)}
-                        >
-                            {/* <img src="/person.jpg" className='rounded-full w-5 h-5 ' alt="" /> */}
-                            <div className='flex gap-2 justify-between items-center' >
-                                <span className='text-gray-600  gap-2 flex items-center' >
-                                    <img src="/person.jpg" className='rounded-full w-4 h-4 ' alt="" />
-                                    <p className='text-sm'>
-                                        John Doe
-                                    </p>
-                                </span>
-                                <div className='flex gap-2' >
-                                    {/* {pinnedCard === index && (
-                                    <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded">
-                                        Pinned
-                                    </span>
-                                )} */}
-                                    <p className='text-gray-600 text-xs shadow'> Tue, 19 Nov 2024, 22:30</p>
-                                </div>
-                            </div>
-                            <div className='  text-md text-gray-800' >
-                                <p className=''>
-                                    {contribution.para}
-                                </p>
-                            </div>
-                        </div>
-                    </Link>
-                )
-            }
+            <ol class="relative border-s border-gray-400 border-solid ">
+
+                {
+                    contributions.map((contribution, index) =>
+                        <ol class="relative border-s border-gray-100 border-solid ">
+
+                            {
+                                contributions.map((contribution, index) =>
+                                    <Link className='flex gap-1' to={`/para/${contribution.id}`} >
+                                        <li class="mb-6 ms-8">
+                                            <span class="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -start-4 py-2  dark:bg-gray-500/50 dark:bg-blue-900">
+                                                <img class="rounded-full shadow-lg" src="https://mymodernmet.com/wp/wp-content/uploads/2019/09/100k-ai-faces-6.jpg" alt="Bonnie image" />
+                                            </span>
+                                            <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'>
+                                                <div className='  text-md text-gray-800' >
+                                                    <p className=''>
+                                                        {contribution.para}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </Link>
+                                )
+                            }
+                        </ol>
+                    )
+                }
+            </ol>
             {/* <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out flex flex-col gap-4  ${showTextarea ? "opacity-100 " : "opacity-0 "
                     }`}>

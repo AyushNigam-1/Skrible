@@ -6,6 +6,7 @@ export const REGISTER_MUTATION = gql`
       id
       username
       email
+      token
     }
   }`;
 
@@ -16,7 +17,6 @@ export const LOGIN_MUTATION = gql`
       username
       email
       token
-      
     }
   }`;
 

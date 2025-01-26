@@ -21,6 +21,7 @@ const CreateAccount = () => {
             const response = await register({ variables: { username, email, password } });
             const user = response.data.register
             localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
+            console.log(user)
             Cookies.set('jwt', user.token)
             nav("/")
         } catch (err) {

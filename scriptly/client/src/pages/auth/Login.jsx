@@ -19,10 +19,11 @@ const Login = () => {
         const username = `${firstName.trim()}${lastName.trim()}`.toLowerCase();
         try {
             const response = await login({ variables: { username, password } });
-            const user = response.data.register
+            const user = response.data.login
             localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
+            console.log(user)
             Cookies.set('jwt', user.token)
-            nav('/')
+            // nav('/')
         } catch (err) {
             toast.error(err.message)
             console.error('Login failed:', err.message);

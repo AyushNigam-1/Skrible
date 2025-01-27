@@ -138,32 +138,32 @@ const Paragraphs = () => {
                 </div>
             </div>
 
-            <ol class="relative border-s border-gray-400 border-solid ">
+            <ol class="relative border-s-2 border-indigo-400/50 border-solid">
 
                 {
-                    contributions.map((contribution, index) =>
-                        <ol class="relative border-s border-gray-100 border-solid ">
+                    // contributions.map((contribution, index) =>
+                    //     <ol class="relative border-s border-white border-solid">
 
-                            {
-                                contributions.map((contribution, index) =>
-                                    <Link className='flex gap-1' to={`/para/${contribution.id}`} >
-                                        <li class="mb-6 ms-8">
-                                            <span class="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -start-4 py-2  dark:bg-gray-500/50 dark:bg-blue-900">
-                                                <img class="rounded-full shadow-lg" src="https://mymodernmet.com/wp/wp-content/uploads/2019/09/100k-ai-faces-6.jpg" alt="Bonnie image" />
-                                            </span>
-                                            <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'>
-                                                <div className='  text-md text-gray-800' >
-                                                    <p className=''>
-                                                        {contribution.para}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </Link>
-                                )
-                            }
-                        </ol>
+                    //         {
+                    contributions.map((contribution, index) =>
+                        <Link className='flex gap-1' to={`/para/${contribution.id}`} >
+                            <li class="mb-6 ms-8">
+                                <span class="absolute flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full -start-[22px] py-2  dark:bg-gray-500/50 dark:bg-blue-900">
+                                    <img class="rounded-full ring-red-50 ring-8" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
+                                </span>
+                                <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'>
+                                    <div className='  text-md text-gray-800' >
+                                        <p className=''>
+                                            {contribution.para}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        </Link>
                     )
+                    //         }
+                    //     </ol>
+                    // )
                 }
             </ol>
             {/* <div
@@ -202,7 +202,7 @@ const Paragraphs = () => {
             {/* Reference to scroll to the end */}
             {/* <div ref={contributionEndRef} ></div> */}
             {/* </div> */}
-        </div>
+        </div >
     )
 }
 

@@ -49,6 +49,10 @@ const scriptSchema = new mongoose.Schema({
         required: true,
         enum: ["public", "private"],
     },
+    description: {
+        type: String,
+        required: true,
+    },
     language: {
         type: String,
         required: true,
@@ -66,8 +70,8 @@ const scriptSchema = new mongoose.Schema({
 export interface IScript extends Document {
     title: string;
     visibility: string;
-    language: string;
-    genre: string[];
+    languages: string;
+    genres: string[];
     paragraphs: {
         text: string;
         createdAt: string;

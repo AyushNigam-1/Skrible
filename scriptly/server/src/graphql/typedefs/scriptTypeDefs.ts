@@ -5,6 +5,7 @@ export const scriptTypeDefs = gql`
     id: ID!
     title: String!
     visibility: String!
+    description:String!
     language: String!
     genre: [String!]!
     paragraphs: [Paragraph!]!
@@ -16,11 +17,10 @@ export const scriptTypeDefs = gql`
     paragraph: Paragraph!
   }
 
-  input CreateScriptInput {
-    title: String!
-    visibility: String!
-    language: String!
-  }
+
+  input ParagraphInput {
+    text: String!
+}
 
   type Query {
     getAllScripts: [Script!]!
@@ -29,6 +29,14 @@ export const scriptTypeDefs = gql`
   }
 
   type Mutation {
-    createScript(title: String!, visibility: String!, language: String!): Script!
-  }
+    createScript(
+        title: String!,
+        visibility: String!,
+        language: [String!]!,
+        genre: [String!]!,
+        description: String!,
+        paragraphs: [ParagraphInput!]!
+    ): Script!
+}
+
 `;

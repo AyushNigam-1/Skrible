@@ -4,18 +4,19 @@ import { GraphQLError } from "graphql";
 export const scriptMutations = {
     createScript: async (
         _: any,
-        { title, visibility, language, genre, paragraphs }: {
+        { title, visibility, description, languages, genres, paragraphs }: {
             title: string;
             visibility: string;
-            language: string;
-            genre: string[];
+            languages: string[];
+            genres: string[];
+            description: string;
             paragraphs: {
                 text: string;
             }[];
         },
         context: { user: { id: string } } // Assuming you have user info in the context
     ) => {
-        if (!title || !visibility || !language || !genre || !paragraphs) {
+        if (!title || !visibility || !languages || !genres || !description || !paragraphs) {
             throw new GraphQLError("All required fields must be provided");
         }
 
@@ -36,8 +37,9 @@ export const scriptMutations = {
         const newScript = new Script({
             title,
             visibility,
-            language,
-            genre,
+            languages,
+            genres,
+            description,
             paragraphs: enrichedParagraphs,
         });
 
@@ -47,8 +49,8 @@ export const scriptMutations = {
             id: newScript._id,
             title: newScript.title,
             visibility: newScript.visibility,
-            language: newScript.language,
-            genre: newScript.genre,
+            language: newScript.languages,
+            genre: newScript.genres,
             paragraphs: newScript.paragraphs,
         };
     },

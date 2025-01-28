@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
 const commentSchema = new mongoose.Schema({
     text: {
@@ -40,6 +40,11 @@ const paragraphSchema = new mongoose.Schema({
 
 
 const scriptSchema = new mongoose.Schema({
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     title: {
         type: String,
         required: true,
@@ -47,17 +52,17 @@ const scriptSchema = new mongoose.Schema({
     visibility: {
         type: String,
         required: true,
-        enum: ["public", "private"],
+        // enum: ["public", "private"],
     },
     description: {
         type: String,
         required: true,
     },
-    language: {
-        type: String,
+    languages: {
+        type: [String],
         required: true,
     },
-    genre: {
+    genres: {
         type: [String],
         required: true,
     },
@@ -68,9 +73,11 @@ const scriptSchema = new mongoose.Schema({
 });
 
 export interface IScript extends Document {
+    author: Types.ObjectId;
     title: string;
     visibility: string;
     languages: string;
+    description: string,
     genres: string[];
     paragraphs: {
         text: string;

@@ -2,12 +2,13 @@ import { gql } from "graphql-tag";
 
 export const scriptTypeDefs = gql`
   type Script {
+    author:ID!
     id: ID!
     title: String!
     visibility: String!
     description:String!
-    language: String!
-    genre: [String!]!
+    languages: [String!]!
+    genres: [String!]!
     paragraphs: [Paragraph!]!
   }
 
@@ -16,11 +17,6 @@ export const scriptTypeDefs = gql`
     title: String!
     paragraph: Paragraph!
   }
-
-
-  input ParagraphInput {
-    text: String!
-}
 
   type Query {
     getAllScripts: [Script!]!
@@ -32,8 +28,8 @@ export const scriptTypeDefs = gql`
     createScript(
         title: String!,
         visibility: String!,
-        language: [String!]!,
-        genre: [String!]!,
+        languages: [String!]!,
+        genres: [String!]!,
         description: String!,
         paragraphs: [ParagraphInput!]!
     ): Script!

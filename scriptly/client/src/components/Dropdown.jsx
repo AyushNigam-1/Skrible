@@ -57,17 +57,17 @@ const Dropdown = ({ icon, options }) => {
 
             {isVisible && (
                 <div
-                    className={`absolute right-0 z-10 mt-2 w-56 rounded-md border border-gray-100 bg-white shadow-lg transition-opacity duration-300 ease-in-out ${isActive ? "opacity-100" : "opacity-0"
+                    className={`absolute right-0 z-10 mt-2 w-max rounded-md border border-gray-100 bg-white shadow-lg transition-opacity duration-300 ease-in-out ${isActive ? "opacity-100" : "opacity-0"
                         }`}
                     role="menu"
                 >
                     <div className="p-2" >
                         {options.map(option => <Link
                             to={option.route}
+                            onClick={closeDropdown}
                             type="submit"
-                            className={` flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold ${option.color} hover:bg-green-50`}
+                            className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold  hover:bg-indigo-50"
                             role="menuitem"
-
                         >
                             {option.svg}
                             {option.name}

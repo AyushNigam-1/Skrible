@@ -35,6 +35,7 @@ export const scriptMutations = {
         }));
 
         const newScript = new Script({
+            author: userId,
             title,
             visibility,
             languages,
@@ -46,11 +47,13 @@ export const scriptMutations = {
         await newScript.save();
 
         return {
+            author: userId,
             id: newScript._id,
             title: newScript.title,
             visibility: newScript.visibility,
-            language: newScript.languages,
-            genre: newScript.genres,
+            description: newScript.description,
+            languages: newScript.languages,
+            genres: newScript.genres,
             paragraphs: newScript.paragraphs,
         };
     },

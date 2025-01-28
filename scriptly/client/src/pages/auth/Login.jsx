@@ -23,7 +23,7 @@ const Login = () => {
             localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
             console.log(user)
             Cookies.set('jwt', user.token)
-            // nav('/')
+            nav('/')
         } catch (err) {
             toast.error(err.message)
             console.error('Login failed:', err.message);

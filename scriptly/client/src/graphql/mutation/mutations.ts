@@ -33,16 +33,16 @@ export const ADD_SCRIPT = gql(`
       createScript(
           title: $title,
           visibility: $visibility,
-          languages: $language,
-          genres: $genre,
+          languages: $languages,
+          genres: $genres,
           description: $description,
           paragraphs: $paragraphs
       ) {
           id
           title
           visibility
-          language
-          genre
+          languages
+          genres
           description
           paragraphs {
               text
@@ -50,7 +50,9 @@ export const ADD_SCRIPT = gql(`
               likes
               dislikes
               author
-              comments
+              comments {
+                text
+              }
           }
       }
   }

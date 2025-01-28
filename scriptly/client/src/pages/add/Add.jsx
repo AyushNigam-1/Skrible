@@ -11,14 +11,16 @@ const Add = () => {
         const formData = new FormData(e.target);
         const data = {
             title: formData.get('title'),
-            language: formData.get('languages').split(','), // Split language by commas
+            languages: formData.get('languages').split(','), // Split language by commas
             visibility: formData.get('visibility'),
             description: formData.get('description'),
-            genre: formData.get('genres').split(','), // Split genres by commas
+            genres: formData.get('genres').split(','), // Split genres by commas
             paragraphs: [
                 { text: formData.get('script') },
+
             ],
         };
+        console.log(data)
         try {
             const response = await add_script({ variables: data });
             console.log('Script added:', response.data.createScript);

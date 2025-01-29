@@ -1,17 +1,9 @@
-import { gql } from '@apollo/client'
-
-export const GET_USER_SCRIPTS = gql`
-query Query {
-    getAllScripts {
-    genre
-  }
-} 
-`
+import { gql } from "@apollo/client";
 
 export const GET_USER_PROFILE = gql`
   query GetUserProfile($id: ID!) {
-    getUserProfile(id: $id) {
-      id
+  getUserProfile(id: $id) {
+    id
     username
     email
     bio
@@ -22,5 +14,5 @@ export const GET_USER_PROFILE = gql`
     follows
     scripts
     views
-    }
-  }`
+  }
+} `

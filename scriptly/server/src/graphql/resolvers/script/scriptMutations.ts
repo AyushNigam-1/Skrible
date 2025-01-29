@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Script from "../../../models/Script";
 import { GraphQLError } from "graphql";
 
@@ -14,13 +15,13 @@ export const scriptMutations = {
                 text: string;
             }[];
         },
-        context: { user: { id: string } } // Assuming you have user info in the context
+        context: { user: { id: string } }
     ) => {
         if (!title || !visibility || !languages || !genres || !description || !paragraphs) {
             throw new GraphQLError("All required fields must be provided");
         }
 
-        const userId = context.user?.id; // Fetching the user ID from context
+        const userId = context.user?.id;
         if (!userId) {
             throw new GraphQLError("User not authenticated");
         }
@@ -30,12 +31,12 @@ export const scriptMutations = {
             createdAt: new Date().toISOString(),
             likes: 0,
             dislikes: 0,
-            author: userId,
+            author: new mongoose.Types.ObjectId(userId),
             comments: [],
         }));
 
         const newScript = new Script({
-            author: userId,
+            author: new mongoose.Types.ObjectId(userId),
             title,
             visibility,
             languages,

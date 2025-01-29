@@ -70,7 +70,7 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions /> : <ScriptDetails />
+                    tab == "Script" ? <Paragraphs id={id} /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions /> : <ScriptDetails />
                 }
 
             </div>

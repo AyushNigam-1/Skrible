@@ -1,6 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
-const Paragraphs = () => {
+import { GET_SCRIPT_BY_ID } from '../graphql/query/scriptQueries';
+import { useQuery } from '@apollo/client';
+import Loader from './Loader';
+
+const Paragraphs = ({ id }) => {
+    // console.log(id)
+    const { data, loading, error } = useQuery(GET_SCRIPT_BY_ID, {
+        variables: { id },
+        skip: !id, // Prevents query execution if no ID is provided
+    });
+
+    console.log(data)
     const contributions = [
         {
             contributorName: "John Doe",
@@ -105,12 +116,14 @@ const Paragraphs = () => {
         setNewContribution("");
         setShowTextarea(false);
     };
+    if (loading) return <Loader height="70vh" />
+
     return (
         <div className='flex flex-col gap-6' >
             <div className='flex justify-between top-2 ' >
                 <div className='flex gap-3'>
                     <h3 className='font-sans text-3xl font-bold text-gray-800 ' >
-                        Untitled
+                        {data?.getScriptById.title}
                     </h3>
                     <button className='rounded-full p-1 bg-white px-3' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4 text-indigo-600">
@@ -145,7 +158,7 @@ const Paragraphs = () => {
                     //     <ol class="relative border-s border-white border-solid">
 
                     //         {
-                    contributions.map((contribution, index) =>
+                    data?.getScriptById.paragraphs?.map((contribution, index) =>
                         <Link className='flex gap-1' to={`/para/${contribution.id}`} >
                             <li class="mb-6 ms-8">
                                 <span class="absolute flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full -start-[22px] py-2  dark:bg-gray-500/50 dark:bg-blue-900">
@@ -154,7 +167,7 @@ const Paragraphs = () => {
                                 <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'>
                                     <div className='  text-md text-gray-800' >
                                         <p className=''>
-                                            {contribution.para}
+                                            {contribution.text}
                                         </p>
                                     </div>
                                 </div>

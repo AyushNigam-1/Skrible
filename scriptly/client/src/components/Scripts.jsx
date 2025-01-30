@@ -24,12 +24,12 @@ const Scripts = () => {
                 data?.getAllScripts?.map(e => {
                     return (
                         <Link to={`script/${e.id}`}>
-                            <div className=' bg-white rounded-lg p-3 flex gap-4 shadow' >
-                                <div className='flex flex-col gap-3 w-full justify-evenly'>
+                            <div className=' bg-white rounded-lg p-3 flex gap-4 shadow h-full' >
+                                <div className='flex flex-col gap-3 w-full '>
                                     <div className='flex gap-2'>
                                         <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} />
                                         <div className='flex flex-col gap-2 w-full' >
-                                            <div className='flex justify-between w-full items-center'  >
+                                            <div className='flex justify-between w-full'  >
                                                 <h1 className='text-xl font-bold text-gray-800 ' >{e.title}</h1>
                                                 <Dropdown icon={<svg
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -75,10 +75,12 @@ const Scripts = () => {
                                         </div>
                                     </div>
                                     <p className='text-md text-gray-600 font-semibold ' > {e.description} </p>
-                                    <div className='flex justify-between items-center' >
-                                        <div className='flex gap-2' >
-                                            {e.genres.map(genre => <span className='bg-red-100/50 text-gray-600 px-3 rounded-full py-1 text-xs font-bold'>   # {genre}  </span>)}
-                                        </div>
+                                    <div className="flex flex-wrap gap-2 mt-auto">
+                                        {e.genres.map((genre) => (
+                                            <span key={genre} className="bg-red-100/50 text-gray-600 px-3 rounded-full py-1 text-xs font-bold">
+                                                # {genre}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

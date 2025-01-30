@@ -8,7 +8,6 @@ interface IUser extends Document {
     bio: string;
     email: string;
     interests: string[];
-
     scripts: Types.ObjectId[];
     likes: Types.ObjectId[];
     follows: Types.ObjectId[];

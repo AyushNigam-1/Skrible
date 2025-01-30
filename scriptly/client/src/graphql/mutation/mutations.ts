@@ -49,7 +49,9 @@ export const ADD_SCRIPT = gql(`
               createdAt
               likes
               dislikes
-              author
+              author{
+                username
+              }
               comments {
                 text
               }

@@ -1,8 +1,13 @@
 import { gql } from "graphql-tag";
 
 export const scriptTypeDefs = gql`
+  type Author {
+    id: ID!
+    username: String!
+    email: String!
+  }
   type Script {
-    author:ID!
+    author:Author!
     id: ID!
     title: String!
     visibility: String!

@@ -45,18 +45,12 @@ export const scriptMutations = {
             paragraphs: enrichedParagraphs,
         });
 
-        await newScript.save();
+        const script = await newScript.save();
+        const populatedScript = await Script.findById(script._id)
+            .populate("author")
+            .populate("paragraphs.author");
 
-        return {
-            author: userId,
-            id: newScript._id,
-            title: newScript.title,
-            visibility: newScript.visibility,
-            description: newScript.description,
-            languages: newScript.languages,
-            genres: newScript.genres,
-            paragraphs: newScript.paragraphs,
-        };
+        return populatedScript
     },
 };
 

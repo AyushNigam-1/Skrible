@@ -2,21 +2,20 @@ import { gql } from "graphql-tag";
 
 export const paragraphTypeDefs = gql`
   type Paragraph {
-    id: ID!
+    id: ID! 
     text: String!
     createdAt: String!
-    author: String!
     likes: Int!
     dislikes: Int!
-    comments: [Comment]
+    author: Author!
+    comments: [Comment]!
   }
   input ParagraphInput {
       text: String!
-      # createdAt: String 
-      # author: String 
-      # likes: Int 
-      # dislikes: Int 
-      # comments: [CommentInput!] 
+
+  }
+  type Query{
+    getParagraphById(paragraphId: ID!): Paragraph 
   }
 
 `;

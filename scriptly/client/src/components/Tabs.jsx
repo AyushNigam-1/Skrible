@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Tabs = ({ tab, setTab }) => {
+const Tabs = ({ tab, setTab, scripts }) => {
     const tabs = [
         {
             svg: (
@@ -9,7 +9,7 @@ const Tabs = ({ tab, setTab }) => {
                 </svg>
             ),
             name: 'Script',
-            count: 34
+            count: scripts
         },
         {
             svg: (

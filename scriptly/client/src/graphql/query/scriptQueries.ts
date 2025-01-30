@@ -5,20 +5,8 @@ export const GET_ALL_SCRIPTS = gql`
     getAllScripts {
       id
       title
-      visibility
-      languages
       genres
       description
-      paragraphs {
-        text
-        createdAt
-        likes
-        dislikes
-        author
-        comments{
-          text
-        }
-      }
     }
   }
 
@@ -33,15 +21,19 @@ export const GET_SCRIPT_BY_ID = gql`
       languages
       genres
       description
+      author{
+        username
+      }
       paragraphs {
         id
         text
-        createdAt
         likes
         dislikes
-        author
         comments{
           text
+        }
+        author{
+          username
         }
       }
     }

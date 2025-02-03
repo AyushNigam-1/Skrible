@@ -29,6 +29,7 @@ export const GET_SCRIPT_BY_ID = gql`
         text
         likes
         dislikes
+        createdAt
         comments{
           text
         }

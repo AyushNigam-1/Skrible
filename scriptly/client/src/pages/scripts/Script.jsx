@@ -17,7 +17,7 @@ const Script = () => {
         variables: { id },
         skip: !id,
     });
-    console.log(data)
+
     if (loading) return <Loader height="70vh" />
 
     const options = [{
@@ -81,7 +81,7 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById.paragraphs.length} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions /> : <ScriptDetails data={data} />
+                    tab == "Script" ? <Paragraphs data={data} loading={loading} /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
                 }
 
             </div>

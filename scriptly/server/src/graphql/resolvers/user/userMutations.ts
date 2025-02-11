@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import User from "../../../models/User";
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { Response } from 'express';
 
@@ -40,7 +40,7 @@ export const userMutations = {
             id: newUser._id,
             username: newUser.username,
             email: newUser.email,
-            token, // You can return the token in the response as well, if needed
+            token,
             languages: newUser.languages,
             bio: newUser.bio,
             interests: newUser.interests,

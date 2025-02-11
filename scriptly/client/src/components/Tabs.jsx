@@ -1,6 +1,7 @@
 import React from 'react'
 
 const Tabs = ({ tab, setTab, scripts }) => {
+    console.log(scripts)
     const tabs = [
         {
             svg: (
@@ -9,7 +10,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Script',
-            count: scripts
+            count: scripts.paragraphs.length
         },
         {
             svg: (
@@ -18,7 +19,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Requests',
-            count: 45
+            count: scripts.requests.length
         },
         {
             svg: (
@@ -27,7 +28,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Contributions',
-            count: 45
+            count: scripts.paragraphs.length
         },
         {
             svg: (
@@ -53,14 +54,14 @@ const Tabs = ({ tab, setTab, scripts }) => {
                     >
                         {t.svg}
                         {t.name}
-                        {t.count && (
+                        {t.count != undefined ? (
                             <span
                                 className={`rounded-full py-1 px-1.5 text-sm transition-colors duration-300 bg-white text-indigo-400
                                            `}
                             >
                                 {t.count}
                             </span>
-                        )}
+                        ) : ""}
                     </button>
                 ))}
             </div>

@@ -72,11 +72,11 @@ const Paragraphs = ({ data, loading }) => {
                 {
                     data?.getScriptById.paragraphs?.map((contribution, index) =>
                         <Link className='flex gap-1 h-full' to={`/para/${contribution.id}`} state={{ contribution }} >
-                            <li class="mb-6 ms-8 h-full">
+                            <li class="mb-6 ms-8 h-full w-full">
                                 <span class="absolute flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full -start-[22px] py-2  dark:bg-gray-500/50 dark:bg-blue-900">
                                     <img class="rounded-full ring-red-50 ring-8" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
                                 </span>
-                                <div className='word-spacing-1 flex flex-col relative gap-1 bg-white shadow-md rounded-lg p-4'>
+                                <div className='word-spacing-1 flex flex-col relative gap-1  bg-white shadow-md rounded-lg p-4'>
                                     <div className='  text-md text-gray-800' >
                                         <p className=''>
                                             {contribution.text}

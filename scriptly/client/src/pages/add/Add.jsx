@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import React from 'react';
 import { ADD_SCRIPT } from '../../graphql/mutation/mutations';
+import { useNavigate } from 'react-router-dom';
 
 const Add = () => {
+    const navigate = useNavigate();
 
     const [add_script] = useMutation(ADD_SCRIPT);
 
@@ -24,6 +26,8 @@ const Add = () => {
         try {
             const response = await add_script({ variables: data });
             console.log('Script added:', response.data.createScript);
+            navigate(`/script/${response.data.createScript.id}`);
+
             alert('Script added successfully!');
             e.target.reset();
         } catch (error) {

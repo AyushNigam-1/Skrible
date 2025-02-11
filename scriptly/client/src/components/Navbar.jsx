@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import Dropdown from './Dropdown'
 import Notification from '../pages/notification/Notifications'
 import Cookies from 'js-cookie';
-
 const Navbar = () => {
     const user = localStorage.getItem('user');
     const options1 = [{
@@ -52,14 +51,6 @@ const Navbar = () => {
                             <li>
                                 <img src="/logo.png" width="140px" alt="" />
                             </li>
-                            <li>
-                                <a class="text-gray-500 transition hover:text-gray-500/75" href="#"> Home  </a>
-                            </li>
-
-                            <li>
-                                <a class="text-gray-500 transition hover:text-gray-500/75" href="#"> Scripts </a>
-                            </li>
-
                         </ul>
                     </nav>
                     {

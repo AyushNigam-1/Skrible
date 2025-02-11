@@ -4,7 +4,8 @@ import Filters from '../../components/Filters'
 import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
 
-const Requests = () => {
+const Requests = ({ data }) => {
+    console.log(data.getScriptById.requests)
     const avatar = createAvatar(glass, {
         "seed": "Robert"
     });

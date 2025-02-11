@@ -3,7 +3,17 @@ import React from 'react'
 const ScriptDetails = ({ data, loading }) => {
 
     if (loading) return <Loader height="70vh" />
-    console.log(data)
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp); // MongoDB uses milliseconds, so no need to divide
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    }
     return (
         <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >
             <div className='flex gap-1 flex-col'>
@@ -50,7 +60,7 @@ const ScriptDetails = ({ data, loading }) => {
                     Created On
                 </h4>
                 <span className='flex items-center gap-2' >
-                    <p className='text-lg font-semibold text-gray-800'> </p>
+                    <p className='text-lg font-semibold text-gray-800'>{formatDate(data?.getScriptById.createdAt)} </p>
                 </span>
             </div>
             <hr />

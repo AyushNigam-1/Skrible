@@ -78,10 +78,10 @@ const Script = () => {
 
     return (
         <div className={`flex flex-col gap-6 sticky ${cursorClass} container mx-auto`}>
-            <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById.paragraphs.length} />
+            <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} /> : tab == "Requests" ? <Requests /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
+                    tab == "Script" ? <Paragraphs data={data} loading={loading} /> : tab == "Requests" ? <Requests data={data} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
                 }
 
             </div>

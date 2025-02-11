@@ -5,18 +5,29 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    createdAt: {
+}, { timestamps: true });
+
+const requestSchema = new mongoose.Schema({
+    status: {
         type: String,
         required: true,
     },
-});
+    likes: {
+        type: Number,
+        required: true,
+    },
+    dislikes: {
+        type: Number,
+        required: true,
+    },
+    comments: {
+        type: [commentSchema],
+        required: true,
+    },
+}, { timestamps: true });
 
 const paragraphSchema = new mongoose.Schema({
     text: {
-        type: String,
-        required: true,
-    },
-    createdAt: {
         type: String,
         required: true,
     },
@@ -37,14 +48,13 @@ const paragraphSchema = new mongoose.Schema({
         type: [commentSchema],
         required: true,
     },
-});
-
+}, { timestamps: true });
 
 const scriptSchema = new mongoose.Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: true,
     },
     title: {
         type: String,
@@ -53,7 +63,6 @@ const scriptSchema = new mongoose.Schema({
     visibility: {
         type: String,
         required: true,
-        // enum: ["public", "private"],
     },
     description: {
         type: String,
@@ -71,20 +80,32 @@ const scriptSchema = new mongoose.Schema({
         type: [paragraphSchema],
         required: true,
     },
-});
+    requests: {
+        type: [requestSchema],
+        required: true,
+    },
+}, { timestamps: true });
 
 export interface IScript extends Document {
     author: Types.ObjectId;
     title: string;
     visibility: string;
-    languages: string;
-    description: string,
+    languages: string[];
+    description: string;
     genres: string[];
     paragraphs: {
         text: string;
         createdAt: string;
         author: string;
         likes: number;
+        dislikes: number;
+        comments: {
+            text: string;
+            createdAt: string;
+        }[];
+    }[];
+    requests: {
+        status: string;
         dislikes: number;
         comments: {
             text: string;

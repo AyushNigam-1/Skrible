@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Script from "../../../models/Script";
+import User from "../../../models/User";
 import { GraphQLError } from "graphql";
 
 export const scriptMutations = {
@@ -46,12 +47,15 @@ export const scriptMutations = {
         });
 
         const script = await newScript.save();
+
+        await User.findByIdAndUpdate(userId, {
+            $push: { scripts: script._id }
+        });
+
         const populatedScript = await Script.findById(script._id)
             .populate("author")
             .populate("paragraphs.author");
 
-        return populatedScript
+        return populatedScript;
     },
 };
-
-

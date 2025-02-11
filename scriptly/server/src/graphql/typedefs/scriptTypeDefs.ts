@@ -6,15 +6,39 @@ export const scriptTypeDefs = gql`
     username: String!
     email: String!
   }
+
+  type Comment {
+    text: String!
+    createdAt: String!
+  }
+
+  type Request {
+    status: String!
+    dislikes: Int!
+    likes: Int!
+    comments: [Comment!]!
+  }
+
+  type Paragraph {
+    text: String!
+    createdAt: String!
+    author: Author!
+    likes: Int!
+    dislikes: Int!
+    comments: [Comment!]!
+  }
+
   type Script {
-    author:Author!
+    author: Author!
     id: ID!
     title: String!
     visibility: String!
-    description:String!
+    description: String!
     languages: [String!]!
     genres: [String!]!
     paragraphs: [Paragraph!]!
+    createdAt: String!
+    requests: [Request!]!
   }
 
   type ScriptWithParagraph {
@@ -31,13 +55,16 @@ export const scriptTypeDefs = gql`
 
   type Mutation {
     createScript(
-        title: String!,
-        visibility: String!,
-        languages: [String!]!,
-        genres: [String!]!,
-        description: String!,
-        paragraphs: [ParagraphInput!]!
+      title: String!,
+      visibility: String!,
+      languages: [String!]!,
+      genres: [String!]!,
+      description: String!,
+      paragraphs: [ParagraphInput!]!
     ): Script!
-}
+  }
 
+  input ParagraphInput {
+    text: String!
+  }
 `;

@@ -21,6 +21,10 @@ export const GET_SCRIPT_BY_ID = gql`
       languages
       genres
       description
+      createdAt
+      requests {
+        status
+        }
       author{
         username
       }

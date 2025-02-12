@@ -12,7 +12,20 @@ export const GET_USER_PROFILE = gql`
     likes
     followers
     follows
-    scripts
+    # scripts
     views
   }
-} `
+} 
+  query GetUserScripts($userId: ID!) {
+    getUserScripts(userId: $userId) {
+      id
+      title
+      visibility
+      description
+      languages
+      genres
+      createdAt
+      updatedAt
+    }
+  }
+`

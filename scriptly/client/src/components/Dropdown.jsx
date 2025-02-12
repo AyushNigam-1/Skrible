@@ -44,8 +44,8 @@ const Dropdown = ({ icon, options }) => {
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            <div className="flex items-center  overflow-hidden rounded-md bg-white">
+        <div className="relative rounded-3xl" ref={dropdownRef}>
+            <div className="flex items-center  overflow-hidden rounded-3xl bg-white">
                 <button
                     onClick={() => (isActive ? closeDropdown() : openDropdown())}
                     className="text-gray-600 hover:bg-gray-50 hover:text-gray-700 "

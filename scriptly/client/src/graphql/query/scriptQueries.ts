@@ -23,7 +23,17 @@ export const GET_SCRIPT_BY_ID = gql`
       description
       createdAt
       requests {
+        createdAt
+         author {
+          username
+        }
         status
+        likes
+        dislikes
+        text
+        comments {
+          text
+        }
         }
       author{
         username

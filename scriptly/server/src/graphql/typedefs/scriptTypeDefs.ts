@@ -13,9 +13,12 @@ export const scriptTypeDefs = gql`
   }
 
   type Request {
+    author: Author!
     status: String!
     dislikes: Int!
     likes: Int!
+    text:String!
+    createdAt: String!
     comments: [Comment!]!
   }
 
@@ -60,11 +63,8 @@ export const scriptTypeDefs = gql`
       languages: [String!]!,
       genres: [String!]!,
       description: String!,
-      paragraphs: [ParagraphInput!]!
+      paragraph: String!
     ): Script!
   }
 
-  input ParagraphInput {
-    text: String!
-  }
 `;

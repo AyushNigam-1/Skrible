@@ -6,19 +6,17 @@ import { GraphQLError } from "graphql";
 export const scriptMutations = {
     createScript: async (
         _: any,
-        { title, visibility, description, languages, genres, paragraphs }: {
+        { title, visibility, description, languages, genres, paragraph }: {
             title: string;
             visibility: string;
             languages: string[];
             genres: string[];
             description: string;
-            paragraphs: {
-                text: string;
-            }[];
+            paragraph: string;
         },
         context: { user: { id: string } }
     ) => {
-        if (!title || !visibility || !languages || !genres || !description || !paragraphs) {
+        if (!title || !visibility || !languages || !genres || !description || !paragraph) {
             throw new GraphQLError("All required fields must be provided");
         }
 
@@ -27,14 +25,22 @@ export const scriptMutations = {
             throw new GraphQLError("User not authenticated");
         }
 
-        const enrichedParagraphs = paragraphs.map(paragraph => ({
-            ...paragraph,
-            createdAt: new Date().toISOString(),
+        const initialRequest = {
+            status: "completed",
+            author: new mongoose.Types.ObjectId(userId),
+            likes: 0,
+            dislikes: 0,
+            comments: [],
+            text: paragraph,
+        };
+
+        const enrichedParagraph = {
+            text: paragraph,
             likes: 0,
             dislikes: 0,
             author: new mongoose.Types.ObjectId(userId),
             comments: [],
-        }));
+        };
 
         const newScript = new Script({
             author: new mongoose.Types.ObjectId(userId),
@@ -43,7 +49,8 @@ export const scriptMutations = {
             languages,
             genres,
             description,
-            paragraphs: enrichedParagraphs,
+            paragraphs: [enrichedParagraph],
+            requests: [initialRequest],
         });
 
         const script = await newScript.save();
@@ -54,7 +61,7 @@ export const scriptMutations = {
 
         const populatedScript = await Script.findById(script._id)
             .populate("author")
-            .populate("paragraphs.author");
+            .populate("paragraphs.author").populate('requests.author');
 
         return populatedScript;
     },

@@ -3,16 +3,9 @@ import React from 'react'
 const ScriptDetails = ({ data, loading }) => {
 
     if (loading) return <Loader height="70vh" />
-    const formatDate = (timestamp) => {
-        const date = new Date(timestamp); // MongoDB uses milliseconds, so no need to divide
-        return date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-        });
+    function formatDate(isoString) {
+        const date = new Date(Number(isoString));
+        return date.toLocaleString();
     }
     return (
         <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >

@@ -17,12 +17,8 @@ const Add = () => {
             visibility: formData.get('visibility'),
             description: formData.get('description'),
             genres: formData.get('genres').split(','), // Split genres by commas
-            paragraphs: [
-                { text: formData.get('script') },
-
-            ],
+            paragraph: formData.get('script')
         };
-        console.log(data)
         try {
             const response = await add_script({ variables: data });
             console.log('Script added:', response.data.createScript);

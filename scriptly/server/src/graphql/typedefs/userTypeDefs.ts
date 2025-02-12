@@ -19,6 +19,8 @@ export const userTypeDefs = gql`
 
   type Query {
     getUserProfile(id: ID!): User
+    getUserScripts(userId: ID!): [Script!]!
+
   }
 
   type Mutation {

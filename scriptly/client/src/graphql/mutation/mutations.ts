@@ -28,7 +28,7 @@ export const ADD_SCRIPT = gql(`
       $languages: [String!]!,
       $genres: [String!]!,
       $description: String!,
-      $paragraphs: [ParagraphInput!]!
+      $paragraph: String!
   ) {
       createScript(
           title: $title,
@@ -36,7 +36,7 @@ export const ADD_SCRIPT = gql(`
           languages: $languages,
           genres: $genres,
           description: $description,
-          paragraphs: $paragraphs
+          paragraph: $paragraph
       ) {
           id
           title

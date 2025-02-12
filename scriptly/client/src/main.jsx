@@ -20,6 +20,7 @@ import MyContributions from "./pages/contributions/MyContributions";
 import Para from "./pages/para/Para";
 import Add from "./pages/add/Add";
 import Cookies from 'js-cookie';
+import MyScripts from "./pages/scripts/MyScripts";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "/my-contributions",
         element: <MyContributions />
+      },
+      {
+        path: "/my-scripts",
+        element: <MyScripts />
       },
       {
         path: "/para/:id",

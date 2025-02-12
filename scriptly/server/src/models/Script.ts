@@ -8,6 +8,11 @@ const commentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const requestSchema = new mongoose.Schema({
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     status: {
         type: String,
         required: true,
@@ -24,6 +29,11 @@ const requestSchema = new mongoose.Schema({
         type: [commentSchema],
         required: true,
     },
+    text: {
+        type: String,
+        required: true,
+    }
+
 }, { timestamps: true });
 
 const paragraphSchema = new mongoose.Schema({

@@ -3,19 +3,9 @@ import Filters from '../../components/Filters'
 import Search from '../../components/Search'
 
 const Contributions = ({ data }) => {
-    console.log(data)
     function formatDate(isoString) {
-        const date = new Date(isoString);
-
-        return new Intl.DateTimeFormat("en-GB", {
-            weekday: "short",
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-        }).format(date).replace(",", "");
+        const date = new Date(Number(isoString));
+        return date.toLocaleString();
     }
     return (
         <div className='flex container m-auto flex-col gap-6' >
@@ -26,7 +16,6 @@ const Contributions = ({ data }) => {
                 </span>
             </div>
             <div className='grid grid-cols-2 gap-5' >
-
                 {
                     data.getScriptById.paragraphs.map((para) => {
                         return <div className='flex-col flex justify-between bg-white  gap-2 p-2 rounded-lg relative' >
@@ -49,7 +38,7 @@ const Contributions = ({ data }) => {
                                                     <p className='text-sm bg-indigo-100 text-indigo-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold'>
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                        </svg>  {formatDate(para.createdAt)}
+                                                        </svg>{formatDate(para.createdAt)}
                                                     </p>
                                                 </div>
                                             </div>

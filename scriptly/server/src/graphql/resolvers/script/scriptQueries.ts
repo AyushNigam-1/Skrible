@@ -1,23 +1,6 @@
 import Script from "../../../models/Script";
 
 export const scriptQueries = {
-    getParagraphWithParentScript: async (_: unknown, { paragraphId }: { paragraphId: string }) => {
-        const script = await Script.findOne(
-            { 'paragraphs._id': paragraphId },
-            { title: 1, 'paragraphs.$': 1 }
-        );
-
-        if (!script || script.paragraphs.length === 0) {
-            throw new Error('Paragraph not found.');
-        }
-
-        return {
-            scriptId: script._id,
-            title: script.title,
-            paragraph: script.paragraphs[0],
-        };
-    },
-
     getAllScripts: async () => {
         try {
             const scripts = await Script.find();
@@ -29,7 +12,7 @@ export const scriptQueries = {
 
     getScriptById: async (_: any, { id }: { id: string }) => {
         try {
-            const script = await Script.findById(id).populate("author").populate("paragraphs.author");;
+            const script = await Script.findById(id).populate("author").populate("paragraphs.author").populate("requests.author");
             if (!script) {
                 throw new Error("Script not found");
             }

@@ -5,6 +5,7 @@ import Loader from '../../components/Loader';
 
 const Profile = () => {
     const userId = JSON.parse(localStorage.getItem('user')).id;
+    console.log(userId)
     const { data, loading, error } = useQuery(GET_USER_PROFILE, {
         variables: { id: userId },
         skip: !userId,

@@ -6,7 +6,9 @@ export const scriptTypeDefs = gql`
     username: String!
     email: String!
   }
-
+  type MutationResponse {
+    status: Boolean!
+  }
   type Comment {
     text: String!
     createdAt: String!
@@ -65,6 +67,10 @@ export const scriptTypeDefs = gql`
       description: String!,
       paragraph: String!
     ): Script!
+    markAsInterested(scriptId: ID!): MutationResponse
+    markAsNotInterested(scriptId: ID!): MutationResponse
+    markAsFavourite(scriptId: ID!): MutationResponse
+    deleteScript(scriptId: ID!): MutationResponse
   }
 
 `;

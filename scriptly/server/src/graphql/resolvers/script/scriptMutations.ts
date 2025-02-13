@@ -65,4 +65,99 @@ export const scriptMutations = {
 
         return populatedScript;
     },
-};
+    markAsInterested: async (
+        _: any,
+        { scriptId }: { scriptId: string },
+        context: { user: { id: string } }
+    ): Promise<{ status: boolean }> => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError("User not authenticated");
+        }
+
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { interested: new mongoose.Types.ObjectId(scriptId) }, $pull: { notInterested: new mongoose.Types.ObjectId(scriptId) } },
+            { new: true }
+        );
+
+        return { status: !!result };
+    },
+
+    markAsNotInterested: async (
+        _: any,
+        { scriptId }: { scriptId: string },
+        context: { user: { id: string } }
+    ): Promise<{ status: boolean }> => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError("User not authenticated");
+        }
+
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { notInterested: new mongoose.Types.ObjectId(scriptId) }, $pull: { interested: new mongoose.Types.ObjectId(scriptId) } },
+            { new: true }
+        );
+
+        return { status: !!result };
+    },
+
+    markAsFavourite: async (
+        _: any,
+        { scriptId }: { scriptId: string },
+        context: { user: { id: string } }
+    ): Promise<{ status: boolean }> => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError("User not authenticated");
+        }
+
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { favourites: new mongoose.Types.ObjectId(scriptId) } },
+            { new: true }
+        );
+
+        return { status: !!result };
+    },
+
+    deleteScript: async (
+        _: any,
+        { scriptId }: { scriptId: string },
+        context: { user: { id: string } }
+    ): Promise<{ status: boolean }> => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError("User not authenticated");
+        }
+
+        const script = await Script.findById(scriptId);
+
+        if (!script) {
+            throw new GraphQLError("Script not found");
+        }
+
+        if (script.author.toString() !== userId) {
+            throw new GraphQLError(`${script.author.toString()}-${userId}`);
+        }
+
+        const deleteResult = await Script.findByIdAndDelete(scriptId);
+
+        if (deleteResult) {
+            await User.updateMany(
+                {},
+                {
+                    $pull: {
+                        scripts: new mongoose.Types.ObjectId(scriptId),
+                        favourites: new mongoose.Types.ObjectId(scriptId),
+                        interested: new mongoose.Types.ObjectId(scriptId),
+                        notInterested: new mongoose.Types.ObjectId(scriptId),
+                    },
+                }
+            );
+        }
+
+        return { status: !!deleteResult };
+    },
+}

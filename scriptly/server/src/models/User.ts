@@ -7,12 +7,14 @@ interface IUser extends Document {
     password: string;
     bio: string;
     email: string;
-    interests: string[];
     scripts: Types.ObjectId[];
     likes: Types.ObjectId[];
     follows: Types.ObjectId[];
     views: number;
-    followers: number;
+    followers: Types.ObjectId[];
+    favourites: Types.ObjectId[];  // Script IDs marked as favourites
+    interested: Types.ObjectId[];  // Script IDs marked as interested
+    notInterested: Types.ObjectId[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -22,12 +24,15 @@ const UserSchema: Schema = new Schema({
     bio: { type: String },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    interests: { type: [String], default: [] },
     scripts: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
     likes: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     follows: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
-    views: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
+    views: { type: Number, default: 0 },
     followers: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
+    favourites: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
+    interested: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
+    notInterested: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] }
+
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);

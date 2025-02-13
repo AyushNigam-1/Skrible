@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-
-const Dropdown = ({ icon, options }) => {
+import { useNavigate } from "react-router-dom";
+const Dropdown = ({ icon, options, scriptId }) => {
+    const nav = useNavigate()
     const [isActive, setIsActive] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const dropdownRef = useRef(null);
@@ -62,16 +62,16 @@ const Dropdown = ({ icon, options }) => {
                     role="menu"
                 >
                     <div className="p-2" >
-                        {options.map(option => <Link
+                        {options.map(option => <button
                             to={option.route}
-                            onClick={closeDropdown}
+                            onClick={() => option.route ? nav(option.route) : option.fnc(scriptId)}
                             type="submit"
                             className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold  hover:bg-indigo-50"
                             role="menuitem"
                         >
                             {option.svg}
                             {option.name}
-                        </Link>)}
+                        </button>)}
                     </div>
                 </div>
             )}

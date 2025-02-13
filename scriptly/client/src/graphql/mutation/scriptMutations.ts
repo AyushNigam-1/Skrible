@@ -1,27 +1,6 @@
 import { gql } from '@apollo/client';
 
-
-export const REGISTER_MUTATION = gql`
-  mutation Register($username: String!, $email: String!, $password: String!) {
-    register(username: $username, email: $email, password: $password) {
-      id
-      username
-      email
-      token
-    }
-  }`;
-
-export const LOGIN_MUTATION = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
-      id
-      username
-      email
-      token
-    }
-  }`;
-
-export const ADD_SCRIPT = gql(`
+export const ADD_SCRIPT = gql`
   mutation Add_Script(
       $title: String!,
       $visibility: String!,
@@ -58,5 +37,36 @@ export const ADD_SCRIPT = gql(`
           }
       }
   }
-`);
+`;
 
+export const MARK_AS_INTERESTED = gql`
+  mutation MarkAsInterested($scriptId: ID!) {
+    markAsInterested(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
+
+export const MARK_AS_NOT_INTERESTED = gql`
+  mutation MarkAsNotInterested($scriptId: ID!) {
+    markAsNotInterested(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
+
+export const MARK_AS_FAVOURITE = gql`
+  mutation MarkAsFavourite($scriptId: ID!) {
+    markAsFavourite(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
+
+export const DELETE_SCRIPT = gql`
+  mutation DeleteScript($scriptId: ID!) {
+    deleteScript(scriptId: $scriptId) {
+      status
+    }
+  }
+`;

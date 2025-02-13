@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LOGIN_MUTATION } from '../../graphql/mutation/mutations';
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import Cookies from 'js-cookie'
+import { LOGIN_MUTATION } from '../../graphql/mutation/userMutations';
 const Login = () => {
     const nav = useNavigate()
 

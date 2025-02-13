@@ -16,6 +16,9 @@ export const GET_USER_PROFILE = gql`
     views
   }
 } 
+`
+
+export const GET_USER_SCRIPTS = gql`
   query GetUserScripts($userId: ID!) {
     getUserScripts(userId: $userId) {
       id
@@ -28,4 +31,4 @@ export const GET_USER_PROFILE = gql`
       updatedAt
     }
   }
-`
+`;

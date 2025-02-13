@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import React from 'react';
-import { ADD_SCRIPT } from '../../graphql/mutation/mutations';
+import { ADD_SCRIPT } from '../../graphql/mutation/scriptMutations';
 import { useNavigate } from 'react-router-dom';
 
 const Add = () => {

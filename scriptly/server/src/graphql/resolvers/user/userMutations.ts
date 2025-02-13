@@ -43,7 +43,6 @@ export const userMutations = {
             token,
             languages: newUser.languages,
             bio: newUser.bio,
-            interests: newUser.interests,
             likes: newUser.likes,
             followers: newUser.followers,
             views: newUser.views,
@@ -80,7 +79,6 @@ export const userMutations = {
             token, // You can return the token in the response as well, if needed
             languages: user.languages,
             bio: user.bio,
-            interests: user.interests,
             likes: user.likes,
             followers: user.followers,
             views: user.views,

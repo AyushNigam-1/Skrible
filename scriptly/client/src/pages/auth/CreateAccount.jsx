@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { REGISTER_MUTATION } from '../../graphql/mutation/mutations';
 import { useMutation } from '@apollo/client';
 import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'
+import { REGISTER_MUTATION } from '../../graphql/mutation/userMutations';
 const CreateAccount = () => {
     const nav = useNavigate()
 

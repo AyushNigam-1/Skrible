@@ -43,6 +43,7 @@ export const scriptTypeDefs = gql`
     genres: [String!]!
     paragraphs: [Paragraph!]!
     createdAt: String!
+    updatedAt: String!
     requests: [Request!]!
   }
 

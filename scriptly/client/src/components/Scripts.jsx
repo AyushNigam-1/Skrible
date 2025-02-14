@@ -5,7 +5,9 @@ import Dropdown from './Dropdown';
 import { useMutation, useQuery } from "@apollo/client";
 import { GET_ALL_SCRIPTS } from '../graphql/query/scriptQueries';
 import Loader from './Loader';
+import Cookies from 'js-cookie';
 import { DELETE_SCRIPT, MARK_AS_FAVOURITE, MARK_AS_INTERESTED, MARK_AS_NOT_INTERESTED } from '../graphql/mutation/scriptMutations';
+import { Link } from 'react-router-dom';
 const Scripts = () => {
 
     const avatar = createAvatar(glass, {
@@ -16,6 +18,7 @@ const Scripts = () => {
     const [markAsNotInterested] = useMutation(MARK_AS_NOT_INTERESTED);
     const [markAsFavourite] = useMutation(MARK_AS_FAVOURITE);
     const [deleteScript] = useMutation(DELETE_SCRIPT);
+    const user = Cookies.get('jwt')
 
     const handleInterested = async (id) => {
         try {
@@ -66,8 +69,8 @@ const Scripts = () => {
             name: 'Not Interested',
             fnc: (id) => handleNotInterested(id),
             svg: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.75v14.5M19.25 12H4.75" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
                 </svg>
             )
         },
@@ -75,18 +78,20 @@ const Scripts = () => {
             name: 'Mark as Favourite',
             fnc: (id) => handleMarkAsFavourite(id),
             svg: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.75 17.25l6.25-9 6.25 9H5.75z" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                 </svg>
+
             )
         },
         {
             name: 'Delete',
             fnc: (id) => handleDelete(id),
             svg: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6M12 6v12M21 6H3" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                 </svg>
+
             )
         }
     ];
@@ -101,28 +106,12 @@ const Scripts = () => {
             {
                 data?.getAllScripts?.map(e => {
                     return (
-                        <div className=' bg-white rounded-lg p-3 flex gap-4 shadow h-full' >
-                            <div className='flex flex-col gap-3 w-full '>
+                        <div className=' bg-white rounded-lg p-3 flex  gap-4 shadow h-full' >
+                            <Link to={`script/${e.id}`} className='flex flex-col gap-3 w-full justify-between'>
                                 <div className='flex gap-2'>
                                     <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} />
                                     <div className='flex flex-col gap-2 w-full' >
-                                        <div className='flex justify-between w-full'  >
-                                            <h1 className='text-xl font-bold text-gray-800 ' >{e.title}</h1>
-                                            <Dropdown icon={<svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                                strokeWidth={2}
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                                                />
-                                            </svg>} options={dropdownOptions} scriptId={e.id} />
-                                        </div>
+                                        <h1 className='text-xl font-bold text-gray-800 ' >{e.title}</h1>
                                         <div className='flex gap-2' >
                                             <span className='flex items-center gap-1 bg-red-100/50 text-orange-800 px-3 py-0.5 rounded-full w-max' >
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-3">
@@ -131,11 +120,9 @@ const Scripts = () => {
                                                 <p className='font-bold text-xs'> New </p>
                                             </span>
                                             <span className='flex items-center gap-1 bg-red-100/50 text-indigo-800 px-3 py-1 rounded-full w-max' >
-                                                {/* <img class="w-6 h-6 rounded-full" src="/person.jpg" alt="Rounded avatar" /> */}
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-3">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                                                 </svg>
-
                                                 <p className='font-bold text-xs'> 1 Contributor  </p>
                                             </span>
                                             <div className='flex justify-between' >
@@ -159,7 +146,21 @@ const Scripts = () => {
                                         </span>
                                     ))}
                                 </div>
-                            </div>
+                            </Link>
+                            {user && <Dropdown icon={<svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                                />
+                            </svg>} options={dropdownOptions} scriptId={e.id} />}
                         </div>
                     )
                 })

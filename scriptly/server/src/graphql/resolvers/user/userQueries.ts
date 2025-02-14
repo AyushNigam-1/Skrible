@@ -21,7 +21,6 @@ export const userQueries = {
                 email: user.email,
                 bio: user.bio,
                 languages: user.languages || [],
-                interests: user.interests || [],
                 likes: user.likes || [],
                 followers: user.followers || [],
                 follows: user.follows || [],
@@ -33,6 +32,7 @@ export const userQueries = {
         }
     },
     getUserScripts: async (_: unknown, { userId }: { userId: string }) => {
+
         try {
             const scripts = await Script.find({ author: userId }).populate('author');
 

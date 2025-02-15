@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}", // Adjust this path if your files are in a different directory
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        mulish: ["Mulish", "sans-serif"],
+      },
+    },
   },
   plugins: [
     function ({ addUtilities }) {

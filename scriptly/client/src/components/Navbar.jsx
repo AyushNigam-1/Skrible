@@ -55,15 +55,15 @@ const Navbar = () => {
         color: 'text-red-600'
     }]
     return (
-        <header class="bg-white ">
+        <header class="bg-gray-100 w-full ">
             <div class="flex h-16  items-center gap-8 container mx-auto">
                 <div class="flex flex-1 items-center justify-end md:justify-between">
                     <nav aria-label="Global" class="hidden md:block">
-                        <ul class="flex items-center gap-6 text-sm">
+                        {/* <ul class="flex items-center gap-6 text-sm">
                             <li>
                                 <img src="/logo.png" width="140px" alt="" />
                             </li>
-                        </ul>
+                        </ul> */}
                     </nav>
                     {!Cookies.get('jwt') ? <div className='flex gap-3' >
                         {options1.map(option => <Link className='flex gap-2  items-center justify-center py-2 px-4 shadow rounded-lg bg-indigo-400 text-white' to={option.route} >

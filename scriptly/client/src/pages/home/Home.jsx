@@ -9,7 +9,7 @@ const Home = () => {
         <>
             <div className='flex flex-col gap-6'>
                 <div className='mt-2 flex justify-between'>
-                    <h3 className='font-sans text-3xl font-bold text-gray-800 ' >
+                    <h3 className='text-5xl font-black text-gray-700 ' >
                         Explore
                     </h3>
                     <div className='flex gap-3'>
@@ -17,7 +17,9 @@ const Home = () => {
                         <Filters />
                     </div>
                 </div>
+                <hr />
                 <Genres />
+                <hr />
                 <Scripts />
             </div>
         </>

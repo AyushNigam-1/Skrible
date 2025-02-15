@@ -45,10 +45,10 @@ const Dropdown = ({ icon, options, scriptId }) => {
 
     return (
         <div className="relative rounded-3xl" ref={dropdownRef}>
-            <div className="flex items-center  overflow-hidden rounded-3xl bg-white">
+            <div className="flex items-center  overflow-hidden rounded-3xl p-2 bg-white">
                 <button
                     onClick={() => (isActive ? closeDropdown() : openDropdown())}
-                    className="text-gray-600 hover:bg-gray-50 hover:text-gray-700 "
+                    className="text-gray-600"
                 >
                     <span className="sr-only">Menu</span>
                     {icon}

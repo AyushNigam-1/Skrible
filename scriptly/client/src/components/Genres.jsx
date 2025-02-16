@@ -36,12 +36,13 @@ const Genres = () => {
 
     return (
         <>
-            <div className='flex gap-2 overflow-visible' >
+            <div className='flex flex-col gap-4 overflow-visible' >
                 {/* <button className='bg-white border border-gray-200 text-gray-800  px-2 rounded-full' >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5" onClick={scrollBackward} >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
                 </button> */}
+                {/* <h3 className='text-xl font-bold text-gray-600'>Tags   </h3> */}
                 <div
                     ref={genresRef}
                     // className="flex gap-4 overflow-x-hidden no-scrollbar"
@@ -50,7 +51,7 @@ const Genres = () => {
                     {
                         genres.map((e) => {
                             return (
-                                <button className={`bg-gray-100  text-gray-600 border  flex gap-2 items-center  p-2 font-bold text-nowrap rounded-full my-0.5`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                <button className={`  text-gray-500 border-2 border-gray-300 px-3   flex gap-2 items-center  p-2 font-bold text-nowrap rounded-full  my-0.5 shadow-md`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
                                 </svg>

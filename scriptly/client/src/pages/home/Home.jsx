@@ -14,12 +14,12 @@ const Home = () => {
                     </h3>
                     <div className='flex gap-3'>
                         <Search />
-                        <Filters />
+                        {/* <Filters /> */}
                     </div>
                 </div>
                 <hr />
-                <Genres />
-                <hr />
+                {/* <Genres /> */}
+                {/* <hr /> */}
                 <Scripts />
             </div>
         </>

@@ -1,7 +1,9 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import { Outlet } from 'react-router-dom'
+import Sidebar from '../components/Sidebar'
 const HomeLayout = ({ children }) => {
+
     return (
         <>
             {/* <div className='bg-gray-100 min-h-[100vh] font-mono'>
@@ -12,11 +14,9 @@ const HomeLayout = ({ children }) => {
                     </div>
                 </div>
             </div> */}
-            <div className='grid grid-cols-8 h-screen ' >
-                <div className='col-span-1 flex flex-col gap-2 p-3 bg-gray-100'>
-                    <img src="/logo.png" width="140px" alt="" />
-                </div>
-                <div className='col-span-7 p-3'>
+            <div className='grid grid-cols-6 gap-2 h-screen p-2 font-mulish bg-gray-100/50' >
+                <Sidebar />
+                <div className='col-span-5'>
                     {/* <Navbar /> */}
                     <Outlet />
                 </div>

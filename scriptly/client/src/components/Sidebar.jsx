@@ -36,7 +36,7 @@ const Sidebar = () => {
     ]
     const options2 = [
         {
-            name: 'Create Script', route: '/setting', svg: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            name: 'Create Script', route: '/add', svg: (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
             ),
@@ -61,7 +61,7 @@ const Sidebar = () => {
         }
     ]
     return (
-        <div className='col-span-1 flex flex-col gap-3 p-3 pt-4 bg-gray-200/50 rounded-xl'>
+        <div className='col-span-1 flex flex-col gap-3 p-3 pt-4 bg-gray-200/50 rounded-xl shadow-md'>
             <div className='flex justify-between items-center text-gray-600'>
                 <img src="/logo.png" width="120px" alt="" className='' />
                 <div className='bg-white p-2 rounded-full shadow-md' >
@@ -83,7 +83,7 @@ const Sidebar = () => {
                 {
                     options1.map(option => {
                         return (
-                            <Link to={option.route} className={`text-gray-500 flex gap-2 p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-indigo-400' : ''}`} >   <span className='bg-white p-2 rounded-full shadow-md'>
+                            <Link to={option.route} className={`text-gray-500 flex gap-2 p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-black' : ''}`} >   <span className={`${option.route !== location.pathname ? 'bg-white' : 'bg-gray-200/50'} p-2 rounded-full shadow-md`}>
                                 {option.svg}
                             </span>{option.name}  </Link>
                         )

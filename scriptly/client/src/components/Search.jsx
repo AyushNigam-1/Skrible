@@ -4,7 +4,7 @@ const Search = () => {
     return (
         <div class="relative">
             <span class="absolute inset-y-0 start-0 grid w-10 place-content-center">
-                <button type="button" class="text-gray-600 hover:text-gray-700">
+                <button type="button" class="text-gray-400 ">
                     <span class="sr-only">Search ...</span>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -12,7 +12,7 @@ const Search = () => {
                         viewBox="0 0 24 24"
                         stroke-width="1.5"
                         stroke="currentColor"
-                        class="size-4"
+                        class="size-5"
                     >
                         <path
                             stroke-linecap="round"
@@ -27,7 +27,7 @@ const Search = () => {
                 type="text"
                 id="Search"
                 placeholder="Search"
-                class="w-72  h-14 bg-gray-100 border-gray-200 rounded-full py-2 ps-10 text-lg shadow-md outline-none px-3"
+                class="w-72  h-14 bg-gray-100 border-gray-200 rounded-lg py-2 ps-10 text-lg outline-none px-3"
             />
 
         </div>

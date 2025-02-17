@@ -3,9 +3,10 @@ import Search from '../../components/Search'
 import Filters from '../../components/Filters'
 import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
+import RequestsSidebar from '../../components/RequestsSidebar';
 
 const Requests = ({ data }) => {
-    console.log(data.getScriptById.requests)
+    console.log(data.getScriptById)
     const avatar = createAvatar(glass, {
         "seed": "Robert"
     });
@@ -15,14 +16,14 @@ const Requests = ({ data }) => {
     }
     const svg = avatar.toString();
     return (
-        <div className='flex flex-col gap-6'>
+        <div className='flex flex-col gap-1'>
             <div className='flex justify-between' >
-                <Search />
+                {/* <Search />
                 <span>
                     <Filters />
-                </span>
+                </span> */}
             </div>
-            <div className='grid grid-cols-2 gap-5 rounded-lg ' >
+            {/* <div className='grid grid-cols-2 gap-5 rounded-lg ' >
                 {
                     data.getScriptById.requests.map((request) => {
                         return (
@@ -42,12 +43,6 @@ const Requests = ({ data }) => {
                                                                 </svg>
                                                                 {request.status}
                                                             </p>
-                                                            {/* <p className='text-sm bg-green-100 text-green-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold' >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                                        </svg>
-                                                        Added 64 New Lines
-                                                    </p> */}
                                                             <p className='text-sm bg-gray-100 text-gray-800 justify-end rounded-full p-0.5 px-2 flex gap-1 items-center font-bold'>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -92,8 +87,19 @@ const Requests = ({ data }) => {
                         )
                     })
                 }
-            </div>
+            </div> */}
+            <div className='grid grid-cols-12 gap-2 h-full' >
+                <RequestsSidebar requests={data.getScriptById.requests} />
+                <div className='col-span-9 bg-gray-200/50 rounded-lg p-2' >
+                    {data.getScriptById.paragraphs.map(para => {
+                        return <div className='bg-white rounded-lg p-2 text-lg' > {para.text}</div>
+                    })}
+                    <div  >
 
+                    </div>
+
+                </div>
+            </div>
         </div>
     )
 }

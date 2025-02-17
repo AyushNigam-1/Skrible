@@ -57,7 +57,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                     <button
                         key={i}
                         onClick={() => setTab(t.name)}
-                        className={`w-full p-2
+                        className={`w-full p-2 outline-none
                                     transition-colors duration-300 text-xl  ${(i == tabs.length - 1) ? '' : 'border-gray-200 border-r-2'} 
                                    
                                     `}

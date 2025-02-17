@@ -7,7 +7,7 @@ const Paragraphs = ({ data, loading }) => {
     const [pinnedCard, setPinnedCard] = useState(null);
     const [showTextarea, setShowTextarea] = useState(false);
     const [newContribution, setNewContribution] = useState("");
-    const contributionEndRef = useRef < HTMLDivElement | null > (null);
+    const contributionEndRef = useRef(null);
     function formatFancyDate(timestamp) {
         const date = new Date(Number(timestamp));
         return date.toLocaleString("en-US", {
@@ -35,13 +35,13 @@ const Paragraphs = ({ data, loading }) => {
         setCursorClass('cursor-default'); // Reset cursor to default
     };
 
-    // const handleAddContribution = () => {
-    //     if (newContribution.trim()) {
-    //         contributions.push();
-    //         setNewContribution("");
-    //         setShowTextarea(false);
-    //     }
-    // };
+    const handleAddContribution = () => {
+        if (newContribution.trim()) {
+            contributions.push();
+            setNewContribution("");
+            setShowTextarea(!showTextarea);
+        }
+    };
     const handleCancel = () => {
         setNewContribution("");
         setShowTextarea(false);
@@ -105,43 +105,46 @@ const Paragraphs = ({ data, loading }) => {
                     )
                 }
             </ol>
-            {/* <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out flex flex-col gap-4  ${showTextarea ? "opacity-100 " : "opacity-0 "
-                    }`}>
-                <textarea
-                    rows={6}
-                    value={newContribution}
-                    onChange={(e) => setNewContribution(e.target.value)}
-                    className="w-full -md border-none rounded-lg p-4 outline-none resize-none"
-                    placeholder="Add your contribution..."
-                />
-                <div className='flex gap-3' >
-                    <button
-                        onClick={handleAddContribution}
-                        className="px-8 py-2 flex justify-center gap-1 bg-gray-200/50 text-gray-200 font-semibold rounded"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
+            <div className={`flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg ${showTextarea ? "opacity-100 " : "opacity-0 "
+                } `}>
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out flex flex-col gap-2  $`}>
+                    <textarea
+                        rows={6}
+                        value={newContribution}
+                        onChange={(e) => setNewContribution(e.target.value)}
+                        className="w-full -md border-none rounded-lg p-4 outline-none resize-none"
+                        placeholder="Add your contribution..."
+                    />
+                    <div className='flex gap-2' >
+                        <button
+                            onClick={handleAddContribution}
+                            className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
 
-                        Submit
-                    </button>
-                    <button
-                        onClick={handleCancel}
-                        className="px-8 py-2 bg-gray-300 flex justify-center gap-1 font-semibold text-gray-800 rounded"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
+                            Submit
+                        </button>
+                        <button
+                            onClick={handleCancel}
+                            className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
 
-                        Cancel
-                    </button >
+                            Cancel
+                        </button >
+                    </div>
                 </div>
-            </div> */}
+
+            </div>
             {/* Reference to scroll to the end */}
-            {/* <div ref={contributionEndRef} ></div> */}
-            {/* </div> */}
-        </div >
+            <div ref={contributionEndRef} ></div>
+        </div>
+        // </div >
     )
 }
 

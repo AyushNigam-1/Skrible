@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import Loader from './Loader';
+import { CREATE_REQUEST } from '../graphql/mutation/scriptMutations';
+import { useMutation } from '@apollo/client';
 
-const Paragraphs = ({ data, loading }) => {
+const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
 
     const [pinnedCard, setPinnedCard] = useState(null);
     const [showTextarea, setShowTextarea] = useState(false);
@@ -30,18 +32,38 @@ const Paragraphs = ({ data, loading }) => {
     const handlePinClick = () => {
         setCursorClass('cursor-pin'); // Change to pin cursor on click
     };
-    const handleCardClick = (index) => {
-        setPinnedCard(index); // Mark the card as pinned
-        setCursorClass('cursor-default'); // Reset cursor to default
-    };
+    // const handleCardClick = (index) => {
+    //     setPinnedCard(index); // Mark the card as pinned
+    //     setCursorClass('cursor-default'); // Reset cursor to default
+    // };
+    const [createRequest, { error }] = useMutation(CREATE_REQUEST, {
+        onCompleted: (data) => {
+            console.log("Request created:", data.createRequest);
+        },
+        onError: (error) => {
+            console.error("Error creating request:", error.message);
+        },
+    });
 
-    const handleAddContribution = () => {
-        if (newContribution.trim()) {
-            contributions.push();
+    const handleCreateRequest = async () => {
+        if (!newContribution.trim()) return alert("Request text cannot be empty!");
+        try {
+            const request = await createRequest({ variables: { scriptId: data?.getScriptById.id, text: newContribution } });
             setNewContribution("");
-            setShowTextarea(!showTextarea);
+            setTab("Requests")
+            refetch()
+            setRequest(request.createRequest)
+        } catch (err) {
+            console.error("Mutation failed:", err);
         }
     };
+    // const handleAddContribution = () => {
+    //     if (newContribution.trim()) {
+    //         contributions.push();
+    //         setNewContribution("");
+    //         setShowTextarea(!showTextarea);
+    //     }
+    // };
     const handleCancel = () => {
         setNewContribution("");
         setShowTextarea(false);
@@ -84,14 +106,14 @@ const Paragraphs = ({ data, loading }) => {
                     data?.getScriptById.paragraphs?.map((contribution, index) =>
                         <Link className='flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }} >
 
-                            <div class="flex justify-between rounded-full items-center">
-                                <div className='flex gap-2 '>
-                                    <img class="rounded-full w-10" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
-                                    <p className='text-lg text-gray-600' >
-                                        {contribution.author.username}
+                            <div className='flex gap-2' >
+                                <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
+                                <div className=''>
+                                    <p className='font-semibold text-lg text-gray-800' >{contribution.author.username}</p>
+                                    <p className='text-sm text-gray-600'>
+                                        {formatFancyDate(contribution.createdAt)}
                                     </p>
                                 </div>
-                                <p className='text-lg text-gray-600' >{formatFancyDate(contribution.createdAt)}</p>
                             </div>
                             <div className='word-spacing-1 flex flex-col relative gap-1  bg-white -md rounded-lg p-4'>
                                 <div className='  text-md text-gray-800' >
@@ -118,7 +140,7 @@ const Paragraphs = ({ data, loading }) => {
                     />
                     <div className='flex gap-2' >
                         <button
-                            onClick={handleAddContribution}
+                            onClick={handleCreateRequest}
                             className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

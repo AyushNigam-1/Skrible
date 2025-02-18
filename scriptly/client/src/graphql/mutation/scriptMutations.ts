@@ -39,6 +39,25 @@ export const ADD_SCRIPT = gql`
   }
 `;
 
+export const CREATE_REQUEST = gql`
+  mutation CreateRequest($scriptId: ID!, $text: String!) {
+    createRequest(scriptId: $scriptId, text: $text ) {
+            _id
+            author {
+              username
+            }
+            status
+            likes
+            dislikes
+            comments{
+              text
+            }
+            text
+            createdAt
+    }
+  }
+`;
+
 export const MARK_AS_INTERESTED = gql`
   mutation MarkAsInterested($scriptId: ID!) {
     markAsInterested(scriptId: $scriptId) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Tabs from '../../components/Tabs';
 import Paragraphs from '../../components/Paragraphs';
@@ -12,21 +12,24 @@ const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default');
     const [tab, setTab] = useState("Script")
+    const [request, setRequest] = useState()
 
-    const { data, loading, error } = useQuery(GET_SCRIPT_BY_ID, {
+    const { data, loading, error, refetch } = useQuery(GET_SCRIPT_BY_ID, {
         variables: { id },
         skip: !id,
     });
-    console.log(data)
+    useEffect(() => {
+        setRequest(data?.getScriptById?.requests[0])
+    }, [data])
     if (loading) return <Loader height="70vh" />
     if (error) return <p>{JSON.stringify(error)}</p>
 
     return (
-        <div className={`flex flex-col gap-6 sticky ${cursorClass}`}>
+        <div className={`flex flex-col gap-4 sticky ${cursorClass}`}>
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} /> : tab == "Requests" ? <Requests data={data} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
+                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
                 }
 
             </div>

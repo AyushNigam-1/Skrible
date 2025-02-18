@@ -27,7 +27,7 @@ const Search = () => {
                 type="text"
                 id="Search"
                 placeholder="Search"
-                class="w-72  h-14 bg-gray-100 border-gray-200 rounded-lg py-2 ps-10 text-lg outline-none px-3"
+                class="w-72  h-14 bg-gray-200/50 rounded-lg py-2 ps-10 text-lg outline-none px-3"
             />
 
         </div>

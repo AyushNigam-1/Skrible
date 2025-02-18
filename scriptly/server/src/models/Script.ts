@@ -7,34 +7,44 @@ const commentSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-const requestSchema = new mongoose.Schema({
-    author: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    status: {
-        type: String,
-        required: true,
-    },
-    likes: {
-        type: Number,
-        required: true,
-    },
-    dislikes: {
-        type: Number,
-        required: true,
-    },
-    comments: {
-        type: [commentSchema],
-        required: true,
-    },
-    text: {
-        type: String,
-        required: true,
-    }
 
-}, { timestamps: true });
+const requestSchema = new mongoose.Schema(
+    {
+        _id: {
+            type: Schema.Types.ObjectId,
+            required: true,
+        },
+        author: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        status: {
+            type: String,
+            required: true,
+        },
+        likes: {
+            type: Number,
+            required: true,
+            default: 0, // Assuming likes default to 0
+        },
+        dislikes: {
+            type: Number,
+            required: true,
+            default: 0, // Assuming dislikes default to 0
+        },
+        comments: {
+            type: [commentSchema], // Referring to the commentSchema
+            required: true,
+            default: [], // Defaulting to an empty array
+        },
+        text: {
+            type: String,
+            required: true,
+        },
+    },
+    { timestamps: true } // Automatically adds createdAt and updatedAt fields
+);
 
 const paragraphSchema = new mongoose.Schema({
     text: {
@@ -115,12 +125,16 @@ export interface IScript extends Document {
         }[];
     }[];
     requests: {
+        _id: Types.ObjectId;
+        author: Types.ObjectId; // Reference to the User
         status: string;
+        likes: number;
         dislikes: number;
         comments: {
             text: string;
             createdAt: string;
-        }[];
+        }[]; // Array of comment objects
+        text: string;
     }[];
 }
 

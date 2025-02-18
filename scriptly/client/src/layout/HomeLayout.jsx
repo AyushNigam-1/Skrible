@@ -14,7 +14,7 @@ const HomeLayout = ({ children }) => {
                     </div>
                 </div>
             </div> */}
-            <div className='grid grid-cols-6 gap-2 h-screen p-2 font-mulish bg-gray-100/50' >
+            <div className='grid grid-cols-6 gap-4 h-screen p-2 font-mulish bg-gray-100/50' >
                 <Sidebar />
                 <div className='col-span-5'>
                     {/* <Navbar /> */}

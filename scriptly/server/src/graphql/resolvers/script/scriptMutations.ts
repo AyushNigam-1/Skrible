@@ -65,6 +65,40 @@ export const scriptMutations = {
 
         return populatedScript;
     },
+    createRequest: async (_: any, { scriptId, text }: any, context: { user: { id: string } }) => {
+        if (!context.user) {
+            throw new Error("Unauthorized");
+        }
+
+        const author = new mongoose.Types.ObjectId(context.user.id);
+
+        const script = await Script.findById(scriptId);
+        if (!script) {
+            throw new Error("Script not found");
+        }
+
+        const newRequest = {
+            _id: new mongoose.Types.ObjectId(),
+            author,
+            status: "pending",  // Default status
+            likes: 0,
+            dislikes: 0,
+            comments: [],
+            text,
+        };
+
+        script.requests.push(newRequest);
+        await script.save();
+        await User.findByIdAndUpdate(author, { $push: { contributions: newRequest._id } });
+        const populatedRequest = await Script.findById(scriptId)
+            .select('requests')
+            .populate('requests.author'); // This will populate the author field of the new request
+
+        // Find the newly added request within the populated requests array
+        const populatedNewRequest = populatedRequest?.requests.find(request => request._id.toString() === newRequest._id.toString());
+
+        return populatedNewRequest;
+    },
     markAsInterested: async (
         _: any,
         { scriptId }: { scriptId: string },

@@ -15,6 +15,7 @@ interface IUser extends Document {
     favourites: Types.ObjectId[];  // Script IDs marked as favourites
     interested: Types.ObjectId[];  // Script IDs marked as interested
     notInterested: Types.ObjectId[];
+    contributions: Types.ObjectId[]
 }
 
 const UserSchema: Schema = new Schema({
@@ -31,7 +32,8 @@ const UserSchema: Schema = new Schema({
     followers: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     favourites: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
     interested: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
-    notInterested: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] }
+    notInterested: { type: [Schema.Types.ObjectId], ref: 'Script', default: [] },
+    contributions: { type: [Schema.Types.ObjectId], ref: 'Request', default: [] } // Added field
 
 }, { timestamps: true });
 

@@ -1,5 +1,6 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // Adjust this path if your files are in a different directory
@@ -27,8 +28,8 @@ export default {
           wordSpacing: '2rem',    // 32px spacing
         },
       };
-
       addUtilities(newUtilities, ['responsive', 'hover']); // Make them available for responsive and hover states
     },
+    require('tailwind-scrollbar'),
   ],
 };

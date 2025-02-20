@@ -54,8 +54,8 @@ export const requestMutations = {
             throw new GraphQLError("Request not found");
         }
 
-        // Now push this request as a new paragraph
-        const updatedScript = await Script.findByIdAndUpdate(
+        // Push this request as a new paragraph
+        await Script.findByIdAndUpdate(
             scriptId,
             {
                 $push: {
@@ -66,27 +66,44 @@ export const requestMutations = {
                         dislikes: request.dislikes,
                         comments: request.comments
                     }
-                },
-                $set: {
-                    "requests.$[accepted].status": "accepted",
-                    "requests.$[declined].status": "declined"
-                },
+                }
+            }
+        );
 
+        // Accept the request
+        await Script.findByIdAndUpdate(
+            scriptId,
+            {
+                $set: { "requests.$[accepted].status": "accepted" }
             },
             {
-                arrayFilters: [
-                    { "accepted._id": requestObjectId },
-                    { "declined.status": "pending" } // Only decline pending requests
-                ],
+                arrayFilters: [{ "accepted._id": requestObjectId }],
                 new: true
             }
-        ).populate("requests.author")
+        );
+
+        // Decline all other pending requests
+        await Script.findByIdAndUpdate(
+            scriptId,
+            {
+                $set: { "requests.$[declined].status": "declined" }
+            },
+            {
+                arrayFilters: [{ "declined.status": "pending", "declined._id": { $ne: requestObjectId } }],
+                new: true
+            }
+        );
+
+        // Return the updated script with populated fields
+        const updatedScript = await Script.findById(scriptId)
+            .populate("requests.author")
             .populate("requests.comments.author")
             .populate("paragraphs.author")
             .populate("paragraphs.comments.author")
-            .populate("author"); // Populate all necessary fields;
+            .populate("author");
 
         return updatedScript;
     },
+
 
 }

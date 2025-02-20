@@ -20,7 +20,7 @@ export const userTypeDefs = gql`
   type Query {
     getUserProfile(id: ID!): User
     getUserScripts(userId: ID!): [Script!]!
-
+    getUserContributions(_id: ID!): [Request!]!
   }
 
   type Mutation {

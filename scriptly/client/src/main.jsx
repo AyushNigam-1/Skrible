@@ -12,7 +12,7 @@ import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layout/AuthLayout";
 import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, ApolloLink } from '@apollo/client';
 import Script from "./pages/scripts/Script";
-import Wishlist from "./pages/wishlist/Wishlist";
+import Favourites from "./pages/favourites/Favourites";
 import Contributions from "./pages/contributions/Contributions";
 import Notifications from "./pages/notification/Notifications";
 import Profile from "./pages/profile/Profile";
@@ -60,8 +60,8 @@ const router = createBrowserRouter([
         element: <Script />
       },
       {
-        path: "/wishlist",
-        element: <Wishlist />
+        path: "/favourites",
+        element: <Favourites />
       },
       {
         path: "/contributions",

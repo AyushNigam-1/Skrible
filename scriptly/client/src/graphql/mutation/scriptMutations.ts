@@ -57,7 +57,45 @@ export const CREATE_REQUEST = gql`
     }
   }
 `;
-
+export const ACCEPT_REQUEST = gql`
+  mutation AcceptRequest($scriptId: ID!, $requestId: ID!) {
+    acceptRequest(scriptId: $scriptId, requestId: $requestId) {
+      id
+      paragraphs {
+        text
+        author{
+          username
+        }
+        likes
+        dislikes
+        comments {
+          text
+          author{
+            username
+          }
+          createdAt
+        }
+      }
+      requests {
+        _id
+        text
+        author{
+          username
+        }
+        status
+        likes
+        dislikes
+        comments {
+          text
+          author{
+            username
+          }
+          createdAt
+        }
+      }
+    }
+  }
+`;
 export const MARK_AS_INTERESTED = gql`
   mutation MarkAsInterested($scriptId: ID!) {
     markAsInterested(scriptId: $scriptId) {

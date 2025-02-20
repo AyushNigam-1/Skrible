@@ -37,7 +37,7 @@ const startServer = async () => {
       context: async ({ req, res }) => ({
         req,
         res,
-        user: req.user,
+        user: req.user || { id: '' },
       }),
     })
   );

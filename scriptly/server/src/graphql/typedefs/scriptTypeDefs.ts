@@ -35,7 +35,7 @@ export const scriptTypeDefs = gql`
 
   type Script {
     author: Author!
-    id: ID!
+    _id: ID!
     title: String!
     visibility: String!
     description: String!

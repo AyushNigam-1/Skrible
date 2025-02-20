@@ -12,16 +12,18 @@ const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default');
     const [tab, setTab] = useState("Script")
-    const [request, setRequest] = useState()
+    const [request, setRequest] = useState(null)
 
     const { data, loading, error, refetch } = useQuery(GET_SCRIPT_BY_ID, {
         variables: { id },
         skip: !id,
     });
     useEffect(() => {
-        setRequest(data?.getScriptById?.requests[0])
+        if (!request) {
+            setRequest(data?.getScriptById?.requests[0])
+        }
     }, [data])
-    if (loading) return <Loader height="70vh" />
+    if (loading) return <Loader height="100vh" />
     if (error) return <p>{JSON.stringify(error)}</p>
 
     return (
@@ -29,7 +31,7 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
+                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} setTab={setTab} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
                 }
 
             </div>

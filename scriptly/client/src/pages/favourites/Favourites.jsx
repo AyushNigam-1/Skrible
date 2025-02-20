@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Wishlist = () => {
+const Favourites = () => {
     return (
         <div>Wishlist</div>
     )
 }
 
-export default Wishlist
+export default Favourites

@@ -52,7 +52,8 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
             setNewContribution("");
             setTab("Requests")
             refetch()
-            setRequest(request.createRequest)
+            // console.log(request)
+            setRequest(request.data.createRequest)
         } catch (err) {
             console.error("Mutation failed:", err);
         }
@@ -101,32 +102,31 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
                     </button>
                 </div>
             </div>
-            <ol class={`relative ${data.getScriptById.paragraphs.length > 1 ? 'border-s-2 border-indigo-400/50 border-solid' : ''}`}>
-                {
-                    data?.getScriptById.paragraphs?.map((contribution, index) =>
-                        <Link className='flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }} >
+            {
+                data?.getScriptById.paragraphs?.map((contribution, index) =>
+                    <Link className='flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }} key={index} >
 
-                            <div className='flex gap-2' >
-                                <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
-                                <div className=''>
-                                    <p className='font-semibold text-lg text-gray-800' >{contribution.author.username}</p>
-                                    <p className='text-sm text-gray-600'>
-                                        {formatFancyDate(contribution.createdAt)}
-                                    </p>
-                                </div>
+                        <div className='flex gap-2' >
+                            <img className="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
+                            <div className=''>
+                                <p className='font-semibold text-lg text-gray-800' >{contribution.author.username}</p>
+                                <p className='text-sm text-gray-600'>
+                                    {formatFancyDate(contribution.createdAt)}
+                                </p>
                             </div>
-                            <div className='word-spacing-1 flex flex-col relative gap-1  bg-white -md rounded-lg p-4'>
-                                <div className='  text-md text-gray-800' >
-                                    <p className='text-xl font-mulish'>
-                                        {contribution.text}
-                                    </p>
-                                </div>
+                        </div>
+                        <div className='word-spacing-1 flex flex-col relative gap-1  bg-white -md rounded-lg p-4'>
+                            <div className='  text-md text-gray-800' >
+                                <p className='text-xl font-mulish'>
+                                    {contribution.text}
+                                </p>
                             </div>
+                        </div>
 
-                        </Link>
-                    )
-                }
-            </ol>
+                    </Link>
+                )
+            }
+
             <div className={`flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg ${showTextarea ? "opacity-100 " : "opacity-0 "
                 } `}>
                 <div

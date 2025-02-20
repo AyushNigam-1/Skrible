@@ -44,6 +44,32 @@ export const userQueries = {
         } catch (error: any) {
             throw new Error(error.message);
         }
+    },
+    getUserContributions: async (_: any, { _id }: { _id: string }) => {
+        const user = await User.findById(_id).lean();
+        if (!user) return [];
+
+        // Find scripts that contain the user's contributions
+        const scripts = await Script.find(
+            { "requests._id": { $in: user.contributions } },
+            { "requests.$": 1, title: 1 } // Retrieve only the matching requests
+        )
+            .populate({
+                path: "requests.author",
+                select: "username email",
+            })
+            .lean();
+
+        // Extract the requests from scripts
+        console.log(scripts);
+        const contributions = scripts.flatMap(script =>
+            script.requests.map(request => ({
+                scriptId: script._id,
+                scriptTitle: script.title,
+                ...request
+            }))
+        );
+        return contributions;
     }
 
 };

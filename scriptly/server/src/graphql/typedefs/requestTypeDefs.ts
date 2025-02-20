@@ -10,6 +10,8 @@ type Request {
     comments: [Comment!]!
     text: String!
     createdAt: String!
+    scriptId: ID  
+    scriptTitle: String 
 }
 
   type Mutation {

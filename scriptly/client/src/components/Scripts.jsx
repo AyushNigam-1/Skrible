@@ -8,7 +8,7 @@ import Loader from './Loader';
 import Cookies from 'js-cookie';
 import { DELETE_SCRIPT, MARK_AS_FAVOURITE, MARK_AS_INTERESTED, MARK_AS_NOT_INTERESTED } from '../graphql/mutation/scriptMutations';
 import { Link } from 'react-router-dom';
-const Scripts = () => {
+const Scripts = ({ data }) => {
 
     const avatar = createAvatar(glass, {
         "seed": "Robert"
@@ -95,19 +95,15 @@ const Scripts = () => {
             )
         }
     ];
-    const { data, loading, error } = useQuery(GET_ALL_SCRIPTS);
 
-    if (loading) return <Loader height="70vh" />
-    if (error) return <p>Error: {error.message}</p>;
-    const svg = avatar.toString();
 
     return (
         <div className='grid grid-cols-2 gap-5'>
             {
                 data?.getAllScripts?.map(e => {
                     return (
-                        <div className='bg-gray-100 rounded-lg p-3 flex  gap-4 shadow-md h-full' >
-                            <Link to={`script/${e.id}`} className='flex flex-col gap-3 w-full justify-between'>
+                        <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4 shadow-md h-full' >
+                            <Link to={`script/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                                 <div className='flex gap-2'>
                                     {/* <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} /> */}
                                     <div className='flex flex-col gap-4 w-full' >

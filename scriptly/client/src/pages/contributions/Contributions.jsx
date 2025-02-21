@@ -10,7 +10,6 @@ const Contributions = ({ data }) => {
             month: "short",
             day: "numeric"
         }) + ` , ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
-
     }
     return (
         <div className='flex flex-col gap-4' >
@@ -23,12 +22,12 @@ const Contributions = ({ data }) => {
             <div className='grid grid-cols-2 gap-5' >
                 {
                     data.getScriptById.paragraphs.map((para) => {
-                        return <div className='flex-col flex justify-between bg-gray-200/50  gap-2 p-2 rounded-lg relative' >
-                            <div className='flex flex-col gap-3'>
+                        return <div className='flex-col flex justify-between bg-gray-200/50  gap-2 p-2 rounded-lg relative' key={para.id} >
+                            <div className='flex flex-col gap-3' >
                                 {/* <div className='flex gap-2'  > */}
                                 <div className='flex justify-between items-center'  >
                                     <div className='flex gap-2' >
-                                        <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
+                                        <img className="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
                                         <div className=''>
                                             <p className='font-semibold text-lg text-gray-800' >{para.author.username}</p>
                                             <p className='text-sm text-gray-600'>
@@ -72,8 +71,7 @@ const Contributions = ({ data }) => {
                     })
                 }
             </div>
-
-        </div >
+        </div>
     )
 }
 

@@ -12,7 +12,7 @@ const Profile = () => {
     });
 
     if (error) return <p>Error: {error.message}</p>;
-
+    console.log(data)
     if (loading) return <Loader height="90vh" />
 
     const userDetails = [
@@ -106,84 +106,92 @@ const Profile = () => {
     },
     ]
     return (
-        <div className='flex container mx-auto rounded-md gap-3' >
-            <div className='flex flex-col gap-3 w-64 bg-white p-4 rounded-lg' >
-                <img src="/person.jpg" className='rounded-full w-48' alt="" />
-                <hr />
-                <div className='flex gap-3 flex-col'>
-                    {
-                        sidebarInfo.map(info => {
-                            return (
-                                <>
-                                    <div>
-                                        <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                                            {info.svg}
-                                            {info.title}
-                                        </h4>
-                                        <span className='flex items-center gap-2' >
-                                            <p className='text-lg font-semibold text-gray-800' >{info.value}</p>
-                                        </span>
-                                    </div>
-                                    <hr />
-                                </>
-                            )
-                        })
-                    }
-                    <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg> Like
-                    </button>
-                    <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                    </svg>
-                        Follow
-                    </button>
+        // <div className='flex container mx-auto rounded-md gap-3' >
+        //     <div className='flex flex-col gap-3 w-64 bg- p-4 rounded-lg' >
+        //         <img src="/person.jpg" className='rounded-full w-48' alt="" />
+        //         <hr />
+        //         <div className='flex gap-3 flex-col'>
+        //             {
+        //                 sidebarInfo.map(info => {
+        //                     return (
+        //                         <>
+        //                             <div>
+        //                                 <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+        //                                     {info.svg}
+        //                                     {info.title}
+        //                                 </h4>
+        //                                 <span className='flex items-center gap-2' >
+        //                                     <p className='text-lg font-semibold text-gray-800' >{info.value}</p>
+        //                                 </span>
+        //                             </div>
+        //                             <hr />
+        //                         </>
+        //                     )
+        //                 })
+        //             }
+        //             <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+        //                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+        //             </svg> Like
+        //             </button>
+        //             <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+        //                 <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+        //             </svg>
+        //                 Follow
+        //             </button>
+        //         </div>
+        //     </div>
+        //     <div className='flex gap-3 flex-col bg-white p-4 rounded-lg w-full' >
+        //         {userDetails.map(details => {
+        //             return (
+        //                 <>
+        //                     <div className='flex gap-1 flex-col'>
+        //                         <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+        //                             {details.svg}
+        //                             {details.title}  </h4>
+        //                         <span className='flex items-center gap-2' >
+        //                             <p className='text-lg font-semibold text-gray-800' >{details.value}</p>
+        //                         </span>
+        //                     </div>
+        //                     <hr />
+        //                 </>
+        //             )
+        //         })}
+
+        //     </div>
+        // </div>
+        <div className='relative'>
+            <span className='absolute h-60 w-full bg-gradient-to-r from-gray-200/50 to-gray-50 rounded-xl'></span>
+            <div className='relative flex justify-between container mx-auto pt-32 z-50' >
+                <div className='flex gap-3'>
+                    <img src="/person.jpg" className='rounded-xl w-64' alt="" />
+                    <div className=' flex-col gap-3 flex mt-auto' >
+                        <h4 className='text-3xl font-bold'>Ayush Nigam</h4>
+                        <p className='text-gray-500 text-lg w-60' >Lorem ipsum, dolor sit amet consectetur adipisicing.</p>
+                        <div className='flex gap-2 ' >
+                            <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                            </svg>Follow</button>
+                            <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                            </svg>
+                                Like</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className='flex gap-3 flex-col bg-white p-4 rounded-lg w-full' >
-                {userDetails.map(details => {
-                    return (
-                        <>
-                            <div className='flex gap-1 flex-col'>
-                                <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                                    {details.svg}
-                                    {details.title}  </h4>
-                                <span className='flex items-center gap-2' >
-                                    <p className='text-lg font-semibold text-gray-800' >{details.value}</p>
-                                </span>
-                            </div>
-                            <hr />
-                        </>
-                    )
-                })}
-                {/* <div className='flex gap-1 flex-col'>
-                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
-                        </svg>
-                        Intrests
-                    </h4>
-                    <div className='flex gap-3 flex-wrap' >
-                        {
-                            [
-                                { genre: 'Horror', bg: 'bg-red-100', color: 'text-red-800' },
-                                { genre: 'Action', bg: 'bg-blue-100', color: 'text-blue-800' },
-                                { genre: 'Comedy', bg: 'bg-yellow-100', color: 'text-yellow-800' },
-                                { genre: 'Drama', bg: 'bg-green-100', color: 'text-green-800' },
-                                { genre: 'Sci-Fi', bg: 'bg-purple-100', color: 'text-purple-800' },
-                                { genre: 'Fantasy', bg: 'bg-indigo-100', color: 'text-indigo-800' },
-                                { genre: 'Thriller', bg: 'bg-orange-100', color: 'text-orange-800' },
-                                { genre: 'Romance', bg: 'bg-pink-100', color: 'text-pink-800' },
-                                { genre: 'Mystery', bg: 'bg-gray-100', color: 'text-gray-800' },
-                                { genre: 'Animation', bg: 'bg-teal-100', color: 'text-teal-800' }
-                            ].map(({ genre, bg, color }) => {
-                                return <p className='text-lg font-semibold text-gray-800 py-1 px-2 bg-gray-100 rounded-full' > # {genre}  </p>
-                            })
-                        }
+                <div className='flex gap-4 h-full mt-auto' >
+                    <div className='flex gap-2 flex-col'>
+                        <p className=' text-gray-600 text-lg' >  Followers</p>
+                        <p className='text-5xl font-bold text-gray-800' >0</p>
                     </div>
-                    <div>
+                    <div className='flex gap-2 flex-col'>
+                        <p className=' text-gray-600 text-lg' >  Views</p>
+                        <p className='text-5xl font-bold text-gray-800' >0</p>
                     </div>
-                </div> */}
+                    <div className='flex gap-2 flex-col'>
+                        <p className=' text-gray-600 text-lg' >  Likes</p>
+                        <p className='text-5xl font-bold text-gray-800' >0</p>
+                    </div>
+                </div>
             </div>
         </div>
 

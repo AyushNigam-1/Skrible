@@ -10,9 +10,8 @@ const Profile = () => {
         variables: { id: userId },
         skip: !userId,
     });
-
-    if (error) return <p>Error: {error.message}</p>;
     console.log(data)
+    if (error) return <p>Error: {error.message}</p>;
     if (loading) return <Loader height="90vh" />
 
     const userDetails = [
@@ -106,93 +105,117 @@ const Profile = () => {
     },
     ]
     return (
-        // <div className='flex container mx-auto rounded-md gap-3' >
-        //     <div className='flex flex-col gap-3 w-64 bg- p-4 rounded-lg' >
-        //         <img src="/person.jpg" className='rounded-full w-48' alt="" />
-        //         <hr />
-        //         <div className='flex gap-3 flex-col'>
-        //             {
-        //                 sidebarInfo.map(info => {
-        //                     return (
-        //                         <>
-        //                             <div>
-        //                                 <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-        //                                     {info.svg}
-        //                                     {info.title}
-        //                                 </h4>
-        //                                 <span className='flex items-center gap-2' >
-        //                                     <p className='text-lg font-semibold text-gray-800' >{info.value}</p>
-        //                                 </span>
-        //                             </div>
-        //                             <hr />
-        //                         </>
-        //                     )
-        //                 })
-        //             }
-        //             <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-        //                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-        //             </svg> Like
-        //             </button>
-        //             <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-indigo-400 text-white font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-        //                 <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-        //             </svg>
-        //                 Follow
-        //             </button>
-        //         </div>
-        //     </div>
-        //     <div className='flex gap-3 flex-col bg-white p-4 rounded-lg w-full' >
-        //         {userDetails.map(details => {
-        //             return (
-        //                 <>
-        //                     <div className='flex gap-1 flex-col'>
-        //                         <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
-        //                             {details.svg}
-        //                             {details.title}  </h4>
-        //                         <span className='flex items-center gap-2' >
-        //                             <p className='text-lg font-semibold text-gray-800' >{details.value}</p>
-        //                         </span>
-        //                     </div>
-        //                     <hr />
-        //                 </>
-        //             )
-        //         })}
 
-        //     </div>
-        // </div>
-        <div className='relative'>
-            <span className='absolute h-60 w-full bg-gradient-to-r from-gray-200/50 to-gray-50 rounded-xl'></span>
-            <div className='relative flex justify-between container mx-auto pt-32 z-50' >
+        <div className='flex gap-4 flex-col'>
+            <div className='flex justify-between items-center'>
+                <h3 className='text-4xl font-black text-gray-700 ' >
+                    Profile
+                </h3>
                 <div className='flex gap-3'>
-                    <img src="/person.jpg" className='rounded-xl w-64' alt="" />
-                    <div className=' flex-col gap-3 flex mt-auto' >
-                        <h4 className='text-3xl font-bold'>Ayush Nigam</h4>
-                        <p className='text-gray-500 text-lg w-60' >Lorem ipsum, dolor sit amet consectetur adipisicing.</p>
-                        <div className='flex gap-2 ' >
-                            <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                            </svg>Follow</button>
-                            <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                    <button className='flex gap-2 items-center text-lg  bg-gray-200/50 text-black text-md py-4 px-6 rounded-lg'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>Setting</button>
+
+                </div>
+            </div>
+            <div className='flex rounded-md gap-3' >
+                <div className='flex flex-col gap-3 w-64 bg- p-4 rounded-lg bg-gray-200/50' >
+                    <img src="/person.jpg" className='rounded-full w-48' alt="" />
+                    <hr />
+                    <div className='flex gap-3 flex-col'>
+                        {
+                            sidebarInfo.map(info => {
+                                return (
+                                    <>
+                                        <div>
+                                            <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+                                                {info.svg}
+                                                {info.title}
+                                            </h4>
+                                            <span className='flex items-center gap-2' >
+                                                <p className='text-lg font-semibold text-gray-800' >{info.value}</p>
+                                            </span>
+                                        </div>
+                                        <hr />
+                                    </>
+                                )
+                            })
+                        }
+                        <button className='flex gap-2 items-center justify-center w-full p-2 rounded-lg bg-white shadow-md text-gray-600 font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg> Like
+                        </button>
+                        {userId != data.getUserProfile.id && <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-white shadow-md text-gray-600 font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+                            Follow
+                        </button>}
+                    </div>
+                </div>
+                <div className='flex gap-3 flex-col bg-gray-200/50 p-4 rounded-lg w-full' >
+                    {userDetails.map(details => {
+                        return (
+                            <>
+                                <div className='flex gap-1 flex-col'>
+                                    <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
+                                        {details.svg}
+                                        {details.title}  </h4>
+                                    <span className='flex items-center gap-2' >
+                                        <p className='text-lg font-semibold text-gray-800' >{details.value}</p>
+                                    </span>
+                                </div>
+                                <hr />
+                            </>
+                        )
+                    })}
+
+                </div>
+            </div>
+            {/* <div className='flex gap-2 container mx-auto' >
+                <img src="/person.jpg" className='rounded-xl w-64' alt="" />
+                <div className='flex flex-col gap-3 w-full' >
+                    <div className='flex gap-3 justify-between '>
+                        <div className=' flex-col gap-3 flex' >
+                            <h4 className='text-3xl font-bold'>Ayush Nigam</h4>
+                            <p className='text-gray-500 text-lg w-60 flex items-center gap-1' ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                             </svg>
-                                Like</button>
+                                Lucknow , Uttar Pradesh </p>
+                            <div className='flex gap-2 ' >
+                                <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                                </svg>Follow</button>
+                                <button className='bg-white p-3 rounded-lg shadow-lg text-gray-600 text-xl py flex itme  items-center gap-2' ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                </svg>
+                                    Like</button>
+                            </div>
+                        </div>
+                        <div className='flex gap-4 h-full' >
+                            <div className='flex gap-2 flex-col'>
+                                <p className=' text-gray-600 text-lg' >  Followers</p>
+                                <p className='text-5xl font-bold text-gray-800' >0</p>
+                            </div>
+                            <div className='flex gap-2 flex-col'>
+                                <p className=' text-gray-600 text-lg' >  Views</p>
+                                <p className='text-5xl font-bold text-gray-800' >0</p>
+                            </div>
+                            <div className='flex gap-2 flex-col'>
+                                <p className=' text-gray-600 text-lg' >  Likes</p>
+                                <p className='text-5xl font-bold text-gray-800' >0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='flex flex-col gap-3' >
+                        <h4 className='text-gray-600 text-lg'>Badges</h4>
+                        <div className='flex flex-col gap-3' >
+                            <span className='bg-green-200 text-gray-800 border-2 border-green-500 p-2 rounded-full text-lg font-bold w-min' > Newbie </span>
                         </div>
                     </div>
                 </div>
-                <div className='flex gap-4 h-full mt-auto' >
-                    <div className='flex gap-2 flex-col'>
-                        <p className=' text-gray-600 text-lg' >  Followers</p>
-                        <p className='text-5xl font-bold text-gray-800' >0</p>
-                    </div>
-                    <div className='flex gap-2 flex-col'>
-                        <p className=' text-gray-600 text-lg' >  Views</p>
-                        <p className='text-5xl font-bold text-gray-800' >0</p>
-                    </div>
-                    <div className='flex gap-2 flex-col'>
-                        <p className=' text-gray-600 text-lg' >  Likes</p>
-                        <p className='text-5xl font-bold text-gray-800' >0</p>
-                    </div>
-                </div>
-            </div>
+            </div> */}
         </div>
 
     )

@@ -104,7 +104,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
             </div>
             {
                 data?.getScriptById.paragraphs?.map((contribution, index) =>
-                    <Link className='flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }} key={index} >
+                    <Link className='flex flex-col p-2 gap-2 h-full bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }} key={index} >
 
                         <div className='flex gap-2' >
                             <img className="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
@@ -115,7 +115,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
                                 </p>
                             </div>
                         </div>
-                        <div className='word-spacing-1 flex flex-col relative gap-1  bg-white -md rounded-lg p-4'>
+                        <div className='word-spacing-1 flex flex-col relative gap-1  bg-white -md rounded-lg p-3'>
                             <div className='  text-md text-gray-800' >
                                 <p className='text-xl font-mulish'>
                                     {contribution.text}

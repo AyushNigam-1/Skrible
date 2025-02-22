@@ -8,7 +8,7 @@ const ScriptDetails = ({ data, loading }) => {
         return date.toLocaleString();
     }
     return (
-        <div className='col-span-2 sticky top-6 h-min bg-white rounded-md p-4 gap-3 flex flex-col shadow-md' >
+        <div className='col-span-2 sticky top-6 h-min bg-gray-200/50 rounded-lg p-4 gap-3 flex flex-col shadow-md' >
             <div className='flex gap-1 flex-col'>
                 <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">

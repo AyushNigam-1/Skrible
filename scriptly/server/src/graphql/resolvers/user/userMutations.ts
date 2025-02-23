@@ -3,7 +3,7 @@ import User from "../../../models/User";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 dotenv.config();
 
@@ -30,11 +30,12 @@ export const userMutations = {
 
         // Set the token in the cookie
         res.cookie(COOKIE_NAME, token, {
-            httpOnly: true, // Helps mitigate XSS attacks
-            secure: process.env.NODE_ENV === 'production', // Ensure it's only sent over HTTPS in production
-            sameSite: 'none', // Important for cross-site requests
-            maxAge: 24 * 60 * 60 * 1000, // Cookie expiration time (1 day)
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" ? true : false, // Secure only in production
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "lax" for local testing
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
+
 
         return {
             id: newUser._id,
@@ -52,6 +53,8 @@ export const userMutations = {
     },
 
     login: async (_: any, { username, password }: { username: string; password: string }, { res }: { res: Response }) => {
+        console.log("Response Headers Before Setting Cookie:", res.getHeaders());
+
         const user = await User.findOne({ username });
         if (!user) {
             throw new GraphQLError('Invalid username or password');
@@ -64,13 +67,13 @@ export const userMutations = {
 
         const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1D' });
 
-        // Set the token in the cookie
         res.cookie(COOKIE_NAME, token, {
-            httpOnly: true, // Helps mitigate XSS attacks
-            secure: process.env.NODE_ENV === 'production', // Ensure it's only sent over HTTPS in production
-            sameSite: 'none', // Important for cross-site requests
-            maxAge: 24 * 60 * 60 * 1000, // Cookie expiration time (1 day)
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" ? true : false, // Secure only in production
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "lax" for local testing
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
+
 
         return {
             id: user._id,
@@ -86,4 +89,17 @@ export const userMutations = {
             follows: user.follows,
         };
     },
+    logout: (_: unknown, __: unknown, { req, res }: {
+        req: Request;
+        res: Response;
+    }): boolean => {
+        if (res) {
+            res.clearCookie(COOKIE_NAME, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+            });
+        }
+        return true;
+    }
 };

@@ -90,9 +90,11 @@ const Sidebar = () => {
                 {
                     options1.map((option, index) => {
                         return (
-                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2 p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-black' : ''}`} >   <span className={`${option.route !== location.pathname ? 'bg-white' : 'bg-gray-200/50'} p-2 rounded-full shadow-md`}>
-                                {option.svg}
-                            </span>{option.name}  </Link>
+                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
+                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-full shadow-md'} p-2 `}>
+                                    {option.svg}
+                                </span>
+                                {option.name}  </Link>
                         )
                     })
                 }
@@ -109,8 +111,8 @@ const Sidebar = () => {
                 {
                     options2.map((option, index) => {
                         return (
-                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2 p-2 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-900' : ''}`} >
-                                <span className='bg-white p-2 rounded-full shadow-md'>
+                            <Link to={option.route} key={index} className={`text-gray-500 flex  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-900 ' : 'gap-2'}`} >
+                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-full shadow-md'} p-2 `}>
                                     {option.svg}
                                 </span>
                                 {option.name}  </Link>

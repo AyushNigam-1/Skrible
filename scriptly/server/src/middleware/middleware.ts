@@ -17,18 +17,18 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     if (req.path === '/graphql') {
         const operationName = req.body.operationName;
 
-        const allowedOperations = ['Register', 'Login', 'GetAllScripts', 'GetScriptById'];
+        const allowedOperations = ['Register', 'Login', 'GetAllScripts', 'GetScriptById', 'Logout'];
         if (operationName && allowedOperations.includes(operationName)) {
             return next();
         }
     }
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = req.cookies?.jwt;
+
+    if (!token) {
         return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
 
-    const token = authHeader.split(" ")[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
         req.user = { id: decoded.id };

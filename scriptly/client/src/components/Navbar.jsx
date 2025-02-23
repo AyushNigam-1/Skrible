@@ -55,57 +55,18 @@ const Navbar = () => {
         color: 'text-red-600'
     }]
     return (
-        <header class="bg-gray-100 w-full ">
-            <div class="flex h-16  items-center gap-8 container mx-auto">
-                <div class="flex flex-1 items-center justify-end md:justify-between">
+        <header class="bg-gray-200/50 w-full rounded-xl ">
+            <div class="flex h-16  items-center gap-8 px-4">
+                <div class="flex flex-1 items-center justify-end md:justify-between container mx-auto">
                     <nav aria-label="Global" class="hidden md:block">
-                        {/* <ul class="flex items-center gap-6 text-sm">
-                            <li>
-                                <img src="/logo.png" width="140px" alt="" />
-                            </li>
-                        </ul> */}
+                        <img src="/logo.png" width="140px" alt="" />
                     </nav>
-                    {!Cookies.get('jwt') ? <div className='flex gap-3' >
-                        {options1.map(option => <Link className='flex gap-2  items-center justify-center py-2 px-4 shadow rounded-lg bg-indigo-400 text-white' to={option.route} >
+                    <div className='flex gap-3' >
+                        {options1.map(option => <Link className='flex gap-2  items-center justify-center py-2 px-4 shadow rounded-lg bg-white text-gray-800' to={option.route} >
                             {option.svg}
                             {option.name}
                         </Link>)}
-                    </div> :
-                        <div class="flex items-center gap-4">
-                            <div class="sm:flex sm:gap-4 items-center text-gray-600">
-                                <Link className='rounded-full p-1' to="/add">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
-                                </Link>
-                                <Link className='rounded-full p-1' to="/wishlist">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                                    </svg>
-                                </Link>
-                                <Notification icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                                </svg>} />
-
-                                <Dropdown icon={<img className="w-8 h-8 rounded-full" src="https://tecdn.b-cdn.net/img/new/avatars/2.webp" alt="Rounded avatar" />} options={user ? options2 : options1} />
-                            </div>
-
-                            <button
-                                class="block rounded bg-gray-100 p-2.5 text-gray-600 transition hover:text-gray-600/75 md:hidden"
-                            >
-                                <span class="sr-only">Toggle menu</span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="size-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
-                        </div>}
+                    </div>
                 </div>
             </div>
         </header>

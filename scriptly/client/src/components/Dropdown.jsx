@@ -66,7 +66,7 @@ const Dropdown = ({ icon, options, scriptId }) => {
                             to={option.route}
                             onClick={() => { option.route ? nav(option.route) : option.fnc(scriptId); closeDropdown() }}
                             type="submit"
-                            className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-md font-semibold  hover:bg-indigo-50"
+                            className="flex w-full items-center text-gray-600 gap-2 rounded-lg px-4 py-2 text-md font-semibold  hover:bg-gray-200/50"
                             role="menuitem"
                         >
                             {option.svg}

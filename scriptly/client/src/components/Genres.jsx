@@ -11,11 +11,11 @@ const Genres = () => {
         { name: "Non-fiction", color: "bg-green-100", textColor: "text-green-600" },
         { name: "Biography", color: "bg-teal-100", textColor: "text-teal-600" },
         { name: "Self-help", color: "bg-orange-100", textColor: "text-orange-600" },
+        { name: "Adventure", color: "bg-sky-100", textColor: "text-sky-600" },
+        { name: "Dystopian", color: "bg-amber-100", textColor: "text-amber-600" },
         { name: "Graphic Novel", color: "bg-cyan-100", textColor: "text-cyan-600" },
         { name: "Young Adult", color: "bg-rose-100", textColor: "text-rose-600" },
         { name: "Children's Literature", color: "bg-lime-100", textColor: "text-lime-600" },
-        { name: "Dystopian", color: "bg-amber-100", textColor: "text-amber-600" },
-        { name: "Adventure", color: "bg-sky-100", textColor: "text-sky-600" },
         { name: "Classics", color: "bg-emerald-100", textColor: "text-emerald-600" },
         { name: "Poetry", color: "bg-fuchsia-100", textColor: "text-fuchsia-600" },
         { name: "Crime", color: "bg-slate-100", textColor: "text-slate-600" },
@@ -46,12 +46,12 @@ const Genres = () => {
                 <div
                     ref={genresRef}
                     // className="flex gap-4 overflow-x-hidden no-scrollbar"
-                    className='flex gap-4 flex-wrap'
+                    className='flex gap-4 flex-wrap items-center justify-center'
                 >
                     {
                         genres.map((e) => {
                             return (
-                                <button className={`  text-gray-500 border-2 border-gray-300 px-3   flex gap-2 items-center  p-2 font-bold text-nowrap rounded-full  my-0.5 shadow-md`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                <button className={`  text-gray-600 border-2 border-gray-200/50 px-3   flex gap-2 items-center  p-2 font-bold text-nowrap rounded-xl  my-0.5`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
                                 </svg>

@@ -6,6 +6,7 @@ import { graphqlServer } from './graphql/server';
 import cors from 'cors';
 import morgan from 'morgan';
 import { authenticate } from './middleware/middleware';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -17,9 +18,9 @@ const startServer = async () => {
 
   const server = graphqlServer();
   await server.start();
-
   const app = express();
   app.use(morgan('dev'));
+  app.use(cookieParser()); // Middleware for reading cookies
   app.use(express.json());
   app.use(
     cors({

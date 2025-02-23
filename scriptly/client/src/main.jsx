@@ -21,9 +21,11 @@ import Para from "./pages/para/Para";
 import Add from "./pages/add/Add";
 import Cookies from 'js-cookie';
 import MyScripts from "./pages/scripts/MyScripts";
+import Logout from "./pages/auth/Logout";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
+  credentials: 'include'
 });
 
 const authLink = ApolloLink.from([
@@ -43,7 +45,6 @@ const authLink = ApolloLink.from([
 const client = new ApolloClient({
   link: authLink,
   cache: new InMemoryCache(),
-  credentials: 'include',
 });
 
 const router = createBrowserRouter([
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
       {
         path: "/create-account",
         element: <CreateAccount />
+      },
+      {
+        path: "/logout",
+        element: <Logout />
       },
     ]
   },

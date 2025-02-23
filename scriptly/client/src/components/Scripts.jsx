@@ -102,7 +102,7 @@ const Scripts = ({ data }) => {
             {
                 data?.getAllScripts?.map(e => {
                     return (
-                        <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4 shadow-md h-full' >
+                        <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
                             <Link to={`script/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                                 <div className='flex gap-2'>
                                     {/* <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} /> */}
@@ -148,7 +148,7 @@ const Scripts = ({ data }) => {
                             </Link>
                             {user && <Dropdown icon={<svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
+                                className=" w-5"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"

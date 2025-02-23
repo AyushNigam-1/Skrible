@@ -143,6 +143,7 @@ export interface IScript extends Document {
     }[];
 }
 
+
 const Script: Model<IScript> = mongoose.model<IScript>("Script", scriptSchema);
 
 export default Script;

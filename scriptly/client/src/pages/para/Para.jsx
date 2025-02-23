@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import useElementHeight from '../../hooks/useElementOffset';
 
 const Para = () => {
+    const commentsHeight = useElementHeight('comments');
+
     function formatFancyDate(timestamp) {
         const date = new Date(Number(timestamp));
         return date.toLocaleString("en-US", {
@@ -12,7 +15,6 @@ const Para = () => {
     }
     const location = useLocation();
     const { contribution } = location.state || {};
-    console.log(contribution)
 
     return (
         <div className='flex flex-col gap-3' >
@@ -37,9 +39,8 @@ const Para = () => {
             <div className='flex-col flex ' >
                 <h5 className='text-gray-600 font-semibold text-2xl' >Comments</h5>
             </div>
-            <div className='bg-gray-200/50 p-2 rounded-lg flex flex-col gap-2' >
-                <div className='bg-white rounded-lg h-[595px]' >
-
+            <div className='bg-gray-200/50 p-2 rounded-lg flex flex-col gap-2' id='comments' style={{ height: commentsHeight }} >
+                <div className='bg-white rounded-lg h-full'  >
                 </div>
                 <div className='flex gap-2' >
                     <input type="text" className='bg-white rounded-lg w-full text-xl p-3' placeholder='Write your comment' />

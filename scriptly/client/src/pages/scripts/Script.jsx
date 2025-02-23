@@ -27,7 +27,7 @@ const Script = () => {
     if (error) return <p>{JSON.stringify(error)}</p>
 
     return (
-        <div className={`flex flex-col gap-4 sticky ${cursorClass}`}>
+        <div className={`flex flex-col gap-5 sticky ${cursorClass}`}>
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {

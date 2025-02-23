@@ -14,7 +14,7 @@ const Home = () => {
     if (error) return <p>Error: {error.message}</p>;
     return (
         <>
-            <div className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-5'>
                 <div className='mt-2 flex justify-between'>
                     <h3 className='text-5xl font-black text-gray-700 ' >
                         Explore
@@ -25,7 +25,7 @@ const Home = () => {
                     </div>
                 </div>
                 {/* <hr /> */}
-                {/* <Genres /> */}
+                <Genres />
                 {/* <hr /> */}
                 <Scripts data={data} />
             </div>

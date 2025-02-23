@@ -5,7 +5,7 @@ import { CREATE_REQUEST } from '../graphql/mutation/scriptMutations';
 import { useMutation } from '@apollo/client';
 
 const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
-
+    console.log(data)
     const [pinnedCard, setPinnedCard] = useState(null);
     const [showTextarea, setShowTextarea] = useState(false);
     const [newContribution, setNewContribution] = useState("");
@@ -48,7 +48,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
     const handleCreateRequest = async () => {
         if (!newContribution.trim()) return alert("Request text cannot be empty!");
         try {
-            const request = await createRequest({ variables: { scriptId: data?.getScriptById.id, text: newContribution } });
+            const request = await createRequest({ variables: { scriptId: data?.getScriptById._id, text: newContribution } });
             setNewContribution("");
             setTab("Requests")
             refetch()
@@ -72,7 +72,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
     if (loading) return <Loader height="70vh" />
 
     return (
-        <div className='flex flex-col gap-6' >
+        <div className='flex flex-col gap-5' >
             <div className='flex justify-between items-center  ' >
                 <div className='flex gap-3'>
                     <h3 className='font-mulish text-4xl font-black text-gray-600 ' >
@@ -122,7 +122,6 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
                                 </p>
                             </div>
                         </div>
-
                     </Link>
                 )
             }

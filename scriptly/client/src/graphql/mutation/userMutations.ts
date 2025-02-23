@@ -19,3 +19,8 @@ export const LOGIN_MUTATION = gql`
       token
     }
   }`;
+export const LOGOUT_MUTATION = gql`
+mutation Logout {
+    logout
+}
+`;

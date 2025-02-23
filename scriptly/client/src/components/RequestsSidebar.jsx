@@ -3,7 +3,6 @@ import { ACCEPT_REQUEST } from '../graphql/mutation/scriptMutations';
 import { useMutation } from '@apollo/client';
 
 const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, setTab }) => {
-    const [height, setHeight] = useState("auto");
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredRequests, setFilteredRequests] = useState(requests);
     const [acceptRequest, { loading, error }] = useMutation(ACCEPT_REQUEST);
@@ -24,20 +23,6 @@ const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, set
         }
     };
 
-    useEffect(() => {
-        const updateHeight = () => {
-            const element = document.getElementById("requests-sidebar");
-            if (element) {
-                const distanceFromTop = element.getBoundingClientRect().top + window.scrollY;
-                setHeight(`${window.innerHeight - distanceFromTop - 14}px`);
-                console.log(`${window.innerHeight - distanceFromTop}px`)
-            }
-        };
-
-        updateHeight();
-        window.addEventListener("resize", updateHeight);
-        return () => window.removeEventListener("resize", updateHeight);
-    }, []);
 
     useEffect(() => {
         setFilteredRequests(
@@ -69,7 +54,7 @@ const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, set
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-            <div id='requests-sidebar' className='flex flex-col gap-3 overflow-auto scrollbar-none' style={{ height }} >
+            <div id='requests-sidebar' className='flex flex-col gap-3 overflow-auto scrollbar-none h-full' >
                 {filteredRequests.length ? filteredRequests.map((req, index) => {
                     return <div key={index} className={`bg-white rounded-lg p-2 flex justify-between items-center w-full cursor-pointer ${request?._id == req?._id ? 'border-indigo-300 border-2' : ''}`} onClick={() => setRequest(req)}  >
                         <div className='flex gap-2'>

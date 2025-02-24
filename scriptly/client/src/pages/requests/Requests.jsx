@@ -1,11 +1,15 @@
 import React from 'react';
 import RequestsSidebar from '../../components/RequestsSidebar';
 import useElementHeight from '../../hooks/useElementOffset';
+import { Link } from 'react-router-dom';
 
 const Requests = ({ data, setRequest, request, refetch, setTab }) => {
     const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));
-
+    function formatFancyDate(timestamp) {
+        const date = new Date(Number(timestamp));
+        return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
+    }
     return (
         <div className="h-full" id='requests' style={{ height }}>
             {
@@ -33,30 +37,20 @@ const Requests = ({ data, setRequest, request, refetch, setTab }) => {
                         }
                     </div>
                 ) : (
-                    <div className='grid grid-cols-12 gap-4 h-full' >
-                        <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById.id} refetch={refetch} setTab={setTab} />
-                        <div className='col-span-9 rounded-lg flex flex-col gap-3 overflow-auto'>
-                            {data.getScriptById.paragraphs.map((para, index) => (
-                                <div className='bg-white rounded-lg p-2 text-xl' key={index}>
-                                    {para.text}
-                                </div>
-                            ))}
+                    <div className='grid grid-cols-12 gap-5 h-full' >
+                        <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById._id} refetch={refetch} setTab={setTab} />
+                        <div className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl' >
+                            <div className='rounded-lg overflow-auto p-2 bg-white '>
+                                {data.getScriptById.paragraphs.map((para, index) => (
+                                    <p className='text-xl' key={index}>
+                                        {para.text}
+                                    </p>
+                                ))}
+                            </div>
                             {request && (
-                                <div className='flex flex-col p-2 gap-1 bg-gray-200/50 rounded-lg border-indigo-300 border-2'>
-                                    <div className="flex justify-between rounded-full items-center">
-                                        <div className='flex gap-2'>
-                                            <img className="rounded-full w-10" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" />
-                                            <p className='text-lg text-gray-600'>
-                                                {request?.author.username}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className='word-spacing-1 flex flex-col relative gap-1 bg-white rounded-lg p-4'>
-                                        <p className='text-xl font-mulish'>
-                                            {request?.text}
-                                        </p>
-                                    </div>
-                                </div>
+                                <Link className='flex flex-col p-2 gap-2 bg-white rounded-lg border-indigo-300 border-2' to={`/para/${request._id}`} state={{ contribution: request }}>
+                                    <p className='text-xl font-mulish'>{request?.text}</p>
+                                </Link>
                             )}
                         </div>
                     </div>

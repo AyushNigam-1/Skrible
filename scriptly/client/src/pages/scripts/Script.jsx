@@ -8,6 +8,8 @@ import ScriptDetails from '../../components/ScriptDetails';
 import { GET_SCRIPT_BY_ID } from '../../graphql/query/scriptQueries';
 import { useQuery } from '@apollo/client';
 import Loader from '../../components/Loader';
+import zenMode from '../../components/ZenMode';
+import ZenMode from '../../components/ZenMode';
 const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default');
@@ -23,6 +25,7 @@ const Script = () => {
             setRequest(data?.getScriptById?.requests[0])
         }
     }, [data])
+    console.log(data)
     if (loading) return <Loader height="100vh" />
     if (error) return <p>{JSON.stringify(error)}</p>
 
@@ -31,9 +34,8 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} setTab={setTab} /> : tab == "Contributions" ? <Contributions data={data} /> : <ScriptDetails data={data} />
+                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} setTab={setTab} /> : tab == "Contributions" ? <Contributions data={data} /> : tab == 'About' ? <ScriptDetails data={data} /> : <ZenMode data={data.getScriptById.paragraphs.map(para => para.text)} title={data.getScriptById.title} />
                 }
-
             </div>
         </div>
     )

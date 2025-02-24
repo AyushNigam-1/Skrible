@@ -60,7 +60,7 @@ export const CREATE_REQUEST = gql`
 export const ACCEPT_REQUEST = gql`
   mutation AcceptRequest($scriptId: ID!, $requestId: ID!) {
     acceptRequest(scriptId: $scriptId, requestId: $requestId) {
-      id
+      _id
       paragraphs {
         text
         author{

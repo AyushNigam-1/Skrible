@@ -40,7 +40,16 @@ const Para = () => {
                 <h5 className='text-gray-600 font-semibold text-2xl' >Comments</h5>
             </div>
             <div className='bg-gray-200/50 p-2 rounded-lg flex flex-col gap-2' id='comments' style={{ height: commentsHeight }} >
-                <div className='bg-white rounded-lg h-full'  >
+                <div className='bg-white rounded-lg h-full'   >
+                    {contribution.comments.length ? "" : <div className="flex flex-col items-center justify-center rounded-lg mt-auto h-full gap-3">
+                        <img
+                            src="/comments.png"
+                            alt="No comments"
+                            className="w-60"
+                        />
+                        <p className="text-gray-600 mt-2 text-2xl font-semibold">No comments yet</p>
+                        <p className="text-gray-400 text-sm">Be the first to start the conversation</p>
+                    </div>}
                 </div>
                 <div className='flex gap-2' >
                     <input type="text" className='bg-white rounded-lg w-full text-xl p-3' placeholder='Write your comment' />

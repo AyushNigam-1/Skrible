@@ -1,9 +1,11 @@
 import React from 'react';
 import RequestsSidebar from '../../components/RequestsSidebar';
 import useElementHeight from '../../hooks/useElementOffset';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 
-const Requests = ({ data, setRequest, request, refetch, setTab }) => {
+const Requests = () => {
+    const { setRequest, data, refetch, setTab, loading } = useOutletContext();
+
     const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));
     function formatFancyDate(timestamp) {

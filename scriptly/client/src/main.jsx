@@ -23,6 +23,10 @@ import Cookies from 'js-cookie';
 import MyScripts from "./pages/scripts/MyScripts";
 import Logout from "./pages/auth/Logout";
 import ZenMode from "./components/ZenMode";
+import ScriptLayout from "./layout/ScriptLayout";
+import Paragraphs from "./components/Paragraphs";
+import Requests from "./pages/requests/Requests";
+import ScriptDetails from "./components/ScriptDetails";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
@@ -81,11 +85,30 @@ const router = createBrowserRouter([
         element: <Add />
       },
       {
-        path: "/zen-mode/:id",
-        element: <ZenMode />
+        path: '/',
+        element: <ScriptLayout />,
+        children: [
+          {
+            path: "/paragraphs/:id",
+            element: <Paragraphs />
+          },
+          {
+            path: "/requests/:id",
+            element: <Requests />
+          },
+          {
+            path: "/about/:id",
+            element: <ScriptDetails />
+          },
+          {
+            path: "/zen/:id",
+            element: <ZenMode />
+          },
+        ]
       },
     ]
   },
+
   {
     path: '/',
     element: <AuthLayout />,
@@ -104,6 +127,7 @@ const router = createBrowserRouter([
       },
     ]
   },
+
 ]);
 
 createRoot(document.getElementById("root")).render(

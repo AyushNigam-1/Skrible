@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import Loader from './Loader';
 import { CREATE_REQUEST } from '../graphql/mutation/scriptMutations';
 import { useMutation } from '@apollo/client';
 
-const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
-    console.log(data)
+const Paragraphs = () => {
+    const { setRequest, data, refetch, setTab, loading } = useOutletContext();
+
     const [pinnedCard, setPinnedCard] = useState(null);
     const [showTextarea, setShowTextarea] = useState(false);
     const [newContribution, setNewContribution] = useState("");
@@ -67,7 +68,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
         setShowTextarea(false);
     };
 
-    if (loading) return <Loader height="70vh" />
+    if (loading) return <Loader />
 
     const groupedParagraphs = {};
     data?.getScriptById.paragraphs?.forEach(paragraph => {
@@ -83,7 +84,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
     const sortedDates = Object.keys(groupedParagraphs).sort((a, b) => new Date(b) - new Date(a));
 
     return (
-        <div className='flex flex-col gap-5' >
+        <div className='flex flex-col gap-3' >
             <div className='flex justify-between items-center  ' >
                 <div className='flex gap-3'>
                     <h3 className='font-mulish text-4xl font-black text-gray-600 ' >
@@ -91,14 +92,14 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
                     </h3>
                 </div>
                 <div className='flex gap-2' >
-                    <button className='flex gap-2 items-center text-lg  bg-gray-200/50 text-black text-md py-4 px-6 rounded-lg' onClick={handlePinClick} >
+                    {/* <button className='flex gap-2 items-center text-lg  bg-gray-200/50 text-black text-md py-4 px-6 rounded-lg' onClick={handlePinClick} >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                         </svg>
 
                         <h6>Pin</h6>
-                    </button>
+                    </button> */}
                     <button onClick={handleContributeClick} className='flex gap-2 items-center text-lg  bg-gray-200/50 text-black text-md py-4 px-6 rounded-lg' >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -173,7 +174,7 @@ const Paragraphs = ({ data, loading, refetch, setTab, setRequest }) => {
                 {/* Reference to scroll to the end */}
                 <div ref={contributionEndRef} ></div>
             </div>
-        // </div >
+        </div >
     )
 }
 

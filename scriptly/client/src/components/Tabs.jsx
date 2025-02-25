@@ -1,7 +1,8 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
-const Tabs = ({ tab, setTab, scripts }) => {
-    console.log(scripts)
+const Tabs = ({ tab, setTab, scriptId }) => {
+
     const tabs = [
         {
             svg: (
@@ -10,7 +11,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Script',
-            count: scripts.paragraphs.length
+            route: `paragraphs/${scriptId}`
         },
         {
             svg: (
@@ -19,7 +20,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Requests',
-            count: scripts.requests.length
+            route: `requests/${scriptId}`
         },
 
         {
@@ -29,7 +30,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'Contributors',
-            count: scripts.paragraphs.length
+            route: `contributors/${scriptId}`
         },
         {
             svg: (
@@ -38,6 +39,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                 </svg>
             ),
             name: 'About',
+            route: `about/${scriptId}`,
         },
         {
             svg: (
@@ -47,6 +49,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
 
             ),
             name: 'Zen Mode',
+            route: `zen/${scriptId}`,
         },
     ]
 
@@ -54,14 +57,15 @@ const Tabs = ({ tab, setTab, scripts }) => {
         <div className='flex flex-col bg-gray-200/50 rounded-xl '>
             <div className='flex  text-md font-semibold w-full '>
                 {tabs.map((t, i) => (
-                    <button
+                    <Link
+                        to={t.route}
                         key={i}
                         onClick={() => setTab(t.name)}
                         className={`w-full p-2 outline-none
                                     transition-colors duration-300 text-xl  ${(i == tabs.length - 1) ? '' : 'border-gray-200 border-r-2'} `}
                     >
                         <span className={`flex w-full justify-center items-center gap-2 p-3  ${tab === t.name ? 'bg-white rounded-xl' : 'text-gray-500'}`}>
-                            <span class={`${tab !== t.name && "bg-white rounded-3xl shadow-md"}  p-2 `} >
+                            <span className={`${tab !== t.name && "bg-white rounded-3xl shadow-md"}  p-2 `} >
                                 {t.svg}
                             </span>
                             {t.name}
@@ -74,7 +78,7 @@ const Tabs = ({ tab, setTab, scripts }) => {
                                 {t.count}
                             </span>
                         ) : ""} */}
-                    </button>
+                    </Link>
                 ))}
             </div>
         </div>

@@ -1,19 +1,22 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 const HomeLayout = () => {
     const user = localStorage.getItem("user")
-    console.log(user)
+    const location = useLocation();
+
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+
+    const path = pathSegments[0];
+    console.log(path)
     return (
         <>
-            <div className={`${user ? 'grid grid-cols-6' : ''}  gap-5 h-screen p-2 font-mulish bg-gray-100/50`} >
-                {user && <Sidebar />}
-                <div className={`${user ? 'col-span-5 ' : ' flex  flex-col gap-4'}  `}>
-                    {!user && <Navbar />}
-                    <div className={`${user ? '' : ''}  `} >
-                        <Outlet />
-                    </div>
+            <div className={`${(path == 'zen' ? '' : user ? 'grid grid-cols-6 gap-3' : '')}  h-screen p-3 font-mulish bg-gray-100/50`} >
+                {(path != 'zen' && user) && <Sidebar />}
+                <div className={`${path == 'zen' ? 'container mx-auto w-full' : user ? "col-span-5 " : ' flex flex-col gap-4'}   `}>
+                    {(path != 'zen' && !user) && <Navbar />}
+                    <Outlet context={{ path }} />
                 </div>
             </div>
         </>

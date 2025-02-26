@@ -22,6 +22,7 @@ export const GET_SCRIPT_BY_ID = gql`
       genres
       description
       createdAt
+      combinedText
       requests {
         _id
         createdAt

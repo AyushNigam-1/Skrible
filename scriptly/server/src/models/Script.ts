@@ -12,7 +12,6 @@ const commentSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-
 const requestSchema = new mongoose.Schema(
     {
         _id: {
@@ -31,24 +30,24 @@ const requestSchema = new mongoose.Schema(
         likes: {
             type: Number,
             required: true,
-            default: 0, // Assuming likes default to 0
+            default: 0,
         },
         dislikes: {
             type: Number,
             required: true,
-            default: 0, // Assuming dislikes default to 0
+            default: 0,
         },
         comments: {
-            type: [commentSchema], // Referring to the commentSchema
+            type: [commentSchema],
             required: true,
-            default: [], // Defaulting to an empty array
+            default: [],
         },
         text: {
             type: String,
             required: true,
         },
     },
-    { timestamps: true } // Automatically adds createdAt and updatedAt fields
+    { timestamps: true }
 );
 
 const paragraphSchema = new mongoose.Schema({
@@ -109,6 +108,10 @@ const scriptSchema = new mongoose.Schema({
         type: [requestSchema],
         required: true,
     },
+    combinedText: {
+        type: String,
+        default: "",
+    }
 }, { timestamps: true });
 
 export interface IScript extends Document {
@@ -131,18 +134,18 @@ export interface IScript extends Document {
     }[];
     requests: {
         _id: Types.ObjectId;
-        author: Types.ObjectId; // Reference to the User
+        author: Types.ObjectId;
         status: string;
         likes: number;
         dislikes: number;
         comments: {
             text: string;
             createdAt: string;
-        }[]; // Array of comment objects
+        }[];
         text: string;
     }[];
+    combinedText: string;
 }
-
 
 const Script: Model<IScript> = mongoose.model<IScript>("Script", scriptSchema);
 

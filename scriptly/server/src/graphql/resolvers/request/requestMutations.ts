@@ -54,7 +54,10 @@ export const requestMutations = {
             throw new GraphQLError("Request not found");
         }
 
-        // Push this request as a new paragraph
+        // Manually append request text to combinedText
+        const updatedCombinedText = script.combinedText ? `${script.combinedText}\n${request.text}` : request.text;
+
+        // Update script: Add paragraph, update combinedText, and accept request
         await Script.findByIdAndUpdate(
             scriptId,
             {
@@ -66,15 +69,11 @@ export const requestMutations = {
                         dislikes: request.dislikes,
                         comments: request.comments
                     }
+                },
+                $set: {
+                    "requests.$[accepted].status": "accepted",
+                    combinedText: updatedCombinedText
                 }
-            }
-        );
-
-        // Accept the request
-        await Script.findByIdAndUpdate(
-            scriptId,
-            {
-                $set: { "requests.$[accepted].status": "accepted" }
             },
             {
                 arrayFilters: [{ "accepted._id": requestObjectId }],
@@ -103,7 +102,6 @@ export const requestMutations = {
             .populate("author");
 
         return updatedScript;
-    },
-
+    }
 
 }

@@ -12,10 +12,16 @@ export const paragraphTypeDefs = gql`
   }
   input ParagraphInput {
       text: String!
-
+  }
+  type ExportedDocument {
+    filename: String!
+    content: String!
+    contentType: String!
   }
   type Query{
     getParagraphById(paragraphId: ID!): Paragraph 
+    getCombinedText(scriptId: ID!):String!
+    exportDocument(scriptId: ID!, format: String!): ExportedDocument!
   }
 
 `;

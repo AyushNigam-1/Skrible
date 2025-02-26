@@ -45,6 +45,7 @@ export const scriptTypeDefs = gql`
     createdAt: String!
     updatedAt: String!
     requests: [Request!]!
+    combinedText:String
   }
 
   type ScriptWithParagraph {

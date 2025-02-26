@@ -4,7 +4,7 @@ import useElementHeight from '../../hooks/useElementOffset';
 import { Link, useOutletContext } from 'react-router-dom';
 
 const Requests = () => {
-    const { setRequest, data, refetch, setTab, loading } = useOutletContext();
+    const { request, setRequest, data, refetch, setTab, loading } = useOutletContext();
 
     const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));

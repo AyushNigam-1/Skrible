@@ -14,5 +14,14 @@ export const GET_PARAGRAPH_BY_ID = gql`
       }
       comments
     }
-  }
+  }  
+`;
+export const EXPORT_DOCUMENT_QUERY = gql`
+    query ExportDocument($scriptId: ID!, $format: String!) {
+        exportDocument(scriptId: $scriptId, format: $format) {
+            filename
+            content
+            contentType
+        }
+    }
 `;

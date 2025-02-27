@@ -56,3 +56,15 @@ export const GET_SCRIPT_BY_ID = gql`
     }
   }
 `;
+
+export const GET_SCRIPTS_BY_GENRES = gql`
+query GetScriptsByGenres($genres: [String!]!) {
+  getScriptsByGenres(genres: $genres) {
+    _id
+      title
+      genres
+      description
+  }
+}
+
+`

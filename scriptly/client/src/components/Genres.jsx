@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-const Genres = () => {
+const Genres = ({ selectedGenres, onGenreChange }) => {
     const genres = [
         { name: "Fantasy", color: "bg-purple-100", textColor: "text-purple-600" },
         { name: "Science Fiction", color: "bg-blue-100", textColor: "text-blue-600" },
@@ -33,7 +33,13 @@ const Genres = () => {
     const scrollForward = () => {
         genresRef.current.scrollBy({ left: 200, behavior: 'smooth' });
     };
+    const handleSelection = (genre) => {
+        const updatedGenres = selectedGenres.includes(genre)
+            ? selectedGenres.filter(g => g !== genre)
+            : [...selectedGenres, genre];
 
+        onGenreChange(updatedGenres);
+    };
     return (
         <>
             <div className='flex flex-col gap-4 overflow-visible' >
@@ -51,10 +57,18 @@ const Genres = () => {
                     {
                         genres.map((e) => {
                             return (
-                                <button className={`  text-gray-600 border-2 border-gray-200/50 px-3   flex gap-2 items-center  p-2 font-bold text-nowrap rounded-xl  my-0.5`} ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
-                                </svg>
+                                <button onClick={() => handleSelection(e.name)} className={`  text-gray-600 border-2 border-gray-200/50 px-3   flex gap-2 items-center  p-2 font-bold text-nowrap rounded-xl  my-0.5 ${selectedGenres.includes(e.name) ?
+                                    "border-indigo-200 border-2 bg-indigo-50" : ''
+                                    }`} >
+                                    {selectedGenres.includes(e.name) ?
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg> :
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+                                        </svg>}
                                     {e.name} </button>
                             )
                         })

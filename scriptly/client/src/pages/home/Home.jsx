@@ -1,16 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Genres from '../../components/Genres'
 import Filters from '../../components/Filters'
 import Search from '../../components/Search'
 import Scripts from '../../components/Scripts'
 import { useQuery } from '@apollo/client'
-import { GET_ALL_SCRIPTS } from '../../graphql/query/scriptQueries'
+import { GET_SCRIPTS_BY_GENRES } from '../../graphql/query/scriptQueries'
 import Loader from '../../components/Loader'
 
 const Home = () => {
-    const { data, loading, error } = useQuery(GET_ALL_SCRIPTS);
+    const [genres, setGenres] = useState([]);
 
-    if (loading) return <Loader />
+    const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
+        variables: { genres }
+    });
+
+    const handleGenreChange = (newGenres) => {
+        setGenres(newGenres);
+        refetch({ genres: newGenres });
+    };
+
     if (error) return <p>Error: {error.message}</p>;
     return (
         <>
@@ -24,10 +32,12 @@ const Home = () => {
                         {/* <Filters /> */}
                     </div>
                 </div>
-                {/* <hr /> */}
-                <Genres />
-                {/* <hr /> */}
-                <Scripts data={data} />
+                <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
+                {
+                    loading ? <Loader /> :
+                        <Scripts data={data} />
+                }
+
             </div>
         </>
     )

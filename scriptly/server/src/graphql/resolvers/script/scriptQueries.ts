@@ -45,7 +45,19 @@ export const scriptQueries = {
         } catch (error: any) {
             throw new Error(`Failed to fetch script: ${error.message}`);
         }
+    },
+    getScriptsByGenres: async (_: any, { genres }: { genres?: string[] }) => {
+        try {
+            const filter = genres && Array.isArray(genres) && genres.length > 0
+                ? { genre: { $in: genres } }
+                : {}; // If genres array is empty, return all scripts
+
+            const scripts = await Script.find(filter);
+            return scripts;
+        } catch (error: any) {
+            throw new Error(`Failed to fetch scripts by genres: ${error.message}`);
+        }
     }
 
-
 };
+

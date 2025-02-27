@@ -22,16 +22,12 @@ const ScriptLayout = () => {
             setRequest(data?.getScriptById?.requests[0]);
         }
     }, [data]);
-    console.log(data)
-    if (loading) return <Loader height="100vh" />;
     if (error) return <p>{JSON.stringify(error)}</p>;
 
     return (
         <div className={`${path == 'zen' ? 'w-full' : `flex flex-col gap-3 sticky ${cursorClass} `} `}>
             {path != 'zen' && <Tabs setTab={setTab} tab={tab} scriptId={id} />}
-
-            <Outlet context={{ request, setRequest, data, refetch, setTab, tab, loading }} />
-
+            {loading ? <Loader /> : <Outlet context={{ request, setRequest, data, refetch, setTab, tab, loading }} />}
         </div>
     );
 };

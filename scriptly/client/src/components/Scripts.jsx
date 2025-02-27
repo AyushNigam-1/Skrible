@@ -100,7 +100,7 @@ const Scripts = ({ data }) => {
     return (
         <div className='grid grid-cols-2 gap-5'>
             {
-                data?.getAllScripts?.map(e => {
+                data?.getScriptsByGenres?.map(e => {
                     return (
                         <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
                             <Link to={`paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>

@@ -58,6 +58,7 @@ export const scriptTypeDefs = gql`
     getAllScripts: [Script!]!
     getScriptById(id: ID!): Script
     getParagraphWithParentScript(paragraphId: ID!): ScriptWithParagraph
+    getScriptsByGenres(genres: [String!]!): [Script!]!
   }
 
   type Mutation {
@@ -73,6 +74,7 @@ export const scriptTypeDefs = gql`
     markAsNotInterested(scriptId: ID!): MutationResponse
     markAsFavourite(scriptId: ID!): MutationResponse
     deleteScript(scriptId: ID!): MutationResponse
+    
   }
 
 `;

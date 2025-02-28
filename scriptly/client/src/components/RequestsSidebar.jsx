@@ -67,7 +67,7 @@ const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, set
                                 </p>
                             </div>
                         </div>
-                        <button className='bg-gray-200/50 rounded-full p-2 text-gray-600 ' onClick={() => {
+                        <button className='bg-gray-200/50 rounded-lg p-2 text-gray-600 ' onClick={() => {
                             handleAcceptRequest(req._id)
                         }} >
                             {loading ?

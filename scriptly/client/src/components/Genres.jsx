@@ -7,7 +7,6 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
         { name: "Thriller", color: "bg-red-100", textColor: "text-red-600" },
         { name: "Romance", color: "bg-pink-100", textColor: "text-pink-600" },
         { name: "Horror", color: "bg-indigo-100", textColor: "text-indigo-600" },
-        { name: "Historical Fiction", color: "bg-yellow-100", textColor: "text-yellow-600" },
         { name: "Non-fiction", color: "bg-green-100", textColor: "text-green-600" },
         { name: "Biography", color: "bg-teal-100", textColor: "text-teal-600" },
         { name: "Self-help", color: "bg-orange-100", textColor: "text-orange-600" },
@@ -15,6 +14,7 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
         { name: "Dystopian", color: "bg-amber-100", textColor: "text-amber-600" },
         { name: "Graphic Novel", color: "bg-cyan-100", textColor: "text-cyan-600" },
         { name: "Young Adult", color: "bg-rose-100", textColor: "text-rose-600" },
+        { name: "Historical Fiction", color: "bg-yellow-100", textColor: "text-yellow-600" },
         { name: "Children's Literature", color: "bg-lime-100", textColor: "text-lime-600" },
         { name: "Classics", color: "bg-emerald-100", textColor: "text-emerald-600" },
         { name: "Poetry", color: "bg-fuchsia-100", textColor: "text-fuchsia-600" },
@@ -51,7 +51,6 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
                 {/* <h3 className='text-xl font-bold text-gray-600'>Tags   </h3> */}
                 <div
                     ref={genresRef}
-                    // className="flex gap-4 overflow-x-hidden no-scrollbar"
                     className='flex gap-4 flex-wrap items-center justify-center'
                 >
                     {

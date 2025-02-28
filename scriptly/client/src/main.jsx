@@ -19,7 +19,6 @@ import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
 import Para from "./pages/para/Para";
 import Add from "./pages/add/Add";
-import Cookies from 'js-cookie';
 import MyScripts from "./pages/scripts/MyScripts";
 import Logout from "./pages/auth/Logout";
 import ZenMode from "./components/ZenMode";

@@ -1,11 +1,22 @@
 import { useMutation } from '@apollo/client';
-import React from 'react';
+import React, { useState } from 'react';
 import { ADD_SCRIPT } from '../../graphql/mutation/scriptMutations';
 import { useNavigate } from 'react-router-dom';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
+import clsx from 'clsx';
 
 const Add = () => {
     const navigate = useNavigate();
+    const people = [
+        { id: 1, name: 'Tom Cook' },
+        { id: 2, name: 'Wade Cooper' },
+        { id: 3, name: 'Tanya Fox' },
+        { id: 4, name: 'Arlene Mccoy' },
+        { id: 5, name: 'Devon Webb' },
+    ]
 
+    const [query, setQuery] = useState('')
+    const [selected, setSelected] = useState(people[1])
     const [add_script, { loading, error }] = useMutation(ADD_SCRIPT);
 
     const handleSubmit = async (e) => {
@@ -36,7 +47,7 @@ const Add = () => {
     return (
         <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
             <div className="flex justify-between items-center">
-                <h3 className="text-4xl font-black text-gray-500 ">Add New Script</h3>
+                <h3 className="text-4xl font-black text-gray-700">Add New Script</h3>
                 <div className="flex gap-3">
                     <button
                         type="submit"
@@ -125,6 +136,52 @@ const Add = () => {
                             <label htmlFor="visibility" className="block text-lg font-bold text-gray-500">
                                 Visibility
                             </label>
+                            <Listbox value={selected} onChange={setSelected}>
+                                <ListboxButton
+                                    className={clsx(
+                                        'mt-1.5 rounded-lg bg-white outline-none p-3 w-full',
+
+                                        'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25 flex justify-between items-center'
+                                    )}
+                                >
+                                    {selected.name}
+                                    {/* <ChevronDownIcon
+                                                    className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
+                                                    aria-hidden="true"
+                                                /> */}
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="group pointer-events-none  size-4 ">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+
+                                </ListboxButton>
+                                <ListboxOptions
+                                    anchor="bottom"
+                                    transition
+                                    className={clsx(
+                                        'w-[var(--button-width)] rounded-lg border bg-gray-200/50 mt-3 flex flex-col p-2 [--anchor-gap:var(--spacing-1)] focus:outline-none text-gray-600',
+                                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
+                                    )}
+                                >
+                                    {people.map((person) => (
+                                        <ListboxOption
+                                            key={person.name}
+                                            value={person}
+                                            className=" group flex items-center gap-2 rounded-lg text-md select-none data-[focus]:bg-white p-2 cursor-pointer"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="invisible size-4  fill-white group-data-[selected]:visible">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                            </svg>
+
+                                            {/* <CheckIcon className="invisible size-4 fill-white group-data-[selected]:visible" /> */}
+                                            {person.name}
+                                        </ListboxOption>
+                                    ))}
+                                </ListboxOptions>
+                            </Listbox>
+                            {/* <label htmlFor="visibility" className="block text-lg font-bold text-gray-500">
+                                Visibility
+                            </label>
                             <select
                                 name="visibility"
                                 id="visibility"
@@ -138,7 +195,7 @@ const Add = () => {
                                 <option value="AK">Albert King</option>
                                 <option value="BG">Buddy Guy</option>
                                 <option value="EC">Eric Clapton</option>
-                            </select>
+                            </select> */}
                         </div>
                     </div>
                     <div className="w-full">
@@ -190,7 +247,7 @@ const Add = () => {
                 <textarea
                     name='description'
                     type="text"
-                    rows={6}
+                    rows={5}
                     className="rounded-lg bg-white outline-none p-3 w-full mt-1.5"
                     placeholder=""
                 />
@@ -202,7 +259,7 @@ const Add = () => {
                 <textarea
                     name='script'
                     type="text"
-                    rows={18}
+                    rows={15}
                     className="rounded-lg bg-white outline-none p-3 w-full mt-1.5"
                     placeholder=""
                 />

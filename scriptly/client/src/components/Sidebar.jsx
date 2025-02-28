@@ -71,12 +71,12 @@ const Sidebar = () => {
         <div className='col-span-1 flex flex-col gap-3 p-3 pt-4 bg-gray-200/50 rounded-xl '>
             <div className='flex justify-between items-center text-gray-600'>
                 <img src="/logo.png" width="120px" alt="" className='' />
-                <div className='bg-white p-2 rounded-full shadow-md' >
+                {/* <div className='bg-white p-2 rounded-full shadow-md' >
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
                     </svg>
-                </div>
+                </div> */}
             </div>
             <hr />
             <div className='flex gap-2 items-center text-gray-400'>
@@ -91,7 +91,7 @@ const Sidebar = () => {
                     options1.map((option, index) => {
                         return (
                             <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
-                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-full shadow-md'} p-2 `}>
+                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-lg shadow-md'} p-2 `}>
                                     {option.svg}
                                 </span>
                                 {option.name}  </Link>
@@ -111,8 +111,8 @@ const Sidebar = () => {
                 {
                     options2.map((option, index) => {
                         return (
-                            <Link to={option.route} key={index} className={`text-gray-500 flex  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-900 ' : 'gap-2'}`} >
-                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-full shadow-md'} p-2 `}>
+                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
+                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-lg shadow-md'} p-2 `}>
                                     {option.svg}
                                 </span>
                                 {option.name}  </Link>

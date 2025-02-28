@@ -47,32 +47,29 @@ const MyContributions = () => {
                         return (
                             <div className='flex-col flex justify-between bg-gray-200/50  gap-2 p-2 rounded-lg relative' >
                                 <div className='flex flex-col gap-3'>
-                                    {/* <div className='flex gap-2'  > */}
-                                    <div className='flex justify-between items-center'  >
-                                        <div className='flex gap-2' >
-                                            {/* <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" /> */}
-                                            <div className=''>
-                                                <p className='font-semibold text-lg text-gray-800' >{contribution.scriptTitle}</p>
-                                                <div className='flex gap-2' >
-                                                    <span className='text-green-700 items-center rounded-lg text-sm flex gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    <div className='flex justify-between items-center gap-2'  >
+                                        {/* <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" /> */}
+                                        <div className='flex flex-col gap-3'>
+                                            <p className='font-bold text-2xl text-gray-600 ' >{contribution.scriptTitle}</p>
+                                            <div className='flex gap-2' >
+                                                <span className='text-green-700 items-center rounded-lg text-sm flex gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                                    {contribution.status.slice(0, 1).toUpperCase() + contribution.status.slice(1)}
+                                                </span>
+                                                <span className='items-center rounded-lg text-sm text-gray-600 flex gap-1' >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                     </svg>
-                                                        {contribution.status.slice(0, 1).toUpperCase() + contribution.status.slice(1)}
-                                                    </span>
-                                                    <span className='items-center rounded-lg text-sm text-gray-600 flex gap-1' >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                        </svg>
 
-                                                        <p className='text-sm '>
+                                                    <p className='text-sm '>
 
-                                                            {formatDate(contribution.createdAt)}
-                                                        </p>
-                                                    </span>
-                                                </div>
+                                                        {formatDate(contribution.createdAt)}
+                                                    </p>
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className='flex gap-2 items-center'>
+                                        {/* <div className='flex gap-2 items-center'>
                                             <button className='flex gap-2 bg-white rounded-lg text-gray-600 p-2 shadow-md'>
                                                 <p>{contribution.likes}</p>
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -96,7 +93,7 @@ const MyContributions = () => {
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                                                 </svg>
                                             </button>
-                                        </div>
+                                        </div> */}
 
                                     </div>
                                     <div className='flex gap-2 w-full bg-white p-2 rounded-lg ' >

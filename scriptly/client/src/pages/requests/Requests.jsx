@@ -39,7 +39,7 @@ const Requests = () => {
                         }
                     </div>
                 ) : (
-                    <div className='grid grid-cols-12 gap-5 h-full' >
+                    <div className='grid grid-cols-12 gap-3 h-full' >
                         <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById._id} refetch={refetch} setTab={setTab} />
                         <div className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl' >
                             <div className='rounded-lg overflow-auto p-2 bg-white '>

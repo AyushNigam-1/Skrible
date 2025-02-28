@@ -65,7 +65,7 @@ const Tabs = ({ tab, setTab, scriptId }) => {
                                     transition-colors duration-300 text-xl  ${(i == tabs.length - 1) ? '' : 'border-gray-200 border-r-2'} `}
                     >
                         <span className={`flex w-full justify-center items-center gap-2 p-3  ${tab === t.name ? 'bg-white rounded-xl' : 'text-gray-500'}`}>
-                            <span className={`${tab !== t.name && "bg-white rounded-3xl shadow-md"}  p-2 `} >
+                            <span className={`${tab !== t.name && "bg-white rounded-lg shadow-md"}  p-2 `} >
                                 {t.svg}
                             </span>
                             {t.name}

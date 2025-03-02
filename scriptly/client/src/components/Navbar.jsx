@@ -57,7 +57,7 @@ const Navbar = () => {
     return (
         <header class="bg-gray-200/50 w-full rounded-xl ">
             <div class="flex h-16  items-center gap-8 px-4">
-                <div class="flex flex-1 items-center justify-end md:justify-between container mx-auto">
+                <div class="flex flex-1 items-center justify-end md:justify-between ">
                     <nav aria-label="Global" class="hidden md:block">
                         <img src="/logo.png" width="140px" alt="" />
                     </nav>

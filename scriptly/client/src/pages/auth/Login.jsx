@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { LOGIN_MUTATION } from '../../graphql/mutation/userMutations';
 const Login = () => {
     const nav = useNavigate()
@@ -42,7 +42,7 @@ const Login = () => {
             <p className="text-sm text-gray-500 text-center">Welcome back! Please enter your credentials.</p>
             <div className="flex flex-col lg:flex-row items-center justify-between">
                 <button className="w-full flex justify-center items-center gap-1 bg-white text-sm text-gray-600 rounded-md hover:bg-gray-50 border border-gray-200 transition-colors duration-300 p-2">
-                    <img src="/google.png" alt="Google" className="w-5" /> Sign in with Google
+                    <img src="/google.png" alt="Google" className="w-5" /> Login with Google
                 </button>
             </div>
             <div className="text-sm text-gray-500 text-center">

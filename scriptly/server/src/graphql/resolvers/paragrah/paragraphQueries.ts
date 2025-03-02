@@ -41,6 +41,13 @@ export const paragraphQueries = {
                     contentType: "text/plain"
                 };
             }
+            if (format === "md") {
+                return {
+                    filename: `${sanitizedTitle}.md`,
+                    content: script.combinedText, // If you have markdown formatting, ensure it's applied here
+                    contentType: "text/markdown"
+                };
+            }
 
             if (format === "pdf") {
                 const doc = new jsPDF();

@@ -48,10 +48,11 @@ export const scriptQueries = {
     },
     getScriptsByGenres: async (_: any, { genres }: { genres?: string[] }) => {
         try {
+            console.log(genres)
             const filter = genres && Array.isArray(genres) && genres.length > 0
-                ? { genre: { $in: genres } }
+                ? { genres: { $in: genres } }
                 : {}; // If genres array is empty, return all scripts
-
+            console.log(filter)
             const scripts = await Script.find(filter);
             return scripts;
         } catch (error: any) {

@@ -14,10 +14,11 @@ declare global {
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body.operationName)
     if (req.path === '/graphql') {
         const operationName = req.body.operationName;
 
-        const allowedOperations = ['Register', 'Login', 'GetAllScripts', 'GetScriptById', 'Logout'];
+        const allowedOperations = ['Register', 'Login', 'GetAllScripts', 'GetScriptById', 'GetScriptsByGenres', 'Logout', 'ExportDocument'];
         if (operationName && allowedOperations.includes(operationName)) {
             return next();
         }

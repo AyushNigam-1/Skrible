@@ -8,6 +8,7 @@ const Requests = () => {
 
     const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));
+
     function formatFancyDate(timestamp) {
         const date = new Date(Number(timestamp));
         return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;

@@ -26,6 +26,7 @@ import ScriptLayout from "./layout/ScriptLayout";
 import Paragraphs from "./components/Paragraphs";
 import Requests from "./pages/requests/Requests";
 import ScriptDetails from "./components/ScriptDetails";
+import Contributors from "./pages/contributors/Contributors";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
         path: "/add",
         element: <Add />
       },
+
       {
         path: '/',
         element: <ScriptLayout />,
@@ -94,6 +96,10 @@ const router = createBrowserRouter([
           {
             path: "/requests/:id",
             element: <Requests />
+          },
+          {
+            path: "/contributors/:id",
+            element: <Contributors />
           },
           {
             path: "/about/:id",

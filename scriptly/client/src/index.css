@@ -10,3 +10,7 @@
 .cursor-default {
     cursor: auto;
 }
+
+::-webkit-scrollbar-button {
+    display: none;
+}

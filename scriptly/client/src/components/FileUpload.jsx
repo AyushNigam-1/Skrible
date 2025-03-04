@@ -3,8 +3,8 @@ import { diffChars } from "diff";
 import { pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-const FileUpload = ({ combinedText }) => {
-
+const FileUpload = ({ combinedText, handleCreateRequest, handleCancel, isLoading }) => {
+    console.log(isLoading)
     const [files, setFiles] = useState([]);
     const [fileText, setFileText] = useState("");
     const [diffResult, setDiffResult] = useState(null);
@@ -52,10 +52,10 @@ const FileUpload = ({ combinedText }) => {
     };
 
     const compareText = (uploadedText) => {
-        console.log("combined", combinedText)
-        console.log("uploadedText", uploadedText)
-        const differences = diffChars(combinedText, uploadedText);
+        console.log(combinedText)
+        const differences = diffChars(combinedText, uploadedText).filter(diff => !/^(?:\n+|\s*)$/.test(diff.value));
         console.log(differences)
+        // console.log(differences.filter(diff => !diff.value.match(/^\s*$|\n/)))
         setDiffResult(differences);
     };
 
@@ -66,14 +66,11 @@ const FileUpload = ({ combinedText }) => {
 
 
     return (
-        <div className="rounded-lg  h-72 overflow-y-scroll ">
-
-            {diffResult ? <div className="flex flex-col gap-3 " > {diffResult.map(res => {
-                let change = res.added ? 'added' : res.removed ? 'removed' : 'unchanged'
-                console.log(change)
+        <div className="rounded-lg h-full overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white scrollbar-thumb-rounded-full" >
+            {diffResult ? <div className="flex flex-col gap-2" > <div className="bg-white rounded-lg p-3 pb-0 overflow-y-auto " > {diffResult.map(res => {
                 return (
-                    <div className={`${res.added ? 'bg-green-50 border-green-300  border-2' : res.removed ? 'bg-red-50 border-red-300 border-2 ' : 'bg-white'} p-3 rounded-lg flex flex-col gap-1 text-gray-800`}>
-                        {res.added ? <span className=" text-green-600  rounded-lg  flex gap-1 items-center" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                    <div className={`${res.added ? 'bg-green-50 border-green-300  border-2 p-3  -mx-3' : res.removed ? 'bg-red-50 border-red-300 border-2 p-3 ' : 'pb-0'}  rounded-lg flex flex-col gap-1 text-gray-800`}>
+                        {res.added ? <span className=" text-green-600  rounded-lg  flex gap-1  items-center" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                             You Added </span> : res.removed ? <span className="border-red-300 text-red-600 rounded-lg   flex gap-1 items-center" > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -88,7 +85,9 @@ const FileUpload = ({ combinedText }) => {
                         </p>
                     </div>
                 )
-            })}</div> : <div
+            })}</div>
+
+            </div> : <div
                 className="flex flex-col h-full items-center justify-center p-6 border-2 border-dashed text-gray-500 border-gray-300 rounded cursor-pointer"
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}

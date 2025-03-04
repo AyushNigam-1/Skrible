@@ -8,7 +8,9 @@ import { EXPORT_DOCUMENT_QUERY } from '../graphql/query/paragraphQueries';
 import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import FileUpload from './FileUpload';
 import useElementHeight from '../hooks/useElementOffset';
+import { useNavigate } from 'react-router-dom';
 const Paragraphs = () => {
+    const nav = useNavigate()
     const { setRequest, data, refetch, setTab, loading } = useOutletContext();
     console.log(data?.getScriptById)
     const [isDownloading, setLoading] = useState(false)
@@ -69,7 +71,7 @@ const Paragraphs = () => {
 
 
     const [showTextarea, setShowTextarea] = useState(false);
-    const [newContribution, setNewContribution] = useState("");
+    // const [newContribution, setNewContribution] = useState("");
     const contributionEndRef = useRef(null);
 
     function formatFancyDate(timestamp) {
@@ -94,7 +96,7 @@ const Paragraphs = () => {
     //     setPinnedCard(index); // Mark the card as pinned
     //     setCursorClass('cursor-default'); // Reset cursor to default
     // };
-    const [createRequest, { error }] = useMutation(CREATE_REQUEST, {
+    const [createRequest, { loading: isLoading, error }] = useMutation(CREATE_REQUEST, {
         onCompleted: (data) => {
             console.log("Request created:", data.createRequest);
         },
@@ -103,14 +105,15 @@ const Paragraphs = () => {
         },
     });
 
-    const handleCreateRequest = async () => {
+    const handleCreateRequest = async (newContribution) => {
+        console.log(newContribution)
+        // console.log(newContribution.trim())
         if (!newContribution.trim()) return alert("Request text cannot be empty!");
         try {
             const request = await createRequest({ variables: { scriptId: data?.getScriptById._id, text: newContribution } });
-            setNewContribution("");
             setTab("Requests")
+            nav(`/requests/${data?.getScriptById._id}`)
             refetch()
-            // console.log(request)
             setRequest(request.data.createRequest)
         } catch (err) {
             console.error("Mutation failed:", err);
@@ -191,9 +194,9 @@ const Paragraphs = () => {
                             <div className="flex min-h-full items-center justify-center p-4">
                                 <DialogPanel
                                     transition
-                                    className="w-full max-w-2xl flex flex-col gap-3 rounded-xl bg-gray-100 p-3 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+                                    className="w-full max-w-2xl flex flex-col gap-3 rounded-xl bg-gray-100 p-3 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0 h-[420px] "
                                 >
-                                    <div className='flex justify-between' >
+                                    <div className='flex justify-between ' >
 
                                         <DialogTitle as="h3" className="text-2xl font-bold text-gray-600">
                                             Add Contribution
@@ -210,7 +213,36 @@ const Paragraphs = () => {
 
                                         </Button>
                                     </div>
-                                    <FileUpload combinedText={data?.getScriptById.combinedText} />
+                                    <FileUpload combinedText={data?.getScriptById.combinedText} handleCreateRequest={handleCreateRequest} handleCancel={handleCancel} isLoading={isLoading} />
+                                    <div className='flex gap-2 justify-center' >
+                                        <button
+                                            onClick={() => handleCreateRequest(diffResult.filter(res => res.added).map(res => res.value).join(" "))}
+                                            className="w-36  bg-white flex justify-center items-center gap-1 font-semibold text-gray-600 rounded"
+                                        >
+                                            {isLoading ? <svg aria-hidden="true" class="size-6 mx-auto text-gray-200 animate-spin dark:text-gray-600 fill-white" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                                                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                                            </svg> :
+                                                <span className="flex justify-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                    </svg>
+
+                                                    Confirm
+                                                </span>
+                                            }
+                                        </button>
+                                        <button
+                                            onClick={handleCancel}
+                                            className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+
+                                            Cancel
+                                        </button >
+                                    </div>
                                 </DialogPanel>
                             </div>
                         </div>

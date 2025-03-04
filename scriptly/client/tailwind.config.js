@@ -30,6 +30,6 @@ export default {
       };
       addUtilities(newUtilities, ['responsive', 'hover']); // Make them available for responsive and hover states
     },
-    require('tailwind-scrollbar'),
+    require('tailwind-scrollbar')({ nocompatible: true }),
   ],
 };

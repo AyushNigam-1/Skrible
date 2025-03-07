@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-const Dropdown = ({ icon, options, scriptId }) => {
+const Dropdown = ({ icon, options, scriptId  }) => {
     const nav = useNavigate()
     const [isActive, setIsActive] = useState(false);
     const [isVisible, setIsVisible] = useState(false);

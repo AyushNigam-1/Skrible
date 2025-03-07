@@ -18,7 +18,7 @@ const ZenMode = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
                 </svg>
                 </button>
-                <h4 className="text-gray-700 font-bold text-3xl" >{data.getScriptById.author.username}</h4>
+                <h4 className="text-gray-700 font-bold text-3xl" >{data.getScriptById.title}</h4>
                 <button className='flex gap-2 items-center text-lg  bg-gray-200/50 text-black text-md p-4 rounded-full' onClick={handlePinClick} >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />

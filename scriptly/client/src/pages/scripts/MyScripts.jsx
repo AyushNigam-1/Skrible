@@ -70,7 +70,7 @@ const MyScripts = () => {
             </div>
             <div className='grid grid-cols-2 gap-5'>
                 {data.getUserScripts.map((e) => <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4 shadow-md h-full' >
-                    <Link to={`/script/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
+                    <Link to={`/paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                         <div className='flex gap-2'>
                             {/* <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} /> */}
                             <div className='flex flex-col gap-4 w-full' >

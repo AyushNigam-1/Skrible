@@ -1,69 +1,7 @@
 import React, { useState } from "react";
-import { diffChars } from "diff";
-import { pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-const FileUpload = ({ combinedText, handleCreateRequest, handleCancel, isLoading }) => {
-    console.log(isLoading)
-    const [files, setFiles] = useState([]);
-    const [fileText, setFileText] = useState("");
-    const [diffResult, setDiffResult] = useState(null);
 
-    const handleFileChange = async (e) => {
-        const uploadedFiles = Array.from(e.target.files);
-        setFiles(uploadedFiles);
-
-        let extractedText = "";
-        for (const file of uploadedFiles) {
-            if (file.type === "text/plain") {
-                extractedText += await readTextFile(file);
-            } else if (file.type === "application/pdf") {
-                extractedText += await readPdfFile(file);
-            }
-        }
-        setFileText(extractedText);
-        compareText(extractedText);
-    };
-
-    const readTextFile = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.readAsText(file);
-        });
-    };
-
-    const readPdfFile = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const typedArray = new Uint8Array(e.target.result);
-                const pdf = await pdfjs.getDocument(typedArray).promise;
-                let text = "";
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map((item) => item.str).join(" ") + " ";
-                }
-                resolve(text);
-            };
-            reader.readAsArrayBuffer(file);
-        });
-    };
-
-    const compareText = (uploadedText) => {
-        console.log(combinedText)
-        const differences = diffChars(combinedText, uploadedText).filter(diff => !/^(?:\n+|\s*)$/.test(diff.value));
-        console.log(differences)
-        // console.log(differences.filter(diff => !diff.value.match(/^\s*$|\n/)))
-        setDiffResult(differences);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setFiles([...files, ...Array.from(e.dataTransfer.files)]);
-    };
-
+const FileUpload = ({  diffResult , handleDrop , handleFileChange  }) => {
 
     return (
         <div className="rounded-lg h-full overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white scrollbar-thumb-rounded-full" >

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { ACCEPT_REQUEST } from '../graphql/mutation/scriptMutations';
 import { useMutation } from '@apollo/client';
-import { useNavigation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, setTab }) => {
-    const nav = useNavigation()
+    const nav = useNavigate()
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredRequests, setFilteredRequests] = useState(requests);
     const [acceptRequest, { loading, error }] = useMutation(ACCEPT_REQUEST);

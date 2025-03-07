@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom';
 import Loader from './Loader';
 import { CREATE_REQUEST } from '../graphql/mutation/scriptMutations';
@@ -9,6 +9,10 @@ import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import FileUpload from './FileUpload';
 import useElementHeight from '../hooks/useElementOffset';
 import { useNavigate } from 'react-router-dom';
+import { diffChars } from "diff";
+import { pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const Paragraphs = () => {
     const nav = useNavigate()
     const { setRequest, data, refetch, setTab, loading } = useOutletContext();
@@ -16,6 +20,10 @@ const Paragraphs = () => {
     const [isDownloading, setLoading] = useState(false)
     const [fetchDocument] = useLazyQuery(EXPORT_DOCUMENT_QUERY);
     const [isOpen, setIsOpen] = useState(false)
+    const [files, setFiles] = useState([]);
+    const [fileText, setFileText] = useState("");
+    const [diffResult, setDiffResult] = useState(null);
+
     const handleDownload = async (format) => {
         setLoading(true)
         const response = await fetchDocument({
@@ -25,7 +33,66 @@ const Paragraphs = () => {
         downloadFile(response.data.exportDocument.filename, response.data.exportDocument.content, response.data.exportDocument.contentType);
 
     };
+    const extractText = async (uploadedFiles) => {
+        console.log("extractText")
+        let extractedText = "";
+        for (const file of uploadedFiles) {
+            if (file.type === "text/plain") {
+                extractedText += await readTextFile(file);
+            } else if (file.type === "application/pdf") {
+                extractedText += await readPdfFile(file);
+            }
+        }
+        setFileText(extractedText);
+        compareText(extractedText);
+    }
+    const handleFileChange = async (e) => {
+        const uploadedFiles = Array.from(e.target.files);
+        setFiles(uploadedFiles);
+        console.log("file change")
+        extractText(uploadedFiles)
+    };
 
+    const readTextFile = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsText(file);
+        });
+    };
+
+    const readPdfFile = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const typedArray = new Uint8Array(e.target.result);
+                const pdf = await pdfjs.getDocument(typedArray).promise;
+                let text = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text += content.items.map((item) => item.str).join(" ") + " ";
+                }
+                resolve(text);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    };
+
+    const compareText = (uploadedText) => {
+        console.log(data?.getScriptById.combinedText)
+        const differences = diffChars(data?.getScriptById.combinedText, uploadedText).filter(diff => !/^(?:\n+|\s*)$/.test(diff.value));
+        console.log(differences)
+        // console.log(differences.filter(diff => !diff.value.match(/^\s*$|\n/)))
+        setDiffResult(differences);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault()
+        const uploadedFiles = Array.from(e.dataTransfer.files);
+        setFiles(uploadedFiles);
+        extractText(uploadedFiles)
+    };
     function downloadFile(filename, content, contentType) {
 
         let blob;
@@ -205,7 +272,7 @@ const Paragraphs = () => {
 
                                         <Button
                                             className="inline-flex items-center gap-2 rounded-md  text-sm/6 font-semibold text-gray-600 "
-                                            onClick={() => setIsOpen(false)}
+                                            onClick={() => { setIsOpen(false); setDiffResult("") }}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -213,8 +280,8 @@ const Paragraphs = () => {
 
                                         </Button>
                                     </div>
-                                    <FileUpload combinedText={data?.getScriptById.combinedText} handleCreateRequest={handleCreateRequest} handleCancel={handleCancel} isLoading={isLoading} />
-                                    <div className='flex gap-2 justify-center' >
+                                    <FileUpload combinedText={data?.getScriptById.combinedText} handleCreateRequest={handleCreateRequest} handleCancel={handleCancel} handleFileChange={handleFileChange} handleDrop={handleDrop} isLoading={isLoading} diffResult={diffResult} />
+                                    {diffResult && <div className='flex gap-2 justify-center' >
                                         <button
                                             onClick={() => handleCreateRequest(diffResult.filter(res => res.added).map(res => res.value).join(" "))}
                                             className="w-36  bg-white flex justify-center items-center gap-1 font-semibold text-gray-600 rounded"
@@ -227,22 +294,21 @@ const Paragraphs = () => {
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                     </svg>
-
                                                     Confirm
                                                 </span>
                                             }
                                         </button>
                                         <button
-                                            onClick={handleCancel}
+                                            onClick={() => { setIsOpen(false); setDiffResult("") }}
                                             className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                             </svg>
-
                                             Cancel
                                         </button >
-                                    </div>
+                                    </div>}
+
                                 </DialogPanel>
                             </div>
                         </div>

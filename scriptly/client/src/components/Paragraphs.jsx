@@ -284,7 +284,7 @@ const Paragraphs = () => {
                                     {diffResult && <div className='flex gap-2 justify-center' >
                                         <button
                                             onClick={() => handleCreateRequest(diffResult.filter(res => res.added).map(res => res.value).join(" "))}
-                                            className="w-36  bg-white flex justify-center items-center gap-1 font-semibold text-gray-600 rounded"
+                                            className="w-36 bg-white flex justify-center items-center gap-1 font-semibold text-gray-600 rounded"
                                         >
                                             {isLoading ? <svg aria-hidden="true" class="size-6 mx-auto text-gray-200 animate-spin dark:text-gray-600 fill-white" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
@@ -315,12 +315,12 @@ const Paragraphs = () => {
                     </Dialog>
                 </div>
             </div>
-            <div className='flex flex-col gap-3 overflow-y-scroll' style={{ height }} id='scripts' >
+            <div className='flex flex-col gap-3 overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' style={{ height }} id='scripts' >
                 {sortedDates.map(date => (
                     <div key={date} className='flex flex-col gap-3' >
                         <h4 className='text-md text-gray-500 text-center'>{date}</h4>
                         {groupedParagraphs[date].map((contribution, index) => (
-                            <Link key={index} className='flex flex-col p-2 gap-2 bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }}>
+                            <Link key={index} id={contribution.id} className='target:border-indigo-300 target:border-2 flex flex-col p-2 gap-2 bg-gray-200/50 rounded-lg' to={`/para/${contribution.id}`} state={{ contribution }}>
                                 <div className='flex gap-2 justify-between items-center'>
                                     <div className='flex gap-2 items-center' >
                                         <img className='rounded-full w-6' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />

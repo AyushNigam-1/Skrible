@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Script from "../../../models/Script";
-
+import User from "../../../models/User";
 export const scriptQueries = {
     getAllScripts: async () => {
         try {
@@ -58,7 +58,48 @@ export const scriptQueries = {
         } catch (error: any) {
             throw new Error(`Failed to fetch scripts by genres: ${error.message}`);
         }
-    }
+    },
+    getScriptContributors: async (_: any, { scriptId }: { scriptId: string }) => {
+        const script = await Script.findById(scriptId).lean();
+
+        if (!script) {
+            throw new Error("Script not found");
+        }
+
+        // Extract unique author IDs from paragraphs
+        const authorMap: Map<string, { name: string; paragraphs: any[] }> = new Map();
+
+        for (const paragraph of script.paragraphs) {
+            const authorId = paragraph.author.toString();
+
+            if (!authorMap.has(authorId)) {
+                authorMap.set(authorId, { name: "", paragraphs: [] });
+            }
+
+            authorMap.get(authorId)!.paragraphs.push(paragraph);
+        }
+
+        // Fetch user details
+        const users = await User.find({ _id: { $in: Array.from(authorMap.keys()) } })
+            .lean()
+            .select("_id username");
+        console.log(users)
+        // Map user details into authorMap
+        for (const user of users) {
+            if (authorMap.has(user._id.toString())) {
+                authorMap.get(user._id.toString())!.name = user.username;
+            }
+        }
+
+        // Convert to expected structure
+        const contributors = Array.from(authorMap.entries()).map(([userId, details]) => ({
+            userId,
+            details,
+        }));
+        console.log(contributors)
+        return { contributors };
+    },
+
 
 };
 

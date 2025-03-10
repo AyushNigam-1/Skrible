@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import RequestsSidebar from '../../components/RequestsSidebar';
 import useElementHeight from '../../hooks/useElementOffset';
 import { Link, useOutletContext } from 'react-router-dom';
@@ -6,13 +6,13 @@ import { Link, useOutletContext } from 'react-router-dom';
 const Requests = () => {
     const { request, setRequest, data, refetch, setTab, loading } = useOutletContext();
 
-    const height = useElementHeight('requests');
+    const height = useMemo(() => useElementHeight('requests'));
     const user = JSON.parse(localStorage.getItem('user'));
 
-    function formatFancyDate(timestamp) {
-        const date = new Date(Number(timestamp));
-        return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
-    }
+    // function formatFancyDate(timestamp) {
+    //     const date = new Date(Number(timestamp));
+    //     return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
+    // }
     return (
         <div className="h-full" id='requests' style={{ height }}>
             {

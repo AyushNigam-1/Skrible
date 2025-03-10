@@ -28,7 +28,7 @@ const ZenMode = () => {
                     {/* <h6>Pin</h6> */}
                 </button>
             </div>
-            <div className='flex flex-col gap-2 bg-gray-200/50 p-2 rounded-xl text-xl h-full text-gray-800 h-full' >
+            <div className='flex flex-col gap-2 bg-gray-200/50 p-2 rounded-xl text-xl text-gray-800 h-full' >
 
                 {data.getScriptById.paragraphs.map((para, index) => (
                     <p>{para.text}</p>

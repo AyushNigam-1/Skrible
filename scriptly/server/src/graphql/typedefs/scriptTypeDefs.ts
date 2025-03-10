@@ -53,12 +53,26 @@ export const scriptTypeDefs = gql`
     title: String!
     paragraph: Paragraph!
   }
+ type ContributorDetails {
+    name: String!
+    paragraphs: [Paragraph!]!
+  }
 
+  type ScriptContributors {
+    contributors: [Contributor!]!
+  }
+
+  type Contributor {
+    userId: ID!
+    details: ContributorDetails!
+  }
+    
   type Query {
     getAllScripts: [Script!]!
     getScriptById(id: ID!): Script
     getParagraphWithParentScript(paragraphId: ID!): ScriptWithParagraph
     getScriptsByGenres(genres: [String!]!): [Script!]!
+    getScriptContributors(scriptId: ID!): ScriptContributors! 
   }
 
   type Mutation {

@@ -68,3 +68,26 @@ query GetScriptsByGenres($genres: [String!]!) {
 }
 
 `
+
+export const GET_SCRIPT_CONTRIBUTORS = gql`
+query GetScriptContributors($scriptId: ID!) {
+  getScriptContributors(scriptId: $scriptId) {
+    contributors {
+      userId
+      details {
+        name
+        paragraphs {
+          text
+          createdAt
+          likes
+          dislikes
+          comments {
+            text
+            createdAt
+          }
+        }
+      }
+    }
+  }
+}
+`

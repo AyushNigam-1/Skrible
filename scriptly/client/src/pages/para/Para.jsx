@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useLocation } from 'react-router-dom'
 import useElementHeight from '../../hooks/useElementOffset';
 
@@ -13,6 +13,7 @@ const Para = () => {
             day: "numeric"
         }) + ` , ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
     }
+
     const location = useLocation();
     const { contribution } = location.state || {};
 

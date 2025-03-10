@@ -1,8 +1,10 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom';
+import useElementHeight from '../hooks/useElementOffset';
 
 const ScriptDetails = () => {
     const { data, loading } = useOutletContext();
+    const height = useElementHeight('details')
 
     if (loading) return <Loader height="70vh" />
     function formatDate(isoString) {
@@ -10,7 +12,7 @@ const ScriptDetails = () => {
         return date.toLocaleString();
     }
     return (
-        <div className='col-span-2 sticky top-6 h-min bg-gray-200/50 rounded-lg p-4 gap-3 flex flex-col' >
+        <div className='col-span-2 sticky top-6 h-min bg-gray-200/50 rounded-lg p-4 gap-3 flex flex-col overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' id='details' style={{ height }} >
             <div className='flex gap-1 flex-col'>
                 <h4 className='text-md text-gray-600 font-medium flex items-center gap-1' >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">

@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import Dropdown from './Dropdown'
-import Notification from '../pages/notification/Notifications'
-import Cookies from 'js-cookie';
+// import Notification from '../pages/notification/Notifications'
+// import Cookies from 'js-cookie';
 const Navbar = () => {
     const user = localStorage.getItem('user');
     const options1 = [{
@@ -55,7 +55,7 @@ const Navbar = () => {
         color: 'text-red-600'
     }]
     return (
-        <header class="bg-gray-200/50 w-full rounded-xl ">
+        <header class="bg-gray-200/50 w-full rounded-lg ">
             <div class="flex h-16  items-center gap-8 px-4">
                 <div class="flex flex-1 items-center justify-end md:justify-between ">
                     <nav aria-label="Global" class="hidden md:block">

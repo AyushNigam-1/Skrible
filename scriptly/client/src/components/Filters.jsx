@@ -22,7 +22,7 @@ const Filters = () => {
                 return person.name.toLowerCase().includes(query.toLowerCase())
             })
     return (
-        <div class="w-full max-w-md">
+        <div class="">
             <Listbox value={selected} onChange={setSelected}>
                 <ListboxButton
                     className={clsx(

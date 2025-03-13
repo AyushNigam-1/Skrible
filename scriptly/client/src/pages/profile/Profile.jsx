@@ -10,7 +10,6 @@ const Profile = () => {
         variables: { id: userId },
         skip: !userId,
     });
-    console.log(data)
     if (error) return <p>Error: {error.message}</p>;
     if (loading) return <Loader height="90vh" />
 
@@ -105,7 +104,6 @@ const Profile = () => {
     },
     ]
     return (
-
         <div className='flex gap-4 flex-col'>
             <div className='flex justify-between items-center'>
                 <h3 className='text-4xl font-black text-gray-700 ' >
@@ -121,7 +119,7 @@ const Profile = () => {
             </div>
             <div className='flex rounded-md gap-3' >
                 <div className='flex flex-col gap-3 w-64 bg- p-4 rounded-lg bg-gray-200/50' >
-                    <img src="/person.jpg" className='rounded-full w-48' alt="" />
+                    <img className='rounded-full w-48' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />
                     <hr />
                     <div className='flex gap-3 flex-col'>
                         {

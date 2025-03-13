@@ -1,7 +1,8 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 import useElementHeight from '../../hooks/useElementOffset';
-
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'
 const Para = () => {
     const commentsHeight = useElementHeight('comments');
 
@@ -29,17 +30,22 @@ const Para = () => {
                         </p>
                     </div>
                 </div>
-                <div className='word-spacing-1 flex flex-col relative gap-1 bg-white rounded-lg p-3 h-36'>
-                    <div className='  text-md text-gray-800' >
-                        <p className='text-xl font-mulish'>
+                <div className='word-spacing-1 flex flex-col relative gap-1 bg-white rounded-lg p-3 h-36 line-clamp-1 overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' >
+                    <p className='text-xl font-mulish text-gray-800'>
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                            }}
+                        >
                             {contribution.text}
-                        </p>
-                    </div>
+                        </ReactMarkdown>
+                    </p>
                 </div>
             </div>
-            <div className='flex-col flex ' >
-                <h5 className='text-gray-600 font-semibold text-2xl' >Comments</h5>
-            </div>
+            {/* <div className='flex-col flex ' > */}
+            {/* <h5 className='text-gray-600 font-semibold text-2xl' >Comments</h5> */}
+            {/* </div> */}
             <div className='bg-gray-200/50 p-2 rounded-lg flex flex-col gap-2' id='comments' style={{ height: commentsHeight }} >
                 <div className='bg-white rounded-lg h-full'   >
                     {contribution.comments.length ? "" : <div className="flex flex-col items-center justify-center rounded-lg mt-auto h-full gap-3">

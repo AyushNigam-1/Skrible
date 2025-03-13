@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import remarkGfm from "remark-gfm";
+import ReactMarkdown from 'react-markdown';
 
 
 const FileUpload = ({ diffResult, handleDrop, handleFileChange }) => {
 
     return (
-        <div className="rounded-lg h-full overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full" >
+        <div className="rounded-lg h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full" >
             {diffResult ? <div className="flex flex-col gap-2" > <div className="bg-white rounded-lg overflow-y-auto " > {diffResult.map(res => {
                 return (
                     <div className={`${res.added ? 'bg-green-50 border-green-300  border-2 ' : res.removed ? 'bg-orange-50 border-orange-300 border-2 ' : ''}  rounded-lg flex flex-col gap-1 text-gray-800   p-3`}>
@@ -18,7 +20,15 @@ const FileUpload = ({ diffResult, handleDrop, handleFileChange }) => {
                                 Missing </span> : ''}
                         <p>
                             <p className="text-lg" >
-                                {res.value}
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                    }}
+                                >
+                                    {res.value}
+                                </ReactMarkdown>
+
                             </p>
                         </p>
                     </div>

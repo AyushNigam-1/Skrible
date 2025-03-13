@@ -1,18 +1,28 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import RequestsSidebar from '../../components/RequestsSidebar';
 import useElementHeight from '../../hooks/useElementOffset';
 import { Link, useOutletContext } from 'react-router-dom';
+import remarkGfm from 'remark-gfm';
+import ReactMarkdown from 'react-markdown';
 
 const Requests = () => {
     const { request, setRequest, data, refetch, setTab, loading } = useOutletContext();
 
-    const height = useMemo(() => useElementHeight('requests'));
+    const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));
+    const requestPreviewRef = useRef(null);
 
-    // function formatFancyDate(timestamp) {
-    //     const date = new Date(Number(timestamp));
-    //     return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
-    // }
+    useEffect(() => {
+        if (requestPreviewRef.current) {
+            requestPreviewRef.current.scrollTop = requestPreviewRef.current.scrollHeight;
+        }
+    }, [data.getScriptById.paragraphs]);
+
+    function formatFancyDate(timestamp) {
+        const date = new Date(Number(timestamp));
+        return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
+    }
+
     return (
         <div className="h-full" id='requests' style={{ height }}>
             {
@@ -42,17 +52,34 @@ const Requests = () => {
                 ) : (
                     <div className='grid grid-cols-12 gap-3 h-full' >
                         <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById._id} refetch={refetch} setTab={setTab} />
-                        <div className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl' >
-                            <div className='rounded-lg overflow-auto p-2 bg-white '>
-                                {data.getScriptById.paragraphs.map((para, index) => (
-                                    <p className='text-xl' key={index}>
-                                        {para.text}
-                                    </p>
-                                ))}
+                        <div id='requestPreview' ref={requestPreviewRef}
+                            className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' style={{ height }} >
+                            <div className='rounded-lg  p-2 bg-white '>
+                                <p className='text-xl' >
+
+                                    {data.getScriptById.paragraphs.map((para, index) => (
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                            }}
+                                        >
+                                            {para.text}
+                                        </ReactMarkdown>
+
+                                    ))}
+                                </p>
                             </div>
                             {request && (
                                 <Link className='flex flex-col p-2 gap-2 bg-white rounded-lg border-indigo-300 border-2' to={`/para/${request._id}`} state={{ contribution: request }}>
-                                    <p className='text-xl font-mulish'>{request?.text}</p>
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                        }}
+                                    >
+                                        {request?.text}
+                                    </ReactMarkdown>
                                 </Link>
                             )}
                         </div>

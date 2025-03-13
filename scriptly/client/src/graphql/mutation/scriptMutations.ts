@@ -59,41 +59,7 @@ export const CREATE_REQUEST = gql`
 `;
 export const ACCEPT_REQUEST = gql`
   mutation AcceptRequest($scriptId: ID!, $requestId: ID!) {
-    acceptRequest(scriptId: $scriptId, requestId: $requestId) {
-      _id
-      paragraphs {
-        text
-        author{
-          username
-        }
-        likes
-        dislikes
-        comments {
-          text
-          author{
-            username
-          }
-          createdAt
-        }
-      }
-      requests {
-        _id
-        text
-        author{
-          username
-        }
-        status
-        likes
-        dislikes
-        comments {
-          text
-          author{
-            username
-          }
-          createdAt
-        }
-      }
-    }
+    acceptRequest(scriptId: $scriptId, requestId: $requestId) 
   }
 `;
 export const MARK_AS_INTERESTED = gql`

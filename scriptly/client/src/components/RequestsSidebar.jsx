@@ -6,7 +6,7 @@ const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, set
     const nav = useNavigate()
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredRequests, setFilteredRequests] = useState(requests);
-    const [acceptRequest, { loading, error }] = useMutation(ACCEPT_REQUEST);
+    const [acceptRequest, { loading }] = useMutation(ACCEPT_REQUEST);
     const [reqId, setReqId] = useState()
 
     const handleAcceptRequest = async (requestId) => {
@@ -17,7 +17,7 @@ const RequestsSidebar = ({ requests, setRequest, request, scriptId, refetch, set
             });
             await refetch()
             setTab("Script")
-            nav(`/paragrphs/${data?.getScriptById._id}`)
+            nav(`/paragraphs/${scriptId}#${requestId}`)
 
             console.log("Request accepted successfully:", data);
         } catch (err) {

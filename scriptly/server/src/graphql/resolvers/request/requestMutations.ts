@@ -41,7 +41,6 @@ export const requestMutations = {
     acceptRequest: async (_: any, { scriptId, requestId }: { scriptId: string; requestId: string }) => {
         const requestObjectId = new mongoose.Types.ObjectId(requestId);
 
-        // Find the script and extract the request
         const script = await Script.findOne({ _id: scriptId, "requests._id": requestObjectId });
 
         if (!script) {
@@ -54,15 +53,14 @@ export const requestMutations = {
             throw new GraphQLError("Request not found");
         }
 
-        // Manually append request text to combinedText
         const updatedCombinedText = script.combinedText ? `${script.combinedText}\n${request.text}` : request.text;
 
-        // Update script: Add paragraph, update combinedText, and accept request
         await Script.findByIdAndUpdate(
             scriptId,
             {
                 $push: {
                     paragraphs: {
+                        _id: new mongoose.Types.ObjectId(request._id),
                         text: request.text,
                         author: request.author,
                         likes: request.likes,
@@ -81,7 +79,6 @@ export const requestMutations = {
             }
         );
 
-        // Decline all other pending requests
         await Script.findByIdAndUpdate(
             scriptId,
             {
@@ -92,16 +89,8 @@ export const requestMutations = {
                 new: true
             }
         );
-
-        // Return the updated script with populated fields
-        const updatedScript = await Script.findById(scriptId)
-            .populate("requests.author")
-            .populate("requests.comments.author")
-            .populate("paragraphs.author")
-            .populate("paragraphs.comments.author")
-            .populate("author");
-
-        return updatedScript;
+        return true;
     }
+
 
 }

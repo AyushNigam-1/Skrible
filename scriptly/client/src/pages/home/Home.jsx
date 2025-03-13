@@ -37,7 +37,6 @@ const Home = () => {
                     loading ? <Loader /> :
                         <Scripts data={data} />
                 }
-
             </div>
         </>
     )

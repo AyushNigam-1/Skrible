@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { useOutletContext } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import useElementHeight from '../hooks/useElementOffset';
+import remarkGfm from 'remark-gfm';
+import ReactMarkdown from 'react-markdown';
 
 const ZenMode = () => {
     const navigate = useNavigate();
 
     const { data } = useOutletContext();
     const [cursorClass, setCursorClass] = useState('cursor-default');
-
+    const height = useElementHeight("content")
     const handlePinClick = () => {
         setCursorClass('cursor-pin');
     };
@@ -28,10 +31,18 @@ const ZenMode = () => {
                     {/* <h6>Pin</h6> */}
                 </button>
             </div>
-            <div className='flex flex-col gap-2 bg-gray-200/50 p-2 rounded-xl text-xl text-gray-800 h-full' >
+            <div className='flex flex-col gap-2 bg-gray-200/50 p-3 rounded-xl text-xl text-gray-800 h-full overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full ' id='content' style={{ height }} >
 
                 {data.getScriptById.paragraphs.map((para, index) => (
-                    <p>{para.text}</p>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                        }}
+                    >
+
+                        {para.text}
+                    </ReactMarkdown>
                 ))}
             </div>
         </div>

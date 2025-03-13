@@ -42,7 +42,8 @@ const Contributors = () => {
                         return (
                             <div className='flex items-center justify-between col-span-3 bg-gray-200/50 p-3 rounded-xl'>
                                 <div className='flex gap-2'>
-                                    <img src="/OIP.jpeg" alt="" className='w-14 rounded-full ' />
+                                    <img className='rounded-full w-14' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />
+
                                     <div className='flex flex-col ' >
                                         <h5 className='text-gray-700 font-semibold text-xl'>
                                             {Object.keys(contributor)[0]}
@@ -61,7 +62,6 @@ const Contributors = () => {
                 }
             </div>
         </>
-        // <div>Contributor</div>
     )
 }
 

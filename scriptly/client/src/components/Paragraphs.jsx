@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import Loader from './Loader';
 import { CREATE_REQUEST } from '../graphql/mutation/scriptMutations';
 import { useLazyQuery, useMutation } from '@apollo/client';
@@ -8,9 +8,10 @@ import { EXPORT_DOCUMENT_QUERY } from '../graphql/query/paragraphQueries';
 import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import FileUpload from './FileUpload';
 import useElementHeight from '../hooks/useElementOffset';
-import { useNavigate } from 'react-router-dom';
 import { diffChars } from "diff";
 import { pdfjs } from "react-pdf";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const Paragraphs = () => {
@@ -37,12 +38,13 @@ const Paragraphs = () => {
         console.log("extractText")
         let extractedText = "";
         for (const file of uploadedFiles) {
-            if (file.type === "text/plain") {
+            if (file.type === "text/plain" || file.name.endsWith(".md")) {
                 extractedText += await readTextFile(file);
             } else if (file.type === "application/pdf") {
                 extractedText += await readPdfFile(file);
             }
         }
+        console.log(extractedText)
         setFileText(extractedText);
         compareText(extractedText);
     }
@@ -81,6 +83,7 @@ const Paragraphs = () => {
 
     const compareText = (uploadedText) => {
         console.log(data?.getScriptById.combinedText)
+        console.log(uploadedText)
         const differences = diffChars(data?.getScriptById.combinedText, uploadedText).filter(diff => !/^(?:\n+|\s*)$/.test(diff.value));
         console.log(differences)
         // console.log(differences.filter(diff => !diff.value.match(/^\s*$|\n/)))
@@ -240,9 +243,9 @@ const Paragraphs = () => {
                         </svg>}
                             Export</PopoverButton>
                         <PopoverPanel anchor="bottom" className="flex flex-col gap-2 bg-gray-100/90 text-gray-600 mt-2 w-44 text-xl p-2 rounded-lg border-gray-300 border">
-                            <button onClick={() => handleDownload("txt")} className='flex gap-2 items-center hover:bg-white p-1 rounded-lg' ><img width="24" height="24" src="https://img.icons8.com/forma-light/24/737373/txt.png" alt="txt" /> .txt</button>
-                            <button onClick={() => handleDownload("pdf")} className='flex gap-2 items-center hover:bg-white p-1 rounded-lg'> <img width="27" height="27" src="https://img.icons8.com/small/27/737373/pdf-2.png" alt="pdf-2" /> .pdf</button>
-                            <button onClick={() => handleDownload("md")} className='flex gap-2 items-center hover:bg-white p-1 rounded-lg'><img width="24" height="24" src="https://img.icons8.com/material-outlined/24/737373/markdown.png" alt="markdown" />  .md</button>
+                            <button onClick={() => handleDownload("txt")} className='flex gap-2 items-center hover:bg-white p-1 rounded-md' ><img width="24" height="24" src="https://img.icons8.com/forma-light/24/737373/txt.png" alt="txt" /> .txt</button>
+                            {/* <button onClick={() => handleDownload("pdf")} className='flex gap-2 items-center hover:bg-white p-1 rounded-lg'> <img width="27" height="27" src="https://img.icons8.com/small/27/737373/pdf-2.png" alt="pdf-2" /> .pdf</button> */}
+                            <button onClick={() => handleDownload("md")} className='flex gap-2 items-center hover:bg-white p-1 rounded-md'><img width="24" height="24" src="https://img.icons8.com/material-outlined/24/737373/markdown.png" alt="markdown" />  .md</button>
 
                         </PopoverPanel>
                     </Popover>
@@ -324,56 +327,27 @@ const Paragraphs = () => {
                                 <div className='flex gap-2 justify-between items-center'>
                                     <div className='flex gap-2 items-center' >
                                         <img className='rounded-full w-6' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />
-                                        <p className='font-semibold text-lg text-gray-600'>{contribution.author.username}</p>
+                                        <p className='font-semibold text-lg text-gray-600'>{contribution.author.username}  {contribution.id}</p>
                                     </div>
                                     <p className='text-sm text-gray-600'>{formatFancyDate(contribution.createdAt)}</p>
                                 </div>
                                 <div className='text-md text-gray-800 bg-white p-3 rounded-lg'>
-                                    <p className='text-xl font-mulish'>{contribution.text}</p>
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                        }}
+                                    >
+
+                                        {contribution.text}
+                                    </ReactMarkdown>
+                                    {/* <p className='text-xl font-mulish'>{contribution.text}</p> */}
                                 </div>
                             </Link>
                         ))}
                     </div>
                 ))}
 
-                {/* <div className={`flex flex-col p-2 gap-1 h-full bg-gray-200/50 rounded-lg ${showTextarea ? "opacity-100 " : "opacity-0 "
-                    } `}>
-                    <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out flex flex-col gap-2  $`}>
-                        <textarea
-                            rows={6}
-                            value={newContribution}
-                            onChange={(e) => setNewContribution(e.target.value)}
-                            className="w-full -md border-none rounded-lg p-4 outline-none resize-none"
-                            placeholder="Add your contribution..."
-                        />
-                        <div className='flex gap-2' >
-                            <button
-                                onClick={handleCreateRequest}
-                                className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-
-                                Submit
-                            </button>
-                            <button
-                                onClick={handleCancel}
-                                className="px-8 py-2 bg-white flex justify-center gap-1 font-semibold text-gray-600 rounded"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-
-                                Cancel
-                            </button >
-                        </div>
-                    </div>
-
-                </div> */}
-                {/* Reference to scroll to the end */}
-                {/* <div ref={contributionEndRef} ></div> */}
             </div>
         </div >
     )

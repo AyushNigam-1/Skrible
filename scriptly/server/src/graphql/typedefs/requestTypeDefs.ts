@@ -16,7 +16,7 @@ type Request {
 
   type Mutation {
     createRequest(scriptId:ID!,text:String!): Request!
-    acceptRequest(scriptId: ID!, requestId: ID!): Script!
+    acceptRequest(scriptId: ID!, requestId: ID!): Boolean!
   }
 
 `

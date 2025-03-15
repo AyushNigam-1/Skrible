@@ -65,7 +65,7 @@ const router = createBrowserRouter([
         element: <Notifications />
       },
       {
-        path: "/profile",
+        path: "/profile/:id",
         element: <Profile />
       },
       {

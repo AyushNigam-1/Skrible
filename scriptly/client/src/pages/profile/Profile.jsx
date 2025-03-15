@@ -2,13 +2,13 @@ import React from 'react'
 import { useQuery } from '@apollo/client';
 import { GET_USER_PROFILE } from '../../graphql/query/userQueries';
 import Loader from '../../components/Loader';
+import { useParams } from 'react-router-dom';
 
 const Profile = () => {
-    const userId = JSON.parse(localStorage.getItem('user')).id;
-    console.log(userId)
+    const { id } = useParams();
     const { data, loading, error } = useQuery(GET_USER_PROFILE, {
-        variables: { id: userId },
-        skip: !userId,
+        variables: { id },
+        skip: !id,
     });
     if (error) return <p>Error: {error.message}</p>;
     if (loading) return <Loader height="90vh" />
@@ -144,7 +144,7 @@ const Profile = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg> Like
                         </button>
-                        {userId != data.getUserProfile.id && <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-white shadow-md text-gray-600 font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        {id != data.getUserProfile.id && <button className='flex gap-2 items-center justify-center p-2 rounded-lg bg-white shadow-md text-gray-600 font-bold' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                         </svg>
                             Follow

@@ -31,7 +31,7 @@ const ZenMode = () => {
                     {/* <h6>Pin</h6> */}
                 </button>
             </div>
-            <div className='flex flex-col gap-2 bg-gray-200/50 p-3 rounded-xl text-xl text-gray-800 h-full overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full ' id='content' style={{ height }} >
+            <div className='flex flex-col gap-2 bg-gray-200/50 p-3 rounded-xl text-xl text-gray-800 h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full ' id='content' style={{ height }} >
 
                 {data.getScriptById.paragraphs.map((para, index) => (
                     <ReactMarkdown

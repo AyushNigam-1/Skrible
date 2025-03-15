@@ -26,12 +26,14 @@ export const scriptMutations = {
         }
 
         const initialRequest = {
+            _id: new mongoose.Types.ObjectId(), // Explicitly add _id
             status: "completed",
             author: new mongoose.Types.ObjectId(userId),
             likes: 0,
             dislikes: 0,
             comments: [],
             text: paragraph,
+
         };
 
         const enrichedParagraph = {

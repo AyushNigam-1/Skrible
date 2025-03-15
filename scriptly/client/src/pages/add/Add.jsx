@@ -25,20 +25,19 @@ const Add = () => {
         const data = {
             title: formData.get('title'),
             languages: formData.get('languages').split(','), // Split language by commas
-            visibility: formData.get('visibility'),
+            visibility: selected.name,
             description: formData.get('description'),
             genres: formData.get('genres').split(','), // Split genres by commas
             paragraph: formData.get('script')
         };
+        console.log(data)
         try {
             const response = await add_script({ variables: data });
             console.log('Script added:', response.data.createScript);
-            navigate(`/script/${response.data.createScript.id}`);
-
-            alert('Script added successfully!');
+            navigate(`/paragraphs/${response.data.createScript._id}`);
             e.target.reset();
         } catch (error) {
-            console.error('Error adding script:', error);
+            console.error('Error adding      script:', error);
             alert('Failed to add script!');
         }
     };
@@ -136,7 +135,7 @@ const Add = () => {
                             <label htmlFor="visibility" className="block text-lg font-bold text-gray-500">
                                 Visibility
                             </label>
-                            <Listbox value={selected} onChange={setSelected}>
+                            <Listbox as="div" value={selected} onChange={setSelected} id="visibility">
                                 <ListboxButton
                                     className={clsx(
                                         'mt-1.5 rounded-lg bg-white outline-none p-3 w-full',

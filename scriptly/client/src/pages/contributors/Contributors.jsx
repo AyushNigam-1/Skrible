@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import Search from '../../components/Search';
 import Filters from '../../components/Filters';
 
@@ -40,7 +40,7 @@ const Contributors = () => {
                 {
                     allContributors?.map((contributor, index) => {
                         return (
-                            <div className='flex items-center justify-between col-span-3 bg-gray-200/50 p-3 rounded-xl'>
+                            <Link to={`/profile/${contributor._id}`} className='flex items-center justify-between col-span-3 bg-gray-200/50 p-3 rounded-xl'>
                                 <div className='flex gap-2'>
                                     <img className='rounded-full w-14' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />
 
@@ -56,7 +56,7 @@ const Contributors = () => {
                                 <span className='p-2 px-2.5 bg-white rounded-full text-xl text-gray-600 shadow-sm' >
                                     #{index + 1}
                                 </span>
-                            </div>
+                            </Link>
                         )
                     })
                 }

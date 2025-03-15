@@ -17,7 +17,7 @@ export const ADD_SCRIPT = gql`
           description: $description,
           paragraph: $paragraph
       ) {
-          id
+          _id
           title
           visibility
           languages

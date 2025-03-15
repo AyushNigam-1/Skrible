@@ -1,27 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React from 'react';
 import RequestsSidebar from '../../components/RequestsSidebar';
 import useElementHeight from '../../hooks/useElementOffset';
 import { Link, useOutletContext } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
+import useAutoScroll from '../../hooks/useAutoScroll';
 
 const Requests = () => {
-    const { request, setRequest, data, refetch, setTab, loading } = useOutletContext();
 
+    const { request, setRequest, data, refetch, setTab } = useOutletContext();
+    const containerRef = useAutoScroll([data.getScriptById.paragraphs])
     const height = useElementHeight('requests');
     const user = JSON.parse(localStorage.getItem('user'));
-    const requestPreviewRef = useRef(null);
-
-    useEffect(() => {
-        if (requestPreviewRef.current) {
-            requestPreviewRef.current.scrollTop = requestPreviewRef.current.scrollHeight;
-        }
-    }, [data.getScriptById.paragraphs]);
-
-    function formatFancyDate(timestamp) {
-        const date = new Date(Number(timestamp));
-        return `${date.getHours()}:${String(date.getSeconds()).padStart(2, "0")}`;
-    }
 
     return (
         <div className="h-full" id='requests' style={{ height }}>
@@ -52,7 +42,7 @@ const Requests = () => {
                 ) : (
                     <div className='grid grid-cols-12 gap-3 h-full' >
                         <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById._id} refetch={refetch} setTab={setTab} />
-                        <div id='requestPreview' ref={requestPreviewRef}
+                        <div id='requestPreview' ref={containerRef}
                             className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' style={{ height }} >
                             <div className='rounded-lg  p-2 bg-white '>
                                 <p className='text-xl' >

@@ -1,13 +1,16 @@
 import React from "react";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from 'react-markdown';
+import useAutoScroll from "../hooks/useAutoScroll";
 
 
 const FileUpload = ({ diffResult, handleDrop, handleFileChange }) => {
+    const containerRef = useAutoScroll([diffResult]);
 
     return (
-        <div className="rounded-lg h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full" >
-            {diffResult ? <div className="flex flex-col gap-2" > <div className="bg-white rounded-lg overflow-y-auto " > {diffResult.map(res => {
+        <div className="rounded-lg h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full" ref={containerRef} >
+            {diffResult ? <div className="flex flex-col gap-2" > <div className="bg-white rounded-lg overflow-y-auto "
+            > {diffResult.map(res => {
                 return (
                     <div className={`${res.added ? 'bg-green-50 border-green-300  border-2 ' : res.removed ? 'bg-orange-50 border-orange-300 border-2 ' : ''}  rounded-lg flex flex-col gap-1 text-gray-800   p-3`}>
                         {res.added ? <span className=" text-green-600  rounded-lg  flex gap-1  items-center" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -18,19 +21,17 @@ const FileUpload = ({ diffResult, handleDrop, handleFileChange }) => {
                             </svg>
 
                                 Missing </span> : ''}
-                        <p>
-                            <p className="text-lg" >
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    components={{
-                                        ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
-                                    }}
-                                >
-                                    {res.value}
-                                </ReactMarkdown>
+                        <div className="text-lg" >
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                    ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                }}
+                            >
+                                {res.value}
+                            </ReactMarkdown>
 
-                            </p>
-                        </p>
+                        </div>
                     </div>
                 )
             })}</div>
@@ -55,25 +56,7 @@ const FileUpload = ({ diffResult, handleDrop, handleFileChange }) => {
                     Drag files here or <span className="text-blue-500 underline" >Click To Upload</span>
                 </label>
             </div>}
-            {/* <div className="border p-3 mt-2">
-                <h3 className="text-lg font-bold">Comparison Result:</h3>
 
-            </div> */}
-            {/* {files.length > 0 && (
-                <ul className="mt-4">
-                    {files.map((file, index) => (
-                        <li key={index} className="flex justify-between p-2 border-b">
-                            {file.name}
-                            <button
-                                className="text-red-500"
-                                onClick={() => removeFile(index)}
-                            >
-                                ✖
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )} */}
         </div >
     );
 };

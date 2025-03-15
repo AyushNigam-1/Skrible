@@ -22,7 +22,8 @@
     "graphql-tag": "^2.12.6",
     "jspdf": "^3.0.0",
     "mongoose": "^8.9.4",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "react-scroll-to-bottom": "^4.2.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

@@ -26,6 +26,7 @@ const Contributors = () => {
 
     useEffect(() => {
         const contributors = transformData(data.getScriptById.paragraphs)
+        console.log(contributors)
         setContributors(contributors)
     }, [])
 
@@ -40,10 +41,9 @@ const Contributors = () => {
                 {
                     allContributors?.map((contributor, index) => {
                         return (
-                            <Link to={`/profile/${contributor._id}`} className='flex items-center justify-between col-span-3 bg-gray-200/50 p-3 rounded-xl'>
+                            <Link to={`/profile/${Object.keys(contributor)[0]}`} className='flex items-center justify-between col-span-3 bg-gray-200/50 p-3 rounded-xl'>
                                 <div className='flex gap-2'>
                                     <img className='rounded-full w-14' src='https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg' alt='Profile' />
-
                                     <div className='flex flex-col ' >
                                         <h5 className='text-gray-700 font-semibold text-xl'>
                                             {Object.keys(contributor)[0]}

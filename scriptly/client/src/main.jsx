@@ -19,7 +19,6 @@ import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
 import Para from "./pages/para/Para";
 import Add from "./pages/add/Add";
-import MyScripts from "./pages/scripts/MyScripts";
 import Logout from "./pages/auth/Logout";
 import ZenMode from "./components/ZenMode";
 import ScriptLayout from "./layout/ScriptLayout";
@@ -27,7 +26,7 @@ import Paragraphs from "./components/Paragraphs";
 import Requests from "./pages/requests/Requests";
 import ScriptDetails from "./components/ScriptDetails";
 import Contributors from "./pages/contributors/Contributors";
-
+import Explore from "./pages/explore/Explore";
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
   credentials: 'include'
@@ -65,7 +64,7 @@ const router = createBrowserRouter([
         element: <Notifications />
       },
       {
-        path: "/profile/:id",
+        path: "/profile/:username",
         element: <Profile />
       },
       {
@@ -73,8 +72,8 @@ const router = createBrowserRouter([
         element: <MyContributions />
       },
       {
-        path: "/my-scripts",
-        element: <MyScripts />
+        path: "/explore",
+        element: <Explore />
       },
       {
         path: "/para/:id",

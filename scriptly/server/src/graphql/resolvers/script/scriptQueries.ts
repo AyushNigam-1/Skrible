@@ -53,7 +53,7 @@ export const scriptQueries = {
                 ? { genres: { $in: genres } }
                 : {}; // If genres array is empty, return all scripts
             console.log(filter)
-            const scripts = await Script.find(filter);
+            const scripts = await Script.find(filter).populate("author");
             return scripts;
         } catch (error: any) {
             throw new Error(`Failed to fetch scripts by genres: ${error.message}`);

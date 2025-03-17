@@ -1,16 +1,5 @@
 import { gql } from '@apollo/client'
 
-export const GET_ALL_SCRIPTS = gql`
-  query GetAllScripts {
-    getAllScripts {
-      _id
-      title
-      genres
-      description
-    }
-  }
-
-`;
 
 export const GET_SCRIPT_BY_ID = gql`
   query GetScriptById($id: ID!) {
@@ -64,6 +53,8 @@ query GetScriptsByGenres($genres: [String!]!) {
       title
       genres
       description
+       author{
+      username}
   }
 }
 

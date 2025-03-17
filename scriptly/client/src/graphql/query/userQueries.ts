@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_USER_PROFILE = gql`
-  query GetUserProfile($id: ID!) {
-  getUserProfile(id: $id) {
+  query GetUserProfile($username: String!) {
+  getUserProfile(username: $username) {
     id
     username
     email
@@ -29,6 +29,8 @@ export const GET_USER_SCRIPTS = gql`
       genres
       createdAt
       updatedAt
+      author{
+      username}
     }
   }
 `;

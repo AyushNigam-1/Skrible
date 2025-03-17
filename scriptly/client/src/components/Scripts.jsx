@@ -102,16 +102,17 @@ const Scripts = ({ data }) => {
 
     </div>)
     return (
-        <div className='grid grid-cols-2 gap-5'>
+        <div className='grid grid-cols-2 gap-3'>
 
             {data?.getScriptsByGenres?.map(e => {
                 return (
                     <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
                         <Link to={`paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                             <div className='flex gap-2'>
-                                <div className='flex flex-col gap-4 w-full' >
-                                    <h1 className='text-3xl font-black text-gray-600 ' >{e.title}</h1>
-                                    <div className='flex gap-2' >
+                                <div className='flex flex-col w-full' >
+                                    <h1 className='text-3xl font-black text-gray-700 ' >{e.title}</h1>
+                                    <h4 className='font-semibold text-gray-500' > ~ {e.author.username} </h4>
+                                    {/* <div className='flex gap-2' >
                                         <span className='flex items-center gap-1 bg-white text-gray-500 px-2  rounded-lg w-max text-sm py-0.5' >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-3">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
@@ -124,7 +125,6 @@ const Scripts = ({ data }) => {
                                             </svg>
                                             <p className='font-bold text-sm'> 1 Contributor  </p>
                                         </span>
-                                        {/* <div className='flex justify-between' > */}
                                         <span className='flex items-center gap-1 bg-white text-gray-500 px-2  rounded-lg w-max text-sm py-0.5'>
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
@@ -133,8 +133,7 @@ const Scripts = ({ data }) => {
                                                 Highly Active
                                             </p>
                                         </span>
-                                        {/* </div> */}
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                             <p className='text-lg text-gray-500 font-semibold ' > {e.description} </p>

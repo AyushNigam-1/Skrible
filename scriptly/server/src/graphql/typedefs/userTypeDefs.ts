@@ -18,7 +18,7 @@ export const userTypeDefs = gql`
   }
 
   type Query {
-    getUserProfile(id: ID!): User
+    getUserProfile(username: String!): User
     getUserScripts(userId: ID!): [Script!]!
     getUserContributions(_id: ID!): [Request!]!
   }

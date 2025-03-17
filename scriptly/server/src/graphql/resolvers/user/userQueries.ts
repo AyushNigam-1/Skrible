@@ -2,9 +2,9 @@ import Script from "../../../models/Script";
 import User from "../../../models/User";
 
 export const userQueries = {
-    getUserProfile: async (_: unknown, { id }: { id: string }) => {
+    getUserProfile: async (_: unknown, { username }: { username: string }) => {
         try {
-            const user = await User.findById(id)
+            const user = await User.findOne({ username })
                 .populate('scripts')
                 .populate('likes')
                 .populate('followers')
@@ -14,7 +14,6 @@ export const userQueries = {
             if (!user) {
                 throw new Error('User not found');
             }
-
             return {
                 id: user._id,
                 username: user.username,

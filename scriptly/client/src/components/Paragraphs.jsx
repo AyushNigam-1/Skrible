@@ -330,7 +330,7 @@ const Paragraphs = () => {
                                     </div>
                                     <p className='text-sm text-gray-600'>{formatFancyDate(contribution.createdAt)}</p>
                                 </div>
-                                <div className='text-md text-gray-800 bg-white p-3 rounded-lg'>
+                                <div className='text-lg text-gray-800 bg-white p-3 rounded-lg'>
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{

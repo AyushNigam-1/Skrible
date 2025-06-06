@@ -1,6 +1,4 @@
-import React, { useState } from 'react'
-// import Genres from "./components/Genres"
-// import Filters from './components/Filters'
+import { useState } from 'react'
 import { useQuery } from '@apollo/client'
 import Genres from '../../components/Genres'
 import Search from '../../components/Search'
@@ -10,7 +8,7 @@ import Loader from '../../components/Loader'
 
 const Explore = () => {
     const [genres, setGenres] = useState([]);
-
+    const [search , setSearch] = useState()
     const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
         variables: { genres }
     });
@@ -29,14 +27,14 @@ const Explore = () => {
                         Explore
                     </h3>
                     <div className='flex gap-3'>
-                        <Search />
+                        <Search setSearch={setSearch} />
                         {/* <Filters /> */}
                     </div>
                 </div>
                 <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
                 {
                     loading ? <Loader /> :
-                        <Scripts data={data} />
+                        <Scripts data={data} search={search} />
                 }
             </div>
         </>

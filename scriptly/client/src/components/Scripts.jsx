@@ -7,7 +7,8 @@ import Cookies from 'js-cookie';
 import { DELETE_SCRIPT, MARK_AS_FAVOURITE, MARK_AS_INTERESTED, MARK_AS_NOT_INTERESTED } from '../graphql/mutation/scriptMutations';
 import { Link } from 'react-router-dom';
 import useElementHeight from '../hooks/useElementOffset';
-const Scripts = ({ data }) => {
+const Scripts = ({ data, search }) => {
+    console.log(search)
     const height = useElementHeight("not_found")
     const avatar = createAvatar(glass, {
         "seed": "Robert"
@@ -95,19 +96,33 @@ const Scripts = ({ data }) => {
         }
     ];
 
-    if (data?.getScriptsByGenres.length == 0) return (<div id='not_found' style={{ height }} className="flex flex-col grid-cols-5 items-center justify-center text-gray-500 gap-3 h-full mx-auto w-full" >
-        <img src="/not_found.png" className="w-60 " alt="No Requests" />
-        <p className="text-4xl font-bold">Not found</p>
-        <p className="text-gray-400">There is no script found for selected genre/s</p>
+    // if (data?.getScriptsByGenres.length == 0) return (<div id='not_found' style={{ height }} className="flex flex-col grid-cols-5 items-center justify-center text-gray-500 gap-3 h-full mx-auto w-full" >
+    //     <img src="/not_found.png" className="w-60 " alt="No Requests" />
+    //     <p className="text-4xl font-bold">Not found</p>
+    //     <p className="text-gray-400">There is no script found for selected genre/s</p>
 
-    </div>)
+    // </div>)
+    const filtered = data?.getScriptsByGenres?.filter((e) =>
+        e.title.toLowerCase().includes(search?.toLowerCase() || '')
+    );
+
+    if (!filtered || filtered.length === 0) {
+        return (
+            <div id="not_found" style={{ height }} className="flex flex-col grid-cols-5 items-center justify-center text-gray-500 gap-3 h-full mx-auto w-full">
+                <img src="/not_found.png" className="w-60 " alt="No Requests" />
+                <p className="text-4xl font-bold">No Match Found</p>
+                <p className="text-gray-400">We couldn't find any script matching your search</p>
+            </div>
+        );
+    }
+
     return (
         <div className='grid grid-cols-2 gap-3'>
 
-            {data?.getScriptsByGenres?.map(e => {
+            {filtered.map(e => {
                 return (
                     <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
-                        <Link to={`paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
+                        <Link to={`/paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                             <div className='flex gap-2'>
                                 <div className='flex flex-col w-full' >
                                     <h1 className='text-3xl font-black text-gray-700 ' >{e.title}</h1>

@@ -1,51 +1,3 @@
-// import React, { useState } from 'react'
-// import Genres from '../../components/Genres'
-// import Filters from '../../components/Filters'
-// import Search from '../../components/Search'
-// import Scripts from '../../components/Scripts'
-// import { useQuery } from '@apollo/client'
-// import { GET_SCRIPTS_BY_GENRES } from '../../graphql/query/scriptQueries'
-// import Loader from '../../components/Loader'
-
-// const Home = () => {
-//     const [genres, setGenres] = useState([]);
-
-//     const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
-//         variables: { genres }
-//     });
-
-//     const handleGenreChange = (newGenres) => {
-//         setGenres(newGenres);
-//         refetch({ genres: newGenres });
-//     };
-
-//     if (error) return <p>Error: {error.message}</p>;
-//     return (
-//         <>
-//             <div className='flex flex-col gap-5'>
-//                 <div className='mt-2 flex justify-between'>
-//                     <h3 className='text-5xl font-black text-gray-700 ' >
-//                         Explore
-//                     </h3>
-//                     <div className='flex gap-3'>
-//                         <Search />
-//                         {/* <Filters /> */}
-//                     </div>
-//                 </div>
-//                 <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
-//                 {
-//                     loading ? <Loader /> :
-//                         <Scripts data={data} />
-//                 }
-//             </div>
-//         </>
-//     )
-// }
-
-// export default Home
-
-
-
 import React from 'react'
 import Search from '../../components/Search'
 import Filters from '../../components/Filters'
@@ -64,7 +16,17 @@ const Home = () => {
     console.log(data)
 
     if (loading) return <Loader height="70vh" />
-    if (error) return <p>Error: {error.message}</p>;
+    if (error) return <div className="flex flex-col items-center justify-center text-gray-500 gap-3 h-full" >
+        <img src="/no-request.png" className="w-60 mb-4" alt="No Requests" />
+        <p className="text-4xl font-bold">No docs available</p>
+        <p className="text-gray-400">Start creating new docs</p>
+        <Link to="/add" className="mt-4 px-4 py-2 bg-white text-gray-600 rounded-lg shadow-md flex gap-2 items-center font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Create Docs
+        </Link>
+    </div>;
     const dropdownOptions = [
         {
             name: 'Interested',

@@ -23,18 +23,6 @@ export const ADD_SCRIPT = gql`
           languages
           genres
           description
-          paragraphs {
-              text
-              createdAt
-              likes
-              dislikes
-              author{
-                username
-              }
-              comments {
-                text
-              }
-          }
       }
   }
 `;

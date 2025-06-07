@@ -50,29 +50,29 @@ const requestSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const paragraphSchema = new mongoose.Schema({
-    text: {
-        type: String,
-        required: true,
-    },
-    author: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    likes: {
-        type: Number,
-        required: true,
-    },
-    dislikes: {
-        type: Number,
-        required: true,
-    },
-    comments: {
-        type: [commentSchema],
-        required: true,
-    },
-}, { timestamps: true });
+// const paragraphSchema = new mongoose.Schema({
+//     text: {
+//         type: String,
+//         required: true,
+//     },
+//     author: {
+//         type: Schema.Types.ObjectId,
+//         ref: "User",
+//         required: true,
+//     },
+//     likes: {
+//         type: Number,
+//         required: true,
+//     },
+//     dislikes: {
+//         type: Number,
+//         required: true,
+//     },
+//     comments: {
+//         type: [commentSchema],
+//         required: true,
+//     },
+// }, { timestamps: true });
 
 const scriptSchema = new mongoose.Schema({
     author: {
@@ -100,8 +100,9 @@ const scriptSchema = new mongoose.Schema({
         type: [String],
         required: true,
     },
+    // Store only ObjectId references to requests
     paragraphs: {
-        type: [paragraphSchema],
+        type: [Schema.Types.ObjectId], // Referencing internal requests by ID
         required: true,
     },
     requests: {
@@ -111,8 +112,9 @@ const scriptSchema = new mongoose.Schema({
     combinedText: {
         type: String,
         default: "",
-    }
+    },
 }, { timestamps: true });
+
 
 export interface IScript extends Document {
     author: Types.ObjectId;
@@ -121,17 +123,10 @@ export interface IScript extends Document {
     languages: string[];
     description: string;
     genres: string[];
-    paragraphs: {
-        text: string;
-        createdAt: string;
-        author: string;
-        likes: number;
-        dislikes: number;
-        comments: {
-            text: string;
-            createdAt: string;
-        }[];
-    }[];
+
+    // Array of request _ids (ObjectId references)
+    paragraphs: Types.ObjectId[];
+
     requests: {
         _id: Types.ObjectId;
         author: Types.ObjectId;
@@ -144,8 +139,10 @@ export interface IScript extends Document {
         }[];
         text: string;
     }[];
+
     combinedText: string;
 }
+
 
 const Script: Model<IScript> = mongoose.model<IScript>("Script", scriptSchema);
 

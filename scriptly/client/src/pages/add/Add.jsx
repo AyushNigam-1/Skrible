@@ -15,7 +15,6 @@ const Add = () => {
         { id: 5, name: 'Devon Webb' },
     ]
 
-    const [query, setQuery] = useState('')
     const [selected, setSelected] = useState(people[1])
     const [add_script, { loading, error }] = useMutation(ADD_SCRIPT);
 
@@ -30,9 +29,10 @@ const Add = () => {
             genres: formData.get('genres').split(','), // Split genres by commas
             paragraph: formData.get('script')
         };
-        console.log(data)
+        // console.log(data)
         try {
             const response = await add_script({ variables: data });
+            // console.log(response)
             console.log('Script added:', response.data.createScript);
             navigate(`/paragraphs/${response.data.createScript._id}`);
             e.target.reset();

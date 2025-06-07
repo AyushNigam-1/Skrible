@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
 import Script from "../../../models/Script";
 import User from "../../../models/User";
+
 export const scriptQueries = {
     getAllScripts: async () => {
         try {
-            const scripts = await Script.find();
+            const scripts = await Script.find()
+                .populate("author")
+                .populate("requests.author");
             return scripts;
         } catch (error: any) {
             throw new Error(`Failed to fetch scripts: ${error.message}`);
@@ -12,94 +15,80 @@ export const scriptQueries = {
     },
 
     getScriptById: async (_: any, { id }: { id: string }) => {
-        console.log(id)
         try {
-            const scriptAggregation = await Script.aggregate([
-                { $match: { _id: new mongoose.Types.ObjectId(id) } }, // Match script by ID
-                {
-                    $addFields: {
-                        requests: {
-                            $filter: {
-                                input: "$requests",
-                                as: "request",
-                                cond: { $eq: ["$$request.status", "pending"] }
-                            }
-                        }
-                    }
-                }
-            ])
+            const script = await Script.findById(id)
+                .populate("author")
+                .populate("requests.author");
 
-            if (!scriptAggregation.length) {
+            if (!script) {
                 throw new Error("Script not found");
             }
 
-            // Step 2: Convert the aggregation result into a Mongoose document
-            const script = await Script.hydrate(scriptAggregation[0]);
+            // Filter only pending requests if needed
+            script.requests = script.requests.filter(req => req.status === "pending");
 
-            // Step 3: Populate required fields
-            await script.populate("author");
-            await script.populate("paragraphs.author");
-            await script.populate("requests.author");
-            // console.
             return script;
         } catch (error: any) {
             throw new Error(`Failed to fetch script: ${error.message}`);
         }
     },
+
     getScriptsByGenres: async (_: any, { genres }: { genres?: string[] }) => {
         try {
-            console.log(genres)
-            const filter = genres && Array.isArray(genres) && genres.length > 0
+            const filter = genres && genres.length > 0
                 ? { genres: { $in: genres } }
-                : {}; // If genres array is empty, return all scripts
-            console.log(filter)
-            const scripts = await Script.find(filter).populate("author");
+                : {};
+
+            const scripts = await Script.find(filter)
+                .populate("author")
+                .populate("requests.author");
             return scripts;
         } catch (error: any) {
             throw new Error(`Failed to fetch scripts by genres: ${error.message}`);
         }
     },
+
     getScriptContributors: async (_: any, { scriptId }: { scriptId: string }) => {
-        const script = await Script.findById(scriptId).lean();
+        const script = await Script.findById(scriptId)
+            .populate("requests.author")
+            .lean();
 
         if (!script) {
             throw new Error("Script not found");
         }
 
-        // Extract unique author IDs from paragraphs
+        const paragraphIds = script.paragraphs.map(id => id.toString());
+
+        const paragraphRequests = script.requests.filter(req =>
+            paragraphIds.includes(req._id.toString())
+        );
+
         const authorMap: Map<string, { name: string; paragraphs: any[] }> = new Map();
 
-        for (const paragraph of script.paragraphs) {
-            const authorId = paragraph.author.toString();
+        for (const request of paragraphRequests) {
+            const authorId = request.author.toString();
 
             if (!authorMap.has(authorId)) {
                 authorMap.set(authorId, { name: "", paragraphs: [] });
             }
 
-            authorMap.get(authorId)!.paragraphs.push(paragraph);
+            authorMap.get(authorId)!.paragraphs.push(request);
         }
 
-        // Fetch user details
         const users = await User.find({ _id: { $in: Array.from(authorMap.keys()) } })
             .lean()
             .select("_id username");
-        console.log(users)
-        // Map user details into authorMap
+
         for (const user of users) {
-            if (authorMap.has(user._id.toString())) {
-                authorMap.get(user._id.toString())!.name = user.username;
-            }
+            const mapEntry = authorMap.get(user._id.toString());
+            if (mapEntry) mapEntry.name = user.username;
         }
 
-        // Convert to expected structure
         const contributors = Array.from(authorMap.entries()).map(([userId, details]) => ({
             userId,
             details,
         }));
-        console.log(contributors)
+
         return { contributors };
     },
-
-
 };
-

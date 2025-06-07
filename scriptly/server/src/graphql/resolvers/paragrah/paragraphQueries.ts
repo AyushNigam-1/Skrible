@@ -1,19 +1,33 @@
 import jsPDF from "jspdf";
 import Script from "../../../models/Script";
-
+import User from "../../../models/User";
 
 export const paragraphQueries = {
     getParagraphById: async (_: any, { paragraphId }: { paragraphId: string }) => {
         try {
-            const script = await Script.findOne({ "paragraphs._id": paragraphId }, { "paragraphs.$": 1 }).populate("paragraphs.author");
-            if (!script || !script.paragraphs.length) {
+            const script = await Script.findOne({
+                "requests._id": paragraphId,
+                paragraphs: paragraphId, // ensure it's referenced in paragraphs
+            }, {
+                "requests.$": 1,
+            });
+
+            if (!script || !script.requests.length) {
                 throw new Error("Paragraph not found");
             }
-            return script.paragraphs[0];
+
+            const request = script.requests[0];
+            const author = await User.findById(request.author);
+
+            return {
+                ...request,
+                author, // manually populated
+            };
         } catch (error: any) {
             throw new Error(`Failed to fetch paragraph: ${error.message}`);
         }
     },
+
     getCombinedText: async (_: any, { scriptId }: { scriptId: string }) => {
         try {
             const script = await Script.findById(scriptId, { combinedText: 1 });
@@ -26,8 +40,10 @@ export const paragraphQueries = {
         }
     },
     exportDocument: async (_: any, { scriptId, format }: { scriptId: string; format: string }) => {
+        console.log(scriptId, format)
         try {
-            const script = await Script.findById(scriptId, { title: 1, combinedText: 1 });
+            const script = await Script.findById(scriptId);
+            console.log(script)
             if (!script) {
                 throw new Error("Script not found");
             }
@@ -35,6 +51,11 @@ export const paragraphQueries = {
             const sanitizedTitle = script.title.replace(/[<>:"/\\|?*]+/g, ""); // Remove invalid filename characters
 
             if (format === "txt") {
+                console.log({
+                    filename: `${sanitizedTitle}.txt`,
+                    content: script.combinedText,
+                    contentType: "text/plain"
+                })
                 return {
                     filename: `${sanitizedTitle}.txt`,
                     content: script.combinedText,

@@ -229,7 +229,7 @@ const Paragraphs = () => {
         // <div className='flex flex-col gap-3'  >
         //     <div className='flex justify-between items-center  ' >
         //         <div className='flex gap-3'>
-        //             <h3 className='font-mulish text-4xl font-black text-gray-600 ' >
+        //             <h3 className='font-mono text-4xl font-black text-gray-600 ' >
         //                 {data?.getScriptById.title}
         //             </h3>
         //         </div>
@@ -341,7 +341,7 @@ const Paragraphs = () => {
 
         //                                 {contribution.text}
         //                             </ReactMarkdown>
-        //                             {/* <p className='text-xl font-mulish'>{contribution.text}</p> */}
+        //                             {/* <p className='text-xl font-mono'>{contribution.text}</p> */}
         //                         </div>
         //                     </Link>
         //                 ))}

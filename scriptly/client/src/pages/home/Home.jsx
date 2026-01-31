@@ -8,7 +8,9 @@ import Loader from '../../components/Loader';
 import Dropdown from '../../components/Dropdown';
 
 const Home = () => {
-    const userId = JSON.parse(localStorage.getItem('user')).id;
+    const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+    const userId = user?.id;
     const { data, loading, error } = useQuery(GET_USER_SCRIPTS, {
         variables: { userId },
         skip: !userId,
@@ -20,7 +22,7 @@ const Home = () => {
         <img src="/no-request.png" className="w-60 mb-4" alt="No Requests" />
         <p className="text-4xl font-bold">No docs available</p>
         <p className="text-gray-400">Start creating new docs</p>
-        <Link to="/add" className="mt-4 px-4 py-2 bg-white text-gray-600 rounded-lg shadow-md flex gap-2 items-center font-bold">   
+        <Link to="/add" className="mt-4 px-4 py-2 bg-white text-gray-600 rounded-lg shadow-md flex gap-2 items-center font-bold">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
@@ -79,7 +81,7 @@ const Home = () => {
                 </div>
             </div>
             <div className='grid grid-cols-2 gap-3'>
-                {data.getUserScripts.map((e) => <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
+                {data?.getUserScripts?.map((e) => <div className='bg-gray-200/50 rounded-lg p-3 flex  gap-4  h-full' >
                     <Link to={`/paragraphs/${e._id}`} className='flex flex-col gap-3 w-full justify-between'>
                         <div className='flex gap-2'>
                             {/* <div className='w-16 rounded-lg overflow-hidden' dangerouslySetInnerHTML={{ __html: svg }} /> */}

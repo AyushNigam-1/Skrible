@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 const Sidebar = () => {
@@ -70,9 +69,10 @@ const Sidebar = () => {
         }
     ]
     return (
-        <div className='col-span-1 flex flex-col gap-3 p-3 pt-4 bg-gray-200/50 rounded-xl '>
+        <div className='col-span-1 flex flex-col gap-3 p-3 pt-4 bg-gray-200/50 rounded-xl font-mono'>
             <div className='flex justify-between items-center text-gray-600'>
                 <img src="/logo.png" width="120px" alt="" className='' />
+
                 {/* <div className='bg-white p-2 rounded-full shadow-md' >
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -81,19 +81,12 @@ const Sidebar = () => {
                 </div> */}
             </div>
             <hr />
-            <div className='flex gap-2 items-center text-gray-400'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-
-                <h5 className='text-gray-400 font-semibold text-lg' >Pages</h5>
-            </div>
             <div className='flex flex-col gap-3'>
                 {
                     options1.map((option, index) => {
                         return (
-                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
-                                <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-lg shadow-md'} p-2 `}>
+                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center font-mono font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800 p-2' : ''}`} >
+                                <span className={`${option.route == location.pathname ? 'p-1' : 'bg-white rounded-lg shadow-md p-1'} `}>
                                     {option.svg}
                                 </span>
                                 {option.name}
@@ -103,18 +96,11 @@ const Sidebar = () => {
                 }
             </div>
             <hr />
-            <div className='flex text-gray-400'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                </svg>
-                <h5 className=' font-semibold text-lg' >Actions</h5>
-
-            </div>
             <div className='flex flex-col gap-3'>
                 {
                     options2.map((option, index) => {
                         return (
-                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center text-xl font-mulish font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
+                            <Link to={option.route} key={index} className={`text-gray-500 flex gap-2  p-1 items-center font-mono font-semibold ${option.route == location.pathname ? 'bg-white  shadow-md rounded-lg text-gray-800' : ''}`} >
                                 <span className={`${option.route == location.pathname ? '' : 'bg-white rounded-lg shadow-md'} p-2 `}>
                                     {option.svg}
                                 </span>

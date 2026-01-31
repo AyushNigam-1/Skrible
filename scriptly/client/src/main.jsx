@@ -1,4 +1,3 @@
-import * as React from "react";
 import { createRoot } from "react-dom/client";
 import './index.css'
 import {
@@ -10,7 +9,7 @@ import Home from "./pages/home/Home";
 import HomeLayout from "./layout/HomeLayout";
 import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layout/AuthLayout";
-import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, ApolloLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink } from '@apollo/client';
 import Script from "./pages/scripts/Script";
 import Favourites from "./pages/favourites/Favourites";
 import Contributions from "./pages/contributions/Contributions";

@@ -5,10 +5,12 @@ import Search from '../../components/Search'
 import Scripts from '../../components/Scripts'
 import { GET_SCRIPTS_BY_GENRES } from '../../graphql/query/scriptQueries'
 import Loader from '../../components/Loader'
+import Add from '../add/Add'
 
 const Explore = () => {
     const [genres, setGenres] = useState([]);
-    const [search , setSearch] = useState()
+    const [search, setSearch] = useState()
+    const [open, setOpen] = useState(false)
     const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
         variables: { genres }
     });
@@ -29,6 +31,7 @@ const Explore = () => {
                     <div className='flex gap-3'>
                         <Search setSearch={setSearch} />
                         {/* <Filters /> */}
+                        <button onClick={() => setOpen(true)}> Create </button>
                     </div>
                 </div>
                 <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
@@ -36,6 +39,7 @@ const Explore = () => {
                     loading ? <Loader /> :
                         <Scripts data={data} search={search} />
                 }
+                <Add open={open} setOpen={setOpen} />
             </div>
         </>
     )

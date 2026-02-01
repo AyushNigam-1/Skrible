@@ -6,11 +6,13 @@ import Scripts from '../../components/Scripts'
 import { GET_SCRIPTS_BY_GENRES } from '../../graphql/query/scriptQueries'
 import Loader from '../../components/Loader'
 import Add from '../add/Add'
+import { Plus } from 'lucide-react'
 
 const Explore = () => {
     const [genres, setGenres] = useState([]);
     const [search, setSearch] = useState()
     const [open, setOpen] = useState(false)
+
     const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
         variables: { genres }
     });
@@ -23,15 +25,16 @@ const Explore = () => {
     if (error) return <p>Error: {error.message}</p>;
     return (
         <>
-            <div className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-5 '>
                 <div className='mt-2 flex justify-between'>
-                    <h3 className='text-5xl font-black text-gray-700 ' >
+                    <h3 className='text-3xl font-black text-gray-700' >
                         Explore
                     </h3>
                     <div className='flex gap-3'>
                         <Search setSearch={setSearch} />
                         {/* <Filters /> */}
-                        <button onClick={() => setOpen(true)}> Create </button>
+                        <button onClick={() => setOpen(true)} className='bg-gray-700 text-gray-100 py-2 px-4 flex items-center gap-2 rounded-lg'>   <Plus className="w-5 h-5" />
+                            Create </button>
                     </div>
                 </div>
                 <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />

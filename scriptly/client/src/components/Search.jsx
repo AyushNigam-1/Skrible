@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Search = ({setSearch}) => {
+const Search = ({ setSearch }) => {
     return (
         <div class="relative">
             <span class="absolute inset-y-0 start-0 grid w-10 place-content-center">
@@ -24,11 +24,11 @@ const Search = ({setSearch}) => {
             </span>
             <label for="Search" class="sr-only"> Search </label>
             <input
-            onChange={(e) => setSearch(e.currentTarget.value)}
+                onChange={(e) => setSearch(e.currentTarget.value)}
                 type="text"
                 id="Search"
                 placeholder="Search"
-                class="w-72  h-14 bg-gray-200/50 rounded-lg py-2 ps-10 text-lg outline-none px-3"
+                class="w-72 bg-gray-200/50 rounded-lg py-2 ps-10 text-lg outline-none px-3"
             />
 
         </div>

@@ -1,0 +1,84 @@
+import mongoose, { Schema, Types, Document, Model } from "mongoose";
+
+const commentSchema = new Schema(
+    {
+        author: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        text: {
+            type: String,
+            required: true,
+        },
+    },
+    { timestamps: true }
+);
+
+export interface IParagraph extends Document {
+    script: Types.ObjectId | {
+        _id: Types.ObjectId;
+        title?: string;
+    };
+    author: Types.ObjectId;
+    text: string;
+    status: "pending" | "approved" | "rejected";
+    likes: number;
+    dislikes: number;
+    comments: {
+        author: Types.ObjectId;
+        text: string;
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const paragraphSchema = new Schema(
+    {
+        script: {
+            type: Schema.Types.ObjectId,
+            ref: "Script",
+            required: true,
+        },
+
+        author: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+
+        text: {
+            type: String,
+            required: true,
+        },
+
+        status: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "pending",
+        },
+
+        likes: {
+            type: Number,
+            default: 0,
+        },
+
+        dislikes: {
+            type: Number,
+            default: 0,
+        },
+
+        comments: {
+            type: [commentSchema],
+            default: [],
+        },
+    },
+    { timestamps: true }
+);
+
+const Paragraph: Model<IParagraph> = mongoose.model<IParagraph>(
+    "Paragraph",
+    paragraphSchema
+);
+
+export default Paragraph;

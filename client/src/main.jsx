@@ -16,16 +16,16 @@ import Contributions from "./pages/contributions/Contributions";
 import Notifications from "./pages/notification/Notifications";
 import Profile from "./pages/profile/Profile";
 import MyContributions from "./pages/contributions/MyContributions";
-import Para from "./pages/para/Para";
-import Add from "./pages/add/Add";
+import Add from "./components/Add";
 import Logout from "./pages/auth/Logout";
 import ZenMode from "./components/ZenMode";
-import ScriptLayout from "./layout/ScriptLayout";
-import Paragraphs from "./components/Paragraphs";
+import Timeline from "./components/Timeline";
 import Requests from "./pages/requests/Requests";
 import ScriptDetails from "./components/ScriptDetails";
 import Contributors from "./pages/contributors/Contributors";
 import Explore from "./pages/explore/Explore";
+import DraftLayout from "./layout/DraftLayout";
+import Contribution from "./pages/contribution/Contribution";
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
   credentials: 'include'
@@ -35,7 +35,6 @@ const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
 });
-ApolloClient
 
 const router = createBrowserRouter([
   {
@@ -75,8 +74,8 @@ const router = createBrowserRouter([
         element: <Explore />
       },
       {
-        path: "/para/:id",
-        element: <Para />
+        path: "/contribution/:id",
+        element: <Contribution />
       },
       {
         path: "/add",
@@ -85,11 +84,12 @@ const router = createBrowserRouter([
 
       {
         path: '/',
-        element: <ScriptLayout />,
+        element: <DraftLayout
+        />,
         children: [
           {
-            path: "/paragraphs/:id",
-            element: <Paragraphs />
+            path: "/timeline/:id",
+            element: <Timeline />
           },
           {
             path: "/requests/:id",

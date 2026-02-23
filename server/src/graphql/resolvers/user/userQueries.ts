@@ -35,22 +35,21 @@ export const userQueries = {
         return scripts;
     },
 
-    getUserContributions: async (_: any, { _id }: { _id: string }) => {
-        // Contributions now come from Paragraphs directly
-
-        const paragraphs = await Paragraph.find({ author: _id })
+    getUserContributions: async (_: any, { userId }: { userId: string }) => {
+        const paragraphs = await Paragraph.find({ author: userId })
             .populate("script")
-            .lean();
+            .populate("comments.author")
+            .sort({ createdAt: -1 })
 
         return paragraphs.map((p) => ({
-            _id: p._id,
+            id: p._id,
             status: p.status,
+            text: p.text,
             likes: p.likes || 0,
             dislikes: p.dislikes || 0,
+            createdAt: p.createdAt.toString(),
             comments: p.comments || [],
-            text: p.text,
-            createdAt: p.createdAt,
-            scriptId: p.script?._id,
+            script: p.script,   // IMPORTANT
         }));
     },
 };

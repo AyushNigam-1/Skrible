@@ -5,9 +5,7 @@ import Script from "../../../models/Script";
 export const paragraphQueries = {
     getParagraphById: async (_: any, { paragraphId }: { paragraphId: string }) => {
         const paragraph = await Paragraph.findById(paragraphId)
-            .populate("author")
-            .lean();
-
+            .populate("author");
         if (!paragraph) throw new Error("Paragraph not found");
 
         return paragraph;
@@ -21,6 +19,19 @@ export const paragraphQueries = {
         return script.combinedText || "";
     },
 
+    getPendingParagraphs: async (
+        _: any,
+        { scriptId }: { scriptId: string }
+    ) => {
+        const paragraphs = await Paragraph.find({
+            script: scriptId,
+            status: "pending",
+        })
+            .populate("author")
+            .sort({ createdAt: -1 });
+
+        return paragraphs;
+    },
     exportDocument: async (
         _: any,
         { scriptId, format }: { scriptId: string; format: string }

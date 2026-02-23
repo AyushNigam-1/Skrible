@@ -5,12 +5,12 @@ import Genres from '../../components/Genres';
 import Search from '../../components/Search';
 import Scripts from '../../components/Scripts';
 import Loader from '../../components/Loader';
-import Add from '../add/Add';
+import Add from '../../components/Add';
 import { GET_SCRIPTS_BY_GENRES } from '../../graphql/query/scriptQueries';
 
 const Explore = () => {
     const [genres, setGenres] = useState([]);
-    const [search, setSearch] = useState(''); // Initialized with empty string for controlled inputs
+    const [search, setSearch] = useState('');
     const [open, setOpen] = useState(false);
 
     const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
@@ -23,57 +23,67 @@ const Explore = () => {
     };
 
     return (
-        <div className="space-y-4 w-full min-h-screen p-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div className="w-full transition-colors duration-300 pb-12">
+            {/* Main Container to restrict ultra-wide stretching */}
+            <div className="max-w-7xl mx-auto  space-y-4">
 
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                {/* Title */}
-                <div className="flex items-center gap-3">
-                    {/* <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                        <Compass className="size-5 text-blue-600 dark:text-blue-400" />
-                    </div> */}
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                        Explore
-                    </h1>
-                </div>
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        {/* <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm">
+                            <Compass className="w-6 h-6" />
+                        </div> */}
+                        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
+                            Explore
+                        </h1>
+                    </div>
 
-                {/* Action Controls */}
-                <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                    <Search setSearch={setSearch} />
-
-                    <button
-                        onClick={() => setOpen(true)}
-                        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2 px-5 rounded-lg font-medium shadow-sm transition-all duration-200 shrink-0"
-                    >
-                        <Plus className="w-5 h-5" />
-                        <span>Create</span>
-                    </button>
-                </div>
-            </div>
-            <hr className='border-gray-200 dark:border-gray-700 ' />
-
-            {/* Filters Section */}
-            {/* <div className="bg transition-colors duration-300"> */}
-            <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
-            {/* </div> */}
-
-            {/* Content Area */}
-            <div className="flex-1">
-                {error ? (
-                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800/30">
-                        <AlertCircle className="w-6 h-6 shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="font-semibold text-lg">Failed to load scripts</h3>
-                            <p className="text-sm opacity-90">{error.message}</p>
+                    {/* Action Controls */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                        <div className="w-full sm:w-72">
+                            <Search setSearch={setSearch} />
                         </div>
+                        <button
+                            onClick={() => setOpen(true)}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-xl font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 shrink-0"
+                        >
+                            <Plus className="w-5 h-5" />
+                            <span>Create</span>
+                        </button>
                     </div>
-                ) : loading ? (
-                    <div className="flex justify-center items-center min-h-[400px]">
-                        <Loader />
-                    </div>
-                ) : (
-                    <Scripts data={data} search={search} />
-                )}
+                </div>
+
+                <hr className="border-gray-200 dark:border-gray-800" />
+
+                {/* Filters Section */}
+                <div className="py-2">
+                    <Genres selectedGenres={genres} onGenreChange={handleGenreChange} />
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 mt-2">
+                    {error ? (
+                        <div className="flex items-start gap-4 p-5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-2xl border border-red-200 dark:border-red-800/30 shadow-sm">
+                            <AlertCircle className="w-6 h-6 shrink-0 mt-0.5 text-red-500" />
+                            <div>
+                                <h3 className="font-bold text-lg mb-1">Failed to load scripts</h3>
+                                <p className="text-sm opacity-90">{error.message}</p>
+                                <button
+                                    onClick={() => refetch()}
+                                    className="mt-3 text-sm font-semibold underline hover:no-underline"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        </div>
+                    ) : loading ? (
+                        <div className="flex justify-center items-center min-h-[400px]">
+                            <Loader />
+                        </div>
+                    ) : (
+                        <Scripts data={data} search={search} />
+                    )}
+                </div>
             </div>
 
             {/* Add Script Modal */}
@@ -82,4 +92,4 @@ const Explore = () => {
     );
 };
 
-export default Explore; 
+export default Explore;

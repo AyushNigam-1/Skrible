@@ -1,113 +1,167 @@
-import React from 'react'
-import Filters from '../../components/Filters'
-import { createAvatar } from '@dicebear/core';
-import { glass } from '@dicebear/collection';
-import { GET_USER_CONTRIBUTIONS } from '../../graphql/query/userQueries';
+import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
+import { Link } from 'react-router-dom';
+import {
+    CheckCircle,
+    Clock,
+    XCircle,
+    ThumbsUp,
+    ThumbsDown,
+    MessageSquare,
+    FileText,
+    Calendar
+} from 'lucide-react';
+import { GET_USER_CONTRIBUTIONS } from '../../graphql/query/userQueries';
 import Search from '../../components/Search';
+import Filters from '../../components/Filters';
 import Loader from '../../components/Loader';
 
 const MyContributions = () => {
-    function formatDate(isoString) {
-        const date = new Date(Number(isoString));
-        return date.toLocaleString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric"
-        }) + ` , ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+    const [searchQuery, setSearchQuery] = useState("");
 
-    }
-    const avatar = createAvatar(glass, {
-        "seed": "Robert"
-    });
-    const userId = JSON.parse(localStorage.getItem('user')).id;
+    // Safely get user ID
+    const storedUser = localStorage.getItem('user');
+    const userId = storedUser ? JSON.parse(storedUser).id : null;
 
     const { loading, error, data } = useQuery(GET_USER_CONTRIBUTIONS, {
         variables: { userId },
+        skip: !userId,
     });
-    console.log(data)
 
-    if (loading) return <Loader height="70vh" />
-    if (error) return <p>Error: {error.message}</p>;
-    const svg = avatar.toString();
+    if (loading) return <Loader height="70vh" />;
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh] text-center">
+                <div className="bg-red-100 text-red-600 p-4 rounded-full mb-4">
+                    <XCircle className="w-10 h-10" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Failed to load contributions</h2>
+                <p className="text-gray-500">{error.message}</p>
+            </div>
+        );
+    }
+
+    // Safely parse the exact string date format your backend sends
+    const formatFancyDate = (dateString) => {
+        if (!dateString) return "Unknown Date";
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        }).format(date);
+    };
+
+    // Status config for dynamic styling
+    const statusConfig = {
+        approved: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle },
+        pending: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
+        rejected: { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
+    };
+
+    const contributions = data?.getUserContributions || [];
+
+    // Basic frontend filter if you hook up the Search component
+    const filteredContributions = contributions.filter(c =>
+        c.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
-        <div className='flex flex-col gap-4'>
-            <div className='flex justify-between items-center'>
-                <h3 className='text-4xl font-black text-gray-700 ' >
+        <div className="flex flex-col gap-4 w-full max-w-7xl mx-auto pb-12">
+
+            {/* --- Header --- */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                     My Contributions
                 </h3>
-                <div className='flex gap-3'>
-                    <Search />
-                    <Filters />
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <Search setSearch={setSearchQuery} placeholder="Search my text..." />
+                    {/* <Filters /> */}
                 </div>
             </div>
-            <div className='grid grid-cols-2 gap-5'>
-                {
-                    data.getUserContributions.map((contribution) => {
+            <hr className="border-gray-200 dark:border-gray-800" />
+
+            {/* --- Grid Layout --- */}
+            {filteredContributions.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredContributions.map((contribution) => {
+                        const status = contribution.status?.toLowerCase() || 'pending';
+                        const StatusIcon = statusConfig[status]?.icon || Clock;
+                        const statusColor = statusConfig[status]?.color || statusConfig.pending.color;
+
                         return (
-                            <div className='flex-col flex justify-between bg-gray-200/50  gap-2 p-2 rounded-lg relative' >
-                                <div className='flex flex-col gap-3'>
-                                    <div className='flex justify-between items-center gap-2'  >
-                                        {/* <img class="rounded-full w-12" src="https://www.fufa.co.ug/wp-content/themes/FUFA/assets/images/profile.jpg" alt="Bonnie image" /> */}
-                                        <div className='flex flex-col gap-3'>
-                                            <p className='font-bold text-2xl text-gray-600 ' >{contribution.scriptTitle}</p>
-                                            <div className='flex gap-2' >
-                                                <span className='text-green-700 items-center rounded-lg text-sm flex gap-1' > <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                                    {contribution.status.slice(0, 1).toUpperCase() + contribution.status.slice(1)}
-                                                </span>
-                                                <span className='items-center rounded-lg text-sm text-gray-600 flex gap-1' >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                    </svg>
+                            <div
+                                key={contribution.id}
+                                className="group flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 h-[280px]"
+                            >
+                                {/* Card Header */}
+                                <div className="flex justify-between items-start mb-4">
+                                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusColor}`}>
+                                        <StatusIcon className="w-3.5 h-3.5" />
+                                        {status}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <Calendar className="w-3.5 h-3.5" />
+                                        {formatFancyDate(contribution.createdAt)}
+                                    </span>
+                                </div>
 
-                                                    <p className='text-sm '>
+                                {/* Text Snippet Area */}
+                                <div className="flex-1 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-4 border border-gray-100 dark:border-gray-800/50">
+                                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-4">
+                                        {contribution.text}
+                                    </p>
+                                </div>
 
-                                                        {formatDate(contribution.createdAt)}
-                                                    </p>
-                                                </span>
-                                            </div>
+                                {/* Card Footer: Stats & Link */}
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex gap-4">
+                                        {/* Restored Stats from your commented code, but much cleaner! */}
+                                        <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                            <ThumbsUp className="w-4 h-4" /> {contribution.likes || 0}
                                         </div>
-                                        {/* <div className='flex gap-2 items-center'>
-                                            <button className='flex gap-2 bg-white rounded-lg text-gray-600 p-2 shadow-md'>
-                                                <p>{contribution.likes}</p>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
-                                                </svg>
-                                            </button>
-                                            <button className='flex gap-2 bg-white rounded-lg text-gray-600 p-2 shadow-md'>
-                                                <p>{contribution.dislikes}</p>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
-                                                </svg>
-                                            </button>
-                                            <button className='flex gap-2 bg-white rounded-lg text-gray-600 p-2 shadow-md'>
-                                                <p>{contribution.comments.length}</p>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                                                </svg>
-                                            </button>
-                                            <button className='flex gap-2 bg-white rounded-lg text-gray-600 p-2 shadow-md'>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
-                                                </svg>
-                                            </button>
-                                        </div> */}
+                                        <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                            <ThumbsDown className="w-4 h-4" /> {contribution.dislikes || 0}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                            <MessageSquare className="w-4 h-4" /> {contribution.comments?.length || 0}
+                                        </div>
+                                    </div>
 
-                                    </div>
-                                    <div className='flex gap-2 w-full bg-white p-2 rounded-lg ' >
-                                        <p className='text-lg text-gray-600 line-clamp-4' > {contribution.text} </p>
-                                    </div>
+                                    {/* Link to the Draft Document */}
+                                    {contribution.script?.id && (
+                                        <Link
+                                            to={`/contribution/${contribution.script.id}`}
+                                            className="flex items-center gap-1.5 text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            View Draft
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
-                        )
-                    })
-                }
-            </div>
-
+                        );
+                    })}
+                </div>
+            ) : (
+                /* --- Empty State --- */
+                <div className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-gray-900/50">
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4">
+                        <FileText className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        {searchQuery ? "No matches found" : "No contributions yet"}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                        {searchQuery
+                            ? "Try tweaking your search term."
+                            : "You haven't submitted any drafts yet. Head over to the Explore page to find a story to collaborate on!"}
+                    </p>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default MyContributions
+export default MyContributions;

@@ -1,72 +1,70 @@
-import React from 'react'
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Description, Field, Label, Listbox, ListboxButton, ListboxOption, ListboxOptions, Select } from '@headlessui/react'
-import clsx from 'clsx'
-import { useState } from 'react'
-const Filters = () => {
+import React, { useState } from 'react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
+import { ChevronDown, Check } from 'lucide-react';
+import clsx from 'clsx';
 
+const Filters = () => {
     const people = [
         { id: 1, name: 'Tom Cook' },
         { id: 2, name: 'Wade Cooper' },
         { id: 3, name: 'Tanya Fox' },
         { id: 4, name: 'Arlene Mccoy' },
         { id: 5, name: 'Devon Webb' },
-    ]
+    ];
 
-    const [query, setQuery] = useState('')
-    const [selected, setSelected] = useState(people[1])
+    const [selected, setSelected] = useState(people[1]);
 
-    const filteredPeople =
-        query === ''
-            ? people
-            : people.filter((person) => {
-                return person.name.toLowerCase().includes(query.toLowerCase())
-            })
     return (
-        <div class="">
+        <div className="w-72">
             <Listbox value={selected} onChange={setSelected}>
+                {/* Dropdown Button */}
                 <ListboxButton
                     className={clsx(
-                        ' block  rounded-lg w-72 bg-gray-200/50 p-3.5  text-lg text-gray-600',
-                        'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25 flex justify-between items-center'
+                        'relative block w-full rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 py-3 pl-4 pr-10 text-left text-base text-gray-900 dark:text-gray-100 shadow-sm transition-all duration-200 cursor-pointer',
+                        'hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-blue-300 dark:hover:border-blue-500',
+                        'focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 data-[open]:border-blue-500 data-[open]:ring-2 data-[open]:ring-blue-500/50'
                     )}
                 >
-                    {selected.name}
-                    {/* <ChevronDownIcon
-                        className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
-                        aria-hidden="true"
-                    /> */}
-
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="group pointer-events-none  size-4 ">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-
+                    <span className="block truncate font-medium">{selected.name}</span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500 transition-transform duration-200 group-data-[open]:rotate-180" aria-hidden="true" />
+                    </span>
                 </ListboxButton>
+
+                {/* Dropdown Menu Options */}
                 <ListboxOptions
                     anchor="bottom"
                     transition
                     className={clsx(
-                        'w-[var(--button-width)] rounded-lg border bg-gray-200/50 mt-3 flex flex-col p-2 [--anchor-gap:var(--spacing-1)] focus:outline-none text-gray-600',
-                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
+                        'w-[var(--button-width)] z-50 mt-2 rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-1.5 shadow-xl outline-none',
+                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0 data-[leave]:data-[closed]:scale-95 origin-top'
                     )}
                 >
                     {people.map((person) => (
                         <ListboxOption
-                            key={person.name}
+                            key={person.id}
                             value={person}
-                            className=" group flex items-center gap-2 rounded-lg text-md select-none data-[focus]:bg-white p-2 cursor-pointer"
+                            className={clsx(
+                                'group relative flex cursor-pointer select-none items-center rounded-lg py-2.5 pl-3 pr-9 text-sm font-medium transition-colors',
+                                'text-gray-700 dark:text-gray-200',
+                                'data-[focus]:bg-blue-50 data-[focus]:text-blue-700 dark:data-[focus]:bg-blue-900/40 dark:data-[focus]:text-blue-300',
+                                'data-[selected]:bg-blue-50/50 dark:data-[selected]:bg-blue-900/20'
+                            )}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="invisible size-4  fill-white group-data-[selected]:visible">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                            </svg>
+                            <span className="block truncate group-data-[selected]:font-semibold group-data-[selected]:text-blue-700 dark:group-data-[selected]:text-blue-300">
+                                {person.name}
+                            </span>
 
-                            {/* <CheckIcon className="invisible size-4 fill-white group-data-[selected]:visible" /> */}
-                            {person.name}
+                            {/* Checkmark for selected item */}
+                            <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-600 dark:text-blue-400 opacity-0 transition-opacity group-data-[selected]:opacity-100">
+                                <Check className="h-4 w-4" aria-hidden="true" />
+                            </span>
                         </ListboxOption>
                     ))}
                 </ListboxOptions>
             </Listbox>
         </div>
-    )
-}
+    );
+};
 
-export default Filters
+export default Filters;

@@ -16,11 +16,21 @@ export const userTypeDefs = gql`
     scripts: [ID]
     follows: [ID]
   }
+  type UserContribution {
+  id: ID!
+  status: String!
+  text: String!
+  likes: Int!
+  dislikes: Int!
+  createdAt: String!
+  script: Script!
+  comments: [Comment!]!
+}
 
   type Query {
     getUserProfile(username: String!): User
     getUserScripts(userId: ID!): [Script!]!
-    getUserContributions(_id: ID!): [Request!]!
+    getUserContributions(userId: ID!): [UserContribution!]!
   }
 
   type Mutation {

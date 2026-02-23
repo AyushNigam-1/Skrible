@@ -23,6 +23,7 @@ type ExportedDocument {
 type Query {
   getParagraphById(paragraphId: ID!): Paragraph
   getCombinedText(scriptId: ID!): String!
+  getPendingParagraphs(scriptId: ID!): [Paragraph!]!
   exportDocument(scriptId: ID!, format: String!): ExportedDocument!
 }
 

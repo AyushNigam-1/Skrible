@@ -25,7 +25,19 @@ export const GET_PARAGRAPH_BY_ID = gql`
     }
   }
 `;
-
+export const GET_PENDING_PARAGRAPHS = gql`
+query GetPendingParagraphs($scriptId: ID!) {
+  getPendingParagraphs(scriptId: $scriptId) {
+    id
+    text
+    createdAt
+    status
+    author {
+      username
+    }
+  }
+}
+`;
 export const EXPORT_DOCUMENT_QUERY = gql`
   query ExportDocument($scriptId: ID!, $format: String!) {
     exportDocument(scriptId: $scriptId, format: $format) {

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Tabs from '../../components/Tabs';
-import Paragraphs from '../../components/Paragraphs';
 import Contributions from '../contributions/Contributions';
 import Requests from '../requests/Requests';
 import ScriptDetails from '../../components/ScriptDetails';
 import { GET_SCRIPT_BY_ID } from '../../graphql/query/scriptQueries';
 import { useQuery } from '@apollo/client';
 import Loader from '../../components/Loader';
-import zenMode from '../../components/ZenMode';
 import ZenMode from '../../components/ZenMode';
+import Timeline from '../../components/Timeline';
 const Script = () => {
     const { id } = useParams()
     const [cursorClass, setCursorClass] = useState('cursor-default');
@@ -34,7 +33,7 @@ const Script = () => {
             <Tabs tab={tab} setTab={setTab} scripts={data.getScriptById} />
             <div>
                 {
-                    tab == "Script" ? <Paragraphs data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} setTab={setTab} /> : tab == "Contributions" ? <Contributions data={data} /> : tab == 'About' ? <ScriptDetails data={data} /> : <ZenMode data={data.getScriptById.paragraphs.map(para => para.text)} title={data.getScriptById.title} />
+                    tab == "Script" ? <Timeline data={data} loading={loading} refetch={refetch} setTab={setTab} setRequest={setRequest} /> : tab == "Requests" ? <Requests data={data} refetch={refetch} setRequest={setRequest} request={request} setTab={setTab} /> : tab == "Contributions" ? <Contributions data={data} /> : tab == 'About' ? <ScriptDetails data={data} /> : <ZenMode data={data.getScriptById.paragraphs.map(para => para.text)} title={data.getScriptById.title} />
                 }
             </div>
         </div>

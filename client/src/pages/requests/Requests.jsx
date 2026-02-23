@@ -1,81 +1,156 @@
-import React from 'react';
-import RequestsSidebar from '../../components/RequestsSidebar';
-import useElementHeight from '../../hooks/useElementOffset';
-import { Link, useOutletContext } from 'react-router-dom';
-import remarkGfm from 'remark-gfm';
-import ReactMarkdown from 'react-markdown';
-import useAutoScroll from '../../hooks/useAutoScroll';
+import React from "react";
+import { useQuery } from "@apollo/client";
+import { Link, useOutletContext } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Inbox, Clock, User, FileText } from "lucide-react";
+
+import RequestsSidebar from "../../components/RequestsSidebar";
+import useElementHeight from "../../hooks/useElementOffset";
+import useAutoScroll from "../../hooks/useAutoScroll";
+import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
 
 const Requests = () => {
-
     const { request, setRequest, data, refetch, setTab } = useOutletContext();
-    const containerRef = useAutoScroll([data.getScriptById.paragraphs])
-    const height = useElementHeight('requests');
-    const user = JSON.parse(localStorage.getItem('user'));
+    const scriptId = data?.getScriptById?.id;
+
+    const { data: pendingData, refetch: refetchPending } = useQuery(
+        GET_PENDING_PARAGRAPHS,
+        {
+            variables: { scriptId },
+            skip: !scriptId,
+        }
+    );
+
+    const pendingParagraphs = pendingData?.getPendingParagraphs || [];
+    const containerRef = useAutoScroll([data?.getScriptById?.paragraphs]);
+
+    // Fallback height if the hook returns undefined temporarily
+    const calculatedHeight = useElementHeight("requests");
+    const height = calculatedHeight || "70vh";
+
+    // Format timestamp helper
+    const formatDate = (timestamp) => {
+        if (!timestamp) return "";
+        return new Intl.DateTimeFormat("en-US", {
+            month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+        }).format(new Date(Number(timestamp)));
+    };
 
     return (
-        <div className="h-full" id='requests' style={{ height }}>
-            {
-                data.getScriptById.requests.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center text-gray-500 gap-3 h-full" >
-                        <img src="/no-request.png" className="w-60 mb-4" alt="No Requests" />
-                        <p className="text-4xl font-bold">No requests yet</p>
-                        <p className="text-gray-400">Start a request and get contributions!</p>
-                        {
-                            user?.username === data.getScriptById.author.username ? (
-                                <button className="mt-4 px-4 py-2 bg-white text-gray-600 rounded-lg shadow-md flex gap-2 items-center font-bold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-                                    </svg>
-                                    Invite Contributors
-                                </button>
-                            ) : (
-                                <button className="mt-4 px-4 py-2 bg-white text-gray-600 rounded-lg shadow-md flex gap-2 items-center font-bold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                    </svg>
-                                    Create Request
-                                </button>
-                            )
-                        }
+        <div className="w-full" id="requests" >
+            {pendingParagraphs.length === 0 ? (
+                /* --- EMPTY STATE --- */
+                <div className="flex flex-col items-center justify-center h-full text-center border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-gray-900/50 p-6 mx-2">
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-5 rounded-full mb-5">
+                        <Inbox className="w-12 h-12 text-blue-600 dark:text-blue-400" />
                     </div>
-                ) : (
-                    <div className='grid grid-cols-12 gap-3 h-full' >
-                        <RequestsSidebar requests={data.getScriptById.requests} setRequest={setRequest} request={request} scriptId={data.getScriptById._id} refetch={refetch} setTab={setTab} />
-                        <div id='requestPreview' ref={containerRef}
-                            className='col-span-9 flex flex-col gap-3 bg-gray-200/50 p-2 rounded-xl overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full' style={{ height }} >
-                            <div className='rounded-lg  p-2 bg-white '>
-                                <p className='text-xl' >
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        No pending contributions
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                        There are currently no open requests. Wait for collaborators to propose new additions to this draft!
+                    </p>
+                </div>
+            ) : (
+                /* --- MAIN LAYOUT --- */
+                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full pb-6">
 
-                                    {data.getScriptById.paragraphs.map((para, index) => (
+                    {/* Sidebar */}
+                    <div className="lg:col-span-4 xl:col-span-3 h-[40vh] lg:h-full overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+                        <RequestsSidebar
+                            requests={pendingParagraphs}
+                            setRequest={setRequest}
+                            request={request}
+                            scriptId={scriptId}
+                            refetch={() => {
+                                refetch();
+                                refetchPending();
+                            }}
+                            setTab={setTab}
+                        />
+                    </div>
+
+                    {/* Preview Area */}
+                    <div
+                        id="requestPreview"
+                        ref={containerRef}
+                        className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6 bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-thumb-rounded-full"
+                    >
+
+                        {/* 1. Approved Draft Context */}
+                        {data?.getScriptById?.paragraphs?.length > 0 ? (
+                            <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {data.getScriptById.paragraphs.map((para) => (
+                                    <ReactMarkdown
+                                        key={para.id}
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            ul: ({ children }) => <ul className="list-disc ml-5 mb-4">{children}</ul>,
+                                            p: ({ children }) => <p className="mb-4">{children}</p>
+                                        }}
+                                    >
+                                        {para.text}
+                                    </ReactMarkdown>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 italic pb-4 border-b border-gray-100 dark:border-gray-800">
+                                <FileText className="w-4 h-4" />
+                                This draft currently has no approved content.
+                            </div>
+                        )}
+
+                        {/* 2. Selected Pending Contribution Highlight */}
+                        {request && (
+                            <div className="relative mt-4 shrink-0">
+                                {/* Decorative dashed border background */}
+                                <div className="absolute inset-0 bg-blue-50/50 dark:bg-blue-900/10 border-2 border-dashed border-blue-400 dark:border-blue-500/50 rounded-xl pointer-events-none" />
+
+                                <Link
+                                    className="block relative z-10 p-5 md:p-6 cursor-pointer group hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors rounded-xl"
+                                    to={`/para/${request.id}`}
+                                    state={{ contribution: request }}
+                                    title="Click to review this contribution"
+                                >
+                                    {/* Request Meta Header */}
+                                    <div className="flex flex-wrap items-center gap-4 mb-4 pb-3 border-b border-blue-200/50 dark:border-blue-800/50">
+                                        <span className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-white text-xs font-bold rounded-md uppercase tracking-wider">
+                                            <Clock className="w-3.5 h-3.5" /> Pending Addition
+                                        </span>
+                                        <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            <div className="bg-gray-200 dark:bg-gray-700 p-1 rounded-full">
+                                                <User className="w-3.5 h-3.5" />
+                                            </div>
+                                            {request.author?.username || "Unknown Author"}
+                                        </div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                                            {formatDate(request.createdAt)}
+                                        </div>
+                                    </div>
+
+                                    {/* Pending Text Content */}
+                                    <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-900 dark:text-gray-100 group-hover:text-blue-900 dark:group-hover:text-blue-100 transition-colors">
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
-                                                ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
+                                                ul: ({ children }) => <ul className="list-disc ml-5 mb-2">{children}</ul>,
+                                                p: ({ children }) => <p className="mb-0">{children}</p>
                                             }}
                                         >
-                                            {para.text}
+                                            {request.text}
                                         </ReactMarkdown>
+                                    </div>
 
-                                    ))}
-                                </p>
-                            </div>
-                            {request && (
-                                <Link className='flex flex-col p-2 gap-2 bg-white rounded-lg border-indigo-300 border-2' to={`/para/${request._id}`} state={{ contribution: request }}>
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            ul: ({ children }) => <ul className="list-disc ml-5">{children}</ul>
-                                        }}
-                                    >
-                                        {request?.text}
-                                    </ReactMarkdown>
+                                    <div className="mt-4 text-xs font-semibold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-end">
+                                        Click to Review &rarr;
+                                    </div>
                                 </Link>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-                )
-            }
+                </div>
+            )}
         </div>
     );
 };

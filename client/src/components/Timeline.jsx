@@ -26,7 +26,6 @@ const Timeline = () => {
     const [diffResult, setDiffResult] = useState(null);
     const [popover, setPopover] = useState(false);
 
-    // NEW: State for the manual text input
     const [manualText, setManualText] = useState("");
 
     const [submitParagraph, { loading: isSubmitting }] = useMutation(SUBMIT_PARAGRAPH);
@@ -97,7 +96,6 @@ const Timeline = () => {
         }
     };
 
-    // Helper to close modal and reset all inputs
     const closeModal = () => {
         setIsOpen(false);
         setManualText("");
@@ -105,7 +103,6 @@ const Timeline = () => {
         setFiles([]);
     };
 
-    // Determine what text to submit (manual input prioritizes over file diff)
     const hasDiffAdditions = diffResult && diffResult.some(d => d.added);
     const canSubmit = manualText.trim().length > 0 || hasDiffAdditions;
 
@@ -143,7 +140,8 @@ const Timeline = () => {
         <div className="flex flex-col gap-6 w-full mx-auto pb-10">
             {/* Header with Contribute Button */}
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Draft Timeline</h2>
+                {/* APPLIED PLAYFAIR DISPLAY TO HEADER */}
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-['Playfair_Display']">Timeline</h2>
                 {paragraphs.length > 0 && (
                     <button
                         onClick={() => setIsOpen(true)}
@@ -161,7 +159,8 @@ const Timeline = () => {
                     <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4">
                         <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No contributions yet</h3>
+                    {/* APPLIED PLAYFAIR DISPLAY */}
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-['Playfair_Display']">No contributions yet</h3>
                     <p className="text-gray-500 dark:text-gray-400 max-w-md mb-6 text-sm">
                         This draft is currently empty. Be the first to add content and shape the story!
                     </p>
@@ -191,9 +190,9 @@ const Timeline = () => {
                             <Link
                                 key={p.id}
                                 to={`/contribution/${p.id}`}
-                                className="block bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow group"
+                                className="block bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                             >
-                                <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-2 mb-4">
                                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                                         {p.author.username.charAt(0).toUpperCase()}
                                     </div>
@@ -201,7 +200,8 @@ const Timeline = () => {
                                         {p.author.username}
                                     </p>
                                 </div>
-                                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-400">
+                                {/* APPLIED CRIMSON PRO TO DRAFT CONTENT */}
+                                <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 font-['Crimson_Pro'] text-lg leading-relaxed">
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{p.text}</ReactMarkdown>
                                 </div>
                             </Link>
@@ -215,19 +215,21 @@ const Timeline = () => {
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
                 <div className="fixed inset-0 flex items-center justify-center p-4">
                     <DialogPanel className="mx-auto max-w-2xl w-full bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-800 overflow-y-auto max-h-[90vh]">
-                        <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Add Contribution</h3>
+                        {/* APPLIED PLAYFAIR DISPLAY */}
+                        <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white font-['Playfair_Display']">Add Contribution</h3>
 
                         {/* Text Area for Direct Input */}
                         <div className="mb-6">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Write your draft addition
                             </label>
+                            {/* APPLIED CRIMSON PRO TO WRITING AREA */}
                             <textarea
                                 value={manualText}
                                 onChange={(e) => setManualText(e.target.value)}
                                 rows={6}
-                                disabled={files.length > 0} // Disable if they uploaded a file
-                                className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-50"
+                                disabled={files.length > 0}
+                                className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-50 font-['Crimson_Pro'] text-lg leading-relaxed"
                                 placeholder="Type your continuation here... (Markdown is supported)"
                             />
                         </div>

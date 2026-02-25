@@ -25,7 +25,7 @@ const Explore = () => {
     return (
         <div className="w-full transition-colors duration-300 pb-12">
             {/* Main Container to restrict ultra-wide stretching */}
-            <div className="max-w-7xl mx-auto  space-y-4">
+            <div className="max-w-7xl mx-auto space-y-4">
 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -33,7 +33,8 @@ const Explore = () => {
                         {/* <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm">
                             <Compass className="w-6 h-6" />
                         </div> */}
-                        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
+                        {/* APPLIED PLAYFAIR DISPLAY TO MAIN HEADING */}
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight font-['Playfair_Display']">
                             Explore
                         </h1>
                     </div>
@@ -43,9 +44,10 @@ const Explore = () => {
                         <div className="w-full sm:w-72">
                             <Search setSearch={setSearch} />
                         </div>
+                        {/* APPLIED PLAYFAIR DISPLAY TO CREATE BUTTON */}
                         <button
                             onClick={() => setOpen(true)}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-xl font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 shrink-0"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-xl font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 shrink-0 font-['Playfair_Display'] tracking-wide"
                         >
                             <Plus className="w-5 h-5" />
                             <span>Create</span>
@@ -66,11 +68,13 @@ const Explore = () => {
                         <div className="flex items-start gap-4 p-5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-2xl border border-red-200 dark:border-red-800/30 shadow-sm">
                             <AlertCircle className="w-6 h-6 shrink-0 mt-0.5 text-red-500" />
                             <div>
-                                <h3 className="font-bold text-lg mb-1">Failed to load scripts</h3>
-                                <p className="text-sm opacity-90">{error.message}</p>
+                                {/* APPLIED PLAYFAIR DISPLAY TO ERROR HEADING */}
+                                <h3 className="font-bold text-lg mb-1 font-['Playfair_Display']">Failed to load scripts</h3>
+                                {/* APPLIED CRIMSON PRO TO ERROR DESCRIPTION */}
+                                <p className="text-lg opacity-90 font-['Crimson_Pro'] leading-relaxed">{error.message}</p>
                                 <button
                                     onClick={() => refetch()}
-                                    className="mt-3 text-sm font-semibold underline hover:no-underline"
+                                    className="mt-3 text-sm font-bold underline hover:no-underline font-['Playfair_Display']"
                                 >
                                     Try Again
                                 </button>
@@ -81,7 +85,10 @@ const Explore = () => {
                             <Loader />
                         </div>
                     ) : (
-                        <Scripts data={data} search={search} />
+                        /* APPLIED CRIMSON PRO WRAPPER SO CARDS INHERIT THE FONT */
+                        <div className="font-['Crimson_Pro']">
+                            <Scripts data={data} search={search} />
+                        </div>
                     )}
                 </div>
             </div>

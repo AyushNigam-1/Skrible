@@ -28,20 +28,18 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className='col-span-1 flex flex-col h-full min-h-screen p-3  border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 space-y-3'>
+        <div className='col-span-1 flex flex-col h-full min-h-screen p-3 border-r bg-white/5 border-gray-200 dark:border-gray-800 transition-colors duration-300 space-y-3'>
 
             {/* Logo Section */}
-            <div className='flex justify-between items-center py-2.5'>
+            <div className='flex justify-between items-center py-2.5 text-gray-200'>
                 <img src="/logo.png" alt="Logo" className='dark:invert w-32 px-2' />
-                <span className=' text-gray-400 rounded-full bg-white/5 p-1.5 border border-gray-700' >
-                    <PanelRightOpen size="20" />
-                </span>
+                <PanelRightOpen size="22" className="text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors" />
             </div>
 
             <hr className="border-gray-200 dark:border-gray-800" />
 
             {/* Navigation Links */}
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 mt-2'>
                 {menuItems.map((item, index) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.route;
@@ -51,12 +49,13 @@ const Sidebar = () => {
                             to={item.route}
                             key={index}
                             className={`
-                                flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200
+                                flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                                font-['Playfair_Display'] text-lg tracking-wide font-thin
                                 ${isActive
-                                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700  dark:text-blue-400 shadow-sm'
+                                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm'
                                     : item.isDanger
                                         ? 'text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-900/20'
-                                        : 'text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-800'
+                                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/60'
                                 }
                             `}
                         >

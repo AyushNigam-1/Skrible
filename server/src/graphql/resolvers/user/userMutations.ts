@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 
 dotenv.config();
 
@@ -101,5 +102,36 @@ export const userMutations = {
             });
         }
         return true;
+    },
+    toggleBookmark: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError('User not authenticated');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new GraphQLError('User not found');
+        }
+
+        // Convert the string scriptId into a Mongoose ObjectId for comparison
+        const targetId = new Types.ObjectId(scriptId);
+
+        // Check if already bookmarked using the converted ID
+        const isBookmarked = user.favourites?.some(id => id.equals(targetId));
+
+        if (isBookmarked) {
+            // Remove from bookmarks
+            await User.findByIdAndUpdate(userId, {
+                $pull: { favourites: targetId }
+            });
+        } else {
+            // Add to bookmarks
+            await User.findByIdAndUpdate(userId, {
+                $addToSet: { favourites: targetId }
+            });
+        }
+
+        return { status: true };
     }
 };

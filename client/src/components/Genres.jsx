@@ -36,10 +36,11 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
                             key={genre.name}
                             onClick={() => handleSelection(genre.name)}
                             className={`
-                                flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200 border
+                                flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all duration-200 
+                                font-['Playfair_Display'] tracking-wide
                                 ${isSelected
                                     ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300 shadow-sm'
-                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 dark:bg-white/5 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-gray-600'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 dark:bg-white/5 dark:border-gray-700 dark:text-gray-300'
                                 }
                             `}
                         >

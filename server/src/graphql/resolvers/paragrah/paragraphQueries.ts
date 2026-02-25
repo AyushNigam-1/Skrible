@@ -5,7 +5,8 @@ import Script from "../../../models/Script";
 export const paragraphQueries = {
     getParagraphById: async (_: any, { paragraphId }: { paragraphId: string }) => {
         const paragraph = await Paragraph.findById(paragraphId)
-            .populate("author");
+            .populate("author")
+            .populate("comments.author");
         if (!paragraph) throw new Error("Paragraph not found");
 
         return paragraph;

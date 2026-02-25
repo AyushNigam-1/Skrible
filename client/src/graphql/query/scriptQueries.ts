@@ -11,6 +11,8 @@ export const GET_SCRIPT_BY_ID = gql`
       description
       createdAt
       combinedText
+      likes
+      dislikes
 
       author {
         username

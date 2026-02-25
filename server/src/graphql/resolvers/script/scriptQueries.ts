@@ -11,10 +11,8 @@ export const scriptQueries = {
             .populate("author")
             .populate({
                 path: "paragraphs",
-                populate: { path: "author" },
-            })
-            ;
-        // match: { status: "approved" },
+                populate: [{ path: "author" }, { path: "comments.author" }],
+            });
 
         if (!script) throw new Error("Script not found");
 
@@ -55,4 +53,5 @@ export const scriptQueries = {
             })),
         };
     },
+
 };

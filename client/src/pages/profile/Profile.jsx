@@ -30,19 +30,21 @@ const Profile = () => {
         skip: !username,
     });
 
+    if (loading) return <Loader height="70vh" />;
+
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center w-full h-[70vh] gap-4">
                 <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-full text-red-600 dark:text-red-400">
                     <User className="w-10 h-10" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Profile not found</h2>
-                <p className="text-gray-500 dark:text-gray-400 max-w-sm text-center">{error.message}</p>
+                {/* APPLIED PLAYFAIR DISPLAY */}
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-['Playfair_Display']">Profile not found</h2>
+                {/* APPLIED CRIMSON PRO */}
+                <p className="text-gray-500 dark:text-gray-400 max-w-sm text-center font-['Crimson_Pro'] text-lg">{error.message}</p>
             </div>
         );
     }
-
-    if (loading) return <Loader height="70vh" />;
 
     const userProfile = data?.getUserProfile;
 
@@ -69,8 +71,9 @@ const Profile = () => {
         <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
 
             {/* --- Header --- */}
-            <div className="flex justify-between items-center bg-white dark:bg-gray-900  dark:border-gray-800 shadow-sm">
-                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            <div className="flex justify-between items-center bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
+                {/* APPLIED PLAYFAIR DISPLAY TO PAGE TITLE */}
+                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight font-['Playfair_Display']">
                     {isOwnProfile ? 'My Profile' : 'User Profile'}
                 </h1>
 
@@ -96,15 +99,16 @@ const Profile = () => {
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {/* APPLIED PLAYFAIR DISPLAY TO USERNAME */}
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-['Playfair_Display'] tracking-wide">
                                 {userProfile?.username}
                             </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">
                                 @{userProfile?.username?.toLowerCase()}
                             </p>
                         </div>
 
-                        {/* Location / Join Date (Mocked visually, add real data if you have it) */}
+                        {/* Location / Join Date */}
                         <div className="flex flex-col gap-2 mt-2 w-full text-sm text-gray-600 dark:text-gray-400 font-medium">
                             <div className="flex items-center justify-center gap-1.5">
                                 <MapPin className="w-4 h-4" /> Earth
@@ -136,15 +140,13 @@ const Profile = () => {
                             })}
                         </div>
 
-                        {/* <hr className="border-gray-100 dark:border-gray-800 my-2" /> */}
-
-                        {/* Action Buttons (Only show if viewing someone else's profile) */}
+                        {/* Action Buttons */}
                         {!isOwnProfile && (
                             <div className="flex flex-col gap-3">
-                                <button className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-colors">
+                                <button className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-colors font-['Playfair_Display'] tracking-wide">
                                     <Rss className="w-5 h-5" /> Follow
                                 </button>
-                                <button className="flex items-center justify-center gap-2 w-full py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors">
+                                <button className="flex items-center justify-center gap-2 w-full py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors font-['Playfair_Display'] tracking-wide">
                                     <Heart className="w-5 h-5 text-pink-500" /> Like Profile
                                 </button>
                             </div>
@@ -154,7 +156,8 @@ const Profile = () => {
 
                 {/* --- Main Details Panel --- */}
                 <div className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 md:p-8 rounded-2xl shadow-sm">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                    {/* APPLIED PLAYFAIR DISPLAY */}
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-800 pb-4 font-['Playfair_Display']">
                         About User
                     </h3>
 
@@ -167,7 +170,8 @@ const Profile = () => {
                                         <Icon className="w-4 h-4 text-blue-500" />
                                         {detail.title}
                                     </h4>
-                                    <p className={`text-lg font-medium ${detail.value === 'Not provided'
+                                    {/* APPLIED CRIMSON PRO */}
+                                    <p className={`text-xl font-medium font-['Crimson_Pro'] leading-relaxed ${detail.value === 'Not provided'
                                         ? 'text-gray-400 italic'
                                         : 'text-gray-900 dark:text-gray-100'
                                         }`}>

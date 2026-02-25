@@ -26,6 +26,11 @@ import Contributors from "./pages/contributors/Contributors";
 import Explore from "./pages/explore/Explore";
 import DraftLayout from "./layout/DraftLayout";
 import Contribution from "./pages/contribution/Contribution";
+import DraftSettings from "./pages/settings/DraftSetting";
+import '@fontsource/inter'; // Defaults to weight 400
+import '@fontsource/lora';
+import "@fontsource/crimson-pro"
+import '@fontsource/playfair-display/700.css';
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
   credentials: 'include'
@@ -107,6 +112,10 @@ const router = createBrowserRouter([
             path: "/zen/:id",
             element: <ZenMode />
           },
+          {
+            path: "/settings/:id",
+            element: <DraftSettings />
+          }
         ]
       },
     ]

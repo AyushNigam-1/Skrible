@@ -18,6 +18,7 @@ export const userQueries = {
             username: user.username,
             email: user.email,
             bio: user.bio,
+            favourites: user.favourites || [],
             languages: user.languages || [],
             likes: user.likes || [],
             followers: user.followers || [],
@@ -51,5 +52,17 @@ export const userQueries = {
             comments: p.comments || [],
             script: p.script,   // IMPORTANT
         }));
+    },
+    getUserFavourites: async (_: unknown, { userId }: { userId: string }) => {
+        const user = await User.findById(userId).populate({
+            path: "favourites", // Populates the scripts the user bookmarked
+            populate: {
+                path: "author", // Deep populates the author of each bookmarked script
+                select: "username"
+            }
+        });
+
+        if (!user) throw new Error("User not found");
+        return user.favourites || [];
     },
 };

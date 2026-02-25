@@ -57,3 +57,21 @@ query GetUserContributions($userId: ID!) {
   }
 }
 `;
+
+export const GET_USER_FAVOURITES = gql`
+query GetUserFavourites($userId: ID!) {
+  getUserFavourites(userId: $userId) {
+    id
+    title
+    visibility
+    description
+    languages
+    genres
+    createdAt
+    updatedAt
+    author {
+      username
+    }
+  }
+}
+`;

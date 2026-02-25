@@ -10,6 +10,8 @@ export const scriptTypeDefs = gql`
   type Comment {
     text: String!
     createdAt: String!
+    # ADDED: Author field so the frontend can display who wrote the comment
+    author: Author! 
   }
 
   type Paragraph {
@@ -17,8 +19,8 @@ export const scriptTypeDefs = gql`
     text: String!
     createdAt: String!
     author: Author!
-    likes: Int!
-    dislikes: Int!
+    likes: [ID!]!    
+    dislikes: [ID!]!
     comments: [Comment!]!
   }
 
@@ -30,7 +32,9 @@ export const scriptTypeDefs = gql`
     description: String!
     languages: [String!]!
     genres: [String!]!
-    paragraphs: [Paragraph!]!
+    paragraphs: [Paragraph!]!    
+    likes: [ID!]!
+    dislikes: [ID!]!
     createdAt: String!
     updatedAt: String!
     combinedText: String
@@ -78,13 +82,23 @@ export const scriptTypeDefs = gql`
       genres: [String!]!
       description: String!
     ): Script!
-
+    updateScript(
+      scriptId: ID!
+      title: String
+      description: String
+      visibility: String
+    ): Script!
     submitParagraph(scriptId: ID!, text: String!): Paragraph!
     approveParagraph(paragraphId: ID!): MutationResponse!
     rejectParagraph(paragraphId: ID!): MutationResponse!
     markAsInterested(scriptId: ID!): MutationResponse!
     markAsNotInterested(scriptId: ID!): MutationResponse!
     markAsFavourite(scriptId: ID!): MutationResponse!
-    deleteScript(scriptId: ID!): MutationResponse!
+    deleteScript(scriptId: ID!): MutationResponse!    
+    likeParagraph(paragraphId: ID!): MutationResponse!
+    dislikeParagraph(paragraphId: ID!): MutationResponse!    
+    addComment(paragraphId: ID!, text: String!): Paragraph!    
+    likeScript(scriptId: ID!): MutationResponse!
+    dislikeScript(scriptId: ID!): MutationResponse!
   }
 `;

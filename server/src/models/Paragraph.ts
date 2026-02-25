@@ -23,8 +23,9 @@ export interface IParagraph extends Document {
     author: Types.ObjectId;
     text: string;
     status: "pending" | "approved" | "rejected";
-    likes: number;
-    dislikes: number;
+    // Changed from number to array of ObjectIds
+    likes: Types.ObjectId[];
+    dislikes: Types.ObjectId[];
     comments: {
         author: Types.ObjectId;
         text: string;
@@ -58,15 +59,21 @@ const paragraphSchema = new Schema(
             default: "pending",
         },
 
-        likes: {
-            type: Number,
-            default: 0,
-        },
+        // Updated to store an array of User references
+        likes: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            }
+        ],
 
-        dislikes: {
-            type: Number,
-            default: 0,
-        },
+        // Updated to store an array of User references
+        dislikes: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            }
+        ],
 
         comments: {
             type: [commentSchema],

@@ -8,6 +8,7 @@ export const userTypeDefs = gql`
     token: String!
     languages: [String]
     bio: String
+    favourites:[ID]
     interests: [String]
     contibutions: [ID]
     likes: [ID]
@@ -31,12 +32,14 @@ export const userTypeDefs = gql`
     getUserProfile(username: String!): User
     getUserScripts(userId: ID!): [Script!]!
     getUserContributions(userId: ID!): [UserContribution!]!
+    getUserFavourites(userId: ID!): [Script!]!
   }
 
   type Mutation {
     register(username: String!, password: String!, email: String): User
     login(username: String!, password: String!): User
     logout: Boolean!
-    
+    toggleBookmark(scriptId: ID!): MutationResponse!
   }
+    
 `;

@@ -19,8 +19,16 @@ export const LOGIN_MUTATION = gql`
       token
     }
   }`;
+
 export const LOGOUT_MUTATION = gql`
 mutation Logout {
     logout
 }
+`;
+export const TOGGLE_BOOKMARK = gql`
+  mutation ToggleBookmark($scriptId: ID!) {
+    toggleBookmark(scriptId: $scriptId) {
+      status
+    }
+  }
 `;

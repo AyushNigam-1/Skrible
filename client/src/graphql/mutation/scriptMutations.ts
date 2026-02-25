@@ -78,3 +78,57 @@ mutation DeleteScript($scriptId: ID!) {
   }
 }
 `;
+
+// --- NEW: Add Comment Mutation ---
+export const ADD_COMMENT = gql`
+mutation AddComment($paragraphId: ID!, $text: String!) {
+  addComment(paragraphId: $paragraphId, text: $text) {
+    id
+    comments {
+      text
+      createdAt
+      author {
+        id
+        username
+      }
+    }
+  }
+}
+`;
+
+export const LIKE_SCRIPT = gql`
+mutation LikeScript($scriptId: ID!) {
+  likeScript(scriptId: $scriptId) {
+    status
+  }
+}
+`;
+
+export const DISLIKE_SCRIPT = gql`
+mutation DislikeScript($scriptId: ID!) {
+  dislikeScript(scriptId: $scriptId) {
+    status
+  }
+}
+`;
+
+export const UPDATE_SCRIPT = gql`
+  mutation UpdateScript(
+    $scriptId: ID!
+    $title: String
+    $description: String
+    $visibility: String
+  ) {
+    updateScript(
+      scriptId: $scriptId
+      title: $title
+      description: $description
+      visibility: $visibility
+    ) {
+      id
+      title
+      description
+      visibility
+    }
+  }
+`;

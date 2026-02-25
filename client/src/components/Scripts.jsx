@@ -80,10 +80,12 @@ const Scripts = ({ data, search }) => {
                 <div className="bg-gray-100 dark:bg-gray-800 p-5 rounded-full mb-5 shadow-inner">
                     <SearchX className="w-10 h-10 text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {/* APPLIED PLAYFAIR DISPLAY */}
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 font-['Playfair_Display']">
                     No Scripts Found
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                {/* APPLIED CRIMSON PRO */}
+                <p className="text-gray-500 dark:text-gray-400 max-w-md font-['Crimson_Pro'] text-lg">
                     We couldn't find any scripts matching your current search or genre filters. Try adjusting them!
                 </p>
             </div>
@@ -95,7 +97,7 @@ const Scripts = ({ data, search }) => {
             {filtered.map((script) => (
                 <div
                     key={script.id}
-                    className="group relative bg-white dark:bg-white/5 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 hover:-translate-y-1 transition-all duration-300 flex flex-col h-[280px]"
+                    className="group relative bg-white dark:bg-white/5 rounded-2xl p-6 shadow-sm     hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 hover:-translate-y-1 transition-all duration-300 flex flex-col h-[280px]"
                 >
                     <Link
                         to={`/timeline/${script.id}`}
@@ -103,7 +105,8 @@ const Scripts = ({ data, search }) => {
                     >
                         {/* Header Area */}
                         <div className="flex flex-col gap-1 pr-8 mb-3">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {/* APPLIED PLAYFAIR DISPLAY */}
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-['Playfair_Display'] tracking-wide">
                                 {script.title}
                             </h2>
                             <div className="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -112,8 +115,8 @@ const Scripts = ({ data, search }) => {
                             </div>
                         </div>
 
-                        {/* Description */}
-                        <p className="text-sm text-gray-600 dark:text-gray-300 flex-grow line-clamp-4 leading-relaxed">
+                        {/* Description - APPLIED CRIMSON PRO */}
+                        <p className="text-base text-gray-600 dark:text-gray-300 flex-grow line-clamp-4 leading-relaxed font-['Crimson_Pro']">
                             {script.description || "No description provided."}
                         </p>
 
@@ -136,7 +139,7 @@ const Scripts = ({ data, search }) => {
                         </div>
                     </Link>
 
-                    {/* Dropdown Options (Positioned outside Link to prevent navigation clicks) */}
+                    {/* Dropdown Options */}
                     {user && (
                         <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
                             <Dropdown

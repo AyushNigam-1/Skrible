@@ -22,7 +22,6 @@ export const scriptMutations = {
         },
         context: { user: { id: string } }
     ) => {
-
         if (!context.user?.id) {
             throw new GraphQLError("User not authenticated");
         }
@@ -129,4 +128,161 @@ export const scriptMutations = {
 
         return { status: true };
     },
+    updateScript: async (
+        _: any,
+        {
+            scriptId,
+            title,
+            description,
+            visibility
+        }: {
+            scriptId: string;
+            title?: string;
+            description?: string;
+            visibility?: string;
+        },
+        context: any
+    ) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        const script = await Script.findById(scriptId);
+        if (!script) throw new GraphQLError("Script not found");
+
+        // SECURITY: Check if the logged-in user is the author
+        if (script.author.toString() !== userId) {
+            throw new GraphQLError("Not authorized to update this script");
+        }
+
+        // Apply updates
+        if (title !== undefined) script.title = title;
+        if (description !== undefined) script.description = description;
+        if (visibility !== undefined) script.visibility = visibility;
+
+        await script.save();
+        return script.populate("author");
+    },
+    // --- PARAGRAPH INTERACTIONS ---
+    likeParagraph: async (_: any, { paragraphId }: { paragraphId: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        const paragraph = await Paragraph.findById(paragraphId);
+        if (!paragraph) throw new GraphQLError("Paragraph not found");
+
+        const hasLiked = paragraph.likes?.includes(userId) || false;
+
+        if (hasLiked) {
+            await Paragraph.findByIdAndUpdate(paragraphId, {
+                $pull: { likes: userId }
+            });
+        } else {
+            await Paragraph.findByIdAndUpdate(paragraphId, {
+                $addToSet: { likes: userId },
+                $pull: { dislikes: userId }
+            });
+        }
+
+        return { status: true };
+    },
+
+    dislikeParagraph: async (_: any, { paragraphId }: { paragraphId: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        const paragraph = await Paragraph.findById(paragraphId);
+        if (!paragraph) throw new GraphQLError("Paragraph not found");
+
+        const hasDisliked = paragraph.dislikes?.includes(userId) || false;
+
+        if (hasDisliked) {
+            await Paragraph.findByIdAndUpdate(paragraphId, {
+                $pull: { dislikes: userId }
+            });
+        } else {
+            await Paragraph.findByIdAndUpdate(paragraphId, {
+                $addToSet: { dislikes: userId },
+                $pull: { likes: userId }
+            });
+        }
+
+        return { status: true };
+    },
+
+    addComment: async (_: any, { paragraphId, text }: { paragraphId: string, text: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        if (!text || text.trim() === "") {
+            throw new GraphQLError("Comment cannot be empty");
+        }
+
+        const updatedParagraph = await Paragraph.findByIdAndUpdate(
+            paragraphId,
+            {
+                $push: {
+                    comments: {
+                        author: userId,
+                        text: text
+                    }
+                }
+            },
+            { new: true }
+        ).populate("comments.author");
+
+        if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
+
+        return updatedParagraph;
+    },
+
+    // --- NEW: SCRIPT (DRAFT) INTERACTIONS ---
+    likeScript: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        const script = await Script.findById(scriptId);
+        if (!script) throw new GraphQLError("Script not found");
+
+        const hasLiked = script.likes?.includes(userId) || false;
+
+        if (hasLiked) {
+            // Toggle OFF
+            await Script.findByIdAndUpdate(scriptId, {
+                $pull: { likes: userId }
+            });
+        } else {
+            // Toggle ON
+            await Script.findByIdAndUpdate(scriptId, {
+                $addToSet: { likes: userId },
+                $pull: { dislikes: userId }
+            });
+        }
+
+        return { status: true };
+    },
+
+    dislikeScript: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) throw new GraphQLError("User not authenticated");
+
+        const script = await Script.findById(scriptId);
+        if (!script) throw new GraphQLError("Script not found");
+
+        const hasDisliked = script.dislikes?.includes(userId) || false;
+
+        if (hasDisliked) {
+            // Toggle OFF
+            await Script.findByIdAndUpdate(scriptId, {
+                $pull: { dislikes: userId }
+            });
+        } else {
+            // Toggle ON
+            await Script.findByIdAndUpdate(scriptId, {
+                $addToSet: { dislikes: userId },
+                $pull: { likes: userId }
+            });
+        }
+
+        return { status: true };
+    }
 };

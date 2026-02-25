@@ -8,8 +8,8 @@ type Paragraph {
   author: Author!
   text: String!
   status: String!
-  likes: Int!
-  dislikes: Int!
+  likes: [ID!]!    
+  dislikes: [ID!]!
   comments: [Comment!]!
   createdAt: String!
 }
@@ -26,5 +26,4 @@ type Query {
   getPendingParagraphs(scriptId: ID!): [Paragraph!]!
   exportDocument(scriptId: ID!, format: String!): ExportedDocument!
 }
-
 `;

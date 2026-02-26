@@ -6,6 +6,14 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}", // Adjust this path if your files are in a different directory
   ],
   theme: {
+    extend: {
+      fontFamily: {
+        // This makes 'font-sans' (the default) use Inter
+        sans: ['Inter', 'sans-serif'],
+        // This makes 'font-serif' use Literata
+        serif: ['Literata', 'serif'],
+      },
+    },
     // extend: {
     //   fontFamily: {
     //     mulish: ["Mulish", "sans-serif"],

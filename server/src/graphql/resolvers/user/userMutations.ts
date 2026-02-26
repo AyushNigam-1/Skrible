@@ -133,5 +133,45 @@ export const userMutations = {
         }
 
         return { status: true };
+    },
+    updateUserProfile: async (
+        _: any,
+        {
+            username,
+            bio,
+            languages,
+            interests
+        }: {
+            username?: string;
+            bio?: string;
+            languages?: string[];
+            interests?: string[]
+        },
+        context: any
+    ) => {
+        const userId = context.user?.id;
+        if (!userId) {
+            throw new GraphQLError('User not authenticated');
+        }
+
+        const updates: any = {};
+
+        // Conditionally add fields to the update object if they are provided
+        if (username !== undefined) updates.username = username;
+        if (bio !== undefined) updates.bio = bio;
+        if (languages !== undefined) updates.languages = languages;
+        if (interests !== undefined) updates.interests = interests;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updates },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            throw new GraphQLError('User not found');
+        }
+
+        return updatedUser;
     }
 };

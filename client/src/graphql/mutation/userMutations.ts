@@ -32,3 +32,24 @@ export const TOGGLE_BOOKMARK = gql`
     }
   }
 `;
+export const UPDATE_USER_PROFILE = gql`
+  mutation UpdateUserProfile(
+    $username: String
+    $bio: String
+    $languages: [String!]
+    $interests: [String!]
+  ) {
+    updateUserProfile(
+      username: $username
+      bio: $bio
+      languages: $languages
+      interests: $interests
+    ) {
+      id
+      username
+      bio
+      languages
+      interests
+    }
+  }
+`;

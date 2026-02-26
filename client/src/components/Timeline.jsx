@@ -140,7 +140,6 @@ const Timeline = () => {
         <div className="flex flex-col gap-6 w-full mx-auto pb-10">
             {/* Header with Contribute Button */}
             <div className="flex justify-between items-center">
-                {/* APPLIED PLAYFAIR DISPLAY TO HEADER */}
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white font-['Playfair_Display']">Timeline</h2>
                 {paragraphs.length > 0 && (
                     <button
@@ -155,13 +154,14 @@ const Timeline = () => {
 
             {/* EMPTY STATE */}
             {paragraphs.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 px-4 text-center border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-gray-900/50">
-                    <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full mb-4">
+                // CHANGED: Applied glassmorphism to empty state container
+                <div className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-white/5 backdrop-blur-xl shadow-lg">
+                    {/* CHANGED: Glassmorphism for the icon container */}
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-full mb-4 shadow-sm">
                         <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                     </div>
-                    {/* APPLIED PLAYFAIR DISPLAY */}
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-['Playfair_Display']">No contributions yet</h3>
-                    <p className="text-gray-500 dark:text-gray-400 max-w-md mb-6 text-sm">
+                    <p className="text-gray-600 dark:text-gray-300 max-w-md mb-6 text-sm">
                         This draft is currently empty. Be the first to add content and shape the story!
                     </p>
                     <button
@@ -179,28 +179,29 @@ const Timeline = () => {
                 {sortedDates.map((date) => (
                     <div key={date} className="flex flex-col gap-4">
                         <div className="flex items-center gap-4">
-                            <hr className="flex-grow border-gray-200 dark:border-gray-800" />
-                            <h4 className="text-sm font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                            {/* CHANGED: Subtler divider line */}
+                            <hr className="flex-grow border-white/10" />
+                            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 {date}
                             </h4>
-                            <hr className="flex-grow border-gray-200 dark:border-gray-800" />
+                            <hr className="flex-grow border-white/10" />
                         </div>
 
                         {groupedParagraphs[date].map((p) => (
                             <Link
                                 key={p.id}
                                 to={`/contribution/${p.id}`}
-                                className="block bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group"
+                                // CHANGED: Glassmorphism applied to timeline cards
+                                className="block bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-xl shadow-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
                             >
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                                         {p.author.username.charAt(0).toUpperCase()}
                                     </div>
-                                    <p className="font-semibold text-sm text-gray-700 dark:text-gray-300">
+                                    <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
                                         {p.author.username}
                                     </p>
                                 </div>
-                                {/* APPLIED CRIMSON PRO TO DRAFT CONTENT */}
                                 <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 font-['Crimson_Pro'] text-lg leading-relaxed">
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{p.text}</ReactMarkdown>
                                 </div>
@@ -212,33 +213,34 @@ const Timeline = () => {
 
             {/* Contribution Modal */}
             <Dialog open={isOpen} onClose={closeModal} className="relative z-50">
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+                {/* CHANGED: Adjusted backdrop blur slightly so it feels cohesive */}
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-md" aria-hidden="true" />
                 <div className="fixed inset-0 flex items-center justify-center p-4">
-                    <DialogPanel className="mx-auto max-w-2xl w-full bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-800 overflow-y-auto max-h-[90vh]">
-                        {/* APPLIED PLAYFAIR DISPLAY */}
+                    {/* CHANGED: Applied glassmorphism to the Modal panel */}
+                    <DialogPanel className="mx-auto max-w-2xl w-full bg-white/5 backdrop-blur-2xl rounded-2xl p-6 shadow-2xl border border-white/10 overflow-y-auto max-h-[90vh]">
                         <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white font-['Playfair_Display']">Add Contribution</h3>
 
                         {/* Text Area for Direct Input */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
                                 Write your draft addition
                             </label>
-                            {/* APPLIED CRIMSON PRO TO WRITING AREA */}
+                            {/* CHANGED: Glassmorphism for the textarea */}
                             <textarea
                                 value={manualText}
                                 onChange={(e) => setManualText(e.target.value)}
                                 rows={6}
                                 disabled={files.length > 0}
-                                className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-50 font-['Crimson_Pro'] text-lg leading-relaxed"
+                                className="w-full p-4 border border-white/10 rounded-xl bg-white/5 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:opacity-50 font-['Crimson_Pro'] text-lg leading-relaxed placeholder-gray-500 dark:placeholder-gray-400"
                                 placeholder="Type your continuation here... (Markdown is supported)"
                             />
                         </div>
 
                         {/* Divider */}
                         <div className="flex items-center gap-4 mb-6">
-                            <hr className="flex-grow border-gray-200 dark:border-gray-700" />
-                            <span className="text-xs text-gray-400 uppercase tracking-widest font-semibold">OR UPLOAD FILE</span>
-                            <hr className="flex-grow border-gray-200 dark:border-gray-700" />
+                            <hr className="flex-grow border-white/10" />
+                            <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-semibold">OR UPLOAD FILE</span>
+                            <hr className="flex-grow border-white/10" />
                         </div>
 
                         {/* File Upload for Document Diffs */}
@@ -254,7 +256,7 @@ const Timeline = () => {
                         <div className="mt-8 flex justify-end gap-3">
                             <button
                                 onClick={closeModal}
-                                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
                             >
                                 Cancel
                             </button>

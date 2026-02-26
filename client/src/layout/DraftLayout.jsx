@@ -9,9 +9,10 @@ import { GET_USER_PROFILE } from "../graphql/query/userQueries";
 
 import Tabs from "../components/Tabs";
 import Loader from "../components/Loader";
+import InviteModal from "../components/InviteModal"; // Import the modal we created
 import {
     User, Tag, Globe, Calendar, Lock, Globe2,
-    ThumbsUp, ThumbsDown, Bookmark, Share2, Check, Loader2
+    ThumbsUp, ThumbsDown, Bookmark, Share2, Check, Loader2, Settings
 } from "lucide-react";
 
 const DraftLayout = () => {
@@ -31,6 +32,7 @@ const DraftLayout = () => {
     const [localDislikes, setLocalDislikes] = useState([]);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isInviteOpen, setIsInviteOpen] = useState(false); // Modal state
 
     const { data, loading, error, refetch } = useQuery(GET_SCRIPT_BY_ID, { variables: { id }, skip: !id });
     const { data: userData } = useQuery(GET_USER_PROFILE, { variables: { username: currentUsername }, skip: !currentUsername });
@@ -57,48 +59,94 @@ const DraftLayout = () => {
     const isLiked = localLikes.includes(currentUserId);
     const isDisliked = localDislikes.includes(currentUserId);
 
-    if (error) return <div className="p-4 text-red-500">Error: {JSON.stringify(error)}</div>;
+    if (error) return <div className="p-4 text-red-500 font-['Inter']">Error: {JSON.stringify(error)}</div>;
 
     const formatDate = (timestamp) => {
         if (!timestamp) return "";
         return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(new Date(Number(timestamp)));
     };
 
-    const handleLike = async () => { /* ... */ };
-    const handleDislike = async () => { /* ... */ };
-    const handleBookmark = async () => { /* ... */ };
-    const handleShare = async () => { /* ... */ };
+    // --- COMPLETED HANDLERS ---
+
+    const handleLike = async () => {
+        if (!currentUserId) return alert("Please login to like");
+        try {
+            await likeScript({ variables: { scriptId: id } });
+            // Optimistic UI Update
+            if (isLiked) {
+                setLocalLikes(localLikes.filter(uid => uid !== currentUserId));
+            } else {
+                setLocalLikes([...localLikes, currentUserId]);
+                setLocalDislikes(localDislikes.filter(uid => uid !== currentUserId));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDislike = async () => {
+        if (!currentUserId) return alert("Please login to dislike");
+        try {
+            await dislikeScript({ variables: { scriptId: id } });
+            // Optimistic UI Update
+            if (isDisliked) {
+                setLocalDislikes(localDislikes.filter(uid => uid !== currentUserId));
+            } else {
+                setLocalDislikes([...localDislikes, currentUserId]);
+                setLocalLikes(localLikes.filter(uid => uid !== currentUserId));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleBookmark = async () => {
+        if (!currentUserId) return alert("Please login to bookmark");
+        try {
+            await toggleBookmark({ variables: { scriptId: id } });
+            setIsBookmarked(!isBookmarked);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleShare = () => {
+        setIsInviteOpen(true); // Open the beautiful glassmorphism invite modal
+    };
 
     return (
-        <div className={`relative ${path === 'zen' ? 'w-full' : `flex flex-col gap-6 w-full max-w-6xl mx-auto ${cursorClass}`}`}>
+        <div className={`relative font-['Inter'] ${path === 'zen' ? 'w-full' : `flex flex-col gap-6 w-full max-w-6xl mx-auto ${cursorClass}`}`}>
 
-            {/* --- SCRIPT DETAILS HEADER (GLASSMORPHISM) --- */}
+            {/* Invite/Settings Modal */}
+            <InviteModal
+                isOpen={isInviteOpen}
+                setIsOpen={setIsInviteOpen}
+                scriptTitle={script?.title}
+            />
+
             {path !== 'zen' && script && (
-                // CHANGED: Solid backgrounds removed. Added bg-white/5, backdrop-blur-xl, and border-white/10
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-lg flex flex-col gap-5">
-
                     <div className="flex justify-between items-start gap-4">
-                        <h1 className="text-4xl font-bold font-['Playfair_Display'] text-gray-900 dark:text-white tracking-tight">
+                        <h1 className="text-4xl font-bold font-['Inter'] text-gray-900 dark:text-white tracking-tight">
                             {script.title}
                         </h1>
-                        {/* CHANGED: Badge uses glassmorphism to match */}
-                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border shrink-0 bg-white/5 border-white/10 text-gray-900 dark:text-gray-200 shadow-sm`}>
-                            {script.visibility === 'Public' ? <Globe2 className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                            {script.visibility}
-                        </span>
+                        <div className="flex items-center gap-3">
+                            <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border shrink-0 bg-white/5 border-white/10 text-gray-900 dark:text-gray-200 shadow-sm`}>
+                                {script.visibility === 'Public' ? <Globe2 className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                                {script.visibility}
+                            </span>
+                        </div>
                     </div>
 
-                    <p className="font-['Crimson_Pro'] text-lg text-gray-800 dark:text-gray-300 leading-relaxed max-w-4xl">
+                    <p className="font-['Literata'] text-lg text-gray-800 dark:text-gray-300 leading-relaxed max-w-4xl">
                         {script.description || "No description provided for this draft."}
                     </p>
 
-                    {/* CHANGED: Subtler divider line for glassmorphism */}
                     <hr className="border-white/10" />
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-700 dark:text-gray-300 font-medium">
                             <div className="flex items-center gap-2">
-                                {/* CHANGED: User icon background converted to glass */}
                                 <div className="bg-white/5 border border-white/10 p-1.5 rounded-full text-gray-800 dark:text-gray-200 shadow-sm">
                                     <User className="w-4 h-4" />
                                 </div>
@@ -112,13 +160,6 @@ const DraftLayout = () => {
                                 </div>
                             )}
 
-                            {script.languages?.length > 0 && (
-                                <div className="flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                    <span>{script.languages.join(", ")}</span>
-                                </div>
-                            )}
-
                             {script.createdAt && (
                                 <div className="flex items-center gap-2">
                                     <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -129,31 +170,28 @@ const DraftLayout = () => {
 
                         {/* --- Action Buttons --- */}
                         <div className="flex items-center gap-2 shrink-0">
-                            {/* NOTE: Kept action buttons with slight color tints so they still look interactive, but using a translucent white/10 base where applicable */}
                             <button
                                 onClick={handleLike}
                                 disabled={isLiking}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold transition-all disabled:opacity-50 ${isLiked
-                                    ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+                                    ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 shadow-inner'
                                     : 'bg-white/5 border border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/10'
                                     }`}
-                                title="Interested"
                             >
                                 <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                                <span className="text-sm">{localLikes.length > 0 ? localLikes.length : 0}</span>
+                                <span className="text-sm">{localLikes.length}</span>
                             </button>
 
                             <button
                                 onClick={handleDislike}
                                 disabled={isDisliking}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold transition-all disabled:opacity-50 ${isDisliked
-                                    ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30'
+                                    ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30 shadow-inner'
                                     : 'bg-white/5 border border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/10'
                                     }`}
-                                title="Not Interested"
                             >
                                 <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-current' : ''}`} />
-                                <span className="text-sm">{localDislikes.length > 0 ? localDislikes.length : 0}</span>
+                                <span className="text-sm">{localDislikes.length}</span>
                             </button>
 
                             <button
@@ -163,30 +201,24 @@ const DraftLayout = () => {
                                     ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30'
                                     : 'bg-white/5 border border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/10'
                                     }`}
-                                title="Save to Favorites"
                             >
-                                {isBookmarking ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
-                                )}
+                                {isBookmarking ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />}
                             </button>
 
                             <button
                                 onClick={handleShare}
                                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/10 font-semibold transition-colors"
                             >
-                                {copied ? <Check className="w-5 h-5 text-green-500" /> : <Share2 className="w-5 h-5" />}
+                                <Share2 className="w-5 h-5" />
+                                <span className="text-sm hidden sm:inline">Invite</span>
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* --- STICKY TABS (GLASSMORPHISM) --- */}
             {path !== 'zen' && (
-                // CHANGED: Replaced solid colors with bg-white/5 and border-white/10 to float seamlessly
-                <div className="sticky top-0 z-20 pt-2 pb-2  backdrop-blur-xl  rounded-b-xl -mx-2 px-2 shadow-sm">
+                <div className="sticky top-0 z-20 pt-2 pb-2 backdrop-blur-xl rounded-b-xl -mx-2 px-2 shadow-sm">
                     <Tabs setTab={setTab} tab={tab} scriptId={id} />
                 </div>
             )}

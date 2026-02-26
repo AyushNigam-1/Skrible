@@ -119,15 +119,32 @@ export const scriptMutations = {
         return { status: true };
     },
 
+    // --- SETTINGS: DELETE SCRIPT (SECURED) ---
     deleteScript: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
         const userId = context.user?.id;
         if (!userId) throw new GraphQLError("Auth required");
 
+        const script = await Script.findById(scriptId);
+        if (!script) throw new GraphQLError("Script not found");
+
+        // SECURITY: Ensure only the original author can delete their script!
+        if (script.author.toString() !== userId) {
+            throw new GraphQLError("Not authorized to delete this script");
+        }
+
+        // Delete the script and all its associated paragraphs
         await Script.findByIdAndDelete(scriptId);
         await Paragraph.deleteMany({ script: scriptId });
 
+        // CLEANUP: Remove the script reference from the user's array
+        await User.findByIdAndUpdate(userId, {
+            $pull: { scripts: scriptId }
+        });
+
         return { status: true };
     },
+
+    // --- SETTINGS: UPDATE SCRIPT ---
     updateScript: async (
         _: any,
         {
@@ -154,7 +171,7 @@ export const scriptMutations = {
             throw new GraphQLError("Not authorized to update this script");
         }
 
-        // Apply updates
+        // Apply updates conditionally (only updates fields that were actually passed)
         if (title !== undefined) script.title = title;
         if (description !== undefined) script.description = description;
         if (visibility !== undefined) script.visibility = visibility;
@@ -162,6 +179,7 @@ export const scriptMutations = {
         await script.save();
         return script.populate("author");
     },
+
     // --- PARAGRAPH INTERACTIONS ---
     likeParagraph: async (_: any, { paragraphId }: { paragraphId: string }, context: any) => {
         const userId = context.user?.id;
@@ -235,7 +253,7 @@ export const scriptMutations = {
         return updatedParagraph;
     },
 
-    // --- NEW: SCRIPT (DRAFT) INTERACTIONS ---
+    // --- SCRIPT (DRAFT) INTERACTIONS ---
     likeScript: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
         const userId = context.user?.id;
         if (!userId) throw new GraphQLError("User not authenticated");
@@ -246,12 +264,10 @@ export const scriptMutations = {
         const hasLiked = script.likes?.includes(userId) || false;
 
         if (hasLiked) {
-            // Toggle OFF
             await Script.findByIdAndUpdate(scriptId, {
                 $pull: { likes: userId }
             });
         } else {
-            // Toggle ON
             await Script.findByIdAndUpdate(scriptId, {
                 $addToSet: { likes: userId },
                 $pull: { dislikes: userId }
@@ -271,12 +287,10 @@ export const scriptMutations = {
         const hasDisliked = script.dislikes?.includes(userId) || false;
 
         if (hasDisliked) {
-            // Toggle OFF
             await Script.findByIdAndUpdate(scriptId, {
                 $pull: { dislikes: userId }
             });
         } else {
-            // Toggle ON
             await Script.findByIdAndUpdate(scriptId, {
                 $addToSet: { dislikes: userId },
                 $pull: { likes: userId }

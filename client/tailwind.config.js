@@ -9,9 +9,9 @@ export default {
     extend: {
       fontFamily: {
         // This makes 'font-sans' (the default) use Inter
-        sans: ['Inter', 'sans-serif'],
+        // sans: ['Inter', 'sans-serif'],
         // This makes 'font-serif' use Literata
-        serif: ['Literata', 'serif'],
+        // serif: ['Literata', 'serif'],
       },
     },
     // extend: {
@@ -23,21 +23,21 @@ export default {
   plugins: [
     function ({ addUtilities }) {
       const newUtilities = {
-        '.word-spacing-1': {
-          wordSpacing: '0.25rem', // 4px spacing
+        ".word-spacing-1": {
+          wordSpacing: "0.25rem", // 4px spacing
         },
-        '.word-spacing-2': {
-          wordSpacing: '0.5rem',  // 8px spacing
+        ".word-spacing-2": {
+          wordSpacing: "0.5rem", // 8px spacing
         },
-        '.word-spacing-3': {
-          wordSpacing: '1rem',    // 16px spacing
+        ".word-spacing-3": {
+          wordSpacing: "1rem", // 16px spacing
         },
-        '.word-spacing-4': {
-          wordSpacing: '2rem',    // 32px spacing
+        ".word-spacing-4": {
+          wordSpacing: "2rem", // 32px spacing
         },
       };
-      addUtilities(newUtilities, ['responsive', 'hover']); // Make them available for responsive and hover states
+      addUtilities(newUtilities, ["responsive", "hover"]); // Make them available for responsive and hover states
     },
-    require('tailwind-scrollbar')({ nocompatible: true }),
+    require("tailwind-scrollbar")({ nocompatible: true }),
   ],
 };

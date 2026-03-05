@@ -16,7 +16,7 @@ const Sidebar = () => {
   const username = userData?.username || "guest";
 
   const menuItems = [
-    { name: "Explore", icon: Compass, route: "/explore" },
+    { name: "Explore", icon: Compass, route: "/" },
     { name: "Contributions", icon: Award, route: "/my-contributions" },
     { name: "Favorites", icon: Heart, route: "/favourites" },
     { name: "Profile", icon: User, route: `/profile/${username}` },
@@ -36,7 +36,8 @@ const Sidebar = () => {
           <PanelRightOpen size={20} />
         </button>
       </div>
-      <nav className="flex flex-col gap-1.5 flex-1 overflow-y-auto no-scrollbar pb-4">
+
+      <nav className="flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar pb-4">
         {menuItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.route;
@@ -46,20 +47,19 @@ const Sidebar = () => {
               to={item.route}
               key={index}
               className={`
-                  group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
-                  text-lg font-medium tracking-wide outline-none focus-visible:ring-2 focus-visible:ring-blue-500
-                  ${
-                    isActive
-                      ? "bg-white/5 text-white"
-                      : item.isDanger
-                        ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                        : "text-gray-400 hover:text-gray-100 hover:bg-white/5"
-                  }
+                group flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-200 whitespace-nowrap font-semibold tracking-wide outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                ${
+                  isActive
+                    ? "bg-white/10 border border-white/20 text-white shadow-sm"
+                    : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                }
               `}
             >
               <Icon
-                className={`size-5 transition-transform duration-300 ${
-                  isActive ? "stroke-[2.5px]" : "stroke-2 group-hover:scale-110"
+                className={`w-5 h-5 transition-all duration-200 ${
+                  isActive
+                    ? "stroke-[2.5px]"
+                    : "stroke-2 opacity-70 group-hover:opacity-100 group-hover:scale-110"
                 }`}
               />
               {item.name}
@@ -70,22 +70,7 @@ const Sidebar = () => {
 
       {/* Bottom Section: User Preview */}
       {/* <div className="mt-auto pt-4 border-t border-white/10">
-        <Link
-          to={`/profile/${username}`}
-          className="group flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-2xl transition-all duration-300 cursor-pointer"
-        >
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-inner ring-2 ring-transparent group-hover:ring-blue-500/50 transition-all">
-            {username.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-bold text-gray-100 truncate group-hover:text-white transition-colors">
-              @{username}
-            </span>
-            <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">
-              Pro Member
-            </span>
-          </div>
-        </Link>
+        ...
       </div>*/}
     </aside>
   );

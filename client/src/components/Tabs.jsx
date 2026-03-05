@@ -70,7 +70,9 @@ const Tabs = ({ setTab, scriptId }) => {
         return (
           <div
             key={i}
-            className={`flex items-center ${t.isRight ? "ml-auto pl-2 border-l border-white/10" : ""}`}
+            className={`flex items-center ${
+              t.isRight ? "ml-auto pl-2 border-l border-white/10" : ""
+            }`}
           >
             <Link
               to={t.route}
@@ -78,13 +80,17 @@ const Tabs = ({ setTab, scriptId }) => {
               group flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 active:scale-95 whitespace-nowrap
               ${
                 isActive
-                  ? "bg-blue-600/20  border border-blue-500/50 text-blue-400"
-                  : "text-gray-400 hover:text-white hover:bg-white/10"
+                  ? "bg-white/5 border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                  : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
               }
               `}
             >
               <Icon
-                className={`w-4 h-4 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110 group-hover:-rotate-3"}`}
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isActive
+                    ? "scale-110"
+                    : "group-hover:scale-110 group-hover:-rotate-3"
+                }`}
               />
               <span>{t.name}</span>
             </Link>

@@ -5,7 +5,7 @@ import Genres from "../../components/Genres";
 import Search from "../../components/Search";
 import Scripts from "../../components/card/Scripts";
 import Loader from "../../components/Loader";
-import Add from "../../components/Add";
+import Add from "../../components/modal/Add";
 import { GET_SCRIPTS_BY_GENRES } from "../../graphql/query/scriptQueries";
 
 const Explore = () => {
@@ -25,15 +25,11 @@ const Explore = () => {
   return (
     <div className="w-full transition-colors font-mono duration-300 pb-12">
       {/* Main Container to restrict ultra-wide stretching */}
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="max-w-6xl mx-auto space-y-4">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div className="flex items-center gap-3">
-            {/* <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm">
-                            <Compass className="w-6 h-6" />
-                        </div> */}
-            {/* APPLIED INTER TO MAIN HEADING FOR CRISP UI ALIGNMENT */}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">
               Explore
             </h1>
           </div>
@@ -43,10 +39,10 @@ const Explore = () => {
             <div className="w-full sm:w-72">
               <Search setSearch={setSearch} />
             </div>
-            {/* APPLIED INTER TO CREATE BUTTON */}
+
             <button
               onClick={() => setOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-5 rounded-xl font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 "
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-gray-200 text-black py-2.5 px-5 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
             >
               <Plus className="w-5 h-5" />
               <span>Create</span>
@@ -54,7 +50,7 @@ const Explore = () => {
           </div>
         </div>
 
-        <hr className="border-gray-200 dark:border-gray-800" />
+        <hr className="border-white/10" />
 
         {/* Filters Section */}
         <div className="py-2">
@@ -64,20 +60,18 @@ const Explore = () => {
         {/* Content Area */}
         <div className="flex-1 mt-2">
           {error ? (
-            <div className="flex items-start gap-4 p-5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-2xl border border-red-200 dark:border-red-800/30 shadow-sm">
+            <div className="flex items-start gap-4 p-5 bg-red-900/20 text-red-400 rounded-2xl border border-red-800/30 shadow-sm">
               <AlertCircle className="w-6 h-6 shrink-0 mt-0.5 text-red-500" />
               <div>
-                {/* APPLIED INTER TO ERROR HEADING */}
-                <h3 className="font-bold text-lg mb-1 font-['Inter']">
+                <h3 className="font-bold text-lg mb-1 font-sans">
                   Failed to load scripts
                 </h3>
-                {/* APPLIED LITERATA TO ERROR DESCRIPTION FOR READABILITY */}
-                <p className="text-lg opacity-90 font-['Literata'] leading-relaxed">
+                <p className="text-sm opacity-90 font-mono leading-relaxed">
                   {error.message}
                 </p>
                 <button
                   onClick={() => refetch()}
-                  className="mt-3 text-sm font-bold underline hover:no-underline font-['Inter']"
+                  className="mt-3 text-sm font-bold underline hover:no-underline font-sans"
                 >
                   Try Again
                 </button>
@@ -88,8 +82,7 @@ const Explore = () => {
               <Loader />
             </div>
           ) : (
-            /* APPLIED LITERATA WRAPPER SO CARDS INHERIT THE HIGHLY LEGIBLE FONT */
-            <div className="font-['Literata']">
+            <div className="font-sans">
               <Scripts data={data} search={search} />
             </div>
           )}

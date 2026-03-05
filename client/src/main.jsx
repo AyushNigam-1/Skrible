@@ -26,6 +26,7 @@ import Contributors from "./pages/contributors/Contributors";
 import Explore from "./pages/explore/Explore";
 import DraftLayout from "./layout/DraftLayout";
 import Contribution from "./pages/contribution/Contribution";
+import DraftSettings from "./pages/setting/DraftSettings";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
           { path: "/contributors/:id", element: <Contributors /> },
           { path: "/about/:id", element: <ScriptDetails /> },
           { path: "/zen/:id", element: <ZenMode /> },
+          { path: "/settings/:id", element: <DraftSettings /> },
         ],
       },
     ],
@@ -79,20 +81,16 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <ApolloProvider client={client}>
     {/* GLOBAL WRAPPER: Handles Fonts & Full Screen constraints */}
-    <div className="relative min-h-screen w-full font-['Inter'] text-gray-900 dark:text-gray-100">
-      {/* GLOBAL BACKGROUND: Fixed so it never scrolls, sits behind everything */}
-      <div
-        className="fixed inset-0 z-[-2] bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/46-starry-night-soft-gradient.jpg')" }}
-      />
+    {/* <div className="relative min-h-screen w-full font-mono text-gray-900 dark:text-gray-100 ">*/}
+    {/* GLOBAL BACKGROUND: Fixed so it never scrolls, sits behind everything */}
 
-      {/* GLOBAL OVERLAY (Optional): Ensures text remains readable over the image */}
-      <div className="fixed inset-0 z-[-1] bg-white/60 dark:bg-gray-950/70 backdrop-blur-[2px]" />
+    {/* GLOBAL OVERLAY (Optional): Ensures text remains readable over the image */}
+    {/* <div className="fixed inset-0 z-[-1] bg-white/60 dark:bg-gray-950/70 backdrop-blur-[2px]" />*/}
 
-      {/* THE ACTUAL APP */}
-      <div className="relative z-0 flex flex-col min-h-screen">
-        <RouterProvider router={router} />
-      </div>
+    {/* THE ACTUAL APP */}
+    <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
+      <RouterProvider router={router} />
     </div>
+    {/* </div>*/}
   </ApolloProvider>,
 );

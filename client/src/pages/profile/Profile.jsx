@@ -123,7 +123,7 @@ const Profile = () => {
   const initial = userProfile?.username?.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="flex flex-col gap-10 w-full max-w-7xl mx-auto font-mono pb-20 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-10 w-full max-w-7xl mx-auto font-mono animate-in fade-in duration-500">
       {/* ========================================= */}
       {/* TOP SECTION: PROFILE INFO                 */}
       {/* ========================================= */}

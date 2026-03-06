@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import useElementHeight from "../hooks/useElementOffset";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Pin, PinOff, FileText } from "lucide-react";
@@ -9,9 +8,6 @@ const ZenMode = () => {
   const navigate = useNavigate();
   const { data } = useOutletContext();
   const [isPinned, setIsPinned] = useState(false);
-
-  const calculatedHeight = useElementHeight("zen-content");
-  const height = calculatedHeight || "80vh";
 
   const script = data?.getScriptById;
   const paragraphs = script?.paragraphs || [];

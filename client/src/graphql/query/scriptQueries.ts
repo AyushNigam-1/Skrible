@@ -48,6 +48,10 @@ export const GET_SCRIPTS_BY_GENRES = gql`
       title
       genres
       description
+      likes
+      languages
+      dislikes
+      createdAt
       author {
         username
       }

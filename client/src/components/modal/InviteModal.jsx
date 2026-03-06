@@ -17,7 +17,7 @@ import {
 const InviteModal = ({ isOpen, setIsOpen, scriptTitle }) => {
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
-  const inviteLink = window.location.href;
+  const inviteLink = typeof window !== "undefined" ? window.location.href : "";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink);
@@ -39,32 +39,33 @@ const InviteModal = ({ isOpen, setIsOpen, scriptTitle }) => {
         className="relative z-50"
         onClose={() => setIsOpen(false)}
       >
-        {/* Backdrop */}
+        {/* Improved Backdrop: Only animate opacity, keep blur static on the div for better performance */}
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
-          enterFrom="opacity-0 backdrop-blur-none"
-          enterTo="opacity-100 backdrop-blur-sm"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
           leave="ease-in duration-200"
-          leaveFrom="opacity-100 backdrop-blur-sm"
-          leaveTo="opacity-0 backdrop-blur-none"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 transition-opacity" />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
         </TransitionChild>
 
         {/* Modal Positioning */}
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            {/* Standardized Transition: Clean scale and fade pop-in */}
             <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
-              enterTo="opacity-100 scale-100 translate-y-0"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
               leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100 translate-y-0"
-              leaveTo="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-[#130f1c]/95 backdrop-blur-2xl p-6 shadow-2xl border border-white/10 transition-all">
+              <DialogPanel className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-[#130f1c]/95 backdrop-blur-2xl p-6 shadow-2xl border border-white/10 text-left align-middle transition-all">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-3">
@@ -77,7 +78,7 @@ const InviteModal = ({ isOpen, setIsOpen, scriptTitle }) => {
                   </div>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="text-gray-500 hover:text-white transition-colors"
+                    className="text-gray-500 hover:text-white transition-colors outline-none focus:ring-2 focus:ring-white/20 rounded-md"
                   >
                     <X size={18} />
                   </button>
@@ -105,7 +106,7 @@ const InviteModal = ({ isOpen, setIsOpen, scriptTitle }) => {
                     </div>
                     <button
                       onClick={handleCopy}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all font-mono ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all font-mono outline-none focus:ring-2 focus:ring-white/20 ${
                         copied
                           ? "bg-green-500/20 text-green-400 border border-green-500/30"
                           : "bg-white hover:bg-gray-200 text-black shadow-lg shadow-white/10"
@@ -150,7 +151,7 @@ const InviteModal = ({ isOpen, setIsOpen, scriptTitle }) => {
 
                   <button
                     type="submit"
-                    className="w-full py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-sm rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm font-mono tracking-wide"
+                    className="w-full py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-sm rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm font-mono tracking-wide outline-none focus:ring-2 focus:ring-white/30"
                   >
                     Send Invitation
                   </button>

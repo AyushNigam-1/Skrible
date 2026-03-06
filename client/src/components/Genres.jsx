@@ -33,7 +33,7 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
               key={genre.name}
               onClick={() => handleSelection(genre.name)}
               className={`
-                group flex items-center gap-2 px-4 py-2 rounded-full font-mono text-sm font-semibold transition-all duration-300 active:scale-95 backdrop-blur-md
+                group flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-semibold transition-all duration-300 active:scale-95 backdrop-blur-md
                 ${
                   isSelected
                     ? "bg-white/10 border border-white/30 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"

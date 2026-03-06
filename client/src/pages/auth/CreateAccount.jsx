@@ -1,104 +1,181 @@
-import React, { useState } from 'react'
-import { useMutation } from '@apollo/client';
-import { Link, useNavigate } from 'react-router-dom';
-import { REGISTER_MUTATION } from '../../graphql/mutation/userMutations';
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { Feather, Loader2, Mail, Lock, User } from "lucide-react";
+import { REGISTER_MUTATION } from "../../graphql/mutation/userMutations";
+
 const CreateAccount = () => {
-    const nav = useNavigate()
+  const nav = useNavigate();
 
-    const [register, { loading }] = useMutation(REGISTER_MUTATION);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const [register, { loading }] = useMutation(REGISTER_MUTATION);
 
-        try {
-            const response = await register({ variables: { username: formData.username, email: formData.email, password: formData.password } });
-            const user = response.data.register
-            localStorage.setItem('user', JSON.stringify({ id: user.id, username: user.username }));
-            nav("/")
-        } catch (err) {
-            console.error('Register failed:', err.message);
-        }
-    };
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    try {
+      const response = await register({
+        variables: {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        },
+      });
+      const user = response.data.register;
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ id: user.id, username: user.username }),
+      );
+      toast.success("Account created successfully!");
+      nav("/");
+    } catch (err) {
+      toast.error(err.message);
+      console.error("Register failed:", err.message);
+    }
+  };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    return (
-        <div className="max-w-md w-full flex flex-col gap-4 ">
-            <div className='bg-white rounded-full p-2 w-min mx-auto' >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-12  text-gray-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-            </div>
-            <h1 className="text-4xl text-gray-700 font-extrabold text-center ">Create Account</h1>
-            <p className="text-sm  text-gray-500 text-center">
-                Join our community with all-time access for free
-            </p>
-            <div className="flex flex-col lg:flex-row items-center justify-between">
-                <button className="w-full flex justify-center items-center gap-1 bg-white text-sm text-gray-600  rounded-md hover:bg-gray-50 border border-gray-200 transition-colors duration-300 p-2">
-                    <img src="/google.png" alt="Google" className="w-5" /> Sign Up with Google
-                </button>
-            </div>
-            <div className="text-sm text-gray-500 text-center">
-                <p>or with email</p>
-            </div>
-            <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-                <div>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        placeholder='Username'
-                        value={formData.username}
-                        onChange={handleChange}
-                        className="mt-1 p-2 w-full border rounded-md focus:ring-gray-300 transition-colors duration-300"
-                    />
-                </div>
-                <div>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder='Email'
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="mt-1 p-2 w-full border rounded-md focus:ring-gray-300 transition-colors duration-300"
-                    />
-                </div>
-                <div>
+  // Premium Input Styling (Matches Login component)
+  const inputWrapperClass = "relative flex items-center w-full group";
+  const iconClass =
+    "absolute left-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors";
+  const inputClass =
+    "w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-black/40 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all outline-none placeholder:text-transparent peer shadow-sm dark:shadow-inner font-['Inter']";
+  const floatingLabelClass =
+    "absolute left-12 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm transition-all peer-focus:-top-2 peer-focus:left-4 peer-focus:text-xs peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:bg-white dark:peer-focus:bg-[#11131A] peer-focus:px-2 peer-focus:rounded-full peer-valid:-top-2 peer-valid:left-4 peer-valid:text-xs peer-valid:bg-white dark:peer-valid:bg-[#11131A] peer-valid:px-2 peer-valid:rounded-full pointer-events-none";
 
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder='Password'
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="mt-1 p-2 w-full border rounded-md focus:ring-gray-300 transition-colors duration-300"
-                    />
-                </div>
-                <button type="submit" className="w-full bg-gray-800 text-white p-2 rounded-md hover:bg-gray-800 transition-colors duration-300 font-semibold">
-                    {loading ?
-                        <svg aria-hidden="true" class="size-6 mx-auto text-gray-200 animate-spin dark:text-gray-600 fill-white" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-                        </svg> : 'Create Account'}
-                </button>
-            </form>
-            <div className="text-sm text-gray-600 text-center">
-                <p>
-                    Already have an account? <Link to="/login" className="text-black hover:underline">Login here</Link>
-                </p>
-            </div>
+  return (
+    <div className="w-full max-w-md mx-auto flex flex-col gap-8 p-6 sm:p-10 bg-white dark:bg-[#11131A]/80 dark:backdrop-blur-2xl rounded-[2.5rem] shadow-2xl dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-white/10 relative overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+      {/* Subtle background glow for dark mode */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none hidden dark:block" />
+
+      {/* --- Header --- */}
+      <div className="flex flex-col items-center text-center gap-3 relative z-10">
+        <div className="bg-amber-50 dark:bg-white/5 border border-amber-100 dark:border-white/10 rounded-full p-4 shadow-sm mb-2">
+          <Feather
+            className="w-8 h-8 text-amber-600 dark:text-amber-100/80"
+            strokeWidth={1.5}
+          />
         </div>
-    )
-}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white font-['Playfair_Display'] tracking-tight">
+          Join Skribe
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 font-['Literata'] text-sm sm:text-base">
+          Start your journey and collaborate with writers worldwide.
+        </p>
+      </div>
 
-export default CreateAccount
+      {/* --- Social Login --- */}
+      <div className="flex flex-col gap-4 relative z-10">
+        <button className="w-full flex justify-center items-center gap-3 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all duration-300 py-3.5 shadow-sm active:scale-[0.98]">
+          <img src="/google.png" alt="Google" className="w-5 h-5" />
+          Sign up with Google
+        </button>
+      </div>
+
+      {/* --- Divider --- */}
+      <div className="flex items-center gap-4 relative z-10">
+        <hr className="flex-grow border-gray-200 dark:border-white/10" />
+        <span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold font-['Inter']">
+          OR EMAIL
+        </span>
+        <hr className="flex-grow border-gray-200 dark:border-white/10" />
+      </div>
+
+      {/* --- Registration Form --- */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-5 relative z-10"
+      >
+        <div className={inputWrapperClass}>
+          <User className={iconClass} />
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            value={formData.username}
+            onChange={handleChange}
+            className={inputClass}
+          />
+          <label htmlFor="username" className={floatingLabelClass}>
+            Username
+          </label>
+        </div>
+
+        <div className={inputWrapperClass}>
+          <Mail className={iconClass} />
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            className={inputClass}
+          />
+          <label htmlFor="email" className={floatingLabelClass}>
+            Email Address
+          </label>
+        </div>
+
+        <div className={inputWrapperClass}>
+          <Lock className={iconClass} />
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+            className={inputClass}
+          />
+          <label htmlFor="password" className={floatingLabelClass}>
+            Password
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={
+            loading ||
+            !formData.username ||
+            !formData.email ||
+            !formData.password
+          }
+          className="w-full flex justify-center items-center gap-2 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black py-4 rounded-2xl transition-all duration-300 font-bold text-base shadow-lg shadow-gray-900/20 dark:shadow-white/10 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 font-['Inter']"
+        >
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            "Create Account"
+          )}
+        </button>
+      </form>
+
+      {/* --- Footer --- */}
+      <div className="text-sm text-gray-500 dark:text-gray-400 text-center font-['Inter'] relative z-10 mt-2">
+        <p>
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-bold text-gray-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 transition-colors underline decoration-transparent hover:decoration-current underline-offset-4"
+          >
+            Log in here
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default CreateAccount;

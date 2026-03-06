@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Plus, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react"; // Removed 'Plus' as it moved to Add component
 import Genres from "../../components/Genres";
 import Search from "../../components/Search";
 import Scripts from "../../components/card/Scripts";
 import Loader from "../../components/Loader";
-import Add from "../../components/modal/Add";
+import Add from "../../components/modal/AddDraft";
 import { GET_SCRIPTS_BY_GENRES } from "../../graphql/query/scriptQueries";
 
 const Explore = () => {
   const [genres, setGenres] = useState([]);
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery(GET_SCRIPTS_BY_GENRES, {
     variables: { genres },
@@ -23,13 +22,13 @@ const Explore = () => {
   };
 
   return (
-    <div className="w-full transition-colors font-mono duration-300 pb-12">
+    <div className="w-full transition-colors font-mono duration-300">
       {/* Main Container to restrict ultra-wide stretching */}
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-7xl mx-auto space-y-4">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased ">
               Explore
             </h1>
           </div>
@@ -40,13 +39,8 @@ const Explore = () => {
               <Search setSearch={setSearch} />
             </div>
 
-            <button
-              onClick={() => setOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-gray-200 text-black py-2.5 px-5 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Create</span>
-            </button>
+            {/* The Add component now handles both the trigger button and the modal logic */}
+            <Add />
           </div>
         </div>
 
@@ -88,9 +82,6 @@ const Explore = () => {
           )}
         </div>
       </div>
-
-      {/* Add Script Modal */}
-      <Add open={open} setOpen={setOpen} />
     </div>
   );
 };

@@ -10,7 +10,7 @@ import {
   Lock,
 } from "lucide-react";
 import { GET_USER_FAVOURITES } from "../../graphql/query/userQueries";
-import Search from "../../components/Search";
+import Search from "../../components/layout/Search";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

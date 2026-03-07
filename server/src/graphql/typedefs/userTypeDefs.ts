@@ -8,7 +8,7 @@ export const userTypeDefs = gql`
     token: String!
     languages: [String]
     bio: String
-    favourites:[ID]
+    favourites: [ID]
     interests: [String]
     contibutions: [ID]
     likes: [ID]
@@ -18,15 +18,15 @@ export const userTypeDefs = gql`
     follows: [ID]
   }
   type UserContribution {
-  id: ID!
-  status: String!
-  text: String!
-  likes: Int!
-  dislikes: Int!
-  createdAt: String!
-  script: Script!
-  comments: [Comment!]!
-}
+    id: ID!
+    status: String!
+    text: String!
+    likes: [ID!]!
+    dislikes: [ID!]!
+    createdAt: String!
+    script: Script!
+    comments: [Comment!]!
+  }
 
   type Query {
     getUserProfile(username: String!): User
@@ -47,5 +47,4 @@ export const userTypeDefs = gql`
       interests: [String!]
     ): User!
   }
-    
 `;

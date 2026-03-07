@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
   Languages,
@@ -9,56 +9,71 @@ import {
   Heart,
   Eye,
   Users,
-  Settings,
-  Rss,
   MapPin,
   CalendarDays,
   Plus,
   SearchX,
   AlertCircle,
-  FileText,
 } from "lucide-react";
+
+// Import the generated hooks
 import {
-  GET_USER_PROFILE,
-  GET_USER_SCRIPTS,
-} from "../../graphql/query/userQueries";
-import Loader from "../../components/Loader";
-import Search from "../../components/Search";
-import Scripts from "../../components/card/Scripts";
+  useGetUserProfileQuery,
+  useGetUserScriptsQuery,
+} from "../../graphql/generated/graphql";
+
+import Loader from "../../components/layout/Loader";
+import Search from "../../components/layout/Search";
+import DraftCard from "../../components/card/DraftCard";
 
 const Profile = () => {
-  const { username } = useParams();
+  const { username } = useParams<{ username: string }>();
   const [search, setSearch] = useState("");
 
-  // Safely parse current user from localStorage
   const storedUser = localStorage.getItem("user");
   const currentUser = storedUser ? JSON.parse(storedUser).username : null;
   const isOwnProfile = currentUser === username;
 
-  // 1. Fetch Profile Data
+  // 1. Fetch Profile Data using generated hook
   const {
     data: profileData,
     loading: profileLoading,
     error: profileError,
-  } = useQuery(GET_USER_PROFILE, {
-    variables: { username },
+  } = useGetUserProfileQuery({
+    variables: { username: username || "" },
     skip: !username,
   });
 
   const userProfile = profileData?.getUserProfile;
-  const profileUserId = userProfile?.id; // Needed to fetch scripts
+  const profileUserId = userProfile?.id;
 
-  // 2. Fetch User's Scripts (Only runs once we have the profileUserId)
+  // 2. Fetch User's Scripts using generated hook
   const {
     data: scriptsData,
     loading: scriptsLoading,
     error: scriptsError,
-  } = useQuery(GET_USER_SCRIPTS, {
-    variables: { userId: profileUserId },
+  } = useGetUserScriptsQuery({
+    variables: { userId: profileUserId || "" },
     skip: !profileUserId,
   });
 
-  if (profileLoading) return <Loader height="70vh" />;
+  // Memoize the filtering logic
+  const filteredScripts = useMemo(() => {
+    return scriptsData?.getUserScripts?.filter((script) =>
+      script?.title?.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [scriptsData, search]);
+
+  // Framer Motion container variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 },
+    },
+  };
+
+  if (profileLoading) return <Loader />;
 
   if (profileError) {
     return (
@@ -129,23 +144,6 @@ const Profile = () => {
       {/* ========================================= */}
 
       <div className="flex flex-col gap-6">
-        {/* --- Header (Glassmorphism) --- */}
-        {/* <div className="flex justify-between items-center bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-lg">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight ml-2">
-            {isOwnProfile ? "My Profile" : "User Profile"}
-          </h1>
-
-          {isOwnProfile && (
-            <Link
-              to="/setting"
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-semibold py-2.5 px-5 rounded-2xl transition-all duration-200 shadow-sm active:scale-95"
-            >
-              <Settings size={20} />
-              Settings
-            </Link>
-          )}
-        </div>*/}
-
         <div className="flex flex-col lg:flex-row gap-6">
           {/* --- Left Sidebar (Avatar & Actions) --- */}
           <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
@@ -198,7 +196,7 @@ const Profile = () => {
               {!isOwnProfile && (
                 <div className="flex flex-col gap-3 mt-2">
                   <button className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-900/20 transition-all active:scale-95">
-                    <Rss className="w-5 h-5" /> Follow
+                    <User className="w-5 h-5" /> Follow
                   </button>
                   <button className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-bold rounded-2xl transition-all active:scale-95">
                     <Heart className="w-5 h-5 text-pink-500" /> Like Profile
@@ -241,8 +239,12 @@ const Profile = () => {
 
       <hr className="border-t border-t-gray-600" />
 
+      {/* ========================================= */}
+      {/* BOTTOM SECTION: DRAFTS/SCRIPTS            */}
+      {/* ========================================= */}
+
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 shadow-lg">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <h2 className="text-3xl font-bold text-white tracking-tight">
             {isOwnProfile ? "Drafts" : "Published Drafts"}
           </h2>
@@ -282,7 +284,7 @@ const Profile = () => {
             <div className="flex justify-center items-center min-h-[300px]">
               <Loader />
             </div>
-          ) : scriptsData?.getUserScripts?.length === 0 ? (
+          ) : !filteredScripts || filteredScripts.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-20 px-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg">
               <div className="bg-white/5 p-5 rounded-full mb-5 border border-white/10">
                 <SearchX className="w-10 h-10 text-gray-400" />
@@ -291,11 +293,13 @@ const Profile = () => {
                 No scripts available
               </h3>
               <p className="text-gray-400 max-w-md mb-6 leading-relaxed">
-                {isOwnProfile
-                  ? "You haven't created any stories or drafts yet. Click the button below to start your creative journey."
-                  : "This user hasn't published any scripts yet."}
+                {search
+                  ? "No drafts found matching your search."
+                  : isOwnProfile
+                    ? "You haven't created any stories or drafts yet. Click the button below to start your creative journey."
+                    : "This user hasn't published any scripts yet."}
               </p>
-              {isOwnProfile && (
+              {isOwnProfile && !search && (
                 <Link
                   to="/add"
                   className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-900/20 transition-all active:scale-95"
@@ -306,10 +310,18 @@ const Profile = () => {
               )}
             </div>
           ) : (
-            <Scripts
-              data={{ getScriptsByGenres: scriptsData.getUserScripts }}
-              search={search}
-            />
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 font-sans"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredScripts.map((script) => (
+                  <DraftCard key={script!.id} script={script!} />
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
         </div>
       </div>

@@ -7,12 +7,29 @@ import {
   Info,
   Maximize,
   Settings,
+  LucideIcon,
 } from "lucide-react";
 
-const Tabs = ({ setTab, scriptId }) => {
+// 1. Added 'tab' to the interface
+interface TabsProps {
+  setTab?: (tab: string) => void;
+  tab?: string; // <-- This fixes the error!
+  scriptId?: string;
+}
+
+interface TabItem {
+  icon: LucideIcon;
+  name: string;
+  pathMatch: string;
+  route: string;
+  isRight?: boolean;
+}
+
+// 2. Destructure 'tab' here (even if we mainly use location for active states)
+const Tabs = ({ setTab, tab, scriptId }: TabsProps) => {
   const location = useLocation();
 
-  const tabs = [
+  const tabs: TabItem[] = [
     {
       icon: FileText,
       name: "Timeline",
@@ -59,7 +76,7 @@ const Tabs = ({ setTab, scriptId }) => {
     if (currentTab && setTab) {
       setTab(currentTab.name);
     }
-  }, [location.pathname, setTab]);
+  }, [location.pathname, setTab, tabs]);
 
   return (
     <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar font-mono text-sm font-bold uppercase tracking-widest w-full">

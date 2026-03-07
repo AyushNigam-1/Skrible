@@ -1,6 +1,12 @@
 import { Tag, XCircle } from "lucide-react";
 
-const Genres = ({ selectedGenres, onGenreChange }) => {
+// 1. Define the props interface
+interface GenresProps {
+  selectedGenres: string[];
+  onGenreChange: (genres: string[]) => void;
+}
+
+const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
   const genres = [
     { name: "Fantasy" },
     { name: "Science Fiction" },
@@ -14,7 +20,8 @@ const Genres = ({ selectedGenres, onGenreChange }) => {
     // { name: "Young Adult" },
   ];
 
-  const handleSelection = (genreName) => {
+  // 2. Add type to the event handler parameter
+  const handleSelection = (genreName: string) => {
     const updatedGenres = selectedGenres.includes(genreName)
       ? selectedGenres.filter((g) => g !== genreName)
       : [...selectedGenres, genreName];

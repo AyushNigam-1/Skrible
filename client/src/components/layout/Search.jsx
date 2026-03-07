@@ -1,5 +1,3 @@
-import React from "react";
-
 const Search = ({ setSearch, placeholder = "Search..." }) => {
   return (
     <div className="relative group">

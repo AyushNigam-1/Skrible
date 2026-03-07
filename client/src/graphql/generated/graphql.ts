@@ -1,0 +1,1704 @@
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
+export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+const defaultOptions = {} as const;
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+};
+
+export type Author = {
+  __typename?: 'Author';
+  email?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type Comment = {
+  __typename?: 'Comment';
+  author: Author;
+  createdAt: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type CommentInput = {
+  createdAt: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+};
+
+export type Contributor = {
+  __typename?: 'Contributor';
+  details: ContributorDetails;
+  userId: Scalars['ID']['output'];
+};
+
+export type ContributorDetails = {
+  __typename?: 'ContributorDetails';
+  name: Scalars['String']['output'];
+  paragraphs: Array<Paragraph>;
+};
+
+export type ExportedDocument = {
+  __typename?: 'ExportedDocument';
+  content: Scalars['String']['output'];
+  contentType: Scalars['String']['output'];
+  filename: Scalars['String']['output'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  acceptRequest: Scalars['Boolean']['output'];
+  addComment: Paragraph;
+  approveParagraph: MutationResponse;
+  createRequest: Request;
+  createScript: Script;
+  deleteScript: MutationResponse;
+  dislikeParagraph: MutationResponse;
+  dislikeScript: MutationResponse;
+  likeParagraph: MutationResponse;
+  likeScript: MutationResponse;
+  login?: Maybe<User>;
+  logout: Scalars['Boolean']['output'];
+  markAsFavourite: MutationResponse;
+  markAsInterested: MutationResponse;
+  markAsNotInterested: MutationResponse;
+  register?: Maybe<User>;
+  rejectParagraph: MutationResponse;
+  submitParagraph: Paragraph;
+  toggleBookmark: MutationResponse;
+  updateScript: Script;
+  updateUserProfile: User;
+};
+
+
+export type MutationAcceptRequestArgs = {
+  requestId: Scalars['ID']['input'];
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationAddCommentArgs = {
+  paragraphId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+};
+
+
+export type MutationApproveParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateRequestArgs = {
+  scriptId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+};
+
+
+export type MutationCreateScriptArgs = {
+  description: Scalars['String']['input'];
+  genres: Array<Scalars['String']['input']>;
+  languages: Array<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  visibility: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteScriptArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationDislikeParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
+export type MutationDislikeScriptArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationLikeParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
+export type MutationLikeScriptArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationLoginArgs = {
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
+
+export type MutationMarkAsFavouriteArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationMarkAsInterestedArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationMarkAsNotInterestedArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationRegisterArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
+
+export type MutationRejectParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
+export type MutationSubmitParagraphArgs = {
+  scriptId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+};
+
+
+export type MutationToggleBookmarkArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateScriptArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  scriptId: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateUserProfileArgs = {
+  bio?: InputMaybe<Scalars['String']['input']>;
+  interests?: InputMaybe<Array<Scalars['String']['input']>>;
+  languages?: InputMaybe<Array<Scalars['String']['input']>>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type MutationResponse = {
+  __typename?: 'MutationResponse';
+  status: Scalars['Boolean']['output'];
+};
+
+export type Paragraph = {
+  __typename?: 'Paragraph';
+  author: Author;
+  comments: Array<Comment>;
+  createdAt: Scalars['String']['output'];
+  dislikes: Array<Scalars['ID']['output']>;
+  id: Scalars['ID']['output'];
+  likes: Array<Scalars['ID']['output']>;
+  script: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type Query = {
+  __typename?: 'Query';
+  exportDocument: ExportedDocument;
+  getAllScripts: Array<Script>;
+  getCombinedText: Scalars['String']['output'];
+  getParagraphById?: Maybe<Paragraph>;
+  getPendingParagraphs: Array<Paragraph>;
+  getScriptById?: Maybe<Script>;
+  getScriptContributors: ScriptContributors;
+  getScriptsByGenres: Array<Script>;
+  getUserContributions: Array<UserContribution>;
+  getUserFavourites: Array<Script>;
+  getUserProfile?: Maybe<User>;
+  getUserScripts: Array<Script>;
+};
+
+
+export type QueryExportDocumentArgs = {
+  format: Scalars['String']['input'];
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCombinedTextArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetParagraphByIdArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetPendingParagraphsArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetScriptByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetScriptContributorsArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetScriptsByGenresArgs = {
+  genres: Array<Scalars['String']['input']>;
+};
+
+
+export type QueryGetUserContributionsArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetUserFavouritesArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetUserProfileArgs = {
+  username: Scalars['String']['input'];
+};
+
+
+export type QueryGetUserScriptsArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+export type Request = {
+  __typename?: 'Request';
+  _id: Scalars['ID']['output'];
+  author: Author;
+  comments: Array<Comment>;
+  createdAt: Scalars['String']['output'];
+  dislikes: Scalars['Int']['output'];
+  likes: Scalars['Int']['output'];
+  scriptId?: Maybe<Scalars['ID']['output']>;
+  scriptTitle?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type Script = {
+  __typename?: 'Script';
+  author: Author;
+  combinedText?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  dislikes: Array<Scalars['ID']['output']>;
+  genres: Array<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  languages: Array<Scalars['String']['output']>;
+  likes: Array<Scalars['ID']['output']>;
+  paragraphs: Array<Paragraph>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
+  visibility: Scalars['String']['output'];
+};
+
+export type ScriptContributors = {
+  __typename?: 'ScriptContributors';
+  contributors: Array<Contributor>;
+};
+
+export type User = {
+  __typename?: 'User';
+  bio?: Maybe<Scalars['String']['output']>;
+  contibutions?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  email: Scalars['String']['output'];
+  favourites?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  followers?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  follows?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  id?: Maybe<Scalars['ID']['output']>;
+  interests?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  languages?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  likes?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  scripts?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+  token: Scalars['String']['output'];
+  username: Scalars['String']['output'];
+  views?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
+};
+
+export type UserContribution = {
+  __typename?: 'UserContribution';
+  comments: Array<Comment>;
+  createdAt: Scalars['String']['output'];
+  dislikes: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  likes: Scalars['Int']['output'];
+  script: Script;
+  status: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type CreateScriptMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  visibility: Scalars['String']['input'];
+  languages: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  genres: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  description: Scalars['String']['input'];
+}>;
+
+
+export type CreateScriptMutation = { __typename?: 'Mutation', createScript: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, author: { __typename?: 'Author', username: string } } };
+
+export type SubmitParagraphMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type SubmitParagraphMutation = { __typename?: 'Mutation', submitParagraph: { __typename?: 'Paragraph', id: string, status: string, text: string, createdAt: string } };
+
+export type ApproveParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type ApproveParagraphMutation = { __typename?: 'Mutation', approveParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type RejectParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type RejectParagraphMutation = { __typename?: 'Mutation', rejectParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type LikeParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type LikeParagraphMutation = { __typename?: 'Mutation', likeParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type DislikeParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type DislikeParagraphMutation = { __typename?: 'Mutation', dislikeParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type DeleteScriptMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteScriptMutation = { __typename?: 'Mutation', deleteScript: { __typename?: 'MutationResponse', status: boolean } };
+
+export type AddCommentMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type AddCommentMutation = { __typename?: 'Mutation', addComment: { __typename?: 'Paragraph', id: string, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } };
+
+export type LikeScriptMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type LikeScriptMutation = { __typename?: 'Mutation', likeScript: { __typename?: 'MutationResponse', status: boolean } };
+
+export type DislikeScriptMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type DislikeScriptMutation = { __typename?: 'Mutation', dislikeScript: { __typename?: 'MutationResponse', status: boolean } };
+
+export type UpdateScriptMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UpdateScriptMutation = { __typename?: 'Mutation', updateScript: { __typename?: 'Script', id: string, title: string, description: string, visibility: string } };
+
+export type RegisterMutationVariables = Exact<{
+  username: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type RegisterMutation = { __typename?: 'Mutation', register?: { __typename?: 'User', id?: string | null, username: string, email: string, token: string } | null };
+
+export type LoginMutationVariables = Exact<{
+  username: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'User', id?: string | null, username: string, email: string, token: string } | null };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
+
+export type ToggleBookmarkMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type ToggleBookmarkMutation = { __typename?: 'Mutation', toggleBookmark: { __typename?: 'MutationResponse', status: boolean } };
+
+export type UpdateUserProfileMutationVariables = Exact<{
+  username?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  languages?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  interests?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile: { __typename?: 'User', id?: string | null, username: string, bio?: string | null, languages?: Array<string | null> | null, interests?: Array<string | null> | null } };
+
+export type GetParagraphByIdQueryVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, script: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } | null };
+
+export type GetPendingParagraphsQueryVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type GetPendingParagraphsQuery = { __typename?: 'Query', getPendingParagraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, createdAt: string, status: string, author: { __typename?: 'Author', username: string } }> };
+
+export type ExportDocumentQueryVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  format: Scalars['String']['input'];
+}>;
+
+
+export type ExportDocumentQuery = { __typename?: 'Query', exportDocument: { __typename?: 'ExportedDocument', filename: string, content: string, contentType: string } };
+
+export type GetScriptByIdQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetScriptByIdQuery = { __typename?: 'Query', getScriptById?: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, createdAt: string, combinedText?: string | null, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', username: string }, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> } | null };
+
+export type GetScriptsByGenresQueryVariables = Exact<{
+  genres: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type GetScriptsByGenresQuery = { __typename?: 'Query', getScriptsByGenres: Array<{ __typename?: 'Script', id: string, title: string, genres: Array<string>, description: string, likes: Array<string>, languages: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', username: string } }> };
+
+export type GetScriptContributorsQueryVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type GetScriptContributorsQuery = { __typename?: 'Query', getScriptContributors: { __typename?: 'ScriptContributors', contributors: Array<{ __typename?: 'Contributor', userId: string, details: { __typename?: 'ContributorDetails', name: string, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> } }> } };
+
+export type GetUserProfileQueryVariables = Exact<{
+  username: Scalars['String']['input'];
+}>;
+
+
+export type GetUserProfileQuery = { __typename?: 'Query', getUserProfile?: { __typename?: 'User', id?: string | null, username: string, email: string, bio?: string | null, languages?: Array<string | null> | null, interests?: Array<string | null> | null, likes?: Array<string | null> | null, followers?: Array<string | null> | null, follows?: Array<string | null> | null, views?: Array<string | null> | null } | null };
+
+export type GetUserScriptsQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type GetUserScriptsQuery = { __typename?: 'Query', getUserScripts: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', username: string } }> };
+
+export type GetUserContributionsQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type GetUserContributionsQuery = { __typename?: 'Query', getUserContributions: Array<{ __typename?: 'UserContribution', id: string, status: string, text: string, likes: number, dislikes: number, createdAt: string, script: { __typename?: 'Script', id: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> };
+
+export type GetUserFavouritesQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type GetUserFavouritesQuery = { __typename?: 'Query', getUserFavourites: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', username: string } }> };
+
+
+export const CreateScriptDocument = gql`
+    mutation CreateScript($title: String!, $visibility: String!, $languages: [String!]!, $genres: [String!]!, $description: String!) {
+  createScript(
+    title: $title
+    visibility: $visibility
+    languages: $languages
+    genres: $genres
+    description: $description
+  ) {
+    id
+    title
+    visibility
+    languages
+    genres
+    description
+    author {
+      username
+    }
+  }
+}
+    `;
+export type CreateScriptMutationFn = Apollo.MutationFunction<CreateScriptMutation, CreateScriptMutationVariables>;
+
+/**
+ * __useCreateScriptMutation__
+ *
+ * To run a mutation, you first call `useCreateScriptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateScriptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createScriptMutation, { data, loading, error }] = useCreateScriptMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      visibility: // value for 'visibility'
+ *      languages: // value for 'languages'
+ *      genres: // value for 'genres'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useCreateScriptMutation(baseOptions?: Apollo.MutationHookOptions<CreateScriptMutation, CreateScriptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateScriptMutation, CreateScriptMutationVariables>(CreateScriptDocument, options);
+      }
+export type CreateScriptMutationHookResult = ReturnType<typeof useCreateScriptMutation>;
+export type CreateScriptMutationResult = Apollo.MutationResult<CreateScriptMutation>;
+export type CreateScriptMutationOptions = Apollo.BaseMutationOptions<CreateScriptMutation, CreateScriptMutationVariables>;
+export const SubmitParagraphDocument = gql`
+    mutation SubmitParagraph($scriptId: ID!, $text: String!) {
+  submitParagraph(scriptId: $scriptId, text: $text) {
+    id
+    status
+    text
+    createdAt
+  }
+}
+    `;
+export type SubmitParagraphMutationFn = Apollo.MutationFunction<SubmitParagraphMutation, SubmitParagraphMutationVariables>;
+
+/**
+ * __useSubmitParagraphMutation__
+ *
+ * To run a mutation, you first call `useSubmitParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSubmitParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [submitParagraphMutation, { data, loading, error }] = useSubmitParagraphMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useSubmitParagraphMutation(baseOptions?: Apollo.MutationHookOptions<SubmitParagraphMutation, SubmitParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SubmitParagraphMutation, SubmitParagraphMutationVariables>(SubmitParagraphDocument, options);
+      }
+export type SubmitParagraphMutationHookResult = ReturnType<typeof useSubmitParagraphMutation>;
+export type SubmitParagraphMutationResult = Apollo.MutationResult<SubmitParagraphMutation>;
+export type SubmitParagraphMutationOptions = Apollo.BaseMutationOptions<SubmitParagraphMutation, SubmitParagraphMutationVariables>;
+export const ApproveParagraphDocument = gql`
+    mutation ApproveParagraph($paragraphId: ID!) {
+  approveParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type ApproveParagraphMutationFn = Apollo.MutationFunction<ApproveParagraphMutation, ApproveParagraphMutationVariables>;
+
+/**
+ * __useApproveParagraphMutation__
+ *
+ * To run a mutation, you first call `useApproveParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveParagraphMutation, { data, loading, error }] = useApproveParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useApproveParagraphMutation(baseOptions?: Apollo.MutationHookOptions<ApproveParagraphMutation, ApproveParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveParagraphMutation, ApproveParagraphMutationVariables>(ApproveParagraphDocument, options);
+      }
+export type ApproveParagraphMutationHookResult = ReturnType<typeof useApproveParagraphMutation>;
+export type ApproveParagraphMutationResult = Apollo.MutationResult<ApproveParagraphMutation>;
+export type ApproveParagraphMutationOptions = Apollo.BaseMutationOptions<ApproveParagraphMutation, ApproveParagraphMutationVariables>;
+export const RejectParagraphDocument = gql`
+    mutation RejectParagraph($paragraphId: ID!) {
+  rejectParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type RejectParagraphMutationFn = Apollo.MutationFunction<RejectParagraphMutation, RejectParagraphMutationVariables>;
+
+/**
+ * __useRejectParagraphMutation__
+ *
+ * To run a mutation, you first call `useRejectParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectParagraphMutation, { data, loading, error }] = useRejectParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useRejectParagraphMutation(baseOptions?: Apollo.MutationHookOptions<RejectParagraphMutation, RejectParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RejectParagraphMutation, RejectParagraphMutationVariables>(RejectParagraphDocument, options);
+      }
+export type RejectParagraphMutationHookResult = ReturnType<typeof useRejectParagraphMutation>;
+export type RejectParagraphMutationResult = Apollo.MutationResult<RejectParagraphMutation>;
+export type RejectParagraphMutationOptions = Apollo.BaseMutationOptions<RejectParagraphMutation, RejectParagraphMutationVariables>;
+export const LikeParagraphDocument = gql`
+    mutation LikeParagraph($paragraphId: ID!) {
+  likeParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type LikeParagraphMutationFn = Apollo.MutationFunction<LikeParagraphMutation, LikeParagraphMutationVariables>;
+
+/**
+ * __useLikeParagraphMutation__
+ *
+ * To run a mutation, you first call `useLikeParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeParagraphMutation, { data, loading, error }] = useLikeParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useLikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<LikeParagraphMutation, LikeParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LikeParagraphMutation, LikeParagraphMutationVariables>(LikeParagraphDocument, options);
+      }
+export type LikeParagraphMutationHookResult = ReturnType<typeof useLikeParagraphMutation>;
+export type LikeParagraphMutationResult = Apollo.MutationResult<LikeParagraphMutation>;
+export type LikeParagraphMutationOptions = Apollo.BaseMutationOptions<LikeParagraphMutation, LikeParagraphMutationVariables>;
+export const DislikeParagraphDocument = gql`
+    mutation DislikeParagraph($paragraphId: ID!) {
+  dislikeParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type DislikeParagraphMutationFn = Apollo.MutationFunction<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
+
+/**
+ * __useDislikeParagraphMutation__
+ *
+ * To run a mutation, you first call `useDislikeParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDislikeParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [dislikeParagraphMutation, { data, loading, error }] = useDislikeParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useDislikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DislikeParagraphMutation, DislikeParagraphMutationVariables>(DislikeParagraphDocument, options);
+      }
+export type DislikeParagraphMutationHookResult = ReturnType<typeof useDislikeParagraphMutation>;
+export type DislikeParagraphMutationResult = Apollo.MutationResult<DislikeParagraphMutation>;
+export type DislikeParagraphMutationOptions = Apollo.BaseMutationOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
+export const DeleteScriptDocument = gql`
+    mutation DeleteScript($scriptId: ID!) {
+  deleteScript(scriptId: $scriptId) {
+    status
+  }
+}
+    `;
+export type DeleteScriptMutationFn = Apollo.MutationFunction<DeleteScriptMutation, DeleteScriptMutationVariables>;
+
+/**
+ * __useDeleteScriptMutation__
+ *
+ * To run a mutation, you first call `useDeleteScriptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteScriptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteScriptMutation, { data, loading, error }] = useDeleteScriptMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useDeleteScriptMutation(baseOptions?: Apollo.MutationHookOptions<DeleteScriptMutation, DeleteScriptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteScriptMutation, DeleteScriptMutationVariables>(DeleteScriptDocument, options);
+      }
+export type DeleteScriptMutationHookResult = ReturnType<typeof useDeleteScriptMutation>;
+export type DeleteScriptMutationResult = Apollo.MutationResult<DeleteScriptMutation>;
+export type DeleteScriptMutationOptions = Apollo.BaseMutationOptions<DeleteScriptMutation, DeleteScriptMutationVariables>;
+export const AddCommentDocument = gql`
+    mutation AddComment($paragraphId: ID!, $text: String!) {
+  addComment(paragraphId: $paragraphId, text: $text) {
+    id
+    comments {
+      text
+      createdAt
+      author {
+        id
+        username
+      }
+    }
+  }
+}
+    `;
+export type AddCommentMutationFn = Apollo.MutationFunction<AddCommentMutation, AddCommentMutationVariables>;
+
+/**
+ * __useAddCommentMutation__
+ *
+ * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useAddCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(AddCommentDocument, options);
+      }
+export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
+export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
+export type AddCommentMutationOptions = Apollo.BaseMutationOptions<AddCommentMutation, AddCommentMutationVariables>;
+export const LikeScriptDocument = gql`
+    mutation LikeScript($scriptId: ID!) {
+  likeScript(scriptId: $scriptId) {
+    status
+  }
+}
+    `;
+export type LikeScriptMutationFn = Apollo.MutationFunction<LikeScriptMutation, LikeScriptMutationVariables>;
+
+/**
+ * __useLikeScriptMutation__
+ *
+ * To run a mutation, you first call `useLikeScriptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeScriptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeScriptMutation, { data, loading, error }] = useLikeScriptMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useLikeScriptMutation(baseOptions?: Apollo.MutationHookOptions<LikeScriptMutation, LikeScriptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LikeScriptMutation, LikeScriptMutationVariables>(LikeScriptDocument, options);
+      }
+export type LikeScriptMutationHookResult = ReturnType<typeof useLikeScriptMutation>;
+export type LikeScriptMutationResult = Apollo.MutationResult<LikeScriptMutation>;
+export type LikeScriptMutationOptions = Apollo.BaseMutationOptions<LikeScriptMutation, LikeScriptMutationVariables>;
+export const DislikeScriptDocument = gql`
+    mutation DislikeScript($scriptId: ID!) {
+  dislikeScript(scriptId: $scriptId) {
+    status
+  }
+}
+    `;
+export type DislikeScriptMutationFn = Apollo.MutationFunction<DislikeScriptMutation, DislikeScriptMutationVariables>;
+
+/**
+ * __useDislikeScriptMutation__
+ *
+ * To run a mutation, you first call `useDislikeScriptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDislikeScriptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [dislikeScriptMutation, { data, loading, error }] = useDislikeScriptMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useDislikeScriptMutation(baseOptions?: Apollo.MutationHookOptions<DislikeScriptMutation, DislikeScriptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DislikeScriptMutation, DislikeScriptMutationVariables>(DislikeScriptDocument, options);
+      }
+export type DislikeScriptMutationHookResult = ReturnType<typeof useDislikeScriptMutation>;
+export type DislikeScriptMutationResult = Apollo.MutationResult<DislikeScriptMutation>;
+export type DislikeScriptMutationOptions = Apollo.BaseMutationOptions<DislikeScriptMutation, DislikeScriptMutationVariables>;
+export const UpdateScriptDocument = gql`
+    mutation UpdateScript($scriptId: ID!, $title: String, $description: String, $visibility: String) {
+  updateScript(
+    scriptId: $scriptId
+    title: $title
+    description: $description
+    visibility: $visibility
+  ) {
+    id
+    title
+    description
+    visibility
+  }
+}
+    `;
+export type UpdateScriptMutationFn = Apollo.MutationFunction<UpdateScriptMutation, UpdateScriptMutationVariables>;
+
+/**
+ * __useUpdateScriptMutation__
+ *
+ * To run a mutation, you first call `useUpdateScriptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateScriptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateScriptMutation, { data, loading, error }] = useUpdateScriptMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function useUpdateScriptMutation(baseOptions?: Apollo.MutationHookOptions<UpdateScriptMutation, UpdateScriptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateScriptMutation, UpdateScriptMutationVariables>(UpdateScriptDocument, options);
+      }
+export type UpdateScriptMutationHookResult = ReturnType<typeof useUpdateScriptMutation>;
+export type UpdateScriptMutationResult = Apollo.MutationResult<UpdateScriptMutation>;
+export type UpdateScriptMutationOptions = Apollo.BaseMutationOptions<UpdateScriptMutation, UpdateScriptMutationVariables>;
+export const RegisterDocument = gql`
+    mutation Register($username: String!, $email: String!, $password: String!) {
+  register(username: $username, email: $email, password: $password) {
+    id
+    username
+    email
+    token
+  }
+}
+    `;
+export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, RegisterMutationVariables>;
+
+/**
+ * __useRegisterMutation__
+ *
+ * To run a mutation, you first call `useRegisterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerMutation, { data, loading, error }] = useRegisterMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      email: // value for 'email'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options);
+      }
+export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
+export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
+export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const LoginDocument = gql`
+    mutation Login($username: String!, $password: String!) {
+  login(username: $username, password: $password) {
+    id
+    username
+    email
+    token
+  }
+}
+    `;
+export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
+
+/**
+ * __useLoginMutation__
+ *
+ * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
+      }
+export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export const ToggleBookmarkDocument = gql`
+    mutation ToggleBookmark($scriptId: ID!) {
+  toggleBookmark(scriptId: $scriptId) {
+    status
+  }
+}
+    `;
+export type ToggleBookmarkMutationFn = Apollo.MutationFunction<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>;
+
+/**
+ * __useToggleBookmarkMutation__
+ *
+ * To run a mutation, you first call `useToggleBookmarkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleBookmarkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleBookmarkMutation, { data, loading, error }] = useToggleBookmarkMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useToggleBookmarkMutation(baseOptions?: Apollo.MutationHookOptions<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>(ToggleBookmarkDocument, options);
+      }
+export type ToggleBookmarkMutationHookResult = ReturnType<typeof useToggleBookmarkMutation>;
+export type ToggleBookmarkMutationResult = Apollo.MutationResult<ToggleBookmarkMutation>;
+export type ToggleBookmarkMutationOptions = Apollo.BaseMutationOptions<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>;
+export const UpdateUserProfileDocument = gql`
+    mutation UpdateUserProfile($username: String, $bio: String, $languages: [String!], $interests: [String!]) {
+  updateUserProfile(
+    username: $username
+    bio: $bio
+    languages: $languages
+    interests: $interests
+  ) {
+    id
+    username
+    bio
+    languages
+    interests
+  }
+}
+    `;
+export type UpdateUserProfileMutationFn = Apollo.MutationFunction<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+
+/**
+ * __useUpdateUserProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserProfileMutation, { data, loading, error }] = useUpdateUserProfileMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      bio: // value for 'bio'
+ *      languages: // value for 'languages'
+ *      interests: // value for 'interests'
+ *   },
+ * });
+ */
+export function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(UpdateUserProfileDocument, options);
+      }
+export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
+export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
+export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export const GetParagraphByIdDocument = gql`
+    query GetParagraphById($paragraphId: ID!) {
+  getParagraphById(paragraphId: $paragraphId) {
+    id
+    script
+    text
+    status
+    createdAt
+    likes
+    dislikes
+    author {
+      id
+      username
+    }
+    comments {
+      author {
+        id
+        username
+      }
+      text
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetParagraphByIdQuery__
+ *
+ * To run a query within a React component, call `useGetParagraphByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetParagraphByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetParagraphByIdQuery({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useGetParagraphByIdQuery(baseOptions: Apollo.QueryHookOptions<GetParagraphByIdQuery, GetParagraphByIdQueryVariables> & ({ variables: GetParagraphByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>(GetParagraphByIdDocument, options);
+      }
+export function useGetParagraphByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>(GetParagraphByIdDocument, options);
+        }
+// @ts-ignore
+export function useGetParagraphByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>;
+export function useGetParagraphByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetParagraphByIdQuery | undefined, GetParagraphByIdQueryVariables>;
+export function useGetParagraphByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>(GetParagraphByIdDocument, options);
+        }
+export type GetParagraphByIdQueryHookResult = ReturnType<typeof useGetParagraphByIdQuery>;
+export type GetParagraphByIdLazyQueryHookResult = ReturnType<typeof useGetParagraphByIdLazyQuery>;
+export type GetParagraphByIdSuspenseQueryHookResult = ReturnType<typeof useGetParagraphByIdSuspenseQuery>;
+export type GetParagraphByIdQueryResult = Apollo.QueryResult<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>;
+export const GetPendingParagraphsDocument = gql`
+    query GetPendingParagraphs($scriptId: ID!) {
+  getPendingParagraphs(scriptId: $scriptId) {
+    id
+    text
+    createdAt
+    status
+    author {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPendingParagraphsQuery__
+ *
+ * To run a query within a React component, call `useGetPendingParagraphsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPendingParagraphsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPendingParagraphsQuery({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useGetPendingParagraphsQuery(baseOptions: Apollo.QueryHookOptions<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables> & ({ variables: GetPendingParagraphsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>(GetPendingParagraphsDocument, options);
+      }
+export function useGetPendingParagraphsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>(GetPendingParagraphsDocument, options);
+        }
+// @ts-ignore
+export function useGetPendingParagraphsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>;
+export function useGetPendingParagraphsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPendingParagraphsQuery | undefined, GetPendingParagraphsQueryVariables>;
+export function useGetPendingParagraphsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>(GetPendingParagraphsDocument, options);
+        }
+export type GetPendingParagraphsQueryHookResult = ReturnType<typeof useGetPendingParagraphsQuery>;
+export type GetPendingParagraphsLazyQueryHookResult = ReturnType<typeof useGetPendingParagraphsLazyQuery>;
+export type GetPendingParagraphsSuspenseQueryHookResult = ReturnType<typeof useGetPendingParagraphsSuspenseQuery>;
+export type GetPendingParagraphsQueryResult = Apollo.QueryResult<GetPendingParagraphsQuery, GetPendingParagraphsQueryVariables>;
+export const ExportDocumentDocument = gql`
+    query ExportDocument($scriptId: ID!, $format: String!) {
+  exportDocument(scriptId: $scriptId, format: $format) {
+    filename
+    content
+    contentType
+  }
+}
+    `;
+
+/**
+ * __useExportDocumentQuery__
+ *
+ * To run a query within a React component, call `useExportDocumentQuery` and pass it any options that fit your needs.
+ * When your component renders, `useExportDocumentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useExportDocumentQuery({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      format: // value for 'format'
+ *   },
+ * });
+ */
+export function useExportDocumentQuery(baseOptions: Apollo.QueryHookOptions<ExportDocumentQuery, ExportDocumentQueryVariables> & ({ variables: ExportDocumentQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ExportDocumentQuery, ExportDocumentQueryVariables>(ExportDocumentDocument, options);
+      }
+export function useExportDocumentLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ExportDocumentQuery, ExportDocumentQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ExportDocumentQuery, ExportDocumentQueryVariables>(ExportDocumentDocument, options);
+        }
+// @ts-ignore
+export function useExportDocumentSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ExportDocumentQuery, ExportDocumentQueryVariables>): Apollo.UseSuspenseQueryResult<ExportDocumentQuery, ExportDocumentQueryVariables>;
+export function useExportDocumentSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ExportDocumentQuery, ExportDocumentQueryVariables>): Apollo.UseSuspenseQueryResult<ExportDocumentQuery | undefined, ExportDocumentQueryVariables>;
+export function useExportDocumentSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ExportDocumentQuery, ExportDocumentQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ExportDocumentQuery, ExportDocumentQueryVariables>(ExportDocumentDocument, options);
+        }
+export type ExportDocumentQueryHookResult = ReturnType<typeof useExportDocumentQuery>;
+export type ExportDocumentLazyQueryHookResult = ReturnType<typeof useExportDocumentLazyQuery>;
+export type ExportDocumentSuspenseQueryHookResult = ReturnType<typeof useExportDocumentSuspenseQuery>;
+export type ExportDocumentQueryResult = Apollo.QueryResult<ExportDocumentQuery, ExportDocumentQueryVariables>;
+export const GetScriptByIdDocument = gql`
+    query GetScriptById($id: ID!) {
+  getScriptById(id: $id) {
+    id
+    title
+    visibility
+    languages
+    genres
+    description
+    createdAt
+    combinedText
+    likes
+    dislikes
+    author {
+      username
+    }
+    paragraphs {
+      id
+      text
+      status
+      likes
+      dislikes
+      createdAt
+      author {
+        username
+      }
+      comments {
+        author {
+          username
+        }
+        text
+        createdAt
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetScriptByIdQuery__
+ *
+ * To run a query within a React component, call `useGetScriptByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetScriptByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetScriptByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetScriptByIdQuery(baseOptions: Apollo.QueryHookOptions<GetScriptByIdQuery, GetScriptByIdQueryVariables> & ({ variables: GetScriptByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetScriptByIdQuery, GetScriptByIdQueryVariables>(GetScriptByIdDocument, options);
+      }
+export function useGetScriptByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetScriptByIdQuery, GetScriptByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetScriptByIdQuery, GetScriptByIdQueryVariables>(GetScriptByIdDocument, options);
+        }
+// @ts-ignore
+export function useGetScriptByIdSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetScriptByIdQuery, GetScriptByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptByIdQuery, GetScriptByIdQueryVariables>;
+export function useGetScriptByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptByIdQuery, GetScriptByIdQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptByIdQuery | undefined, GetScriptByIdQueryVariables>;
+export function useGetScriptByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptByIdQuery, GetScriptByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetScriptByIdQuery, GetScriptByIdQueryVariables>(GetScriptByIdDocument, options);
+        }
+export type GetScriptByIdQueryHookResult = ReturnType<typeof useGetScriptByIdQuery>;
+export type GetScriptByIdLazyQueryHookResult = ReturnType<typeof useGetScriptByIdLazyQuery>;
+export type GetScriptByIdSuspenseQueryHookResult = ReturnType<typeof useGetScriptByIdSuspenseQuery>;
+export type GetScriptByIdQueryResult = Apollo.QueryResult<GetScriptByIdQuery, GetScriptByIdQueryVariables>;
+export const GetScriptsByGenresDocument = gql`
+    query GetScriptsByGenres($genres: [String!]!) {
+  getScriptsByGenres(genres: $genres) {
+    id
+    title
+    genres
+    description
+    likes
+    languages
+    dislikes
+    createdAt
+    author {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetScriptsByGenresQuery__
+ *
+ * To run a query within a React component, call `useGetScriptsByGenresQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetScriptsByGenresQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetScriptsByGenresQuery({
+ *   variables: {
+ *      genres: // value for 'genres'
+ *   },
+ * });
+ */
+export function useGetScriptsByGenresQuery(baseOptions: Apollo.QueryHookOptions<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables> & ({ variables: GetScriptsByGenresQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>(GetScriptsByGenresDocument, options);
+      }
+export function useGetScriptsByGenresLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>(GetScriptsByGenresDocument, options);
+        }
+// @ts-ignore
+export function useGetScriptsByGenresSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>;
+export function useGetScriptsByGenresSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptsByGenresQuery | undefined, GetScriptsByGenresQueryVariables>;
+export function useGetScriptsByGenresSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>(GetScriptsByGenresDocument, options);
+        }
+export type GetScriptsByGenresQueryHookResult = ReturnType<typeof useGetScriptsByGenresQuery>;
+export type GetScriptsByGenresLazyQueryHookResult = ReturnType<typeof useGetScriptsByGenresLazyQuery>;
+export type GetScriptsByGenresSuspenseQueryHookResult = ReturnType<typeof useGetScriptsByGenresSuspenseQuery>;
+export type GetScriptsByGenresQueryResult = Apollo.QueryResult<GetScriptsByGenresQuery, GetScriptsByGenresQueryVariables>;
+export const GetScriptContributorsDocument = gql`
+    query GetScriptContributors($scriptId: ID!) {
+  getScriptContributors(scriptId: $scriptId) {
+    contributors {
+      userId
+      details {
+        name
+        paragraphs {
+          id
+          text
+          status
+          createdAt
+          likes
+          dislikes
+          author {
+            username
+          }
+          comments {
+            author {
+              username
+            }
+            text
+            createdAt
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetScriptContributorsQuery__
+ *
+ * To run a query within a React component, call `useGetScriptContributorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetScriptContributorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetScriptContributorsQuery({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useGetScriptContributorsQuery(baseOptions: Apollo.QueryHookOptions<GetScriptContributorsQuery, GetScriptContributorsQueryVariables> & ({ variables: GetScriptContributorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>(GetScriptContributorsDocument, options);
+      }
+export function useGetScriptContributorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>(GetScriptContributorsDocument, options);
+        }
+// @ts-ignore
+export function useGetScriptContributorsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>;
+export function useGetScriptContributorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>): Apollo.UseSuspenseQueryResult<GetScriptContributorsQuery | undefined, GetScriptContributorsQueryVariables>;
+export function useGetScriptContributorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>(GetScriptContributorsDocument, options);
+        }
+export type GetScriptContributorsQueryHookResult = ReturnType<typeof useGetScriptContributorsQuery>;
+export type GetScriptContributorsLazyQueryHookResult = ReturnType<typeof useGetScriptContributorsLazyQuery>;
+export type GetScriptContributorsSuspenseQueryHookResult = ReturnType<typeof useGetScriptContributorsSuspenseQuery>;
+export type GetScriptContributorsQueryResult = Apollo.QueryResult<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>;
+export const GetUserProfileDocument = gql`
+    query GetUserProfile($username: String!) {
+  getUserProfile(username: $username) {
+    id
+    username
+    email
+    bio
+    languages
+    interests
+    likes
+    followers
+    follows
+    views
+  }
+}
+    `;
+
+/**
+ * __useGetUserProfileQuery__
+ *
+ * To run a query within a React component, call `useGetUserProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserProfileQuery({
+ *   variables: {
+ *      username: // value for 'username'
+ *   },
+ * });
+ */
+export function useGetUserProfileQuery(baseOptions: Apollo.QueryHookOptions<GetUserProfileQuery, GetUserProfileQueryVariables> & ({ variables: GetUserProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>(GetUserProfileDocument, options);
+      }
+export function useGetUserProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserProfileQuery, GetUserProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserProfileQuery, GetUserProfileQueryVariables>(GetUserProfileDocument, options);
+        }
+// @ts-ignore
+export function useGetUserProfileSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserProfileQuery, GetUserProfileQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserProfileQuery, GetUserProfileQueryVariables>;
+export function useGetUserProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserProfileQuery, GetUserProfileQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserProfileQuery | undefined, GetUserProfileQueryVariables>;
+export function useGetUserProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserProfileQuery, GetUserProfileQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUserProfileQuery, GetUserProfileQueryVariables>(GetUserProfileDocument, options);
+        }
+export type GetUserProfileQueryHookResult = ReturnType<typeof useGetUserProfileQuery>;
+export type GetUserProfileLazyQueryHookResult = ReturnType<typeof useGetUserProfileLazyQuery>;
+export type GetUserProfileSuspenseQueryHookResult = ReturnType<typeof useGetUserProfileSuspenseQuery>;
+export type GetUserProfileQueryResult = Apollo.QueryResult<GetUserProfileQuery, GetUserProfileQueryVariables>;
+export const GetUserScriptsDocument = gql`
+    query GetUserScripts($userId: ID!) {
+  getUserScripts(userId: $userId) {
+    id
+    title
+    visibility
+    description
+    languages
+    genres
+    createdAt
+    updatedAt
+    author {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserScriptsQuery__
+ *
+ * To run a query within a React component, call `useGetUserScriptsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserScriptsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserScriptsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserScriptsQuery(baseOptions: Apollo.QueryHookOptions<GetUserScriptsQuery, GetUserScriptsQueryVariables> & ({ variables: GetUserScriptsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserScriptsQuery, GetUserScriptsQueryVariables>(GetUserScriptsDocument, options);
+      }
+export function useGetUserScriptsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserScriptsQuery, GetUserScriptsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserScriptsQuery, GetUserScriptsQueryVariables>(GetUserScriptsDocument, options);
+        }
+// @ts-ignore
+export function useGetUserScriptsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserScriptsQuery, GetUserScriptsQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserScriptsQuery, GetUserScriptsQueryVariables>;
+export function useGetUserScriptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserScriptsQuery, GetUserScriptsQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserScriptsQuery | undefined, GetUserScriptsQueryVariables>;
+export function useGetUserScriptsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserScriptsQuery, GetUserScriptsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUserScriptsQuery, GetUserScriptsQueryVariables>(GetUserScriptsDocument, options);
+        }
+export type GetUserScriptsQueryHookResult = ReturnType<typeof useGetUserScriptsQuery>;
+export type GetUserScriptsLazyQueryHookResult = ReturnType<typeof useGetUserScriptsLazyQuery>;
+export type GetUserScriptsSuspenseQueryHookResult = ReturnType<typeof useGetUserScriptsSuspenseQuery>;
+export type GetUserScriptsQueryResult = Apollo.QueryResult<GetUserScriptsQuery, GetUserScriptsQueryVariables>;
+export const GetUserContributionsDocument = gql`
+    query GetUserContributions($userId: ID!) {
+  getUserContributions(userId: $userId) {
+    id
+    status
+    text
+    likes
+    dislikes
+    createdAt
+    script {
+      id
+    }
+    comments {
+      author {
+        username
+      }
+      text
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserContributionsQuery__
+ *
+ * To run a query within a React component, call `useGetUserContributionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserContributionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserContributionsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserContributionsQuery(baseOptions: Apollo.QueryHookOptions<GetUserContributionsQuery, GetUserContributionsQueryVariables> & ({ variables: GetUserContributionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserContributionsQuery, GetUserContributionsQueryVariables>(GetUserContributionsDocument, options);
+      }
+export function useGetUserContributionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserContributionsQuery, GetUserContributionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserContributionsQuery, GetUserContributionsQueryVariables>(GetUserContributionsDocument, options);
+        }
+// @ts-ignore
+export function useGetUserContributionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserContributionsQuery, GetUserContributionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserContributionsQuery, GetUserContributionsQueryVariables>;
+export function useGetUserContributionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserContributionsQuery, GetUserContributionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserContributionsQuery | undefined, GetUserContributionsQueryVariables>;
+export function useGetUserContributionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserContributionsQuery, GetUserContributionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUserContributionsQuery, GetUserContributionsQueryVariables>(GetUserContributionsDocument, options);
+        }
+export type GetUserContributionsQueryHookResult = ReturnType<typeof useGetUserContributionsQuery>;
+export type GetUserContributionsLazyQueryHookResult = ReturnType<typeof useGetUserContributionsLazyQuery>;
+export type GetUserContributionsSuspenseQueryHookResult = ReturnType<typeof useGetUserContributionsSuspenseQuery>;
+export type GetUserContributionsQueryResult = Apollo.QueryResult<GetUserContributionsQuery, GetUserContributionsQueryVariables>;
+export const GetUserFavouritesDocument = gql`
+    query GetUserFavourites($userId: ID!) {
+  getUserFavourites(userId: $userId) {
+    id
+    title
+    visibility
+    description
+    languages
+    genres
+    createdAt
+    updatedAt
+    author {
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserFavouritesQuery__
+ *
+ * To run a query within a React component, call `useGetUserFavouritesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserFavouritesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserFavouritesQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserFavouritesQuery(baseOptions: Apollo.QueryHookOptions<GetUserFavouritesQuery, GetUserFavouritesQueryVariables> & ({ variables: GetUserFavouritesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>(GetUserFavouritesDocument, options);
+      }
+export function useGetUserFavouritesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>(GetUserFavouritesDocument, options);
+        }
+// @ts-ignore
+export function useGetUserFavouritesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>;
+export function useGetUserFavouritesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>): Apollo.UseSuspenseQueryResult<GetUserFavouritesQuery | undefined, GetUserFavouritesQueryVariables>;
+export function useGetUserFavouritesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>(GetUserFavouritesDocument, options);
+        }
+export type GetUserFavouritesQueryHookResult = ReturnType<typeof useGetUserFavouritesQuery>;
+export type GetUserFavouritesLazyQueryHookResult = ReturnType<typeof useGetUserFavouritesLazyQuery>;
+export type GetUserFavouritesSuspenseQueryHookResult = ReturnType<typeof useGetUserFavouritesSuspenseQuery>;
+export type GetUserFavouritesQueryResult = Apollo.QueryResult<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>;

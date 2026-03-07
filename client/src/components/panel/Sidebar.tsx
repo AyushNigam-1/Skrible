@@ -6,15 +6,34 @@ import {
   Award,
   PanelRightOpen,
   LogOut,
+  LucideIcon,
 } from "lucide-react";
+
+// 1. Define the shape of the User object stored in localStorage
+interface StoredUser {
+  username?: string;
+  // Add any other user properties you store here (e.g., id, email)
+}
+
+// 2. Define the shape of the Navigation items
+interface MenuItem {
+  name: string;
+  icon: LucideIcon;
+  route: string;
+}
 
 const Sidebar = () => {
   const location = useLocation();
 
-  const userData = JSON.parse(localStorage.getItem("user"));
+  // Safely parse the user data and cast it to our StoredUser interface
+  const userString = localStorage.getItem("user");
+  const userData: StoredUser | null = userString
+    ? JSON.parse(userString)
+    : null;
   const username = userData?.username || "guest";
 
-  const menuItems = [
+  // Apply the MenuItem[] type to lock in the correct object structure
+  const menuItems: MenuItem[] = [
     { name: "Explore", icon: Compass, route: "/" },
     { name: "Contributions", icon: Award, route: "/my-contributions" },
     { name: "Favorites", icon: Heart, route: "/favourites" },
@@ -22,7 +41,6 @@ const Sidebar = () => {
   ];
 
   return (
-    // Removed overflow-x-hidden and added w-full to fill the grid column naturally
     <aside className="col-span-1 sticky top-4 flex font-mono flex-col h-[calc(100vh-2rem)] m-4 p-4 lg:p-5 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl transition-all duration-300 w-full">
       <div className="flex justify-between items-center mb-8 px-1 shrink-0">
         <img
@@ -61,8 +79,7 @@ const Sidebar = () => {
                 }`}
               />
 
-              {/* Reduced text size to text-xs and tracking to widest to ensure fit */}
-              <span className="text-sm font-bold uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="text font-medium  whitespace-nowrap overflow-hidden text-ellipsis">
                 {item.name}
               </span>
             </Link>

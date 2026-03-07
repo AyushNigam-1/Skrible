@@ -2,9 +2,9 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import HomeLayout from "./layout/HomeLayout";
+import HomeLayout from "./layouts/HomeLayout";
 import CreateAccount from "./pages/auth/CreateAccount";
-import AuthLayout from "./layout/AuthLayout";
+import AuthLayout from "./layouts/AuthLayout";
 import {
   ApolloClient,
   InMemoryCache,
@@ -13,20 +13,20 @@ import {
 } from "@apollo/client";
 import Script from "./pages/scripts/Script";
 import Favourites from "./pages/favourites/Favourites";
-import Contributions from "./pages/contributions/Contributions";
 import Notifications from "./pages/notification/Notifications";
-import Profile from "./pages/profile/Profile";
-import MyContributions from "./pages/contributions/MyContributions";
 import Logout from "./pages/auth/Logout";
-import ZenMode from "./components/ZenMode";
-import Timeline from "./components/Timeline";
+import ZenMode from "./pages/zen/ZenMode";
 import Requests from "./pages/requests/Requests";
-import ScriptDetails from "./components/ScriptDetails";
-import Contributors from "./pages/contributors/Contributors";
-import Explore from "./pages/explore/Explore";
-import DraftLayout from "./layout/DraftLayout";
 import Contribution from "./pages/contribution/Contribution";
+import Profile from "./pages/profile/Profile";
+import DraftLayout from "./layouts/DraftLayout";
+import Explore from "./pages/explore/Explore";
+import Timeline from "./pages/timeline/Timeline";
+import ScriptDetails from "./pages/about/ScriptDetails";
+import Contributors from "./pages/contributors/Contributors";
 import DraftSettings from "./pages/setting/DraftSettings";
+import Contributions from "./pages/contributions/Contributions";
+import MyContributions from "./pages/contributions/MyContributions";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
@@ -80,17 +80,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <ApolloProvider client={client}>
-    {/* GLOBAL WRAPPER: Handles Fonts & Full Screen constraints */}
-    {/* <div className="relative min-h-screen w-full font-mono text-gray-900 dark:text-gray-100 ">*/}
-    {/* GLOBAL BACKGROUND: Fixed so it never scrolls, sits behind everything */}
-
-    {/* GLOBAL OVERLAY (Optional): Ensures text remains readable over the image */}
-    {/* <div className="fixed inset-0 z-[-1] bg-white/60 dark:bg-gray-950/70 backdrop-blur-[2px]" />*/}
-
-    {/* THE ACTUAL APP */}
     <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
       <RouterProvider router={router} />
     </div>
-    {/* </div>*/}
   </ApolloProvider>,
 );

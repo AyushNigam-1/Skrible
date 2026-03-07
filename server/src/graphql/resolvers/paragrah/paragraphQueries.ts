@@ -3,79 +3,84 @@ import Paragraph from "../../../models/Paragraph";
 import Script from "../../../models/Script";
 
 export const paragraphQueries = {
-    getParagraphById: async (_: any, { paragraphId }: { paragraphId: string }) => {
-        const paragraph = await Paragraph.findById(paragraphId)
-            .populate("author")
-            .populate("comments.author");
-        if (!paragraph) throw new Error("Paragraph not found");
+  getParagraphById: async (
+    _: any,
+    { paragraphId }: { paragraphId: string },
+  ) => {
+    const paragraph = await Paragraph.findById(paragraphId)
+      .populate("author")
+      .populate("comments.author")
+      .populate({
+        path: "script",
+        populate: { path: "collaborators.user" },
+      });
 
-        return paragraph;
-    },
+    if (!paragraph) throw new Error("Paragraph not found");
 
-    getCombinedText: async (_: any, { scriptId }: { scriptId: string }) => {
-        const script = await Script.findById(scriptId).lean();
+    return paragraph;
+  },
 
-        if (!script) throw new Error("Script not found");
+  getCombinedText: async (_: any, { scriptId }: { scriptId: string }) => {
+    const script = await Script.findById(scriptId).lean();
 
-        return script.combinedText || "";
-    },
+    if (!script) throw new Error("Script not found");
 
-    getPendingParagraphs: async (
-        _: any,
-        { scriptId }: { scriptId: string }
-    ) => {
-        const paragraphs = await Paragraph.find({
-            script: scriptId,
-            status: "pending",
-        })
-            .populate("author")
-            .sort({ createdAt: -1 });
+    return script.combinedText || "";
+  },
 
-        return paragraphs;
-    },
-    exportDocument: async (
-        _: any,
-        { scriptId, format }: { scriptId: string; format: string }
-    ) => {
-        const script = await Script.findById(scriptId).lean();
+  getPendingParagraphs: async (_: any, { scriptId }: { scriptId: string }) => {
+    const paragraphs = await Paragraph.find({
+      script: scriptId,
+      status: "pending",
+    })
+      .populate("author")
+      .sort({ createdAt: -1 });
 
-        if (!script) throw new Error("Script not found");
+    return paragraphs;
+  },
+  exportDocument: async (
+    _: any,
+    { scriptId, format }: { scriptId: string; format: string },
+  ) => {
+    const script = await Script.findById(scriptId).lean();
 
-        const sanitizedTitle = script.title.replace(/[<>:"/\\|?*]+/g, "");
+    if (!script) throw new Error("Script not found");
 
-        if (format === "txt") {
-            return {
-                filename: `${sanitizedTitle}.txt`,
-                content: script.combinedText || "",
-                contentType: "text/plain",
-            };
-        }
+    const sanitizedTitle = script.title.replace(/[<>:"/\\|?*]+/g, "");
 
-        if (format === "md") {
-            return {
-                filename: `${sanitizedTitle}.md`,
-                content: script.combinedText || "",
-                contentType: "text/markdown",
-            };
-        }
+    if (format === "txt") {
+      return {
+        filename: `${sanitizedTitle}.txt`,
+        content: script.combinedText || "",
+        contentType: "text/plain",
+      };
+    }
 
-        if (format === "pdf") {
-            const doc = new jsPDF();
-            const text = script.combinedText || "No content available";
+    if (format === "md") {
+      return {
+        filename: `${sanitizedTitle}.md`,
+        content: script.combinedText || "",
+        contentType: "text/markdown",
+      };
+    }
 
-            const pageWidth = doc.internal.pageSize.getWidth() - 20;
-            const wrappedText = doc.splitTextToSize(text, pageWidth);
-            doc.text(wrappedText, 10, 10);
+    if (format === "pdf") {
+      const doc = new jsPDF();
+      const text = script.combinedText || "No content available";
 
-            const pdfBase64 = doc.output("dataurlstring").split(",")[1];
+      const pageWidth = doc.internal.pageSize.getWidth() - 20;
+      const wrappedText = doc.splitTextToSize(text, pageWidth);
+      doc.text(wrappedText, 10, 10);
 
-            return {
-                filename: `${sanitizedTitle}.pdf`,
-                content: pdfBase64,
-                contentType: "application/pdf",
-            };
-        }
+      const pdfBase64 = doc.output("dataurlstring").split(",")[1];
 
-        throw new Error("Invalid format");
-    },
+      return {
+        filename: `${sanitizedTitle}.pdf`,
+        content: pdfBase64,
+        contentType: "application/pdf",
+      };
+    }
+
+    throw new Error("Invalid format");
+  },
 };

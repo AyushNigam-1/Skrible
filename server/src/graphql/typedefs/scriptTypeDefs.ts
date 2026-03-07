@@ -1,17 +1,32 @@
 import { gql } from "graphql-tag";
 
 export const scriptTypeDefs = gql`
+  # --- NEW: Defined the Roles ---
+  enum Role {
+    OWNER
+    EDITOR
+    CONTRIBUTOR
+    VIEWER
+  }
+
   type Author {
     id: ID!
     username: String!
     email: String
   }
 
+  # --- NEW: Collaborator Type ---
+  type Collaborator {
+    user: Author! # Reusing your existing Author type for user details
+    role: Role!
+    addedAt: String
+  }
+
   type Comment {
     text: String!
     createdAt: String!
     # ADDED: Author field so the frontend can display who wrote the comment
-    author: Author! 
+    author: Author!
   }
 
   type Paragraph {
@@ -19,7 +34,7 @@ export const scriptTypeDefs = gql`
     text: String!
     createdAt: String!
     author: Author!
-    likes: [ID!]!    
+    likes: [ID!]!
     dislikes: [ID!]!
     comments: [Comment!]!
   }
@@ -32,12 +47,14 @@ export const scriptTypeDefs = gql`
     description: String!
     languages: [String!]!
     genres: [String!]!
-    paragraphs: [Paragraph!]!    
+    paragraphs: [Paragraph!]!
     likes: [ID!]!
     dislikes: [ID!]!
     createdAt: String!
     updatedAt: String!
     combinedText: String
+    # --- NEW: Added collaborators array ---
+    collaborators: [Collaborator!]
   }
 
   type MutationResponse {
@@ -94,11 +111,20 @@ export const scriptTypeDefs = gql`
     markAsInterested(scriptId: ID!): MutationResponse!
     markAsNotInterested(scriptId: ID!): MutationResponse!
     markAsFavourite(scriptId: ID!): MutationResponse!
-    deleteScript(scriptId: ID!): MutationResponse!    
+    deleteScript(scriptId: ID!): MutationResponse!
     likeParagraph(paragraphId: ID!): MutationResponse!
-    dislikeParagraph(paragraphId: ID!): MutationResponse!    
-    addComment(paragraphId: ID!, text: String!): Paragraph!    
+    dislikeParagraph(paragraphId: ID!): MutationResponse!
+    addComment(paragraphId: ID!, text: String!): Paragraph!
     likeScript(scriptId: ID!): MutationResponse!
     dislikeScript(scriptId: ID!): MutationResponse!
+
+    # --- NEW: Role Management Mutations ---
+    addCollaborator(scriptId: ID!, username: String!, role: Role!): Script!
+    removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
+    updateCollaboratorRole(
+      scriptId: ID!
+      targetUserId: ID!
+      role: Role!
+    ): Script!
   }
 `;

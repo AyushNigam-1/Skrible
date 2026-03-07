@@ -12,12 +12,20 @@ export const paragraphQueries = {
       .populate("comments.author")
       .populate({
         path: "script",
-        populate: { path: "collaborators.user" },
+        populate: [{ path: "collaborators.user" }, { path: "author" }],
       });
 
     if (!paragraph) throw new Error("Paragraph not found");
 
-    return paragraph;
+    // 1. Convert the Mongoose document to a plain JavaScript object
+    // { virtuals: true } ensures all the 'id' fields are generated from '_id'
+    const result = paragraph.toObject({ virtuals: true });
+
+    // 2. Safely stringify the raw ObjectIds in the arrays
+    result.likes = result.likes?.map((id: any) => id.toString()) || [];
+    result.dislikes = result.dislikes?.map((id: any) => id.toString()) || [];
+
+    return result;
   },
 
   getCombinedText: async (_: any, { scriptId }: { scriptId: string }) => {

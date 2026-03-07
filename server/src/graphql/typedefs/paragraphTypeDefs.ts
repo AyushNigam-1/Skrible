@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 export const paragraphTypeDefs = gql`
   type Paragraph {
     id: ID!
-    script: ID!
+    script: Script!
     author: Author!
     text: String!
     status: String!

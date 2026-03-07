@@ -1,7 +1,6 @@
 import { gql } from "graphql-tag";
 
 export const scriptTypeDefs = gql`
-  # --- NEW: Defined the Roles ---
   enum Role {
     OWNER
     EDITOR
@@ -15,7 +14,6 @@ export const scriptTypeDefs = gql`
     email: String
   }
 
-  # --- NEW: Collaborator Type ---
   type Collaborator {
     user: Author! # Reusing your existing Author type for user details
     role: Role!
@@ -53,7 +51,6 @@ export const scriptTypeDefs = gql`
     createdAt: String!
     updatedAt: String!
     combinedText: String
-    # --- NEW: Added collaborators array ---
     collaborators: [Collaborator!]
   }
 
@@ -117,8 +114,6 @@ export const scriptTypeDefs = gql`
     addComment(paragraphId: ID!, text: String!): Paragraph!
     likeScript(scriptId: ID!): MutationResponse!
     dislikeScript(scriptId: ID!): MutationResponse!
-
-    # --- NEW: Role Management Mutations ---
     addCollaborator(scriptId: ID!, username: String!, role: Role!): Script!
     removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
     updateCollaboratorRole(

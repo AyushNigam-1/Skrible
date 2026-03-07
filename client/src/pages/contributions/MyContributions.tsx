@@ -77,7 +77,7 @@ const MyContributions = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-12 font-mono">
+    <div className="w-full max-w-7xl mx-auto font-mono">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -95,7 +95,7 @@ const MyContributions = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[70vh] text-center"
+            className="flex flex-col items-center justify-center min-h-[90vh] text-center"
           >
             <div className="bg-red-100 text-red-600 p-4 rounded-full mb-4">
               <XCircle className="w-10 h-10" />

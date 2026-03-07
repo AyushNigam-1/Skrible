@@ -2,7 +2,6 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import HomeLayout from "./layouts/HomeLayout";
 import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layouts/AuthLayout";
 import {
@@ -15,7 +14,6 @@ import Script from "./pages/scripts/Script";
 import Favourites from "./pages/favourites/Favourites";
 import Notifications from "./pages/notification/Notifications";
 import Logout from "./pages/auth/Logout";
-import ZenMode from "./pages/zen/ZenMode";
 import Requests from "./pages/requests/Requests";
 import Contribution from "./pages/contribution/Contribution";
 import Profile from "./pages/profile/Profile";
@@ -27,6 +25,8 @@ import Contributors from "./pages/contributors/Contributors";
 import DraftSettings from "./pages/setting/DraftSettings";
 import Contributions from "./pages/contributions/Contributions";
 import MyContributions from "./pages/contributions/MyContributions";
+import HomeLayout from "./layouts/HomeLayout";
+import ZenMode from "./pages/zen/ZenMode";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",

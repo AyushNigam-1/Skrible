@@ -4,7 +4,18 @@ export const GET_PARAGRAPH_BY_ID = gql`
   query GetParagraphById($paragraphId: ID!) {
     getParagraphById(paragraphId: $paragraphId) {
       id
-      script
+      script {
+        id
+        author {
+          id
+        }
+        collaborators {
+          role
+          user {
+            id
+          }
+        }
+      }
       text
       status
       createdAt
@@ -25,19 +36,21 @@ export const GET_PARAGRAPH_BY_ID = gql`
     }
   }
 `;
+
 export const GET_PENDING_PARAGRAPHS = gql`
-query GetPendingParagraphs($scriptId: ID!) {
-  getPendingParagraphs(scriptId: $scriptId) {
-    id
-    text
-    createdAt
-    status
-    author {
-      username
+  query GetPendingParagraphs($scriptId: ID!) {
+    getPendingParagraphs(scriptId: $scriptId) {
+      id
+      text
+      createdAt
+      status
+      author {
+        username
+      }
     }
   }
-}
 `;
+
 export const EXPORT_DOCUMENT_QUERY = gql`
   query ExportDocument($scriptId: ID!, $format: String!) {
     exportDocument(scriptId: $scriptId, format: $format) {

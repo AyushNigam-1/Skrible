@@ -24,8 +24,6 @@ import {
   LIKE_PARAGRAPH,
   DISLIKE_PARAGRAPH,
   ADD_COMMENT,
-} from "../../graphql/mutation/scriptMutations";
-import {
   DELETE_PARAGRAPH,
   EDIT_PARAGRAPH,
 } from "../../graphql/mutation/paragraphMutations";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Trash2,
   AlertTriangle,
@@ -60,7 +60,7 @@ const DraftSettings: React.FC = () => {
   const navigate = useNavigate();
   const { data } = useOutletContext<ScriptContext>();
   const script = data?.getScriptById;
-
+  console.log(script);
   const storedUser = localStorage.getItem("user");
   const currentUser: StoredUser | null = storedUser
     ? JSON.parse(storedUser)
@@ -170,12 +170,12 @@ const DraftSettings: React.FC = () => {
   };
 
   // --- Animation Variants ---
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
@@ -226,7 +226,7 @@ const DraftSettings: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Public Option */}
             <label
-              className={`flex flex-col items-start gap-3 p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm relative overflow-hidden group ${visibility === "Public" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
+              className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Public" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
             >
               <input
                 type="radio"
@@ -236,26 +236,24 @@ const DraftSettings: React.FC = () => {
                 onChange={() => handleVisibilityChange("Public")}
                 className="sr-only"
               />
-              <div className="flex items-center justify-center p-3 rounded-full bg-white/5 border border-white/10 group-hover:scale-110 transition-transform">
+              <div className="flex items-center gap-3 mb-2">
                 <Globe2
                   className={`w-5 h-5 ${visibility === "Public" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`}
                 />
-              </div>
-              <div className="mt-1">
-                <p
-                  className={`font-bold text-base font-sans tracking-tight mb-1 ${visibility === "Public" ? "text-white" : "text-gray-300"}`}
+                <span
+                  className={`font-bold text-lg font-sans tracking-tight ${visibility === "Public" ? "text-white" : "text-gray-300"}`}
                 >
                   Public
-                </p>
-                <p className="text-xs text-gray-500 font-sans leading-relaxed">
-                  Anyone can view, read, and request to contribute.
-                </p>
+                </span>
               </div>
+              <p className="text-sm text-gray-500 font-sans leading-relaxed">
+                Anyone can view, read, and request to contribute.
+              </p>
             </label>
 
             {/* Private Option */}
             <label
-              className={`flex flex-col items-start gap-3 p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm relative overflow-hidden group ${visibility === "Private" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
+              className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Private" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
             >
               <input
                 type="radio"
@@ -265,26 +263,24 @@ const DraftSettings: React.FC = () => {
                 onChange={() => handleVisibilityChange("Private")}
                 className="sr-only"
               />
-              <div className="flex items-center justify-center p-3 rounded-full bg-white/5 border border-white/10 group-hover:scale-110 transition-transform">
+              <div className="flex items-center gap-3 mb-2">
                 <Lock
                   className={`w-5 h-5 ${visibility === "Private" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`}
                 />
-              </div>
-              <div className="mt-1">
-                <p
-                  className={`font-bold text-base font-sans tracking-tight mb-1 ${visibility === "Private" ? "text-white" : "text-gray-300"}`}
+                <span
+                  className={`font-bold text-lg font-sans tracking-tight ${visibility === "Private" ? "text-white" : "text-gray-300"}`}
                 >
                   Private
-                </p>
-                <p className="text-xs text-gray-500 font-sans leading-relaxed">
-                  Only you and invited members can view and edit this draft.
-                </p>
+                </span>
               </div>
+              <p className="text-sm text-gray-500 font-sans leading-relaxed">
+                Only you and invited members can view and edit this draft.
+              </p>
             </label>
 
             {/* Archived Option */}
             <label
-              className={`flex flex-col items-start gap-3 p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm relative overflow-hidden group ${visibility === "Archived" ? "border-amber-500/40 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
+              className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Archived" ? "border-amber-500/40 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}
             >
               <input
                 type="radio"
@@ -294,21 +290,19 @@ const DraftSettings: React.FC = () => {
                 onChange={() => handleVisibilityChange("Archived")}
                 className="sr-only"
               />
-              <div className="flex items-center justify-center p-3 rounded-full bg-white/5 border border-white/10 group-hover:scale-110 transition-transform">
+              <div className="flex items-center gap-3 mb-2">
                 <Archive
                   className={`w-5 h-5 ${visibility === "Archived" ? "text-amber-400" : "text-gray-500 group-hover:text-gray-300"}`}
                 />
-              </div>
-              <div className="mt-1">
-                <p
-                  className={`font-bold text-base font-sans tracking-tight mb-1 ${visibility === "Archived" ? "text-amber-400" : "text-gray-300"}`}
+                <span
+                  className={`font-bold text-lg font-sans tracking-tight ${visibility === "Archived" ? "text-amber-400" : "text-gray-300"}`}
                 >
                   Archived
-                </p>
-                <p className="text-xs text-gray-500 font-sans leading-relaxed">
-                  Hidden from explore. Frozen and read-only for everyone.
-                </p>
+                </span>
               </div>
+              <p className="text-sm text-gray-500 font-sans leading-relaxed">
+                Hidden from explore. Frozen and read-only for everyone.
+              </p>
             </label>
           </div>
         </div>
@@ -344,16 +338,31 @@ const DraftSettings: React.FC = () => {
                 className="w-full pl-8 pr-4 py-2.5 bg-black/40 border border-white/20 rounded-xl text-white focus:ring-1 focus:ring-white/50 text-sm outline-none shadow-inner"
               />
             </div>
-            <div className="w-full sm:w-40">
+            <div className="w-full sm:w-40 relative">
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value as RoleType)}
                 className="w-full px-3 py-2.5 bg-black/40 border border-white/20 rounded-xl text-white focus:ring-1 focus:ring-white/50 text-sm outline-none appearance-none cursor-pointer"
               >
-                <option value="EDITOR">Editor</option>
-                <option value="CONTRIBUTOR">Contributor</option>
-                <option value="VIEWER">Viewer</option>
+                <option value="EDITOR" className="bg-[#13151a]">
+                  Editor
+                </option>
+                <option value="CONTRIBUTOR" className="bg-[#13151a]">
+                  Contributor
+                </option>
+                <option value="VIEWER" className="bg-[#13151a]">
+                  Viewer
+                </option>
               </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                <svg
+                  className="fill-current h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
             </div>
             <button
               onClick={handleInvite}
@@ -370,60 +379,89 @@ const DraftSettings: React.FC = () => {
           </div>
 
           {/* Collaborator List */}
-          <div className="flex flex-col gap-2">
-            <AnimatePresence>
-              {script?.collaborators?.map((collab) => (
-                <motion.div
-                  key={collab.user.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold">
-                      {collab.user.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-bold text-white text-sm">
-                        @{collab.user.username}
-                      </p>
-                      {collab.role === "OWNER" && (
-                        <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
-                          Creator
+          <div className="flex flex-col gap-3">
+            {script?.collaborators?.length === 0 ? (
+              <div className="text-center py-6 text-gray-500 text-sm border border-dashed border-white/10 rounded-xl bg-white/5">
+                No collaborators yet.
+              </div>
+            ) : (
+              <AnimatePresence>
+                {script?.collaborators?.map((collab) => (
+                  <motion.div
+                    key={collab.user.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold shrink-0">
+                        {collab.user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-white text-sm">
+                          @{collab.user.username}
                         </p>
-                      )}
+                        {collab.role === "OWNER" && (
+                          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
+                            Creator
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {collab.role === "OWNER" ? (
-                    <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg tracking-widest">
-                      OWNER
-                    </span>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={collab.role}
-                        onChange={(e) =>
-                          handleRoleChange(collab.user.id, e.target.value)
-                        }
-                        className="px-2 py-1.5 bg-black/40 border border-white/20 rounded-lg text-gray-300 focus:text-white text-xs outline-none cursor-pointer tracking-wider"
-                      >
-                        <option value="EDITOR">EDITOR</option>
-                        <option value="CONTRIBUTOR">CONTRIBUTOR</option>
-                        <option value="VIEWER">VIEWER</option>
-                      </select>
-                      <button
-                        onClick={() => handleRemoveCollab(collab.user.id)}
-                        className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    {collab.role === "OWNER" ? (
+                      <span className="px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg tracking-widest self-start sm:self-auto">
+                        OWNER
+                      </span>
+                    ) : (
+                      <div className="flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto">
+                        <div className="relative flex-1 sm:flex-none">
+                          <select
+                            value={collab.role}
+                            onChange={(e) =>
+                              handleRoleChange(collab.user.id, e.target.value)
+                            }
+                            className="appearance-none w-full sm:w-auto px-3 py-2 bg-black/40 border border-white/20 rounded-lg text-gray-200 focus:text-white focus:ring-1 focus:ring-white/50 text-xs font-bold outline-none cursor-pointer tracking-wider transition-colors pr-8"
+                          >
+                            <option value="EDITOR" className="bg-[#13151a]">
+                              Editor
+                            </option>
+                            <option
+                              value="CONTRIBUTOR"
+                              className="bg-[#13151a]"
+                            >
+                              Contributor
+                            </option>
+                            <option value="VIEWER" className="bg-[#13151a]">
+                              Viewer
+                            </option>
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                            <svg
+                              className="fill-current h-4 w-4"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleRemoveCollab(collab.user.id)}
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-red-400 hover:text-white hover:bg-red-500/20 border border-transparent hover:border-red-500/30 rounded-lg transition-all shrink-0"
+                          title="Block / Remove User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="hidden sm:inline">Remove</span>
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </motion.div>

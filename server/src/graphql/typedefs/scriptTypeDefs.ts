@@ -109,9 +109,6 @@ export const scriptTypeDefs = gql`
     markAsNotInterested(scriptId: ID!): MutationResponse!
     markAsFavourite(scriptId: ID!): MutationResponse!
     deleteScript(scriptId: ID!): MutationResponse!
-    likeParagraph(paragraphId: ID!): MutationResponse!
-    dislikeParagraph(paragraphId: ID!): MutationResponse!
-    addComment(paragraphId: ID!, text: String!): Paragraph!
     likeScript(scriptId: ID!): MutationResponse!
     dislikeScript(scriptId: ID!): MutationResponse!
     addCollaborator(scriptId: ID!, username: String!, role: Role!): Script!

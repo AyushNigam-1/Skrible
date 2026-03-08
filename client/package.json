@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "codegen": "graphql-codegen --config codegen.ts"
@@ -39,7 +39,8 @@
     "react-scroll-to-bottom": "^4.2.0",
     "react-toastify": "^11.0.3",
     "remark-gfm": "^4.0.1",
-    "tailwind-scrollbar": "^3.1.0"
+    "tailwind-scrollbar": "^3.1.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

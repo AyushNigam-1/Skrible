@@ -3,8 +3,8 @@ import Paragraph from "../../../models/Paragraph";
 import User from "../../../models/User";
 
 export const userQueries = {
-  getUserProfile: async (_: unknown, { username }: { username: string }) => {
-    const user = await User.findOne({ username })
+  getUserProfile: async (_: unknown, { id }: { id: string }) => {
+    const user = await User.findById(id)
       .populate("scripts")
       .populate("likes")
       .populate("followers")

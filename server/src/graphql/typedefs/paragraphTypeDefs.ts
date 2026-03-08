@@ -29,5 +29,8 @@ export const paragraphTypeDefs = gql`
   type Mutation {
     editParagraph(paragraphId: ID!, text: String!): Paragraph!
     deleteParagraph(paragraphId: ID!): MutationResponse!
+    likeParagraph(paragraphId: ID!): MutationResponse!
+    dislikeParagraph(paragraphId: ID!): MutationResponse!
+    addComment(paragraphId: ID!, text: String!): Paragraph!
   }
 `;

@@ -15,10 +15,18 @@ export const GET_SCRIPT_BY_ID = gql`
       dislikes
 
       author {
+        id
         username
       }
 
-      # ONLY approved paragraphs
+      collaborators {
+        role
+        user {
+          id
+          username
+        }
+      }
+
       paragraphs {
         id
         text
@@ -27,10 +35,12 @@ export const GET_SCRIPT_BY_ID = gql`
         dislikes
         createdAt
         author {
+          id
           username
         }
         comments {
           author {
+            id
             username
           }
           text

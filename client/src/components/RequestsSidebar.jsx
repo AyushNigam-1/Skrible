@@ -65,7 +65,7 @@ const RequestsSidebar = ({
 
   return (
     // APPLIED INTER TO SIDEBAR FOR CRISP UI TEXT
-    <div className="flex flex-col h-full w-full p-4 gap-4 font-['Inter']">
+    <div className="flex flex-col h-full w-full gap-4 font-mono">
       {/* --- Search Bar (GLASSMORPHISM) --- */}
       <div className="relative shrink-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -89,7 +89,6 @@ const RequestsSidebar = ({
               <div
                 key={p.id}
                 onClick={() => setRequest(p)}
-                // APPLIED GLASSMORPHISM TO CARDS & SELECTED STATES
                 className={`group flex justify-between items-center p-3 rounded-xl cursor-pointer transition-all border backdrop-blur-sm shadow-sm ${
                   isSelected
                     ? "bg-blue-500/20 border-blue-500/30"

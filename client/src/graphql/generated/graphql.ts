@@ -24,6 +24,13 @@ export type Author = {
   username: Scalars['String']['output'];
 };
 
+export type Collaborator = {
+  __typename?: 'Collaborator';
+  addedAt?: Maybe<Scalars['String']['output']>;
+  role: Role;
+  user: Author;
+};
+
 export type Comment = {
   __typename?: 'Comment';
   author: Author;
@@ -58,13 +65,16 @@ export type ExportedDocument = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptRequest: Scalars['Boolean']['output'];
+  addCollaborator: Script;
   addComment: Paragraph;
   approveParagraph: MutationResponse;
   createRequest: Request;
   createScript: Script;
+  deleteParagraph: MutationResponse;
   deleteScript: MutationResponse;
   dislikeParagraph: MutationResponse;
   dislikeScript: MutationResponse;
+  editParagraph: Paragraph;
   likeParagraph: MutationResponse;
   likeScript: MutationResponse;
   login?: Maybe<User>;
@@ -74,8 +84,10 @@ export type Mutation = {
   markAsNotInterested: MutationResponse;
   register?: Maybe<User>;
   rejectParagraph: MutationResponse;
+  removeCollaborator: Script;
   submitParagraph: Paragraph;
   toggleBookmark: MutationResponse;
+  updateCollaboratorRole: Script;
   updateScript: Script;
   updateUserProfile: User;
 };
@@ -84,6 +96,13 @@ export type Mutation = {
 export type MutationAcceptRequestArgs = {
   requestId: Scalars['ID']['input'];
   scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationAddCollaboratorArgs = {
+  role: Role;
+  scriptId: Scalars['ID']['input'];
+  username: Scalars['String']['input'];
 };
 
 
@@ -113,6 +132,11 @@ export type MutationCreateScriptArgs = {
 };
 
 
+export type MutationDeleteParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteScriptArgs = {
   scriptId: Scalars['ID']['input'];
 };
@@ -125,6 +149,12 @@ export type MutationDislikeParagraphArgs = {
 
 export type MutationDislikeScriptArgs = {
   scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationEditParagraphArgs = {
+  paragraphId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
 };
 
 
@@ -171,6 +201,12 @@ export type MutationRejectParagraphArgs = {
 };
 
 
+export type MutationRemoveCollaboratorArgs = {
+  scriptId: Scalars['ID']['input'];
+  targetUserId: Scalars['ID']['input'];
+};
+
+
 export type MutationSubmitParagraphArgs = {
   scriptId: Scalars['ID']['input'];
   text: Scalars['String']['input'];
@@ -179,6 +215,13 @@ export type MutationSubmitParagraphArgs = {
 
 export type MutationToggleBookmarkArgs = {
   scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateCollaboratorRoleArgs = {
+  role: Role;
+  scriptId: Scalars['ID']['input'];
+  targetUserId: Scalars['ID']['input'];
 };
 
 
@@ -210,7 +253,7 @@ export type Paragraph = {
   dislikes: Array<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
   likes: Array<Scalars['ID']['output']>;
-  script: Scalars['ID']['output'];
+  script: Script;
   status: Scalars['String']['output'];
   text: Scalars['String']['output'];
 };
@@ -227,7 +270,7 @@ export type Query = {
   getScriptsByGenres: Array<Script>;
   getUserContributions: Array<UserContribution>;
   getUserFavourites: Array<Script>;
-  getUserProfile?: Maybe<User>;
+  getUserProfile: User;
   getUserScripts: Array<Script>;
 };
 
@@ -279,7 +322,7 @@ export type QueryGetUserFavouritesArgs = {
 
 
 export type QueryGetUserProfileArgs = {
-  username: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -301,9 +344,17 @@ export type Request = {
   text: Scalars['String']['output'];
 };
 
+export enum Role {
+  Contributor = 'CONTRIBUTOR',
+  Editor = 'EDITOR',
+  Owner = 'OWNER',
+  Viewer = 'VIEWER'
+}
+
 export type Script = {
   __typename?: 'Script';
   author: Author;
+  collaborators?: Maybe<Array<Collaborator>>;
   combinedText?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['String']['output'];
   description: Scalars['String']['output'];
@@ -345,13 +396,28 @@ export type UserContribution = {
   __typename?: 'UserContribution';
   comments: Array<Comment>;
   createdAt: Scalars['String']['output'];
-  dislikes: Scalars['Int']['output'];
+  dislikes: Array<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
-  likes: Scalars['Int']['output'];
+  likes: Array<Scalars['ID']['output']>;
   script: Script;
   status: Scalars['String']['output'];
   text: Scalars['String']['output'];
 };
+
+export type EditParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type EditParagraphMutation = { __typename?: 'Mutation', editParagraph: { __typename?: 'Paragraph', id: string, text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } } };
+
+export type DeleteParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteParagraphMutation = { __typename?: 'Mutation', deleteParagraph: { __typename?: 'MutationResponse', status: boolean } };
 
 export type CreateScriptMutationVariables = Exact<{
   title: Scalars['String']['input'];
@@ -429,6 +495,32 @@ export type DislikeScriptMutationVariables = Exact<{
 
 export type DislikeScriptMutation = { __typename?: 'Mutation', dislikeScript: { __typename?: 'MutationResponse', status: boolean } };
 
+export type AddCollaboratorMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  username: Scalars['String']['input'];
+  role: Role;
+}>;
+
+
+export type AddCollaboratorMutation = { __typename?: 'Mutation', addCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, username: string } }> | null } };
+
+export type RemoveCollaboratorMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  targetUserId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveCollaboratorMutation = { __typename?: 'Mutation', removeCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, username: string } }> | null } };
+
+export type UpdateCollaboratorRoleMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  targetUserId: Scalars['ID']['input'];
+  role: Role;
+}>;
+
+
+export type UpdateCollaboratorRoleMutation = { __typename?: 'Mutation', updateCollaboratorRole: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, username: string } }> | null } };
+
 export type UpdateScriptMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
@@ -483,7 +575,7 @@ export type GetParagraphByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, script: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } | null };
+export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, script: { __typename?: 'Script', id: string, author: { __typename?: 'Author', id: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string } }> | null }, author: { __typename?: 'Author', id: string, username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } | null };
 
 export type GetPendingParagraphsQueryVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -505,7 +597,7 @@ export type GetScriptByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetScriptByIdQuery = { __typename?: 'Query', getScriptById?: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, createdAt: string, combinedText?: string | null, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', username: string }, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> } | null };
+export type GetScriptByIdQuery = { __typename?: 'Query', getScriptById?: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, createdAt: string, combinedText?: string | null, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, username: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, username: string } }> | null, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', id: string, username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> }> } | null };
 
 export type GetScriptsByGenresQueryVariables = Exact<{
   genres: Array<Scalars['String']['input']> | Scalars['String']['input'];
@@ -522,11 +614,11 @@ export type GetScriptContributorsQueryVariables = Exact<{
 export type GetScriptContributorsQuery = { __typename?: 'Query', getScriptContributors: { __typename?: 'ScriptContributors', contributors: Array<{ __typename?: 'Contributor', userId: string, details: { __typename?: 'ContributorDetails', name: string, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', username: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> } }> } };
 
 export type GetUserProfileQueryVariables = Exact<{
-  username: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 }>;
 
 
-export type GetUserProfileQuery = { __typename?: 'Query', getUserProfile?: { __typename?: 'User', id?: string | null, username: string, email: string, bio?: string | null, languages?: Array<string | null> | null, interests?: Array<string | null> | null, likes?: Array<string | null> | null, followers?: Array<string | null> | null, follows?: Array<string | null> | null, views?: Array<string | null> | null } | null };
+export type GetUserProfileQuery = { __typename?: 'Query', getUserProfile: { __typename?: 'User', id?: string | null, username: string, email: string, bio?: string | null, languages?: Array<string | null> | null, favourites?: Array<string | null> | null, likes?: Array<string | null> | null, followers?: Array<string | null> | null, follows?: Array<string | null> | null, views?: Array<string | null> | null } };
 
 export type GetUserScriptsQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -540,7 +632,7 @@ export type GetUserContributionsQueryVariables = Exact<{
 }>;
 
 
-export type GetUserContributionsQuery = { __typename?: 'Query', getUserContributions: Array<{ __typename?: 'UserContribution', id: string, status: string, text: string, likes: number, dislikes: number, createdAt: string, script: { __typename?: 'Script', id: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> };
+export type GetUserContributionsQuery = { __typename?: 'Query', getUserContributions: Array<{ __typename?: 'UserContribution', id: string, status: string, text: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, script: { __typename?: 'Script', id: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', username: string } }> }> };
 
 export type GetUserFavouritesQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -550,6 +642,79 @@ export type GetUserFavouritesQueryVariables = Exact<{
 export type GetUserFavouritesQuery = { __typename?: 'Query', getUserFavourites: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', username: string } }> };
 
 
+export const EditParagraphDocument = gql`
+    mutation EditParagraph($paragraphId: ID!, $text: String!) {
+  editParagraph(paragraphId: $paragraphId, text: $text) {
+    id
+    text
+    createdAt
+    author {
+      id
+      username
+    }
+  }
+}
+    `;
+export type EditParagraphMutationFn = Apollo.MutationFunction<EditParagraphMutation, EditParagraphMutationVariables>;
+
+/**
+ * __useEditParagraphMutation__
+ *
+ * To run a mutation, you first call `useEditParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEditParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [editParagraphMutation, { data, loading, error }] = useEditParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useEditParagraphMutation(baseOptions?: Apollo.MutationHookOptions<EditParagraphMutation, EditParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EditParagraphMutation, EditParagraphMutationVariables>(EditParagraphDocument, options);
+      }
+export type EditParagraphMutationHookResult = ReturnType<typeof useEditParagraphMutation>;
+export type EditParagraphMutationResult = Apollo.MutationResult<EditParagraphMutation>;
+export type EditParagraphMutationOptions = Apollo.BaseMutationOptions<EditParagraphMutation, EditParagraphMutationVariables>;
+export const DeleteParagraphDocument = gql`
+    mutation DeleteParagraph($paragraphId: ID!) {
+  deleteParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type DeleteParagraphMutationFn = Apollo.MutationFunction<DeleteParagraphMutation, DeleteParagraphMutationVariables>;
+
+/**
+ * __useDeleteParagraphMutation__
+ *
+ * To run a mutation, you first call `useDeleteParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteParagraphMutation, { data, loading, error }] = useDeleteParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useDeleteParagraphMutation(baseOptions?: Apollo.MutationHookOptions<DeleteParagraphMutation, DeleteParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteParagraphMutation, DeleteParagraphMutationVariables>(DeleteParagraphDocument, options);
+      }
+export type DeleteParagraphMutationHookResult = ReturnType<typeof useDeleteParagraphMutation>;
+export type DeleteParagraphMutationResult = Apollo.MutationResult<DeleteParagraphMutation>;
+export type DeleteParagraphMutationOptions = Apollo.BaseMutationOptions<DeleteParagraphMutation, DeleteParagraphMutationVariables>;
 export const CreateScriptDocument = gql`
     mutation CreateScript($title: String!, $visibility: String!, $languages: [String!]!, $genres: [String!]!, $description: String!) {
   createScript(
@@ -911,6 +1076,135 @@ export function useDislikeScriptMutation(baseOptions?: Apollo.MutationHookOption
 export type DislikeScriptMutationHookResult = ReturnType<typeof useDislikeScriptMutation>;
 export type DislikeScriptMutationResult = Apollo.MutationResult<DislikeScriptMutation>;
 export type DislikeScriptMutationOptions = Apollo.BaseMutationOptions<DislikeScriptMutation, DislikeScriptMutationVariables>;
+export const AddCollaboratorDocument = gql`
+    mutation AddCollaborator($scriptId: ID!, $username: String!, $role: Role!) {
+  addCollaborator(scriptId: $scriptId, username: $username, role: $role) {
+    id
+    collaborators {
+      user {
+        id
+        username
+      }
+      role
+    }
+  }
+}
+    `;
+export type AddCollaboratorMutationFn = Apollo.MutationFunction<AddCollaboratorMutation, AddCollaboratorMutationVariables>;
+
+/**
+ * __useAddCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCollaboratorMutation, { data, loading, error }] = useAddCollaboratorMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      username: // value for 'username'
+ *      role: // value for 'role'
+ *   },
+ * });
+ */
+export function useAddCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddCollaboratorMutation, AddCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddCollaboratorMutation, AddCollaboratorMutationVariables>(AddCollaboratorDocument, options);
+      }
+export type AddCollaboratorMutationHookResult = ReturnType<typeof useAddCollaboratorMutation>;
+export type AddCollaboratorMutationResult = Apollo.MutationResult<AddCollaboratorMutation>;
+export type AddCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddCollaboratorMutation, AddCollaboratorMutationVariables>;
+export const RemoveCollaboratorDocument = gql`
+    mutation RemoveCollaborator($scriptId: ID!, $targetUserId: ID!) {
+  removeCollaborator(scriptId: $scriptId, targetUserId: $targetUserId) {
+    id
+    collaborators {
+      user {
+        id
+        username
+      }
+      role
+    }
+  }
+}
+    `;
+export type RemoveCollaboratorMutationFn = Apollo.MutationFunction<RemoveCollaboratorMutation, RemoveCollaboratorMutationVariables>;
+
+/**
+ * __useRemoveCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useRemoveCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeCollaboratorMutation, { data, loading, error }] = useRemoveCollaboratorMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      targetUserId: // value for 'targetUserId'
+ *   },
+ * });
+ */
+export function useRemoveCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<RemoveCollaboratorMutation, RemoveCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveCollaboratorMutation, RemoveCollaboratorMutationVariables>(RemoveCollaboratorDocument, options);
+      }
+export type RemoveCollaboratorMutationHookResult = ReturnType<typeof useRemoveCollaboratorMutation>;
+export type RemoveCollaboratorMutationResult = Apollo.MutationResult<RemoveCollaboratorMutation>;
+export type RemoveCollaboratorMutationOptions = Apollo.BaseMutationOptions<RemoveCollaboratorMutation, RemoveCollaboratorMutationVariables>;
+export const UpdateCollaboratorRoleDocument = gql`
+    mutation UpdateCollaboratorRole($scriptId: ID!, $targetUserId: ID!, $role: Role!) {
+  updateCollaboratorRole(
+    scriptId: $scriptId
+    targetUserId: $targetUserId
+    role: $role
+  ) {
+    id
+    collaborators {
+      user {
+        id
+        username
+      }
+      role
+    }
+  }
+}
+    `;
+export type UpdateCollaboratorRoleMutationFn = Apollo.MutationFunction<UpdateCollaboratorRoleMutation, UpdateCollaboratorRoleMutationVariables>;
+
+/**
+ * __useUpdateCollaboratorRoleMutation__
+ *
+ * To run a mutation, you first call `useUpdateCollaboratorRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCollaboratorRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCollaboratorRoleMutation, { data, loading, error }] = useUpdateCollaboratorRoleMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      targetUserId: // value for 'targetUserId'
+ *      role: // value for 'role'
+ *   },
+ * });
+ */
+export function useUpdateCollaboratorRoleMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCollaboratorRoleMutation, UpdateCollaboratorRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCollaboratorRoleMutation, UpdateCollaboratorRoleMutationVariables>(UpdateCollaboratorRoleDocument, options);
+      }
+export type UpdateCollaboratorRoleMutationHookResult = ReturnType<typeof useUpdateCollaboratorRoleMutation>;
+export type UpdateCollaboratorRoleMutationResult = Apollo.MutationResult<UpdateCollaboratorRoleMutation>;
+export type UpdateCollaboratorRoleMutationOptions = Apollo.BaseMutationOptions<UpdateCollaboratorRoleMutation, UpdateCollaboratorRoleMutationVariables>;
 export const UpdateScriptDocument = gql`
     mutation UpdateScript($scriptId: ID!, $title: String, $description: String, $visibility: String) {
   updateScript(
@@ -1142,7 +1436,18 @@ export const GetParagraphByIdDocument = gql`
     query GetParagraphById($paragraphId: ID!) {
   getParagraphById(paragraphId: $paragraphId) {
     id
-    script
+    script {
+      id
+      author {
+        id
+      }
+      collaborators {
+        role
+        user {
+          id
+        }
+      }
+    }
     text
     status
     createdAt
@@ -1308,7 +1613,15 @@ export const GetScriptByIdDocument = gql`
     likes
     dislikes
     author {
+      id
       username
+    }
+    collaborators {
+      role
+      user {
+        id
+        username
+      }
     }
     paragraphs {
       id
@@ -1318,10 +1631,12 @@ export const GetScriptByIdDocument = gql`
       dislikes
       createdAt
       author {
+        id
         username
       }
       comments {
         author {
+          id
           username
         }
         text
@@ -1487,14 +1802,14 @@ export type GetScriptContributorsLazyQueryHookResult = ReturnType<typeof useGetS
 export type GetScriptContributorsSuspenseQueryHookResult = ReturnType<typeof useGetScriptContributorsSuspenseQuery>;
 export type GetScriptContributorsQueryResult = Apollo.QueryResult<GetScriptContributorsQuery, GetScriptContributorsQueryVariables>;
 export const GetUserProfileDocument = gql`
-    query GetUserProfile($username: String!) {
-  getUserProfile(username: $username) {
+    query GetUserProfile($id: ID!) {
+  getUserProfile(id: $id) {
     id
     username
     email
     bio
     languages
-    interests
+    favourites
     likes
     followers
     follows
@@ -1515,7 +1830,7 @@ export const GetUserProfileDocument = gql`
  * @example
  * const { data, loading, error } = useGetUserProfileQuery({
  *   variables: {
- *      username: // value for 'username'
+ *      id: // value for 'id'
  *   },
  * });
  */

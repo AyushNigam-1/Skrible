@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
       }`}
     >
       {/* Inner container stays a fixed width so content doesn't squish or wrap while closing */}
-      <div className="w-64 h-full bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
+      <div className="w-full h-full bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
         {/* --- Header / Logo --- */}
         <div className="flex justify-between items-center mb-8 px-1 shrink-0">
           <img
@@ -102,7 +102,6 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           })}
         </nav>
 
-        {/* --- Footer / Sign Out --- */}
         <div className="mt-auto pt-4 border-t border-white/10 shrink-0">
           <button className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none">
             <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" />

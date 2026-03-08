@@ -17,6 +17,7 @@ export const userTypeDefs = gql`
     scripts: [ID]
     follows: [ID]
   }
+
   type UserContribution {
     id: ID!
     status: String!
@@ -29,7 +30,7 @@ export const userTypeDefs = gql`
   }
 
   type Query {
-    getUserProfile(username: String!): User
+    getUserProfile(id: ID!): User!
     getUserScripts(userId: ID!): [Script!]!
     getUserContributions(userId: ID!): [UserContribution!]!
     getUserFavourites(userId: ID!): [Script!]!

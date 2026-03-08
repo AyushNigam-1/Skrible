@@ -9,11 +9,12 @@ export const scriptQueries = {
   getScriptById: async (_: any, { id }: { id: string }) => {
     const script = await Script.findById(id)
       .populate("author")
+      .populate("collaborators.user") // <-- Add this line
       .populate({
         path: "paragraphs",
         populate: [{ path: "author" }, { path: "comments.author" }],
       });
-
+    console.log(script);
     if (!script) throw new Error("Script not found");
 
     return script;

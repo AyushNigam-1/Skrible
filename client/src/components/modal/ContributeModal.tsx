@@ -3,12 +3,7 @@ import { Dialog, DialogPanel, DialogBackdrop } from "@headlessui/react";
 import { pdfjs } from "react-pdf";
 import { Feather, PlusCircle, Send, X, Loader2 } from "lucide-react";
 import clsx from "clsx";
-
-// Import the generated mutation hook
 import { useSubmitParagraphMutation } from "../../graphql/generated/graphql";
-
-// Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface ContributeModalProps {
   scriptId: string;
@@ -85,7 +80,7 @@ const ContributeModal = ({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all duration-300 text-sm font-semibold shadow-sm shrink-0 ml-4 active:scale-95 font-sans"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all duration-300  font-semibold shadow-sm shrink-0 ml-4 active:scale-95 "
         >
           <PlusCircle className="w-4 h-4" />
           Contribute

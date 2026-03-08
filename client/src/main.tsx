@@ -4,12 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layouts/AuthLayout";
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  HttpLink,
-} from "@apollo/client";
 import Script from "./pages/scripts/Script";
 import Favourites from "./pages/favourites/Favourites";
 import Notifications from "./pages/notification/Notifications";
@@ -27,16 +21,9 @@ import Contributions from "./pages/contributions/Contributions";
 import MyContributions from "./pages/contributions/MyContributions";
 import HomeLayout from "./layouts/HomeLayout";
 import ZenMode from "./pages/zen/ZenMode";
-
-const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql",
-  credentials: "include",
-});
-
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-});
+import { UserProvider } from "./components/providers/UserProvider";
+import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
+import RequestsPreview from "./pages/requests/RequestsPreview";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +38,10 @@ const router = createBrowserRouter([
       { path: "/profile/:username", element: <Profile /> },
       { path: "/my-contributions", element: <MyContributions /> },
       { path: "/contribution/:id", element: <Contribution /> },
-
+      {
+        path: "/preview/:id/:paragraphId",
+        element: <RequestsPreview />,
+      },
       {
         path: "/",
         element: <DraftLayout />,
@@ -77,11 +67,15 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
 
-createRoot(document.getElementById("root")).render(
-  <ApolloProvider client={client}>
-    <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
-      <RouterProvider router={router} />
-    </div>
-  </ApolloProvider>,
+createRoot(rootElement).render(
+  <CustomApolloProvider>
+    <UserProvider>
+      <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
+        <RouterProvider router={router} />
+      </div>
+    </UserProvider>
+  </CustomApolloProvider>,
 );

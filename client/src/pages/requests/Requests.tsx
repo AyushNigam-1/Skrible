@@ -1,11 +1,16 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { motion, AnimatePresence } from "framer-motion";
-import { Inbox, Clock, User, FileText } from "lucide-react";
-import RequestsSidebar from "../../components/RequestsSidebar";
+import { motion, AnimatePresence, Variants } from "framer-motion";
+import {
+  Inbox,
+  Clock,
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+} from "lucide-react";
 import Loader from "../../components/layout/Loader";
 import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
 
@@ -19,9 +24,13 @@ type Author = {
 };
 
 type RequestType = {
+  id?: string;
   text: string;
   createdAt?: string | number;
   author?: Author;
+  likes?: string[];
+  dislikes?: string[];
+  comments?: any[];
 };
 
 type ScriptData = {
@@ -44,19 +53,18 @@ type OutletContextType = {
 };
 
 const Requests: React.FC = () => {
-  const { request, setRequest, data, refetch, setTab } =
-    useOutletContext<OutletContextType>();
+  const navigate = useNavigate();
+  const { data, refetch } = useOutletContext<OutletContextType>();
 
   const scriptId = data?.getScriptById?.id;
 
-  const {
-    data: pendingData,
-    refetch: refetchPending,
-    loading,
-  } = useQuery<PendingData>(GET_PENDING_PARAGRAPHS, {
-    variables: { scriptId },
-    skip: !scriptId,
-  });
+  const { data: pendingData, loading } = useQuery<PendingData>(
+    GET_PENDING_PARAGRAPHS,
+    {
+      variables: { scriptId },
+      skip: !scriptId,
+    },
+  );
 
   const pendingParagraphs = pendingData?.getPendingParagraphs || [];
 
@@ -72,12 +80,12 @@ const Requests: React.FC = () => {
   };
 
   // Animation variants
-  const pageVariants = {
+  const pageVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
+      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.1 },
     },
     exit: {
       opacity: 0,
@@ -86,11 +94,15 @@ const Requests: React.FC = () => {
     },
   };
 
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
   return (
     <div className="w-full flex-1 flex flex-col" id="requests">
       <AnimatePresence mode="wait">
         {loading ? (
-          // Perfectly centered Loader
           <motion.div
             key="loader"
             initial={{ opacity: 0 }}
@@ -101,14 +113,13 @@ const Requests: React.FC = () => {
             <Loader />
           </motion.div>
         ) : pendingParagraphs.length === 0 ? (
-          // Empty State
           <motion.div
             key="empty-state"
             variants={pageVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-[#130f1c]/50 backdrop-blur-xl shadow-lg relative overflow-hidden"
+            className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-[#130f1c]/50 backdrop-blur-xl shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full "
           >
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/5 blur-[80px] rounded-full pointer-events-none" />
 
@@ -126,102 +137,68 @@ const Requests: React.FC = () => {
             </p>
           </motion.div>
         ) : (
-          // Content State
           <motion.div
-            key="content"
+            key="feed"
             variants={pageVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full pb-6"
+            className="w-full max-w-7xl mx-auto grid grid-cols-2 gap-6"
           >
-            {/* Sidebar */}
-            <div className="lg:col-span-4 xl:col-span-3 h-[40vh] lg:h-full overflow-hidden bg-[#130f1c]/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg">
-              <RequestsSidebar
-                requests={pendingParagraphs}
-                setRequest={setRequest}
-                request={request}
-                scriptId={scriptId}
-                refetch={() => {
-                  refetch();
-                  refetchPending();
-                }}
-                setTab={setTab}
-              />
-            </div>
-
-            {/* Preview */}
-            <div
-              id="requestPreview"
-              className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6 bg-[#130f1c]/50 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-lg overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 scrollbar-thumb-rounded-full"
-            >
-              {/* Approved Paragraphs */}
-              {data?.getScriptById?.paragraphs?.length ? (
-                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-300 leading-relaxed font-['Literata']">
-                  {data.getScriptById.paragraphs.map((para) => (
-                    <ReactMarkdown
-                      key={para.id}
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        ul: ({ children }) => (
-                          <ul className="list-disc ml-5 mb-4">{children}</ul>
-                        ),
-                        p: ({ children }) => <p className="mb-4">{children}</p>,
-                      }}
-                    >
-                      {para.text}
-                    </ReactMarkdown>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-500 italic pb-4 border-b border-white/10 font-mono">
-                  <FileText className="w-4 h-4" />
-                  This draft currently has no approved content.
-                </div>
-              )}
-
-              {/* Pending Contribution */}
-              {request && (
-                <div className="relative mt-2 shrink-0">
-                  <div className="absolute inset-0 bg-white/5 border border-dashed border-white/20 rounded-xl pointer-events-none" />
-
-                  <div className="block relative z-10 p-5 cursor-pointer group hover:bg-white/5 transition-colors rounded-xl">
-                    <div className="flex flex-wrap items-center gap-4 mb-4 pb-3 border-b border-white/10">
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 border border-white/20 text-white text-[10px] font-bold rounded-md uppercase tracking-widest shadow-sm font-mono">
-                        <Clock className="w-3.5 h-3.5" /> Pending Addition
-                      </span>
-
-                      <div className="flex items-center gap-2 text-sm font-bold text-white font-mono">
-                        <div className="bg-white/10 p-1.5 rounded-full">
-                          <User className="w-3.5 h-3.5" />
-                        </div>
-                        @{request.author?.username || "Unknown"}
-                      </div>
-
-                      <div className="text-xs text-gray-500 ml-auto font-mono uppercase tracking-wider">
-                        {formatDate(request.createdAt)}
-                      </div>
-                    </div>
-
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-gray-200 font-['Literata'] leading-relaxed">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          ul: ({ children }) => (
-                            <ul className="list-disc ml-5 mb-2">{children}</ul>
-                          ),
-                          p: ({ children }) => (
-                            <p className="mb-0">{children}</p>
-                          ),
-                        }}
-                      >
-                        {request.text}
-                      </ReactMarkdown>
-                    </div>
+            {pendingParagraphs.map((req) => (
+              <motion.div
+                key={req.id}
+                variants={cardVariants}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => navigate(`/preview/${scriptId}/${req.id}`)}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-lg flex flex-col gap-4 group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white font-semibold shadow-inner border border-white/10">
+                    {req.author?.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white font-mono">
+                      {req.author?.username || "Unknown"}
+                    </p>
+                    <p className="text-sm text-gray-400 font-mono">
+                      {formatDate(req.createdAt)}
+                    </p>
                   </div>
                 </div>
-              )}
-            </div>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-400 line-clamp-4">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      ul: ({ children }) => (
+                        <ul className="list-disc ml-5 mb-2">{children}</ul>
+                      ),
+                      p: ({ children }) => <p className="mb-0">{children}</p>,
+                    }}
+                  >
+                    {req.text}
+                  </ReactMarkdown>
+                </div>
+
+                <div className="flex items-center justify-between gap-6  text-gray-400 text-sm font-mono">
+                  <div className="flex items-center gap-6 ">
+                    <div className="flex items-center gap-2 group-hover:text-white transition-colors">
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>{req.likes?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2 group-hover:text-white transition-colors">
+                      <ThumbsDown className="w-4 h-4" />
+                      <span>{req.dislikes?.length || 0}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 group-hover:text-white transition-colors">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>{req.comments?.length || 0}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>

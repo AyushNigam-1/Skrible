@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
+import { motion, Variants } from "framer-motion";
+import Tabs from "../components/layout/Tabs";
+import Loader from "../components/layout/Loader";
+import { ThumbsUp, ThumbsDown, Bookmark, Loader2 } from "lucide-react";
+import InviteModal from "../components/modal/InviteModal";
+import { useUserStore } from "../store/useAuthStore";
 import {
   useParams,
   Outlet,
   useOutletContext,
   useLocation,
 } from "react-router-dom";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-
-// Import generated hooks
 import {
   useGetScriptByIdQuery,
-  useGetUserProfileQuery,
   useLikeScriptMutation,
   useDislikeScriptMutation,
   useToggleBookmarkMutation,
 } from "../graphql/generated/graphql";
-
-import Tabs from "../components/layout/Tabs";
-import Loader from "../components/layout/Loader";
-import { ThumbsUp, ThumbsDown, Bookmark, Loader2 } from "lucide-react";
-import InviteModal from "../components/modal/InviteModal";
-
 interface LayoutContext {
   path?: string;
 }
@@ -28,14 +24,11 @@ interface LayoutContext {
 const DraftLayout = () => {
   const { id } = useParams<{ id: string }>();
   const { path } = useOutletContext<LayoutContext>() || {};
-  const location = useLocation(); // Used to trigger AnimatePresence on route changes
+  const location = useLocation();
 
-  const storedUser = localStorage.getItem("user");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const { user: currentUser } = useUserStore();
   const currentUserId = currentUser?.id;
-  const currentUsername = currentUser?.username;
-
-  // Added explicit types to state
+  console.log("currentUser", currentUser);
   const [request, setRequest] = useState<any>(null);
   const [tab, setTab] = useState<string>("Timeline");
 
@@ -43,18 +36,12 @@ const DraftLayout = () => {
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  // Replaced generic useQuery with generated hooks
   const { data, loading, error, refetch } = useGetScriptByIdQuery({
     variables: { id: id || "" },
     skip: !id,
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: userData } = useGetUserProfileQuery({
-    variables: { username: currentUsername || "" },
-    skip: !currentUsername,
-  });
-
-  // Replaced generic useMutation with generated hooks
   const [likeScript, { loading: isLiking }] = useLikeScriptMutation();
   const [dislikeScript, { loading: isDisliking }] = useDislikeScriptMutation();
   const [toggleBookmark, { loading: isBookmarking }] =
@@ -64,20 +51,22 @@ const DraftLayout = () => {
 
   useEffect(() => {
     if (script) {
-      // Type casting to string[] in case the generated type allows nulls
       setLocalLikes((script.likes as string[]) || []);
       setLocalDislikes((script.dislikes as string[]) || []);
     }
-    // if (userData?.getUserProfile?.favourites && id) {
-    //   setIsBookmarked(userData.getUserProfile.favourites.includes(id));
-    // }
-    // if (!request && script?.requests && script.requests.length > 0) {
-    //   setRequest(script.requests[0]);
-    // }
-  }, [script, userData, request, id]);
 
-  const isLiked = localLikes.includes(currentUserId);
-  const isDisliked = localDislikes.includes(currentUserId);
+    if (currentUser?.favourites && id) {
+      const isFav = currentUser.favourites.some(
+        (fav: any) => fav.id === id || fav === id,
+      );
+      setIsBookmarked(isFav);
+    }
+  }, [script, currentUser, id]);
+
+  const isLiked = currentUserId ? localLikes.includes(currentUserId) : false;
+  const isDisliked = currentUserId
+    ? localDislikes.includes(currentUserId)
+    : false;
 
   if (error)
     return (
@@ -87,16 +76,64 @@ const DraftLayout = () => {
     );
 
   const handleLike = async () => {
-    /* ... existing logic ... */
-  };
-  const handleDislike = async () => {
-    /* ... existing logic ... */
-  };
-  const handleBookmark = async () => {
-    /* ... existing logic ... */
+    if (!currentUserId) return alert("Please log in to like this draft.");
+    const prevLikes = [...localLikes];
+    const prevDislikes = [...localDislikes];
+
+    if (isLiked) {
+      setLocalLikes(prevLikes.filter((userId) => userId !== currentUserId));
+    } else {
+      setLocalLikes([...prevLikes, currentUserId]);
+      setLocalDislikes(
+        prevDislikes.filter((userId) => userId !== currentUserId),
+      );
+    }
+
+    try {
+      await likeScript({ variables: { scriptId: id || "" } });
+    } catch (err) {
+      setLocalLikes(prevLikes);
+      setLocalDislikes(prevDislikes);
+      console.error("Failed to like script:", err);
+    }
   };
 
-  // --- Framer Motion Variants ---
+  const handleDislike = async () => {
+    if (!currentUserId) return alert("Please log in to dislike this draft.");
+    const prevLikes = [...localLikes];
+    const prevDislikes = [...localDislikes];
+
+    if (isDisliked) {
+      setLocalDislikes(
+        prevDislikes.filter((userId) => userId !== currentUserId),
+      );
+    } else {
+      setLocalDislikes([...prevDislikes, currentUserId]);
+      setLocalLikes(prevLikes.filter((userId) => userId !== currentUserId));
+    }
+
+    try {
+      await dislikeScript({ variables: { scriptId: id || "" } });
+    } catch (err) {
+      setLocalLikes(prevLikes);
+      setLocalDislikes(prevDislikes);
+      console.error("Failed to dislike script:", err);
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!currentUserId) return alert("Please log in to bookmark.");
+    const prevBookmark = isBookmarked;
+    setIsBookmarked(!prevBookmark);
+
+    try {
+      await toggleBookmark({ variables: { scriptId: id || "" } });
+    } catch (err) {
+      setIsBookmarked(prevBookmark);
+      console.error("Failed to toggle bookmark:", err);
+    }
+  };
+
   const layoutVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
@@ -137,19 +174,17 @@ const DraftLayout = () => {
     >
       {path !== "zen" && script && (
         <motion.div variants={contentVariants} className="flex flex-col gap-6">
-          {/* Header Row: Title & Actions aligned horizontally */}
           <div className="flex flex-col md:flex-row items-center justify-between">
-            {/* Left: Title & Meta */}
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                 {script.title}
               </h1>
             </div>
 
-            {/* Right: Actions */}
             <div className="flex items-center gap-2 rounded-xl shrink-0 mt-4 md:mt-0">
               <button
                 onClick={handleLike}
+                disabled={isLiking}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                   isLiked
                     ? "bg-white/10 text-white"
@@ -163,6 +198,7 @@ const DraftLayout = () => {
               </button>
               <button
                 onClick={handleDislike}
+                disabled={isDisliking}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                   isDisliked
                     ? "bg-white/10 text-white"
@@ -177,6 +213,7 @@ const DraftLayout = () => {
               <div className="w-[1px] h-4 bg-white/20 mx-1" />
               <button
                 onClick={handleBookmark}
+                disabled={isBookmarking}
                 className={`p-2 rounded-lg transition-all ${
                   isBookmarked
                     ? "text-white bg-white/10"
@@ -208,7 +245,6 @@ const DraftLayout = () => {
       )}
 
       {loading ? (
-        // Perfectly centered Loader
         <motion.div
           key="loader"
           initial={{ opacity: 0 }}
@@ -220,15 +256,6 @@ const DraftLayout = () => {
         </motion.div>
       ) : (
         <div className="w-full relative z-10 flex-1">
-          {/*<AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={contentVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="h-full"
-            >*/}
           <Outlet
             context={{
               request,
@@ -240,8 +267,6 @@ const DraftLayout = () => {
               loading,
             }}
           />
-          {/*</motion.div>
-          </AnimatePresence>*/}
         </div>
       )}
     </motion.div>

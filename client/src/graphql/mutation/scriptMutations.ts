@@ -55,22 +55,6 @@ export const REJECT_PARAGRAPH = gql`
   }
 `;
 
-export const LIKE_PARAGRAPH = gql`
-  mutation LikeParagraph($paragraphId: ID!) {
-    likeParagraph(paragraphId: $paragraphId) {
-      status
-    }
-  }
-`;
-
-export const DISLIKE_PARAGRAPH = gql`
-  mutation DislikeParagraph($paragraphId: ID!) {
-    dislikeParagraph(paragraphId: $paragraphId) {
-      status
-    }
-  }
-`;
-
 export const DELETE_SCRIPT = gql`
   mutation DeleteScript($scriptId: ID!) {
     deleteScript(scriptId: $scriptId) {
@@ -79,38 +63,6 @@ export const DELETE_SCRIPT = gql`
   }
 `;
 
-// --- NEW: Add Comment Mutation ---
-export const ADD_COMMENT = gql`
-  mutation AddComment($paragraphId: ID!, $text: String!) {
-    addComment(paragraphId: $paragraphId, text: $text) {
-      id
-      comments {
-        text
-        createdAt
-        author {
-          id
-          username
-        }
-      }
-    }
-  }
-`;
-
-export const LIKE_SCRIPT = gql`
-  mutation LikeScript($scriptId: ID!) {
-    likeScript(scriptId: $scriptId) {
-      status
-    }
-  }
-`;
-
-export const DISLIKE_SCRIPT = gql`
-  mutation DislikeScript($scriptId: ID!) {
-    dislikeScript(scriptId: $scriptId) {
-      status
-    }
-  }
-`;
 export const ADD_COLLABORATOR = gql`
   mutation AddCollaborator($scriptId: ID!, $username: String!, $role: Role!) {
     addCollaborator(scriptId: $scriptId, username: $username, role: $role) {

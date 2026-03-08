@@ -18,13 +18,21 @@ export const authenticate = (
   res: Response,
   next: NextFunction,
 ) => {
-  // console.log(req.body.operationName); // Good for debugging!
+  const token = req.cookies?.jwt;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      req.user = { id: decoded.id };
+    } catch (error) {
+      console.error("Invalid JWT token");
+    }
+  }
 
   if (req.path === "/graphql") {
     const operationName = req.body.operationName;
     const query = req.body.query || "";
 
-    // 1. Add 'IntrospectionQuery' to your allowed list
     const allowedOperations = [
       "Register",
       "Login",
@@ -33,32 +41,21 @@ export const authenticate = (
       "GetScriptsByGenres",
       "Logout",
       "ExportDocument",
-      "IntrospectionQuery", // <--- Added this
+      "IntrospectionQuery",
     ];
 
-    // 2. Add a fallback check just in case the codegen tool doesn't send an operationName
     const isIntrospection =
       query.includes("__schema") || query.includes("__type");
-
-    if (
+    const isAllowed =
       (operationName && allowedOperations.includes(operationName)) ||
-      isIntrospection
-    ) {
-      return next();
+      isIntrospection;
+
+    if (!req.user && !isAllowed) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: No valid token provided" });
     }
   }
 
-  const token = req.cookies?.jwt;
-
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    req.user = { id: decoded.id };
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
-  }
+  next();
 };

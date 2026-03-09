@@ -5,30 +5,18 @@ import Loader from "../components/layout/Loader";
 import { ThumbsUp, ThumbsDown, Bookmark, Loader2 } from "lucide-react";
 import InviteModal from "../components/modal/InviteModal";
 import { useUserStore } from "../store/useAuthStore";
+import { useParams, Outlet } from "react-router-dom";
 import {
-  useParams,
-  Outlet,
-  useOutletContext,
-  useLocation,
-} from "react-router-dom";
-import {
+  useDislikeScriptMutation,
   useGetScriptByIdQuery,
   useLikeScriptMutation,
-  useDislikeScriptMutation,
   useToggleBookmarkMutation,
 } from "../graphql/generated/graphql";
-interface LayoutContext {
-  path?: string;
-}
 
 const DraftLayout = () => {
   const { id } = useParams<{ id: string }>();
-  const { path } = useOutletContext<LayoutContext>() || {};
-  const location = useLocation();
-
   const { user: currentUser } = useUserStore();
   const currentUserId = currentUser?.id;
-  console.log("currentUser", currentUser);
   const [request, setRequest] = useState<any>(null);
   const [tab, setTab] = useState<string>("Timeline");
 
@@ -48,6 +36,15 @@ const DraftLayout = () => {
     useToggleBookmarkMutation();
 
   const script = data?.getScriptById;
+
+  // --- 1. Calculate Permissions Here ---
+  // Checks if the logged-in user is the author OR is in the editors array
+  const isEditorOrOwner = Boolean(
+    currentUserId &&
+    script &&
+    (script.author?.id === currentUserId ||
+      script.editors?.some((editor: any) => editor.id === currentUserId)),
+  );
 
   useEffect(() => {
     if (script) {
@@ -141,11 +138,6 @@ const DraftLayout = () => {
       y: 0,
       transition: { duration: 0.5, ease: "easeOut", staggerChildren: 0.1 },
     },
-    exit: {
-      opacity: 0,
-      y: -15,
-      transition: { duration: 0.3, ease: "easeIn" },
-    },
   };
 
   const contentVariants: Variants = {
@@ -155,11 +147,6 @@ const DraftLayout = () => {
       filter: "blur(0px)",
       transition: { duration: 0.4 },
     },
-    exit: {
-      opacity: 0,
-      filter: "blur(4px)",
-      transition: { duration: 0.2 },
-    },
   };
 
   return (
@@ -167,12 +154,9 @@ const DraftLayout = () => {
       variants={layoutVariants}
       initial="hidden"
       animate="visible"
-      exit="exit"
-      className={`relative flex flex-col gap-6 w-full max-w-7xl mx-auto ${
-        path === "zen" ? "max-w-none px-0 pt-0" : ""
-      }`}
+      className="relative flex flex-col gap-6 w-full max-w-7xl mx-auto scrollbar-none"
     >
-      {path !== "zen" && script && (
+      {script && (
         <motion.div variants={contentVariants} className="flex flex-col gap-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-3 flex-wrap">
@@ -235,11 +219,15 @@ const DraftLayout = () => {
           </div>
           <hr className="border-white/10 relative z-10" />
 
-          {path !== "zen" && (
-            <div className="sticky top-0 z-40 ">
-              <Tabs setTab={setTab} tab={tab} scriptId={id} />
-            </div>
-          )}
+          <div className="sticky top-0 z-40 ">
+            {/* --- 2. Pass the calculated prop to Tabs --- */}
+            <Tabs
+              setTab={setTab}
+              tab={tab}
+              scriptId={id}
+              isEditorOrOwner={isEditorOrOwner}
+            />
+          </div>
           <hr className="border-white/10 relative z-10" />
         </motion.div>
       )}
@@ -250,7 +238,7 @@ const DraftLayout = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="w-full min-h-[96vh] flex-1 flex  items-center justify-center"
+          className="w-full min-h-[96vh] flex-1 flex items-center justify-center"
         >
           <Loader />
         </motion.div>

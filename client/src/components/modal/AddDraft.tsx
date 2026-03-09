@@ -123,21 +123,21 @@ const Add = () => {
     }
   };
 
+  // Matched input classes to your deep navy theme
   const inputClass =
-    "w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-600 text-sm font-mono shadow-inner font-medium";
+    "w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-500 text-sm font-mono shadow-inner font-medium";
 
-  const labelClass = "block font-semibold text-gray-300 mb-1 text-sm font-mono";
-
-  const helperClass = "text-[10px] text-gray-500 mt-1.5 font-mono";
+  const labelClass =
+    "block font-semibold text-gray-400 mb-1.5 text-sm font-mono uppercase tracking-widest";
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-white/10 border border-white/10 text-gray-800 rounded-lg transition-all duration-300 text-sm font-semibold shadow-sm active:scale-95"
+        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold transition-all duration-300 shadow-sm active:scale-95"
       >
         <Plus className="w-4 h-4" />
-        New Draft
+        Create
       </button>
 
       <Dialog
@@ -148,28 +148,28 @@ const Add = () => {
       >
         <DialogBackdrop
           transition
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
         />
 
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto scrollbar-none">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            {/* Panel: Extremely dark blue/gray to match the UI screenshot */}
+            {/* Panel: Matched to the deep navy/purple background of your app */}
             <DialogPanel
               transition
-              className="relative transform rounded-2xl bg-[#121216] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-2xl border border-white/10 p-6 space-y-6"
+              className="relative transform rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-2xl border border-white/10 p-6 space-y-4"
             >
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-extrabold text-white tracking-tight">
-                  Create Draft
+                <h3 className="text-2xl font-bold text-white tracking-tight font-sans">
+                  New Draft
                 </h3>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-lg"
+                  className="p-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-white/20"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <hr className="border-b border-white/10" />
+              <hr className="border-b border-white/5" />
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 {/* Title */}
                 <div>
@@ -183,115 +183,128 @@ const Add = () => {
                   />
                 </div>
 
-                {/* Genres */}
-                <div>
-                  <label className={labelClass}>Genres</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Genres */}
+                  <div>
+                    <label className={labelClass}>Genres</label>
+                    <Listbox
+                      value={selectedGenres}
+                      onChange={setSelectedGenres}
+                      multiple
+                    >
+                      <div className="relative">
+                        <ListboxButton
+                          className={clsx(
+                            inputClass,
+                            "flex justify-between items-center text-left",
+                          )}
+                        >
+                          <span className="truncate">
+                            {selectedGenres.length
+                              ? selectedGenres.map((g) => g.name).join(", ")
+                              : "Select genres"}
+                          </span>
+                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        </ListboxButton>
 
-                  <Listbox
-                    value={selectedGenres}
-                    onChange={setSelectedGenres}
-                    multiple
-                  >
-                    <div className="relative">
-                      <ListboxButton
-                        className={clsx(
-                          inputClass,
-                          "flex justify-between items-center text-left",
-                        )}
-                      >
-                        <span className="truncate">
-                          {selectedGenres.length
-                            ? selectedGenres.map((g) => g.name).join(", ")
-                            : "Select genres"}
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
-                      </ListboxButton>
+                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                          <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
+                            <input
+                              placeholder="Search..."
+                              value={genreSearch}
+                              onChange={(e) => setGenreSearch(e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-sm outline-none border border-transparent focus:border-white/20"
+                            />
+                          </div>
 
-                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#1a1a20] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto">
-                        <div className="p-2">
-                          <input
-                            placeholder="Search..."
-                            value={genreSearch}
-                            onChange={(e) => setGenreSearch(e.target.value)}
-                            className={inputClass}
-                          />
-                        </div>
+                          {filteredGenres.map((genre) => (
+                            <ListboxOption
+                              key={genre.id}
+                              value={genre}
+                              className="cursor-pointer px-4 py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-sm transition-colors"
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span
+                                    className={
+                                      selected ? "text-white font-bold" : ""
+                                    }
+                                  >
+                                    {genre.name}
+                                  </span>
+                                  {selected && (
+                                    <Check className="w-4 h-4 text-white" />
+                                  )}
+                                </>
+                              )}
+                            </ListboxOption>
+                          ))}
+                        </ListboxOptions>
+                      </div>
+                    </Listbox>
+                  </div>
 
-                        {filteredGenres.map((genre) => (
-                          <ListboxOption
-                            key={genre.id}
-                            value={genre}
-                            className="cursor-pointer px-4 py-3 hover:bg-white/10 flex justify-between"
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span>{genre.name}</span>
-                                {selected && <Check className="w-4 h-4" />}
-                              </>
-                            )}
-                          </ListboxOption>
-                        ))}
-                      </ListboxOptions>
-                    </div>
-                  </Listbox>
+                  {/* Language */}
+                  <div>
+                    <label className={labelClass}>Language</label>
+                    <Listbox
+                      value={selectedLanguage}
+                      onChange={setSelectedLanguage}
+                    >
+                      <div className="relative">
+                        <ListboxButton
+                          className={clsx(
+                            inputClass,
+                            "flex justify-between items-center text-left",
+                          )}
+                        >
+                          <span className="truncate">
+                            {selectedLanguage?.name || "Select language"}
+                          </span>
+                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        </ListboxButton>
 
-                  {/*<p className={helperClass}>Multiple allowed</p>*/}
+                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                          <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
+                            <input
+                              placeholder="Search..."
+                              value={languageSearch}
+                              onChange={(e) =>
+                                setLanguageSearch(e.target.value)
+                              }
+                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-sm outline-none border border-transparent focus:border-white/20"
+                            />
+                          </div>
+
+                          {filteredLanguages.map((language) => (
+                            <ListboxOption
+                              key={language.id}
+                              value={language}
+                              className="cursor-pointer px-4 py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-sm transition-colors"
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span
+                                    className={
+                                      selected ? "text-white font-bold" : ""
+                                    }
+                                  >
+                                    {language.name}
+                                  </span>
+                                  {selected && (
+                                    <Check className="w-4 h-4 text-white" />
+                                  )}
+                                </>
+                              )}
+                            </ListboxOption>
+                          ))}
+                        </ListboxOptions>
+                      </div>
+                    </Listbox>
+                  </div>
                 </div>
-
-                {/* Language (single select) */}
-                <div>
-                  <label className={labelClass}>Language</label>
-
-                  <Listbox
-                    value={selectedLanguage}
-                    onChange={setSelectedLanguage}
-                  >
-                    <div className="relative">
-                      <ListboxButton
-                        className={clsx(
-                          inputClass,
-                          "flex justify-between items-center text-left",
-                        )}
-                      >
-                        <span className="truncate">
-                          {selectedLanguage?.name || "Select language"}
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
-                      </ListboxButton>
-
-                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#1a1a20] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto">
-                        <div className="p-2">
-                          <input
-                            placeholder="Search..."
-                            value={languageSearch}
-                            onChange={(e) => setLanguageSearch(e.target.value)}
-                            className={inputClass}
-                          />
-                        </div>
-
-                        {filteredLanguages.map((language) => (
-                          <ListboxOption
-                            key={language.id}
-                            value={language}
-                            className="cursor-pointer px-4 py-3 hover:bg-white/10 flex justify-between"
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span>{language.name}</span>
-                                {selected && <Check className="w-4 h-4" />}
-                              </>
-                            )}
-                          </ListboxOption>
-                        ))}
-                      </ListboxOptions>
-                    </div>
-                  </Listbox>
-                </div>
-
-                {/* Visibility */}
                 <div>
                   <label className={labelClass}>Visibility</label>
-
                   <Listbox
                     value={selectedVisibility}
                     onChange={setSelectedVisibility}
@@ -307,18 +320,29 @@ const Add = () => {
                         <ChevronDown className="w-4 h-4 text-gray-500" />
                       </ListboxButton>
 
-                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#1a1a20] border border-white/10 rounded-xl shadow-2xl">
+                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1">
                         {visibilityOptions.map((v) => (
                           <ListboxOption
                             key={v.id}
                             value={v}
-                            className="cursor-pointer px-4 py-3 hover:bg-white/10 flex justify-between"
+                            className="cursor-pointer px-4 py-3 hover:bg-white/5 flex flex-col transition-colors"
                           >
                             {({ selected }) => (
-                              <>
-                                <span>{v.name}</span>
-                                {selected && <Check className="w-4 h-4" />}
-                              </>
+                              <div className="flex justify-between items-center w-full">
+                                <div className="flex flex-col">
+                                  <span
+                                    className={`font-mono text-sm ${selected ? "text-white font-bold" : "text-gray-300"}`}
+                                  >
+                                    {v.name}
+                                  </span>
+                                  <span className="text-xs text-gray-500 mt-0.5 font-sans">
+                                    {v.description}
+                                  </span>
+                                </div>
+                                {selected && (
+                                  <Check className="w-4 h-4 text-white shrink-0 ml-2" />
+                                )}
+                              </div>
                             )}
                           </ListboxOption>
                         ))}
@@ -338,21 +362,22 @@ const Add = () => {
                     className={clsx(inputClass, "resize-none")}
                   />
                 </div>
-                <hr className="border-b border-white/10" />
-
+                <hr className="border-b border-white/5" />
                 {/* Submit */}
-                <div className="flex justify-center ">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold shadow-lg disabled:opacity-50"
-                  >
-                    {loading && (
-                      <Loader2 className="w-4 h-4 animate-spin text-black" />
-                    )}
-                    {loading ? "Creating..." : "Create"}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex items-center mx-auto font-mono  justify-center w-[120px] gap-2 px-6 py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold transition-all disabled:opacity-50 active:scale-95 "
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
+                  ) : (
+                    <>
+                      <Plus size={20} />
+                      Create
+                    </>
+                  )}
+                </button>
               </form>
             </DialogPanel>
           </div>

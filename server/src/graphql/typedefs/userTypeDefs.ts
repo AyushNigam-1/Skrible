@@ -41,11 +41,8 @@ export const userTypeDefs = gql`
     login(username: String!, password: String!): User
     logout: Boolean!
     toggleBookmark(scriptId: ID!): MutationResponse!
-    updateUserProfile(
-      username: String
-      bio: String
-      languages: [String!]
-      interests: [String!]
-    ): User!
+    updateUserProfileField(key: String!, value: String!): User!
+    likeProfile(profileId: ID!): MutationResponse!
+    viewProfile(profileId: ID!): MutationResponse!
   }
 `;

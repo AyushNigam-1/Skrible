@@ -76,6 +76,7 @@ export type Mutation = {
   dislikeScript: MutationResponse;
   editParagraph: Paragraph;
   likeParagraph: MutationResponse;
+  likeProfile: MutationResponse;
   likeScript: MutationResponse;
   login?: Maybe<User>;
   logout: Scalars['Boolean']['output'];
@@ -89,7 +90,8 @@ export type Mutation = {
   toggleBookmark: MutationResponse;
   updateCollaboratorRole: Script;
   updateScript: Script;
-  updateUserProfile: User;
+  updateUserProfileField: User;
+  viewProfile: MutationResponse;
 };
 
 
@@ -163,6 +165,11 @@ export type MutationLikeParagraphArgs = {
 };
 
 
+export type MutationLikeProfileArgs = {
+  profileId: Scalars['ID']['input'];
+};
+
+
 export type MutationLikeScriptArgs = {
   scriptId: Scalars['ID']['input'];
 };
@@ -233,11 +240,14 @@ export type MutationUpdateScriptArgs = {
 };
 
 
-export type MutationUpdateUserProfileArgs = {
-  bio?: InputMaybe<Scalars['String']['input']>;
-  interests?: InputMaybe<Array<Scalars['String']['input']>>;
-  languages?: InputMaybe<Array<Scalars['String']['input']>>;
-  username?: InputMaybe<Scalars['String']['input']>;
+export type MutationUpdateUserProfileFieldArgs = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+
+export type MutationViewProfileArgs = {
+  profileId: Scalars['ID']['input'];
 };
 
 export type MutationResponse = {
@@ -419,6 +429,28 @@ export type DeleteParagraphMutationVariables = Exact<{
 
 export type DeleteParagraphMutation = { __typename?: 'Mutation', deleteParagraph: { __typename?: 'MutationResponse', status: boolean } };
 
+export type LikeParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type LikeParagraphMutation = { __typename?: 'Mutation', likeParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type DislikeParagraphMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+}>;
+
+
+export type DislikeParagraphMutation = { __typename?: 'Mutation', dislikeParagraph: { __typename?: 'MutationResponse', status: boolean } };
+
+export type AddCommentMutationVariables = Exact<{
+  paragraphId: Scalars['ID']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type AddCommentMutation = { __typename?: 'Mutation', addComment: { __typename?: 'Paragraph', id: string, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } };
+
 export type CreateScriptMutationVariables = Exact<{
   title: Scalars['String']['input'];
   visibility: Scalars['String']['input'];
@@ -452,34 +484,12 @@ export type RejectParagraphMutationVariables = Exact<{
 
 export type RejectParagraphMutation = { __typename?: 'Mutation', rejectParagraph: { __typename?: 'MutationResponse', status: boolean } };
 
-export type LikeParagraphMutationVariables = Exact<{
-  paragraphId: Scalars['ID']['input'];
-}>;
-
-
-export type LikeParagraphMutation = { __typename?: 'Mutation', likeParagraph: { __typename?: 'MutationResponse', status: boolean } };
-
-export type DislikeParagraphMutationVariables = Exact<{
-  paragraphId: Scalars['ID']['input'];
-}>;
-
-
-export type DislikeParagraphMutation = { __typename?: 'Mutation', dislikeParagraph: { __typename?: 'MutationResponse', status: boolean } };
-
 export type DeleteScriptMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
 }>;
 
 
 export type DeleteScriptMutation = { __typename?: 'Mutation', deleteScript: { __typename?: 'MutationResponse', status: boolean } };
-
-export type AddCommentMutationVariables = Exact<{
-  paragraphId: Scalars['ID']['input'];
-  text: Scalars['String']['input'];
-}>;
-
-
-export type AddCommentMutation = { __typename?: 'Mutation', addComment: { __typename?: 'Paragraph', id: string, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, username: string } }> } };
 
 export type LikeScriptMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -560,15 +570,27 @@ export type ToggleBookmarkMutationVariables = Exact<{
 
 export type ToggleBookmarkMutation = { __typename?: 'Mutation', toggleBookmark: { __typename?: 'MutationResponse', status: boolean } };
 
-export type UpdateUserProfileMutationVariables = Exact<{
-  username?: InputMaybe<Scalars['String']['input']>;
-  bio?: InputMaybe<Scalars['String']['input']>;
-  languages?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
-  interests?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+export type UpdateUserProfileFieldMutationVariables = Exact<{
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
 }>;
 
 
-export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile: { __typename?: 'User', id?: string | null, username: string, bio?: string | null, languages?: Array<string | null> | null, interests?: Array<string | null> | null } };
+export type UpdateUserProfileFieldMutation = { __typename?: 'Mutation', updateUserProfileField: { __typename?: 'User', id?: string | null, username: string, bio?: string | null, languages?: Array<string | null> | null, interests?: Array<string | null> | null } };
+
+export type LikeProfileMutationVariables = Exact<{
+  profileId: Scalars['ID']['input'];
+}>;
+
+
+export type LikeProfileMutation = { __typename?: 'Mutation', likeProfile: { __typename?: 'MutationResponse', status: boolean } };
+
+export type ViewProfileMutationVariables = Exact<{
+  profileId: Scalars['ID']['input'];
+}>;
+
+
+export type ViewProfileMutation = { __typename?: 'Mutation', viewProfile: { __typename?: 'MutationResponse', status: boolean } };
 
 export type GetParagraphByIdQueryVariables = Exact<{
   paragraphId: Scalars['ID']['input'];
@@ -715,6 +737,114 @@ export function useDeleteParagraphMutation(baseOptions?: Apollo.MutationHookOpti
 export type DeleteParagraphMutationHookResult = ReturnType<typeof useDeleteParagraphMutation>;
 export type DeleteParagraphMutationResult = Apollo.MutationResult<DeleteParagraphMutation>;
 export type DeleteParagraphMutationOptions = Apollo.BaseMutationOptions<DeleteParagraphMutation, DeleteParagraphMutationVariables>;
+export const LikeParagraphDocument = gql`
+    mutation LikeParagraph($paragraphId: ID!) {
+  likeParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type LikeParagraphMutationFn = Apollo.MutationFunction<LikeParagraphMutation, LikeParagraphMutationVariables>;
+
+/**
+ * __useLikeParagraphMutation__
+ *
+ * To run a mutation, you first call `useLikeParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeParagraphMutation, { data, loading, error }] = useLikeParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useLikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<LikeParagraphMutation, LikeParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LikeParagraphMutation, LikeParagraphMutationVariables>(LikeParagraphDocument, options);
+      }
+export type LikeParagraphMutationHookResult = ReturnType<typeof useLikeParagraphMutation>;
+export type LikeParagraphMutationResult = Apollo.MutationResult<LikeParagraphMutation>;
+export type LikeParagraphMutationOptions = Apollo.BaseMutationOptions<LikeParagraphMutation, LikeParagraphMutationVariables>;
+export const DislikeParagraphDocument = gql`
+    mutation DislikeParagraph($paragraphId: ID!) {
+  dislikeParagraph(paragraphId: $paragraphId) {
+    status
+  }
+}
+    `;
+export type DislikeParagraphMutationFn = Apollo.MutationFunction<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
+
+/**
+ * __useDislikeParagraphMutation__
+ *
+ * To run a mutation, you first call `useDislikeParagraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDislikeParagraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [dislikeParagraphMutation, { data, loading, error }] = useDislikeParagraphMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *   },
+ * });
+ */
+export function useDislikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DislikeParagraphMutation, DislikeParagraphMutationVariables>(DislikeParagraphDocument, options);
+      }
+export type DislikeParagraphMutationHookResult = ReturnType<typeof useDislikeParagraphMutation>;
+export type DislikeParagraphMutationResult = Apollo.MutationResult<DislikeParagraphMutation>;
+export type DislikeParagraphMutationOptions = Apollo.BaseMutationOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
+export const AddCommentDocument = gql`
+    mutation AddComment($paragraphId: ID!, $text: String!) {
+  addComment(paragraphId: $paragraphId, text: $text) {
+    id
+    comments {
+      text
+      createdAt
+      author {
+        id
+        username
+      }
+    }
+  }
+}
+    `;
+export type AddCommentMutationFn = Apollo.MutationFunction<AddCommentMutation, AddCommentMutationVariables>;
+
+/**
+ * __useAddCommentMutation__
+ *
+ * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
+ *   variables: {
+ *      paragraphId: // value for 'paragraphId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useAddCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(AddCommentDocument, options);
+      }
+export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
+export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
+export type AddCommentMutationOptions = Apollo.BaseMutationOptions<AddCommentMutation, AddCommentMutationVariables>;
 export const CreateScriptDocument = gql`
     mutation CreateScript($title: String!, $visibility: String!, $languages: [String!]!, $genres: [String!]!, $description: String!) {
   createScript(
@@ -869,72 +999,6 @@ export function useRejectParagraphMutation(baseOptions?: Apollo.MutationHookOpti
 export type RejectParagraphMutationHookResult = ReturnType<typeof useRejectParagraphMutation>;
 export type RejectParagraphMutationResult = Apollo.MutationResult<RejectParagraphMutation>;
 export type RejectParagraphMutationOptions = Apollo.BaseMutationOptions<RejectParagraphMutation, RejectParagraphMutationVariables>;
-export const LikeParagraphDocument = gql`
-    mutation LikeParagraph($paragraphId: ID!) {
-  likeParagraph(paragraphId: $paragraphId) {
-    status
-  }
-}
-    `;
-export type LikeParagraphMutationFn = Apollo.MutationFunction<LikeParagraphMutation, LikeParagraphMutationVariables>;
-
-/**
- * __useLikeParagraphMutation__
- *
- * To run a mutation, you first call `useLikeParagraphMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLikeParagraphMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [likeParagraphMutation, { data, loading, error }] = useLikeParagraphMutation({
- *   variables: {
- *      paragraphId: // value for 'paragraphId'
- *   },
- * });
- */
-export function useLikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<LikeParagraphMutation, LikeParagraphMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LikeParagraphMutation, LikeParagraphMutationVariables>(LikeParagraphDocument, options);
-      }
-export type LikeParagraphMutationHookResult = ReturnType<typeof useLikeParagraphMutation>;
-export type LikeParagraphMutationResult = Apollo.MutationResult<LikeParagraphMutation>;
-export type LikeParagraphMutationOptions = Apollo.BaseMutationOptions<LikeParagraphMutation, LikeParagraphMutationVariables>;
-export const DislikeParagraphDocument = gql`
-    mutation DislikeParagraph($paragraphId: ID!) {
-  dislikeParagraph(paragraphId: $paragraphId) {
-    status
-  }
-}
-    `;
-export type DislikeParagraphMutationFn = Apollo.MutationFunction<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
-
-/**
- * __useDislikeParagraphMutation__
- *
- * To run a mutation, you first call `useDislikeParagraphMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDislikeParagraphMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [dislikeParagraphMutation, { data, loading, error }] = useDislikeParagraphMutation({
- *   variables: {
- *      paragraphId: // value for 'paragraphId'
- *   },
- * });
- */
-export function useDislikeParagraphMutation(baseOptions?: Apollo.MutationHookOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DislikeParagraphMutation, DislikeParagraphMutationVariables>(DislikeParagraphDocument, options);
-      }
-export type DislikeParagraphMutationHookResult = ReturnType<typeof useDislikeParagraphMutation>;
-export type DislikeParagraphMutationResult = Apollo.MutationResult<DislikeParagraphMutation>;
-export type DislikeParagraphMutationOptions = Apollo.BaseMutationOptions<DislikeParagraphMutation, DislikeParagraphMutationVariables>;
 export const DeleteScriptDocument = gql`
     mutation DeleteScript($scriptId: ID!) {
   deleteScript(scriptId: $scriptId) {
@@ -968,48 +1032,6 @@ export function useDeleteScriptMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteScriptMutationHookResult = ReturnType<typeof useDeleteScriptMutation>;
 export type DeleteScriptMutationResult = Apollo.MutationResult<DeleteScriptMutation>;
 export type DeleteScriptMutationOptions = Apollo.BaseMutationOptions<DeleteScriptMutation, DeleteScriptMutationVariables>;
-export const AddCommentDocument = gql`
-    mutation AddComment($paragraphId: ID!, $text: String!) {
-  addComment(paragraphId: $paragraphId, text: $text) {
-    id
-    comments {
-      text
-      createdAt
-      author {
-        id
-        username
-      }
-    }
-  }
-}
-    `;
-export type AddCommentMutationFn = Apollo.MutationFunction<AddCommentMutation, AddCommentMutationVariables>;
-
-/**
- * __useAddCommentMutation__
- *
- * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
- *   variables: {
- *      paragraphId: // value for 'paragraphId'
- *      text: // value for 'text'
- *   },
- * });
- */
-export function useAddCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(AddCommentDocument, options);
-      }
-export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
-export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
-export type AddCommentMutationOptions = Apollo.BaseMutationOptions<AddCommentMutation, AddCommentMutationVariables>;
 export const LikeScriptDocument = gql`
     mutation LikeScript($scriptId: ID!) {
   likeScript(scriptId: $scriptId) {
@@ -1387,14 +1409,9 @@ export function useToggleBookmarkMutation(baseOptions?: Apollo.MutationHookOptio
 export type ToggleBookmarkMutationHookResult = ReturnType<typeof useToggleBookmarkMutation>;
 export type ToggleBookmarkMutationResult = Apollo.MutationResult<ToggleBookmarkMutation>;
 export type ToggleBookmarkMutationOptions = Apollo.BaseMutationOptions<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>;
-export const UpdateUserProfileDocument = gql`
-    mutation UpdateUserProfile($username: String, $bio: String, $languages: [String!], $interests: [String!]) {
-  updateUserProfile(
-    username: $username
-    bio: $bio
-    languages: $languages
-    interests: $interests
-  ) {
+export const UpdateUserProfileFieldDocument = gql`
+    mutation UpdateUserProfileField($key: String!, $value: String!) {
+  updateUserProfileField(key: $key, value: $value) {
     id
     username
     bio
@@ -1403,35 +1420,99 @@ export const UpdateUserProfileDocument = gql`
   }
 }
     `;
-export type UpdateUserProfileMutationFn = Apollo.MutationFunction<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export type UpdateUserProfileFieldMutationFn = Apollo.MutationFunction<UpdateUserProfileFieldMutation, UpdateUserProfileFieldMutationVariables>;
 
 /**
- * __useUpdateUserProfileMutation__
+ * __useUpdateUserProfileFieldMutation__
  *
- * To run a mutation, you first call `useUpdateUserProfileMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateUserProfileMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateUserProfileFieldMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserProfileFieldMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateUserProfileMutation, { data, loading, error }] = useUpdateUserProfileMutation({
+ * const [updateUserProfileFieldMutation, { data, loading, error }] = useUpdateUserProfileFieldMutation({
  *   variables: {
- *      username: // value for 'username'
- *      bio: // value for 'bio'
- *      languages: // value for 'languages'
- *      interests: // value for 'interests'
+ *      key: // value for 'key'
+ *      value: // value for 'value'
  *   },
  * });
  */
-export function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>) {
+export function useUpdateUserProfileFieldMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileFieldMutation, UpdateUserProfileFieldMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(UpdateUserProfileDocument, options);
+        return Apollo.useMutation<UpdateUserProfileFieldMutation, UpdateUserProfileFieldMutationVariables>(UpdateUserProfileFieldDocument, options);
       }
-export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
-export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
-export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export type UpdateUserProfileFieldMutationHookResult = ReturnType<typeof useUpdateUserProfileFieldMutation>;
+export type UpdateUserProfileFieldMutationResult = Apollo.MutationResult<UpdateUserProfileFieldMutation>;
+export type UpdateUserProfileFieldMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileFieldMutation, UpdateUserProfileFieldMutationVariables>;
+export const LikeProfileDocument = gql`
+    mutation LikeProfile($profileId: ID!) {
+  likeProfile(profileId: $profileId) {
+    status
+  }
+}
+    `;
+export type LikeProfileMutationFn = Apollo.MutationFunction<LikeProfileMutation, LikeProfileMutationVariables>;
+
+/**
+ * __useLikeProfileMutation__
+ *
+ * To run a mutation, you first call `useLikeProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLikeProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [likeProfileMutation, { data, loading, error }] = useLikeProfileMutation({
+ *   variables: {
+ *      profileId: // value for 'profileId'
+ *   },
+ * });
+ */
+export function useLikeProfileMutation(baseOptions?: Apollo.MutationHookOptions<LikeProfileMutation, LikeProfileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LikeProfileMutation, LikeProfileMutationVariables>(LikeProfileDocument, options);
+      }
+export type LikeProfileMutationHookResult = ReturnType<typeof useLikeProfileMutation>;
+export type LikeProfileMutationResult = Apollo.MutationResult<LikeProfileMutation>;
+export type LikeProfileMutationOptions = Apollo.BaseMutationOptions<LikeProfileMutation, LikeProfileMutationVariables>;
+export const ViewProfileDocument = gql`
+    mutation ViewProfile($profileId: ID!) {
+  viewProfile(profileId: $profileId) {
+    status
+  }
+}
+    `;
+export type ViewProfileMutationFn = Apollo.MutationFunction<ViewProfileMutation, ViewProfileMutationVariables>;
+
+/**
+ * __useViewProfileMutation__
+ *
+ * To run a mutation, you first call `useViewProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useViewProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [viewProfileMutation, { data, loading, error }] = useViewProfileMutation({
+ *   variables: {
+ *      profileId: // value for 'profileId'
+ *   },
+ * });
+ */
+export function useViewProfileMutation(baseOptions?: Apollo.MutationHookOptions<ViewProfileMutation, ViewProfileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ViewProfileMutation, ViewProfileMutationVariables>(ViewProfileDocument, options);
+      }
+export type ViewProfileMutationHookResult = ReturnType<typeof useViewProfileMutation>;
+export type ViewProfileMutationResult = Apollo.MutationResult<ViewProfileMutation>;
+export type ViewProfileMutationOptions = Apollo.BaseMutationOptions<ViewProfileMutation, ViewProfileMutationVariables>;
 export const GetParagraphByIdDocument = gql`
     query GetParagraphById($paragraphId: ID!) {
   getParagraphById(paragraphId: $paragraphId) {

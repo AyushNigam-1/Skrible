@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
@@ -15,25 +15,42 @@ import {
   SearchX,
   AlertCircle,
   Loader2,
+  Edit2,
+  Check,
+  X,
 } from "lucide-react";
 
-// Import the generated hooks
 import {
   useGetUserProfileQuery,
   useGetUserScriptsQuery,
+  useUpdateUserProfileFieldMutation,
+  useLikeProfileMutation,
+  useViewProfileMutation,
 } from "../../graphql/generated/graphql";
 
 import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
 import DraftCard from "../../components/card/DraftCard";
+import { useUserStore } from "../../store/useAuthStore";
+import Add from "../../components/modal/AddDraft";
 
 const Profile = () => {
-  const { username } = useParams<{ username: string }>();
+  const { id } = useParams<{ id: string }>();
   const [search, setSearch] = useState("");
 
-  const storedUser = localStorage.getItem("user");
-  const currentUser = storedUser ? JSON.parse(storedUser).username : null;
-  const isOwnProfile = currentUser === username;
+  const { user: currentUser } = useUserStore();
+  const isOwnProfile = currentUser?.id === id;
+  const [updateProfileField] = useUpdateUserProfileFieldMutation();
+
+  // --- Edit State ---
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // --- Like & View State (Optimistic UI) ---
+  const [localProfileLikes, setLocalProfileLikes] = useState<string[]>([]);
+  const [localProfileViews, setLocalProfileViews] = useState<string[]>([]);
 
   // 1. Fetch Profile Data
   const {
@@ -41,12 +58,58 @@ const Profile = () => {
     loading: profileLoading,
     error: profileError,
   } = useGetUserProfileQuery({
-    variables: { username: username || "" },
-    skip: !username,
+    variables: { id: id || "" },
+    skip: !id,
   });
 
   const userProfile = profileData?.getUserProfile;
-  const profileUserId = userProfile?.id;
+  const profileid = userProfile?.id;
+
+  // Sync Fetched Profile Data with Local State
+  useEffect(() => {
+    if (userProfile) {
+      setLocalProfileLikes((userProfile.likes as string[]) || []);
+      setLocalProfileViews((userProfile.views as string[]) || []);
+    }
+  }, [userProfile]);
+
+  // Mutation Hooks for Likes & Views
+  const [likeProfile, { loading: isLikingProfile }] = useLikeProfileMutation();
+  const [viewProfile] = useViewProfileMutation();
+
+  // Automatic Unique View Trigger
+  useEffect(() => {
+    // Only trigger if we are viewing someone else's profile and we have an ID
+    if (id && currentUser?.id && !isOwnProfile) {
+      viewProfile({ variables: { profileId: id } }).catch((err) =>
+        console.error("View profile error ignored:", err),
+      );
+    }
+  }, [id, currentUser?.id, isOwnProfile, viewProfile]);
+
+  // Handle Profile Like
+  const handleLikeProfile = async () => {
+    if (!currentUser?.id) return alert("Please log in to like profiles.");
+    if (isOwnProfile) return; // Can't like your own profile
+
+    const prevLikes = [...localProfileLikes];
+    const isLiked = localProfileLikes.includes(currentUser.id);
+
+    // Optimistic UI update
+    if (isLiked) {
+      setLocalProfileLikes(prevLikes.filter((uid) => uid !== currentUser.id));
+    } else {
+      setLocalProfileLikes([...prevLikes, currentUser.id]);
+    }
+
+    try {
+      await likeProfile({ variables: { profileId: id || "" } });
+    } catch (err) {
+      // Rollback on failure
+      setLocalProfileLikes(prevLikes);
+      console.error("Failed to like profile:", err);
+    }
+  };
 
   // 2. Fetch User's Scripts
   const {
@@ -54,19 +117,53 @@ const Profile = () => {
     loading: scriptsLoading,
     error: scriptsError,
   } = useGetUserScriptsQuery({
-    variables: { userId: profileUserId || "" },
-    skip: !profileUserId,
+    variables: { userId: profileid || "" },
+    skip: !profileid,
     fetchPolicy: "cache-and-network",
   });
 
-  // Memoize filtering
   const filteredScripts = useMemo(() => {
     return scriptsData?.getUserScripts?.filter((script) =>
       script?.title?.toLowerCase().includes(search.toLowerCase()),
     );
   }, [scriptsData, search]);
 
-  // --- Unique Variants to prevent Layout Collisions ---
+  // Magic auto-resize effect AND Cursor Placement for zero-shift editing
+  useEffect(() => {
+    if (editingField && textareaRef.current) {
+      textareaRef.current.style.height = "0px";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = `${scrollHeight}px`;
+      textareaRef.current.focus();
+      const length = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(length, length);
+    }
+  }, [editValue, editingField]);
+
+  const handleEditStart = (fieldId: string, currentValue: string) => {
+    setEditingField(fieldId);
+    setEditValue(currentValue);
+  };
+
+  const handleSave = async (fieldId: string) => {
+    setIsUpdating(true);
+    try {
+      await updateProfileField({
+        variables: {
+          key: fieldId,
+          value: editValue,
+        },
+      });
+
+      setEditingField(null);
+    } catch (err) {
+      console.error("Failed to update profile", err);
+      alert("Failed to save changes.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const pageVariants: Variants = {
     fadeInit: { opacity: 0, y: 15 },
     fadeShow: {
@@ -88,45 +185,45 @@ const Profile = () => {
 
   const userDetails = [
     {
+      id: "username",
       title: "Full Name",
-      value: userProfile?.username || "Not provided",
+      value: userProfile?.username || "",
       icon: User,
+      editable: true,
     },
-    { title: "Email", value: userProfile?.email || "Not provided", icon: Mail },
     {
+      id: "email",
+      title: "Email",
+      value: userProfile?.email || "",
+      icon: Mail,
+      editable: false,
+    },
+    {
+      id: "languages",
       title: "Languages",
-      value: userProfile?.languages?.join(", ") || "Not provided",
+      value: userProfile?.languages?.join(", ") || "",
       icon: Languages,
+      editable: true,
     },
     {
-      title: "Interests",
-      value: userProfile?.interests?.join(", ") || "Not provided",
-      icon: Heart,
-    },
-    {
+      id: "bio",
       title: "Bio",
-      value:
-        userProfile?.bio ||
-        "This user prefers to keep an air of mystery about them.",
+      value: userProfile?.bio || "",
       icon: AlignLeft,
+      editable: true,
     },
   ];
 
   const statsInfo = [
     {
       title: "Profile Views",
-      value: userProfile?.views?.length || 0,
+      value: localProfileViews.length, // <-- Updated to local state
       icon: Eye,
     },
     {
       title: "Total Likes",
-      value: userProfile?.likes?.length || 0,
+      value: localProfileLikes.length, // <-- Updated to local state
       icon: Heart,
-    },
-    {
-      title: "Followers",
-      value: userProfile?.followers?.length || 0,
-      icon: Users,
     },
   ];
 
@@ -170,23 +267,21 @@ const Profile = () => {
             initial="fadeInit"
             animate="fadeShow"
             exit="fadeExit"
-            className="flex flex-col gap-10 w-full"
+            className="flex flex-col gap-6 w-full"
           >
             {/* ========================================= */}
             {/* TOP SECTION: PROFILE INFO                 */}
             {/* ========================================= */}
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col lg:flex-row gap-4">
                 {/* --- Left Sidebar (Avatar & Actions) --- */}
                 <motion.div
                   variants={itemVariants}
-                  className="w-full lg:w-80 flex flex-col gap-6 shrink-0"
+                  className="w-full lg:w-80 flex flex-col gap-4 shrink-0"
                 >
                   {/* Identity Card */}
                   <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-lg flex flex-col items-center text-center gap-4 relative overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none" />
-
-                    <div className="w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-6xl font-black shadow-inner border-4 border-white/10 relative z-10">
+                    <div className="w-40 h-40 rounded-full bg-gradient-to-br from-gray-500 to-purple-600 flex items-center justify-center text-white text-6xl font-black shadow-inner border-4 border-white/10 relative z-10 ">
                       {initial}
                     </div>
                     <div className="relative z-10">
@@ -197,12 +292,12 @@ const Profile = () => {
                         @{userProfile?.username?.toLowerCase()}
                       </p>
                     </div>
-                    <div className="flex flex-col gap-2 mt-2 w-full text-sm text-gray-400 font-medium relative z-10">
+                    <div className="flex flex-col gap-2  w-full text-sm text-gray-400 font-medium relative z-10">
                       <div className="flex items-center justify-center gap-2 py-2 px-4 bg-white/5 rounded-xl border border-white/5">
-                        <MapPin className="w-4 h-4 text-blue-500" /> Earth
+                        <MapPin className="w-4 h-4 text-gray-500" /> Earth
                       </div>
                       <div className="flex items-center justify-center gap-2 py-2 px-4 bg-white/5 rounded-xl border border-white/5">
-                        <CalendarDays className="w-4 h-4 text-purple-500" />{" "}
+                        <CalendarDays className="w-4 h-4 text-gray-500" />{" "}
                         Joined recently
                       </div>
                     </div>
@@ -219,7 +314,7 @@ const Profile = () => {
                             className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-2xl"
                           >
                             <div className="flex items-center gap-2 text-gray-300 font-medium text-sm">
-                              <Icon className="w-5 h-5 text-blue-400" />
+                              <Icon className="w-5 h-5 text-gray-400" />
                               {stat.title}
                             </div>
                             <span className="text-lg font-bold text-white">
@@ -232,12 +327,25 @@ const Profile = () => {
 
                     {!isOwnProfile && (
                       <div className="flex flex-col gap-3 mt-2">
-                        <button className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-900/20 transition-all active:scale-95">
-                          <User className="w-5 h-5" /> Follow
-                        </button>
-                        <button className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-bold rounded-2xl transition-all active:scale-95">
-                          <Heart className="w-5 h-5 text-pink-500" /> Like
-                          Profile
+                        <button
+                          onClick={handleLikeProfile}
+                          disabled={isLikingProfile}
+                          className={`flex items-center justify-center gap-2 w-full py-3 border font-bold rounded-2xl transition-all active:scale-95 ${
+                            localProfileLikes.includes(currentUser?.id || "")
+                              ? "bg-white/10 border-white/20 text-white"
+                              : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-200"
+                          }`}
+                        >
+                          <Heart
+                            className={`w-5 h-5 ${
+                              localProfileLikes.includes(currentUser?.id || "")
+                                ? "fill-pink-500 text-pink-500"
+                                : "text-pink-500"
+                            }`}
+                          />
+                          {localProfileLikes.includes(currentUser?.id || "")
+                            ? "Liked"
+                            : "Like Profile"}
                         </button>
                       </div>
                     )}
@@ -253,19 +361,105 @@ const Profile = () => {
                     About
                   </h3>
                   <div className="flex flex-col gap-8">
-                    {userDetails.map((detail, idx) => {
+                    {userDetails.map((detail) => {
                       const Icon = detail.icon;
+                      const isEditingThis = editingField === detail.id;
+
                       return (
-                        <div key={idx} className="flex flex-col gap-2">
-                          <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                            <Icon className="w-4 h-4 text-blue-500" />
-                            {detail.title}
-                          </h4>
-                          <p
-                            className={`text-xl font-medium font-mono leading-relaxed ${detail.value === "Not provided" ? "text-gray-500" : "text-gray-200"}`}
-                          >
-                            {detail.value}
-                          </p>
+                        <div
+                          key={detail.id}
+                          className="flex flex-col gap-2 group"
+                        >
+                          {/* Title & Edit Button */}
+                          <div className="flex items-center justify-between">
+                            <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                              <Icon className="w-4 h-4 text-gray-500" />
+                              {detail.title}
+                            </h4>
+                            {isOwnProfile &&
+                              detail.editable &&
+                              !isEditingThis && (
+                                <button
+                                  onClick={() =>
+                                    handleEditStart(detail.id, detail.value)
+                                  }
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white"
+                                  title={`Edit ${detail.title}`}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                              )}
+                          </div>
+
+                          {/* Zero-Shift Layout Grid */}
+                          <div className="grid w-full relative items-start">
+                            <AnimatePresence>
+                              {!isEditingThis && (
+                                <motion.div
+                                  key="view"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0, pointerEvents: "none" }}
+                                  transition={{ duration: 0.15 }}
+                                  className="col-start-1 row-start-1"
+                                >
+                                  <p
+                                    className={`text-xl font-medium font-mono leading-relaxed whitespace-pre-wrap ${!detail.value ? "text-gray-500 italic" : "text-gray-200"}`}
+                                  >
+                                    {detail.value ||
+                                      (isOwnProfile
+                                        ? `Click edit to add your ${detail.title.toLowerCase()}`
+                                        : "Not provided")}
+                                  </p>
+                                </motion.div>
+                              )}
+
+                              {isEditingThis && (
+                                <motion.div
+                                  key="edit"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0, pointerEvents: "none" }}
+                                  transition={{ duration: 0.15 }}
+                                  className="col-start-1 row-start-1 w-full z-10"
+                                >
+                                  {/* EXACT same font classes as the <p> tag to prevent shifting */}
+                                  <textarea
+                                    ref={textareaRef}
+                                    value={editValue}
+                                    onChange={(e) =>
+                                      setEditValue(e.target.value)
+                                    }
+                                    className="w-full bg-transparent text-white border-none p-0 m-0 focus:outline-none focus:ring-0 resize-none overflow-hidden text-xl font-medium font-mono leading-relaxed placeholder-gray-600 block caret-blue-500"
+                                    placeholder={`Enter your ${detail.title.toLowerCase()}...`}
+                                  />
+
+                                  {/* Action Buttons */}
+                                  <div className="flex items-center gap-3 mt-4">
+                                    <button
+                                      onClick={() => setEditingField(null)}
+                                      disabled={isUpdating}
+                                      className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-xl border border-white/10"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => handleSave(detail.id)}
+                                      disabled={isUpdating}
+                                      className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50 shadow-md"
+                                    >
+                                      {isUpdating ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                      ) : (
+                                        <Check className="w-4 h-4" />
+                                      )}
+                                      Save
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                         </div>
                       );
                     })}
@@ -281,26 +475,18 @@ const Profile = () => {
             <motion.div variants={itemVariants} className="flex flex-col gap-6">
               {/* Drafts Header */}
               <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-sans font-bold text-white tracking-tight">
+                <h2 className="text-3xl font-sans font-extrabold text-white tracking-tight">
                   {isOwnProfile ? "Drafts" : "Published Drafts"}
                 </h2>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                  <div className="w-full sm:w-72">
+                  <div className="w-full sm:w-64">
                     <Search
                       setSearch={setSearch}
                       placeholder={`Search ${isOwnProfile ? "my" : "their"} scripts...`}
                     />
                   </div>
-                  {isOwnProfile && (
-                    <Link
-                      to="/add"
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-6 rounded-xl font-semibold shadow-lg shadow-blue-900/20 active:scale-95 transition-all duration-200 shrink-0"
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span>Create</span>
-                    </Link>
-                  )}
+                  {isOwnProfile && <Add />}
                 </div>
               </div>
 
@@ -315,7 +501,7 @@ const Profile = () => {
                       exit={{ opacity: 0 }}
                       className="flex justify-center items-center min-h-[300px] flex-col gap-4"
                     >
-                      <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+                      <Loader2 className="w-10 h-10 animate-spin text-gray-500" />
                       <p className="text-gray-400 text-sm">
                         Loading scripts...
                       </p>
@@ -346,24 +532,24 @@ const Profile = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="flex flex-col items-center justify-center text-center py-24 px-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg relative overflow-hidden"
                     >
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none" />
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gray-500/5 blur-[80px] rounded-full pointer-events-none" />
                       <div className="bg-white/5 p-6 rounded-full mb-6 border border-white/10 relative z-10">
                         <SearchX className="w-10 h-10 text-gray-400" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-3 tracking-tight relative z-10">
-                        No scripts available
+                        No drafts available
                       </h3>
                       <p className="text-gray-400 max-w-md mb-8 leading-relaxed relative z-10">
                         {search
                           ? "No drafts found matching your search."
                           : isOwnProfile
-                            ? "You haven't created any stories or drafts yet. Click the button below to start your creative journey."
-                            : "This user hasn't published any scripts yet."}
+                            ? "You haven't created any drafts yet. Click the button below to start your creative journey."
+                            : "This user hasn't published any drafts yet."}
                       </p>
                       {isOwnProfile && !search && (
                         <Link
                           to="/add"
-                          className="flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-900/20 transition-all active:scale-95 relative z-10"
+                          className="flex items-center gap-2 px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-semibold shadow-lg shadow-gray-900/20 transition-all active:scale-95 relative z-10"
                         >
                           <Plus className="w-5 h-5" />
                           Start Creating

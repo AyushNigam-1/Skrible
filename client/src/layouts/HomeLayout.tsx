@@ -2,7 +2,7 @@ import Navbar from "../components/layout/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/panel/Sidebar";
 import { useState } from "react";
-import { PanelLeftOpen } from "lucide-react";
+import { ChevronRight, PanelLeftOpen } from "lucide-react";
 
 const HomeLayout = () => {
   const user = localStorage.getItem("user");
@@ -16,7 +16,7 @@ const HomeLayout = () => {
 
   return (
     <div
-      className={`h-screen w-full overflow-y-auto relative ${
+      className={`h-screen scrollbar-none w-full overflow-y-auto relative ${
         path === "zen" ? "" : user ? "flex" : ""
       }`}
     >
@@ -24,10 +24,10 @@ const HomeLayout = () => {
       {user && path !== "zen" && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed top-1/2 left-0 -translate-y-1/2 z-50 py-8 px-1.5 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 border-l-0 text-gray-500 hover:text-white rounded-r-xl shadow-2xl transition-colors duration-200 group"
+          className="fixed top-1/2 left-0 -translate-y-1/2 z-50 py-6 px-1 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 border-l-0 text-gray-500 hover:text-white rounded-r-xl shadow-2xl transition-colors duration-200 group"
           title="Open Sidebar"
         >
-          <PanelLeftOpen className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
+          <ChevronRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
         </button>
       )}
 
@@ -40,8 +40,9 @@ const HomeLayout = () => {
       )}
 
       {/* --- Main Content Area --- */}
+      {/* FIX: Removed transition-all duration-300 ease-in-out to prevent the slide bug */}
       <div
-        className={`p-4 transition-all duration-300 ease-in-out w-full ${
+        className={`p-4 w-full ${
           path === "zen"
             ? "container mx-auto"
             : user

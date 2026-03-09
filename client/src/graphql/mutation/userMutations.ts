@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const REGISTER_MUTATION = gql`
   mutation Register($username: String!, $email: String!, $password: String!) {
@@ -8,7 +8,8 @@ export const REGISTER_MUTATION = gql`
       email
       token
     }
-  }`;
+  }
+`;
 
 export const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
@@ -18,13 +19,15 @@ export const LOGIN_MUTATION = gql`
       email
       token
     }
-  }`;
+  }
+`;
 
 export const LOGOUT_MUTATION = gql`
-mutation Logout {
+  mutation Logout {
     logout
-}
+  }
 `;
+
 export const TOGGLE_BOOKMARK = gql`
   mutation ToggleBookmark($scriptId: ID!) {
     toggleBookmark(scriptId: $scriptId) {
@@ -32,24 +35,31 @@ export const TOGGLE_BOOKMARK = gql`
     }
   }
 `;
-export const UPDATE_USER_PROFILE = gql`
-  mutation UpdateUserProfile(
-    $username: String
-    $bio: String
-    $languages: [String!]
-    $interests: [String!]
-  ) {
-    updateUserProfile(
-      username: $username
-      bio: $bio
-      languages: $languages
-      interests: $interests
-    ) {
+
+export const UPDATE_USER_PROFILE_FIELD = gql`
+  mutation UpdateUserProfileField($key: String!, $value: String!) {
+    updateUserProfileField(key: $key, value: $value) {
       id
       username
       bio
       languages
       interests
+    }
+  }
+`;
+
+export const LIKE_PROFILE = gql`
+  mutation LikeProfile($profileId: ID!) {
+    likeProfile(profileId: $profileId) {
+      status
+    }
+  }
+`;
+
+export const VIEW_PROFILE = gql`
+  mutation ViewProfile($profileId: ID!) {
+    viewProfile(profileId: $profileId) {
+      status
     }
   }
 `;

@@ -35,9 +35,11 @@ const router = createBrowserRouter([
       { path: "/favourites", element: <Favourites /> },
       { path: "/contributions", element: <Contributions /> },
       { path: "/notifications", element: <Notifications /> },
-      { path: "/profile/:username", element: <Profile /> },
+      { path: "/profile/:id", element: <Profile /> },
       { path: "/my-contributions", element: <MyContributions /> },
       { path: "/contribution/:id", element: <Contribution /> },
+      { path: "/zen/:id", element: <ZenMode /> },
+
       {
         path: "/preview/:id/:paragraphId",
         element: <RequestsPreview />,
@@ -50,7 +52,6 @@ const router = createBrowserRouter([
           { path: "/requests/:id", element: <Requests /> },
           { path: "/contributors/:id", element: <Contributors /> },
           { path: "/about/:id", element: <ScriptDetails /> },
-          { path: "/zen/:id", element: <ZenMode /> },
           { path: "/settings/:id", element: <DraftSettings /> },
         ],
       },

@@ -9,8 +9,6 @@ export interface DraftCardProps {
     title: string;
     createdAt?: string | null;
     description?: string | null;
-    // Using any[] stops TypeScript from crashing if one query returns ["user_1"]
-    // and another query returns [{ id: "user_1" }]
     likes?: any[] | null;
     dislikes?: any[] | null;
     languages?: string[] | null;

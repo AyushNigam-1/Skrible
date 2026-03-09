@@ -6,10 +6,7 @@ export const userQueries = {
   getUserProfile: async (_: unknown, { id }: { id: string }) => {
     const user = await User.findById(id)
       .populate("scripts")
-      .populate("likes")
-      .populate("followers")
-      .populate("follows")
-      .populate("views");
+      .populate("follows");
 
     if (!user) throw new Error("User not found");
 
@@ -30,9 +27,6 @@ export const userQueries = {
 
   getUserScripts: async (_: unknown, { userId }: { userId: string }) => {
     const scripts = await Script.find({ author: userId }).populate("author");
-
-    if (!scripts.length) throw new Error("No scripts found");
-
     return scripts;
   },
 

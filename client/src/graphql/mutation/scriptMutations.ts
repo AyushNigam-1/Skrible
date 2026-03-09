@@ -62,7 +62,21 @@ export const DELETE_SCRIPT = gql`
     }
   }
 `;
+export const LIKE_SCRIPT = gql`
+  mutation LikeScript($scriptId: ID!) {
+    likeScript(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
 
+export const DISLIKE_SCRIPT = gql`
+  mutation DislikeScript($scriptId: ID!) {
+    dislikeScript(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
 export const ADD_COLLABORATOR = gql`
   mutation AddCollaborator($scriptId: ID!, $username: String!, $role: Role!) {
     addCollaborator(scriptId: $scriptId, username: $username, role: $role) {

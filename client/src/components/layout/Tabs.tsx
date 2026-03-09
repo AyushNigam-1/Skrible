@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FileText,
@@ -10,11 +10,12 @@ import {
   LucideIcon,
 } from "lucide-react";
 
-// 1. Added 'tab' to the interface
 interface TabsProps {
   setTab?: (tab: string) => void;
-  tab?: string; // <-- This fixes the error!
+  tab?: string;
   scriptId?: string;
+  // 1. Add a new prop to check user permissions
+  isEditorOrOwner?: boolean;
 }
 
 interface TabItem {
@@ -22,52 +23,66 @@ interface TabItem {
   name: string;
   pathMatch: string;
   route: string;
-  isRight?: boolean;
+  isRightStart?: boolean; // Changed from isRight to mark the start of the right section
 }
 
-// 2. Destructure 'tab' here (even if we mainly use location for active states)
-const Tabs = ({ setTab, tab, scriptId }: TabsProps) => {
+const Tabs = ({
+  setTab,
+  tab,
+  scriptId,
+  isEditorOrOwner = false,
+}: TabsProps) => {
   const location = useLocation();
 
-  const tabs: TabItem[] = [
-    {
-      icon: FileText,
-      name: "Timeline",
-      pathMatch: "/timeline",
-      route: `timeline/${scriptId}`,
-    },
-    {
-      icon: MessageSquare,
-      name: "Requests",
-      pathMatch: "/requests",
-      route: `requests/${scriptId}`,
-    },
-    {
-      icon: Users,
-      name: "Contributors",
-      pathMatch: "/contributors",
-      route: `contributors/${scriptId}`,
-    },
-    {
-      icon: Info,
-      name: "About",
-      pathMatch: "/about",
-      route: `about/${scriptId}`,
-    },
-    {
-      icon: Maximize,
-      name: "Zen Mode",
-      pathMatch: "/zen",
-      route: `zen/${scriptId}`,
-    },
-    {
-      icon: Settings,
-      name: "Settings",
-      pathMatch: "/settings",
-      route: `settings/${scriptId}`,
-      isRight: true,
-    },
-  ];
+  // 2. Wrap tabs in useMemo so we can conditionally add Settings dynamically
+  const tabs: TabItem[] = useMemo(() => {
+    const baseTabs: TabItem[] = [
+      {
+        icon: FileText,
+        name: "Timeline",
+        pathMatch: "/timeline",
+        route: `timeline/${scriptId}`,
+      },
+      {
+        icon: MessageSquare,
+        name: "Requests",
+        pathMatch: "/requests",
+        route: `requests/${scriptId}`,
+      },
+      {
+        icon: Users,
+        name: "Contributors",
+        pathMatch: "/contributors",
+        route: `contributors/${scriptId}`,
+      },
+      {
+        icon: Maximize,
+        name: "Zen Mode",
+        pathMatch: "/zen",
+        route: `zen/${scriptId}`,
+      },
+      // 3. Make About the item that pushes everything else to the right
+      {
+        icon: Info,
+        name: "About",
+        pathMatch: "/about",
+        route: `about/${scriptId}`,
+        isRightStart: true,
+      },
+    ];
+
+    // 4. Conditionally add Settings next to About if user is authorized
+    if (isEditorOrOwner) {
+      baseTabs.push({
+        icon: Settings,
+        name: "Settings",
+        pathMatch: "/settings",
+        route: `settings/${scriptId}`,
+      });
+    }
+
+    return baseTabs;
+  }, [scriptId, isEditorOrOwner]);
 
   useEffect(() => {
     const currentTab = tabs.find((t) =>
@@ -80,15 +95,16 @@ const Tabs = ({ setTab, tab, scriptId }: TabsProps) => {
 
   return (
     <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar font-mono text-sm font-bold uppercase tracking-widest w-full">
-      {tabs.map((t, i) => {
+      {tabs.map((t) => {
         const Icon = t.icon;
         const isActive = location.pathname.includes(t.pathMatch);
 
         return (
           <div
-            key={i}
+            key={t.name}
             className={`flex items-center ${
-              t.isRight ? "ml-auto pl-2 border-l border-white/10" : ""
+              // This pushes About (and anything after it) to the far right
+              t.isRightStart ? "ml-auto pl-2 border-l border-white/10" : ""
             }`}
           >
             <Link

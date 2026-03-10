@@ -101,23 +101,39 @@ const Explore = () => {
                 variants={itemVariants}
                 className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
               >
-                <div className="flex items-center gap-3">
+                {/* MOBILE LAYOUT: Title on Left, Add Button on Right.
+                    DESKTOP LAYOUT: Title on Left.
+                */}
+                <div className="flex items-center justify-between w-full md:w-auto">
                   <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
                     Explore
                   </h1>
+
+                  {/* The Add button is hidden on md+ screens here, and shown only on mobile */}
+                  <div className="md:hidden shrink-0">
+                    <Add />
+                  </div>
                 </div>
+
+                {/* MOBILE LAYOUT: Search full width below the header.
+                    DESKTOP LAYOUT: Search and Add Button inline on the right.
+                */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                   <div className="w-full sm:w-72">
                     <Search setSearch={setSearch} />
                   </div>
-                  <Add />
+
+                  {/* The Add button is hidden on mobile here, and shown only on md+ screens */}
+                  <div className="hidden md:block shrink-0">
+                    <Add />
+                  </div>
                 </div>
               </motion.div>
 
               <motion.hr variants={itemVariants} className="border-white/10" />
 
               {/* Filters Section */}
-              <motion.div variants={itemVariants} className="py-2">
+              <motion.div variants={itemVariants}>
                 <Genres
                   selectedGenres={genres}
                   onGenreChange={handleGenreChange}
@@ -125,11 +141,11 @@ const Explore = () => {
               </motion.div>
 
               {/* Content Area (Grid or Empty State) */}
-              <div className="flex-1 mt-2">
+              <div className="flex-1">
                 {!filteredScripts || filteredScripts.length === 0 ? (
                   <motion.div
                     variants={itemVariants}
-                    className="flex flex-col items-center justify-center text-center p-12 bg-[#13151a]/80 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl font-['Inter'] relative overflow-hidden mt-4"
+                    className="flex flex-col items-center justify-center text-center relative overflow-hidden"
                   >
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
                     <div className="bg-white/5 border border-white/10 p-6 rounded-full mb-6 shadow-inner relative z-10">
@@ -159,7 +175,6 @@ const Explore = () => {
                           key={script!.id}
                           className="h-full"
                         >
-                          {/* We know script won't be null here because of the filter */}
                           <DraftCard script={script!} />
                         </motion.div>
                       ))}

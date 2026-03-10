@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { GET_USER_CONTRIBUTIONS } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
-import Filters from "../../components/layout/Filters";
 import Loader from "../../components/layout/Loader";
 
 const MyContributions = () => {

@@ -26,8 +26,9 @@ const Login = () => {
         JSON.stringify({ id: user.id, username: user.username }),
       );
       toast.success("Welcome back!");
-      nav("/");
+      nav("/explore");
     } catch (err) {
+      alert(err.message);
       toast.error(err.message);
       console.error("Login failed:", err.message);
     }

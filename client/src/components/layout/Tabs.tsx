@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion"; // <-- Added Framer Motion
 import {
   FileText,
   MessageSquare,
@@ -14,7 +15,6 @@ interface TabsProps {
   setTab?: (tab: string) => void;
   tab?: string;
   scriptId?: string;
-  // 1. Add a new prop to check user permissions
   isEditorOrOwner?: boolean;
 }
 
@@ -23,7 +23,7 @@ interface TabItem {
   name: string;
   pathMatch: string;
   route: string;
-  isRightStart?: boolean; // Changed from isRight to mark the start of the right section
+  isRightStart?: boolean;
 }
 
 const Tabs = ({
@@ -34,7 +34,6 @@ const Tabs = ({
 }: TabsProps) => {
   const location = useLocation();
 
-  // 2. Wrap tabs in useMemo so we can conditionally add Settings dynamically
   const tabs: TabItem[] = useMemo(() => {
     const baseTabs: TabItem[] = [
       {
@@ -61,7 +60,6 @@ const Tabs = ({
         pathMatch: "/zen",
         route: `zen/${scriptId}`,
       },
-      // 3. Make About the item that pushes everything else to the right
       {
         icon: Info,
         name: "About",
@@ -71,7 +69,6 @@ const Tabs = ({
       },
     ];
 
-    // 4. Conditionally add Settings next to About if user is authorized
     if (isEditorOrOwner) {
       baseTabs.push({
         icon: Settings,
@@ -94,7 +91,8 @@ const Tabs = ({
   }, [location.pathname, setTab, tabs]);
 
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar font-mono text-sm font-bold uppercase tracking-widest w-full">
+    // Changed to font-sans and removed uppercase for a cleaner Github-style look
+    <nav className="flex items-center gap-1 overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [scrollbar-width:none] font-mono text-sm font-bold uppercase tracking-widest w-full">
       {tabs.map((t) => {
         const Icon = t.icon;
         const isActive = location.pathname.includes(t.pathMatch);
@@ -102,30 +100,39 @@ const Tabs = ({
         return (
           <div
             key={t.name}
-            className={`flex items-center ${
-              // This pushes About (and anything after it) to the far right
-              t.isRightStart ? "ml-auto pl-2 border-l border-white/10" : ""
+            className={`shrink-0 snap-start flex items-center ${
+              t.isRightStart ? "md:ml-auto md:pl-2" : ""
             }`}
           >
             <Link
               to={t.route}
               className={`
-              group flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 active:scale-95 whitespace-nowrap
+              relative group flex items-center uppercase font-bold gap-2 px-3 py-3 md:px-4 md:py-3.5 transition-colors duration-200 whitespace-nowrap
               ${
                 isActive
-                  ? "bg-white/5 border border-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-                  : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                  ? "text-white font-semibold"
+                  : "text-gray-400 hover:text-gray-200 rounded-lg"
               }
               `}
             >
               <Icon
-                className={`w-4 h-4 transition-transform duration-300 ${
+                className={`w-4 h-4 transition-colors duration-200 ${
                   isActive
-                    ? "scale-110"
-                    : "group-hover:scale-110 group-hover:-rotate-3"
+                    ? "text-white"
+                    : "text-gray-500 group-hover:text-gray-400"
                 }`}
               />
               <span>{t.name}</span>
+
+              {/* Smooth Animated Bottom Border matching your screenshot */}
+              {isActive && (
+                <motion.div
+                  layoutId="activeTabIndicator"
+                  // Using #f78166 (coral/orange) from your screenshot, adjust if needed!
+                  className="absolute left-0 right-0 bottom-0 h-[2px] bg-gray-100 rounded-t-full"
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
             </Link>
           </div>
         );

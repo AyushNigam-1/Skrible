@@ -37,8 +37,6 @@ const DraftLayout = () => {
 
   const script = data?.getScriptById;
 
-  // --- 1. Calculate Permissions Here ---
-  // Checks if the logged-in user is the author OR is in the editors array
   const isEditorOrOwner = Boolean(
     currentUserId &&
     script &&
@@ -67,7 +65,7 @@ const DraftLayout = () => {
 
   if (error)
     return (
-      <div className="p-4 text-red-500 font-mono text-sm tracking-widest uppercase flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full text-red-500 font-mono text-sm tracking-widest uppercase">
         Error: {JSON.stringify(error)}
       </div>
     );
@@ -154,62 +152,70 @@ const DraftLayout = () => {
       variants={layoutVariants}
       initial="hidden"
       animate="visible"
-      className="relative flex flex-col gap-6 w-full max-w-7xl mx-auto scrollbar-none"
+      className="relative flex flex-col w-full max-w-7xl mx-auto space-y-6"
     >
       {script && (
-        <motion.div variants={contentVariants} className="flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+        <motion.div
+          variants={contentVariants}
+          className="flex flex-col space-y-4"
+        >
+          {/* Header & Actions */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 px-4 md:px-0">
+            {/* Title */}
+            <div className="w-full md:w-auto text-center md:text-left">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight break-words">
                 {script.title}
               </h1>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl shrink-0 mt-4 md:mt-0">
+            {/* Action Toolbar */}
+            <div className="flex items-center justify-center space-x-1 sm:space-x-2 border border-white/10 md:border-transparent rounded-2xl p-1.5 md:p-0 w-[max-content] mx-auto md:mx-0">
               <button
                 onClick={handleLike}
                 disabled={isLiking}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   isLiked
-                    ? "bg-white/10 text-white"
+                    ? "bg-white/10 text-white shadow-sm"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <ThumbsUp
                   className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`}
-                />{" "}
+                />
                 <span>{localLikes.length}</span>
               </button>
+
               <button
                 onClick={handleDislike}
                 disabled={isDisliking}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   isDisliked
-                    ? "bg-white/10 text-white"
+                    ? "bg-white/10 text-white shadow-sm"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <ThumbsDown
                   className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`}
-                />{" "}
+                />
                 <span>{localDislikes.length}</span>
               </button>
-              <div className="w-[1px] h-4 bg-white/20 mx-1" />
+
+              <div className="w-[1px] h-5 bg-white/10" />
+
               <button
                 onClick={handleBookmark}
                 disabled={isBookmarking}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-xl transition-all ${
                   isBookmarked
-                    ? "text-white bg-white/10"
+                    ? "text-white bg-white/10 shadow-sm"
                     : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {isBookmarking ? (
-                  <Loader2 className="animate-spin" size={20} />
+                  <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
                   <Bookmark
-                    size={20}
-                    className={`${isBookmarked ? "fill-current" : ""}`}
+                    className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`}
                   />
                 )}
               </button>
@@ -217,10 +223,9 @@ const DraftLayout = () => {
               <InviteModal scriptTitle={script?.title || "Draft"} />
             </div>
           </div>
-          <hr className="border-white/10 relative z-10" />
-
-          <div className="sticky top-0 z-40 ">
-            {/* --- 2. Pass the calculated prop to Tabs --- */}
+          <motion.hr className="border-b-0.5 border-white/10" />
+          {/* GitHub-style Tabs Container with flush bottom border */}
+          <div className="w-full border-b border-white/10">
             <Tabs
               setTab={setTab}
               tab={tab}
@@ -228,22 +233,22 @@ const DraftLayout = () => {
               isEditorOrOwner={isEditorOrOwner}
             />
           </div>
-          <hr className="border-white/10 relative z-10" />
         </motion.div>
       )}
 
-      {loading ? (
-        <motion.div
-          key="loader"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="w-full min-h-[96vh] flex-1 flex items-center justify-center"
-        >
-          <Loader />
-        </motion.div>
-      ) : (
-        <div className="w-full relative z-10 flex-1">
+      {/* Main Outlet Content */}
+      <div className="w-full relative z-10">
+        {loading ? (
+          <motion.div
+            key="loader"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center min-h-[98vh]"
+          >
+            <Loader />
+          </motion.div>
+        ) : (
           <Outlet
             context={{
               request,
@@ -255,8 +260,8 @@ const DraftLayout = () => {
               loading,
             }}
           />
-        </div>
-      )}
+        )}
+      </div>
     </motion.div>
   );
 };

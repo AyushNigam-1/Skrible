@@ -123,20 +123,20 @@ const Add = () => {
     }
   };
 
-  // Matched input classes to your deep navy theme
+  // --- Responsive Theme Classes ---
   const inputClass =
-    "w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-500 text-sm font-mono shadow-inner font-medium";
+    "w-full px-3 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-500 text-sm font-mono shadow-inner font-medium";
 
   const labelClass =
-    "block font-semibold text-gray-400 mb-1.5 text-sm font-mono uppercase tracking-widest";
+    "block font-semibold text-gray-400 mb-1 md:mb-1.5 text-[11px] md:text-xs font-mono uppercase tracking-widest";
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold transition-all duration-300 shadow-sm active:scale-95"
+        className="flex items-center justify-center gap-2 px-4 py-2 md:px-5  bg-gray-100 hover:bg-gray-200 border border-white/10 rounded-xl text-gray-800 text-sm md:text-base font-bold transition-all duration-300 shadow-sm active:scale-95"
       >
-        <Plus className="w-4 h-4" />
+        <Plus className="w-4 h-4 md:w-5 md:h-5" />
         Create
       </button>
 
@@ -152,25 +152,29 @@ const Add = () => {
         />
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto scrollbar-none">
-          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            {/* Panel: Matched to the deep navy/purple background of your app */}
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
+            {/* Panel: Responsive padding and border radius */}
             <DialogPanel
               transition
-              className="relative transform rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-2xl border border-white/10 p-6 space-y-4"
+              className="relative transform rounded-2xl md:rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 w-full max-w-2xl border border-white/10 p-5 md:p-6 space-y-4 md:space-y-6"
             >
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-white tracking-tight font-sans">
+                <h3 className="text-xl md:text-2xl font-extrabold text-white tracking-tight font-sans">
                   New Draft
                 </h3>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-white/20"
+                  className="p-1.5 md:p-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-white/20"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
               </div>
               <hr className="border-b border-white/5" />
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-5 md:gap-6"
+              >
                 {/* Title */}
                 <div>
                   <label className={labelClass}>Title</label>
@@ -183,7 +187,7 @@ const Add = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
                   {/* Genres */}
                   <div>
                     <label className={labelClass}>Genres</label>
@@ -199,21 +203,21 @@ const Add = () => {
                             "flex justify-between items-center text-left",
                           )}
                         >
-                          <span className="truncate">
+                          <span className="truncate pr-2">
                             {selectedGenres.length
                               ? selectedGenres.map((g) => g.name).join(", ")
                               : "Select genres"}
                           </span>
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                          <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                         </ListboxButton>
 
-                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                           <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
                             <input
                               placeholder="Search..."
                               value={genreSearch}
                               onChange={(e) => setGenreSearch(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-sm outline-none border border-transparent focus:border-white/20"
+                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-xs md:text-sm outline-none border border-transparent focus:border-white/20"
                             />
                           </div>
 
@@ -221,7 +225,7 @@ const Add = () => {
                             <ListboxOption
                               key={genre.id}
                               value={genre}
-                              className="cursor-pointer px-4 py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-sm transition-colors"
+                              className="cursor-pointer px-4 py-2.5 md:py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-xs md:text-sm transition-colors"
                             >
                               {({ selected }) => (
                                 <>
@@ -233,7 +237,7 @@ const Add = () => {
                                     {genre.name}
                                   </span>
                                   {selected && (
-                                    <Check className="w-4 h-4 text-white" />
+                                    <Check className="w-4 h-4 text-white shrink-0" />
                                   )}
                                 </>
                               )}
@@ -258,13 +262,13 @@ const Add = () => {
                             "flex justify-between items-center text-left",
                           )}
                         >
-                          <span className="truncate">
+                          <span className="truncate pr-2">
                             {selectedLanguage?.name || "Select language"}
                           </span>
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                          <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                         </ListboxButton>
 
-                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                        <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                           <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
                             <input
                               placeholder="Search..."
@@ -272,7 +276,7 @@ const Add = () => {
                               onChange={(e) =>
                                 setLanguageSearch(e.target.value)
                               }
-                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-sm outline-none border border-transparent focus:border-white/20"
+                              className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-xs md:text-sm outline-none border border-transparent focus:border-white/20"
                             />
                           </div>
 
@@ -280,7 +284,7 @@ const Add = () => {
                             <ListboxOption
                               key={language.id}
                               value={language}
-                              className="cursor-pointer px-4 py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-sm transition-colors"
+                              className="cursor-pointer px-4 py-2.5 md:py-3 hover:bg-white/5 flex justify-between text-gray-300 font-mono text-xs md:text-sm transition-colors"
                             >
                               {({ selected }) => (
                                 <>
@@ -292,7 +296,7 @@ const Add = () => {
                                     {language.name}
                                   </span>
                                   {selected && (
-                                    <Check className="w-4 h-4 text-white" />
+                                    <Check className="w-4 h-4 text-white shrink-0" />
                                   )}
                                 </>
                               )}
@@ -303,6 +307,8 @@ const Add = () => {
                     </Listbox>
                   </div>
                 </div>
+
+                {/* Visibility */}
                 <div>
                   <label className={labelClass}>Visibility</label>
                   <Listbox
@@ -317,30 +323,30 @@ const Add = () => {
                         )}
                       >
                         {selectedVisibility.name}
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                       </ListboxButton>
 
-                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1">
+                      <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl overflow-y-auto max-h-60 py-1">
                         {visibilityOptions.map((v) => (
                           <ListboxOption
                             key={v.id}
                             value={v}
-                            className="cursor-pointer px-4 py-3 hover:bg-white/5 flex flex-col transition-colors"
+                            className="cursor-pointer px-4 py-2.5 md:py-3 hover:bg-white/5 flex flex-col transition-colors"
                           >
                             {({ selected }) => (
                               <div className="flex justify-between items-center w-full">
-                                <div className="flex flex-col">
+                                <div className="flex flex-col pr-4">
                                   <span
-                                    className={`font-mono text-sm ${selected ? "text-white font-bold" : "text-gray-300"}`}
+                                    className={`font-mono text-xs md:text-sm ${selected ? "text-white font-bold" : "text-gray-300"}`}
                                   >
                                     {v.name}
                                   </span>
-                                  <span className="text-xs text-gray-500 mt-0.5 font-sans">
+                                  <span className="text-[11px] md:text-xs text-gray-500 mt-0.5 font-sans leading-tight">
                                     {v.description}
                                   </span>
                                 </div>
                                 {selected && (
-                                  <Check className="w-4 h-4 text-white shrink-0 ml-2" />
+                                  <Check className="w-4 h-4 text-white shrink-0" />
                                 )}
                               </div>
                             )}
@@ -362,18 +368,20 @@ const Add = () => {
                     className={clsx(inputClass, "resize-none")}
                   />
                 </div>
-                <hr className="border-b border-white/5" />
-                {/* Submit */}
+
+                <hr className="border-b border-white/5 hidden md:block" />
+
+                {/* Submit - Full width on mobile, auto width centered on desktop */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center mx-auto font-mono  justify-center w-[120px] gap-2 px-6 py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold transition-all disabled:opacity-50 active:scale-95 "
+                  className="flex items-center mx-0 sm:mx-auto font-mono justify-center w-full sm:w-[160px] gap-2 px-6 py-3 sm:py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold transition-all disabled:opacity-50 active:scale-95"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-black" />
                   ) : (
                     <>
-                      <Plus size={20} />
+                      <Plus size={18} className="md:w-5 md:h-5" />
                       Create
                     </>
                   )}

@@ -7,7 +7,8 @@ import {
 } from "@apollo/client";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql",
+  // uri: `http://${window.location.hostname}:4000/graphql`,
+  uri: "https://internet-subscription-exotic-tax.trycloudflare.com/graphql",
   credentials: "include",
 });
 

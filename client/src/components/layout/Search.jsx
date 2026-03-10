@@ -27,7 +27,7 @@ const Search = ({ setSearch, placeholder = "Search..." }) => {
         type="text"
         id="Search"
         placeholder={placeholder}
-        className="w-full bg-white/5 backdrop-blur-2xl border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 outline-none transition-all duration-300 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/30 font-mono shadow-[0_4px_20px_rgba(0,0,0,0.2)] focus:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+        className="w-full bg-white/5  border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 outline-none transition-all duration-300 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/30 font-mono shadow-[0_4px_20px_rgba(0,0,0,0.2)] focus:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
       />
     </div>
   );

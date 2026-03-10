@@ -24,7 +24,13 @@ const startServer = async () => {
   app.use(express.json());
   app.use(
     cors({
-      origin: ["http://localhost:5173", "http://10.207.18.43:5173"],
+      origin: [
+        "http://localhost:5173",
+        "http://10.207.18.43:5173",
+        "http://10.207.18.43:4173",
+        "http://localhost:4173",
+        "https://sorts-invitations-road-sets.trycloudflare.com",
+      ],
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
     }),
@@ -43,7 +49,9 @@ const startServer = async () => {
     }),
   );
 
-  app.listen(port, () => console.log(`Server started on port ${port}`));
+  app.listen(port, "0.0.0.0", () =>
+    console.log(`Server started on port ${port}`),
+  );
 };
 
 startServer();

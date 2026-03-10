@@ -17,7 +17,6 @@ const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
     { name: "Non-fiction" },
     { name: "Biography" },
     { name: "Self-help" },
-    // { name: "Young Adult" },
   ];
 
   // 2. Add type to the event handler parameter
@@ -30,8 +29,13 @@ const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
   };
 
   return (
-    <div className="w-full animate-in fade-in duration-500">
-      <div className="flex flex-wrap gap-3 items-center justify-start md:justify-center">
+    <div className="w-full animate-in fade-in duration-500 relative">
+      {/* - overflow-x-auto enables horizontal scrolling
+          - snap-x snap-mandatory makes the scrolling feel smooth like an app
+          - [&::-webkit-scrollbar]:hidden hides the scrollbar on Chrome/Safari
+          - [scrollbar-width:none] hides it on Firefox
+      */}
+      <div className="flex overflow-x-auto gap-3  [&::-webkit-scrollbar]:hidden [scrollbar-width:none] -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:justify-center">
         {genres.map((genre) => {
           const isSelected = selectedGenres.includes(genre.name);
 
@@ -40,7 +44,7 @@ const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
               key={genre.name}
               onClick={() => handleSelection(genre.name)}
               className={`
-                group flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-semibold transition-all duration-300 active:scale-95 backdrop-blur-md
+                group shrink-0 snap-start flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-semibold transition-all duration-300 active:scale-95 backdrop-blur-md
                 ${
                   isSelected
                     ? "bg-white/10 border border-white/30 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
@@ -60,6 +64,10 @@ const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
           );
         })}
       </div>
+
+      {/* Optional: Subtle gradient fades on the edges to indicate more content is scrollable on mobile */}
+      {/*<div className="absolute top-0 right-0 bottom-2 w-8 bg-gradient-to-l from-[#0A0A14] to-transparent pointer-events-none md:hidden" />
+      <div className="absolute top-0 left-0 bottom-2 w-8 bg-gradient-to-r from-[#0A0A14] to-transparent pointer-events-none md:hidden" />*/}
     </div>
   );
 };

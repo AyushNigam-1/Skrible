@@ -6,7 +6,6 @@ import {
   Award,
   LogOut,
   LucideIcon,
-  ArrowLeft,
   ChevronLeft,
 } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
@@ -43,17 +42,14 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           : "w-0 m-0 opacity-0 invisible"
       }`}
     >
-      {/* Inner container stays a fixed width so content doesn't squish or wrap while closing */}
-      <div className="w-full h-full space-y-10 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
+      {/* Inner container: Replaced bg-white/5 and backdrop-blur-2xl with solid bg-[#161620] */}
+      <div className="w-full h-full space-y-10 bg-[#161620] border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
         {/* --- Header / Logo --- */}
-        <div className="flex justify-between items-center  shrink-0">
-          {/*<div className="text-2xl font-extrabold  text-gray-100 font-sans">
-            Skribe
-          </div>*/}
+        <div className="flex justify-between items-center shrink-0">
           <img
             src="/logo.png"
             alt="Logo"
-            className=" w-20 lg:w-28 brightness-110 drop-shadow-sm"
+            className="w-20 lg:w-28 brightness-110 drop-shadow-sm"
           />
           <button
             onClick={toggleSidebar}
@@ -63,9 +59,9 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             <ChevronLeft size={20} />
           </button>
         </div>
-        {/*<hr className="border-b border-white/5" />*/}
+
         {/* --- Navigation Links --- */}
-        <nav className="flex flex-col gap-5 flex-1 overflow-y-auto no-scrollbar pb-4">
+        <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.route;
@@ -74,13 +70,12 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
               <Link
                 to={item.route}
                 key={index}
-                // Kept relative so the absolute border stays attached to this link
                 className={`
                   group flex items-center gap-3 py-1 transition-all duration-300 outline-none relative overflow-hidden
                   ${
                     isActive
-                      ? "font-bold text-gray-100 pl-3" // Removed the hardcoded border-l-2
-                      : "text-gray-400 hover:text-white pl-0" // Explicit pl-0 ensures a smooth slide right/left
+                      ? "font-bold text-gray-100 pl-3"
+                      : "text-gray-400 hover:text-white pl-0"
                   }
                 `}
               >
@@ -105,12 +100,15 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           })}
         </nav>
 
-        <button className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none">
+        <Link
+          to="/login"
+          className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none"
+        >
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" />
           <span className="font-bold font-mono text-base tracking-widest whitespace-nowrap">
             Logout
           </span>
-        </button>
+        </Link>
       </div>
     </aside>
   );

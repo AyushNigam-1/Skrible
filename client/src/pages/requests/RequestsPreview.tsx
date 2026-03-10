@@ -7,13 +7,14 @@ import {
   ArrowLeft,
   ThumbsUp,
   ThumbsDown,
-  MessageSquare,
   CheckCircle,
   XCircle,
   FileText,
   Loader2,
   Edit2,
   Trash2,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 
 // Import generated hooks
@@ -32,10 +33,10 @@ import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 import DiscussionPanel from "../../components/panel/DiscussionPanel";
 
-// The secret to butter-smooth iOS-like animations
+// Faster, snappier transition for the drawer effect
 const smoothTransition = {
-  duration: 1.2, // Increased from 0.5 to 1.2 for a significantly slower transition
-  ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for a natural snappy flow
+  duration: 0.5,
+  ease: [0.25, 1, 0.5, 1],
 };
 
 const RequestsPreview: React.FC = () => {
@@ -236,9 +237,10 @@ const RequestsPreview: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className={`w-full max-w-7xl mx-auto flex flex-col font-mono ${isDiscussionOpen ? "h-[calc(100vh-20px)]" : "h-[calc(100vh-64px)]"} overflow-hidden space-y-4 pb-4`}
+          className={`w-full max-w-7xl mx-auto flex flex-col font-mono h-[calc(100vh-64px)] overflow-hidden pb-4`}
         >
-          <div className="flex items-center justify-between shrink-0">
+          {/* Top Navbar */}
+          <div className="flex items-center justify-between shrink-0 mb-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(-1)}
@@ -274,21 +276,25 @@ const RequestsPreview: React.FC = () => {
               </div>
             )}
           </div>
-          <hr className="border-b border-white/5" />
+          <hr className="border-b border-white/5 mb-4 shrink-0" />
 
           {/* 🚨 MASTER FLEX CONTAINER 🚨 */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-            {/* SECTION 1: Approved Context */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative gap-2">
+            {/* SECTION 1: Approved Context (Hides when discussion opens) */}
             <AnimatePresence initial={false}>
               {!isDiscussionOpen && (
                 <motion.div
                   initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                  animate={{ opacity: 1, height: "auto", marginBottom: "1rem" }}
+                  animate={{
+                    opacity: 1,
+                    height: "auto",
+                    marginBottom: "0.5rem",
+                  }}
                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                   transition={smoothTransition}
                   className="shrink-0 overflow-hidden"
                 >
-                  <div className="flex flex-col bg-white/5 rounded-2xl shadow-xl border border-white/10 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 p-6">
+                  <div className="flex flex-col bg-white/5 rounded-2xl shadow-xl border border-white/10 overflow-y-auto max-h-[30vh] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 p-6">
                     {approvedParagraphs.length > 0 ? (
                       <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300">
                         {approvedParagraphs.map((para) => (
@@ -311,11 +317,10 @@ const RequestsPreview: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* SECTION 2: The Pending Request Box */}
+            {/* SECTION 2: The Pending Request Box (Shrinks when discussion opens) */}
             <motion.div
               animate={{
-                flex: isDiscussionOpen ? "0 1 50%" : "1 1 0%",
-                marginBottom: isDiscussionOpen ? "1rem" : "0px",
+                flex: isDiscussionOpen ? "0 0 25%" : "1 1 auto",
               }}
               transition={smoothTransition}
               className="flex flex-col min-h-0 bg-[#0A0A12] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
@@ -372,7 +377,7 @@ const RequestsPreview: React.FC = () => {
               </div>
 
               {/* Action Footer */}
-              <div className="shrink-0 border-t border-white/10 p-5 bg-black/20">
+              <div className="shrink-0 border-t border-white/10 p-4 bg-black/20">
                 <div className="flex items-center justify-between gap-3 text-gray-400 text-sm font-mono">
                   <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm">
@@ -416,7 +421,7 @@ const RequestsPreview: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={handleLike}
-                          className="flex items-center gap-1.5 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"
+                          className="flex items-center gap-1.5 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10 transition-colors"
                         >
                           <ThumbsUp
                             size={18}
@@ -430,7 +435,7 @@ const RequestsPreview: React.FC = () => {
                         </button>
                         <button
                           onClick={handleDislike}
-                          className="flex items-center gap-1.5 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"
+                          className="flex items-center gap-1.5 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10 transition-colors"
                         >
                           <ThumbsDown
                             size={18}
@@ -443,13 +448,7 @@ const RequestsPreview: React.FC = () => {
                           <span>{localDislikes.length}</span>
                         </button>
 
-                        <button
-                          onClick={() => setIsDiscussionOpen(!isDiscussionOpen)}
-                          className={`flex items-center gap-1.5 transition-colors p-2 rounded-lg border border-white/10 ${isDiscussionOpen ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-white/5 text-gray-400 hover:text-white"}`}
-                        >
-                          <MessageSquare size={18} />{" "}
-                          <span>{paragraph?.comments?.length || 0}</span>
-                        </button>
+                        {/* Note: Comment button removed from here */}
 
                         {(isAuthor || isOwner) &&
                           paragraph?.status === "pending" && (
@@ -457,14 +456,14 @@ const RequestsPreview: React.FC = () => {
                               <div className="w-px h-6 bg-white/10 mx-1" />
                               <button
                                 onClick={() => setIsEditing(true)}
-                                className="hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"
+                                className="hover:text-white p-2 bg-white/5 rounded-lg border border-white/10 transition-colors"
                               >
                                 <Edit2 size={18} />
                               </button>
                               <button
                                 onClick={handleDelete}
                                 disabled={isDeleting}
-                                className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50"
+                                className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50 transition-colors"
                               >
                                 <Trash2 size={18} />
                               </button>
@@ -477,17 +476,38 @@ const RequestsPreview: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* SECTION 3: Discussion Box */}
+            {/* --- NEW: Interactive Collapsible Divider --- */}
+            <button
+              onClick={() => setIsDiscussionOpen(!isDiscussionOpen)}
+              className="w-full shrink-0 flex flex-col items-center justify-center py-2 hover:bg-white/5 rounded-xl transition-colors group focus:outline-none"
+            >
+              <div className="flex items-center gap-3 text-gray-500 group-hover:text-amber-500 transition-colors font-mono text-sm uppercase tracking-widest font-bold">
+                {isDiscussionOpen ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronUp size={18} />
+                )}
+                <span>Discussion ({paragraph?.comments?.length || 0})</span>
+                {isDiscussionOpen ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronUp size={18} />
+                )}
+              </div>
+              <div className="w-full max-w-[200px] h-[2px] bg-white/10 group-hover:bg-amber-500/30 mt-1 rounded-full transition-colors" />
+            </button>
+
+            {/* SECTION 3: Discussion Box (Expands to fill remaining height) */}
             <AnimatePresence initial={false}>
               {isDiscussionOpen && (
                 <motion.div
-                  initial={{ opacity: 0, flex: "0 0 auto", height: 0 }}
-                  animate={{ opacity: 1, flex: "1 1 0%", height: "auto" }}
-                  exit={{ opacity: 0, flex: "0 0 auto", height: 0 }}
+                  initial={{ opacity: 0, flex: "0 0 0%" }}
+                  animate={{ opacity: 1, flex: "1 1 0%" }}
+                  exit={{ opacity: 0, flex: "0 0 0%" }}
                   transition={smoothTransition}
-                  className="flex flex-col min-h-0 overflow-hidden"
+                  className="flex flex-col min-h-0 overflow-hidden rounded-2xl bg-white/5 border border-white/10"
                 >
-                  <div className="h-full w-full flex flex-col">
+                  <div className="h-full w-full flex flex-col p-4 md:p-6">
                     <DiscussionPanel
                       key="discussion-panel"
                       paragraphId={paragraphId || ""}

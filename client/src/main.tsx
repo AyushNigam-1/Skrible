@@ -1,10 +1,13 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/auth/Login";
 import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layouts/AuthLayout";
-import Script from "./pages/scripts/Script";
 import Favourites from "./pages/favourites/Favourites";
 import Notifications from "./pages/notification/Notifications";
 import Logout from "./pages/auth/Logout";
@@ -24,14 +27,28 @@ import ZenMode from "./pages/zen/ZenMode";
 import { UserProvider } from "./components/providers/UserProvider";
 import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
 import RequestsPreview from "./pages/requests/RequestsPreview";
+import { registerSW } from "virtual:pwa-register";
+
+// --- NEW: Public Route Guard ---
+// This checks if the user is already logged in.
+// If they are, it bounces them away from the auth pages and sends them to /explore.
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = localStorage.getItem("user");
+  if (user) {
+    return <Navigate to="/explore" replace />;
+  }
+  return <>{children}</>;
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomeLayout />,
     children: [
-      { path: "/", element: <Explore /> },
-      { path: "/script/:id", element: <Script /> },
+      // Redirect base URL to login (which will then redirect to explore if logged in)
+      { index: true, element: <Navigate to="/login" replace /> },
+
+      { path: "/explore", element: <Explore /> },
       { path: "/favourites", element: <Favourites /> },
       { path: "/contributions", element: <Contributions /> },
       { path: "/notifications", element: <Notifications /> },
@@ -39,11 +56,7 @@ const router = createBrowserRouter([
       { path: "/my-contributions", element: <MyContributions /> },
       { path: "/contribution/:id", element: <Contribution /> },
       { path: "/zen/:id", element: <ZenMode /> },
-
-      {
-        path: "/preview/:id/:paragraphId",
-        element: <RequestsPreview />,
-      },
+      { path: "/preview/:id/:paragraphId", element: <RequestsPreview /> },
       {
         path: "/",
         element: <DraftLayout />,
@@ -60,16 +73,30 @@ const router = createBrowserRouter([
 
   {
     path: "/",
-    element: <AuthLayout />,
+    // 🚨 Wrap the AuthLayout with our new PublicRoute guard
+    element: (
+      <PublicRoute>
+        <AuthLayout />
+      </PublicRoute>
+    ),
     children: [
       { path: "/login", element: <Login /> },
       { path: "/create-account", element: <CreateAccount /> },
-      { path: "/logout", element: <Logout /> },
     ],
   },
+
+  // Keep logout outside the PublicRoute guard so logged-in users can actually access it to log out!
+  {
+    path: "/logout",
+    element: <Logout />,
+  },
 ]);
+
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
+
+// Register the service worker to auto-update
+registerSW({ immediate: true });
 
 createRoot(rootElement).render(
   <CustomApolloProvider>

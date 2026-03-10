@@ -1,15 +1,24 @@
-import Navbar from "../components/layout/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/panel/Sidebar";
-import { useState } from "react";
-import { ChevronRight, PanelLeftOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const HomeLayout = () => {
   const user = localStorage.getItem("user");
   const location = useLocation();
 
   // State to manage sidebar open/close
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(
+    typeof window !== "undefined" ? window.innerWidth >= 768 : true,
+  );
+
+  // Auto-close sidebar on mobile when the user navigates to a new page
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const path = pathSegments[0];
@@ -31,16 +40,37 @@ const HomeLayout = () => {
         </button>
       )}
 
-      {/* --- Sidebar --- */}
+      {/* --- Mobile Overlay Backdrop --- */}
+      <AnimatePresence>
+        {user && path !== "zen" && isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 bg-[#0A0A12]/60 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* --- Sidebar Wrapper --- */}
       {path !== "zen" && user && (
-        <Sidebar
-          isOpen={isSidebarOpen}
-          toggleSidebar={() => setIsSidebarOpen(false)}
-        />
+        <div
+          className={`
+            fixed inset-y-0 left-0 z-50 md:static md:z-auto
+            transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          `}
+        >
+          <Sidebar
+            isOpen={isSidebarOpen}
+            toggleSidebar={() => setIsSidebarOpen(false)}
+          />
+        </div>
       )}
 
       {/* --- Main Content Area --- */}
-      {/* FIX: Removed transition-all duration-300 ease-in-out to prevent the slide bug */}
       <div
         className={`p-4 w-full ${
           path === "zen"
@@ -50,7 +80,6 @@ const HomeLayout = () => {
               : "flex flex-col gap-3"
         }`}
       >
-        {path !== "zen" && !user && <Navbar />}
         <Outlet context={{ path }} />
       </div>
     </div>

@@ -87,7 +87,7 @@ const ContributeModal = ({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all duration-300 font-semibold shadow-sm shrink-0 ml-4 active:scale-95"
+          className="flex items-center justify-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-gray-100 hover:bg-gray-200 border border-white/10 rounded-xl text-gray-800 text-sm md:text-base font-bold transition-all duration-300 shadow-sm active:scale-95"
         >
           <PlusCircle className="w-4 h-4" />
           Add

@@ -7,6 +7,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { authenticate } from "./middleware/middleware";
 import cookieParser from "cookie-parser";
+import { redisClient } from "./database/redis";
 
 dotenv.config();
 
@@ -15,12 +16,14 @@ const startServer = async () => {
   const port = Number(process.env.PORT) || 4000;
 
   await connectDB(uri);
+  await redisClient.connect();
 
   const server = graphqlServer();
   await server.start();
   const app = express();
+
   app.use(morgan("dev"));
-  app.use(cookieParser()); // Middleware for reading cookies
+  app.use(cookieParser());
   app.use(express.json());
   app.use(
     cors({
@@ -29,7 +32,6 @@ const startServer = async () => {
         "http://10.207.18.43:5173",
         "http://10.207.18.43:4173",
         "http://localhost:4173",
-        "https://sorts-invitations-road-sets.trycloudflare.com",
       ],
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
@@ -45,6 +47,7 @@ const startServer = async () => {
         req,
         res,
         user: req.user || null,
+        redis: redisClient,
       }),
     }),
   );

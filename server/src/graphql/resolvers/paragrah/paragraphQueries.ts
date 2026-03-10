@@ -2,11 +2,26 @@ import jsPDF from "jspdf";
 import Paragraph from "../../../models/Paragraph";
 import Script from "../../../models/Script";
 
+interface MyContext {
+  redis: any;
+  user: any;
+}
+
 export const paragraphQueries = {
   getParagraphById: async (
     _: any,
     { paragraphId }: { paragraphId: string },
+    { redis }: MyContext,
   ) => {
+    const cacheKey = `paragraph:${paragraphId}`;
+
+    // 1. Check Redis Cache
+    const cachedParagraph = await redis.get(cacheKey);
+    if (cachedParagraph) {
+      return JSON.parse(cachedParagraph);
+    }
+
+    // 2. Fetch from DB if not in cache
     const paragraph = await Paragraph.findById(paragraphId)
       .populate("author")
       .populate("comments.author")
@@ -17,42 +32,85 @@ export const paragraphQueries = {
 
     if (!paragraph) throw new Error("Paragraph not found");
 
-    // 1. Convert the Mongoose document to a plain JavaScript object
-    // { virtuals: true } ensures all the 'id' fields are generated from '_id'
     const result = paragraph.toObject({ virtuals: true });
-
-    // 2. Safely stringify the raw ObjectIds in the arrays
     result.likes = result.likes?.map((id: any) => id.toString()) || [];
     result.dislikes = result.dislikes?.map((id: any) => id.toString()) || [];
+
+    // 3. Save to Redis (Cache for 1 hour = 3600 seconds)
+    await redis.setEx(cacheKey, 3600, JSON.stringify(result));
 
     return result;
   },
 
-  getCombinedText: async (_: any, { scriptId }: { scriptId: string }) => {
-    const script = await Script.findById(scriptId).lean();
+  getCombinedText: async (
+    _: any,
+    { scriptId }: { scriptId: string },
+    { redis }: MyContext,
+  ) => {
+    const cacheKey = `script:${scriptId}:combinedText`;
 
+    const cachedText = await redis.get(cacheKey);
+    if (cachedText) {
+      return cachedText;
+    }
+
+    const script = await Script.findById(scriptId).lean();
     if (!script) throw new Error("Script not found");
 
-    return script.combinedText || "";
+    const text = script.combinedText || "";
+
+    // Cache for 1 hour
+    await redis.setEx(cacheKey, 3600, text);
+
+    return text;
   },
 
-  getPendingParagraphs: async (_: any, { scriptId }: { scriptId: string }) => {
+  getPendingParagraphs: async (
+    _: any,
+    { scriptId }: { scriptId: string },
+    { redis }: MyContext,
+  ) => {
+    const cacheKey = `script:${scriptId}:pending`;
+
+    const cachedPending = await redis.get(cacheKey);
+    if (cachedPending) {
+      return JSON.parse(cachedPending);
+    }
+
+    // Added .lean() here to make it easier to serialize into Redis
     const paragraphs = await Paragraph.find({
       script: scriptId,
       status: "pending",
     })
       .populate("author")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Cache for 5 minutes (300 seconds) since pending requests change frequently
+    await redis.setEx(cacheKey, 300, JSON.stringify(paragraphs));
 
     return paragraphs;
   },
+
   exportDocument: async (
     _: any,
     { scriptId, format }: { scriptId: string; format: string },
+    { redis }: MyContext,
   ) => {
-    const script = await Script.findById(scriptId).lean();
+    const cacheKey = `script:${scriptId}:exportData`;
 
-    if (!script) throw new Error("Script not found");
+    let script;
+    const cachedScript = await redis.get(cacheKey);
+
+    if (cachedScript) {
+      script = JSON.parse(cachedScript);
+    } else {
+      script = await Script.findById(scriptId).lean();
+      if (!script) throw new Error("Script not found");
+
+      // Cache the raw script data for 1 hour to speed up future exports
+      await redis.setEx(cacheKey, 3600, JSON.stringify(script));
+    }
 
     const sanitizedTitle = script.title.replace(/[<>:"/\\|?*]+/g, "");
 

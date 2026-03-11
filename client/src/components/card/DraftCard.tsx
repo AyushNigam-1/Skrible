@@ -65,17 +65,17 @@ const DraftCard = ({ script }: DraftCardProps) => {
           </div>
         </div>
 
-        <p className="text-gray-400 line-clamp-4 leading-relaxed flex-grow">
+        <p className="text-gray-300 line-clamp-4 leading-relaxed flex-grow">
           {script.description || "No description provided for this manuscript."}
         </p>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-gray-400 text-sm font-bold">
+          <div className="flex items-center gap-4 text-gray-300 text-sm font-bold">
             <div className="flex items-center gap-2 hover:text-blue-400 transition-colors">
               <ThumbsUp size={18} />
               <span>{script.likes?.length || 0}</span>
             </div>
-            <div className="flex items-center gap-2 hover:text-red-400 transition-colors">
+            <div className="flex items-center gap-2 hover:text-red-300 transition-colors">
               <ThumbsDown size={18} />
               <span>{script.dislikes?.length || 0}</span>
             </div>
@@ -83,7 +83,7 @@ const DraftCard = ({ script }: DraftCardProps) => {
 
           <div className="flex flex-wrap items-center gap-2">
             {script.languages && script.languages.length > 0 && (
-              <span className="flex items-center gap-1.5 text-gray-400 rounded-lg text-xs font-bold uppercase tracking-wider">
+              <span className="flex items-center gap-1.5 text-gray-300 rounded-lg text-xs font-bold uppercase tracking-wider">
                 <Globe2 className="w-3 h-3" />
                 {script.languages[0]}
               </span>

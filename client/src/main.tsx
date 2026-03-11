@@ -6,11 +6,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import CreateAccount from "./pages/auth/CreateAccount";
 import AuthLayout from "./layouts/AuthLayout";
 import Favourites from "./pages/favourites/Favourites";
 import Notifications from "./pages/notification/Notifications";
-import Logout from "./pages/auth/Logout";
 import Requests from "./pages/requests/Requests";
 import Contribution from "./pages/contribution/Contribution";
 import Profile from "./pages/profile/Profile";
@@ -20,14 +18,16 @@ import Timeline from "./pages/timeline/Timeline";
 import ScriptDetails from "./pages/about/ScriptDetails";
 import Contributors from "./pages/contributors/Contributors";
 import DraftSettings from "./pages/setting/DraftSettings";
-import Contributions from "./pages/contributions/Contributions";
-import MyContributions from "./pages/contributions/MyContributions";
+import MyContributions from "./pages/contributions/Contributions";
 import HomeLayout from "./layouts/HomeLayout";
 import ZenMode from "./pages/zen/ZenMode";
 import { UserProvider } from "./components/providers/UserProvider";
 import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
 import RequestsPreview from "./pages/requests/RequestsPreview";
 import { registerSW } from "virtual:pwa-register";
+import Contributions from "./pages/contributions/Contributions";
+import CreateAccount from "./pages/auth/CreateAccount";
+import Logout from "./pages/auth/Logout";
 
 // --- NEW: Public Route Guard ---
 // This checks if the user is already logged in.
@@ -50,10 +50,10 @@ const router = createBrowserRouter([
 
       { path: "/explore", element: <Explore /> },
       { path: "/favourites", element: <Favourites /> },
-      { path: "/contributions", element: <Contributions /> },
-      { path: "/notifications", element: <Notifications /> },
+      // { path: "/contributions", element: <Contributions /> },
+      // { path: "/notifications", element: <Notifications /> },
       { path: "/profile/:id", element: <Profile /> },
-      { path: "/my-contributions", element: <MyContributions /> },
+      { path: "/contributions", element: <Contributions /> },
       { path: "/contribution/:id", element: <Contribution /> },
       { path: "/zen/:id", element: <ZenMode /> },
       { path: "/preview/:id/:paragraphId", element: <RequestsPreview /> },
@@ -84,8 +84,6 @@ const router = createBrowserRouter([
       { path: "/create-account", element: <CreateAccount /> },
     ],
   },
-
-  // Keep logout outside the PublicRoute guard so logged-in users can actually access it to log out!
   {
     path: "/logout",
     element: <Logout />,

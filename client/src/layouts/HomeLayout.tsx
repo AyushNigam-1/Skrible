@@ -8,12 +8,23 @@ const HomeLayout = () => {
   const user = localStorage.getItem("user");
   const location = useLocation();
 
-  // State to manage sidebar open/close
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : true,
   );
 
-  // Auto-close sidebar on mobile when the user navigates to a new page
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
@@ -25,11 +36,10 @@ const HomeLayout = () => {
 
   return (
     <div
-      className={`h-screen scrollbar-none w-full overflow-y-auto relative ${
+      className={`min-h-screen w-full relative ${
         path === "zen" ? "" : user ? "flex" : ""
       }`}
     >
-      {/* --- Floating Button to Reopen Sidebar --- */}
       {user && path !== "zen" && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -76,7 +86,7 @@ const HomeLayout = () => {
           path === "zen"
             ? "container mx-auto"
             : user
-              ? "flex-1 min-w-0" // flex-1 allows it to dynamically take over the space left by the hidden sidebar
+              ? "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
               : "flex flex-col gap-3"
         }`}
       >

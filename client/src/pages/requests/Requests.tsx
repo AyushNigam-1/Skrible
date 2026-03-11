@@ -10,22 +10,13 @@ import {
   ThumbsDown,
   MessageSquare,
   Filter,
-  ChevronDown,
-  Check,
   Search as SearchIcon,
 } from "lucide-react";
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption,
-} from "@headlessui/react";
-import clsx from "clsx";
 
 import Loader from "../../components/layout/Loader";
 import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
-import Search from "../../components/layout/Search";
-
+import Search from "../../components/layout/Search"; // Now fully reusable!
+import Dropdown, { DropdownOption } from "../../components/layout/Filters";
 // --- Types ---
 type Paragraph = {
   id: string;
@@ -66,7 +57,7 @@ type OutletContextType = {
 };
 
 // --- Filter Configuration ---
-const filterOptions = [
+const filterOptions: DropdownOption[] = [
   { id: "newest", name: "Newest First" },
   { id: "oldest", name: "Oldest First" },
   { id: "most_liked", name: "Most Liked" },
@@ -91,7 +82,9 @@ const Requests: React.FC = () => {
 
   // --- Local State for Search & Filter ---
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
+  const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(
+    filterOptions[0],
+  );
 
   // --- Search & Filter Logic ---
   const filteredAndSortedParagraphs = useMemo(() => {
@@ -124,25 +117,30 @@ const Requests: React.FC = () => {
     return result;
   }, [pendingParagraphs, searchQuery, selectedFilter]);
 
+  // SAFE DATE PARSER
   const formatDate = (timestamp?: string | number): string => {
     if (!timestamp) return "";
+    const isNumeric = /^\d+$/.test(String(timestamp));
+    const date = isNumeric ? new Date(Number(timestamp)) : new Date(timestamp);
+
+    if (isNaN(date.getTime())) return "Unknown Date";
+
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }).format(new Date(Number(timestamp)));
+    }).format(date);
   };
 
   // --- STAGGERED ANIMATION VARIANTS ---
   const containerVariants: Variants = {
-    hidden: { opacity: 0, y: 15 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.1 },
+      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.08 },
     },
-    exit: { opacity: 0, y: -15, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } },
   };
 
   const itemVariants: Variants = {
@@ -176,94 +174,55 @@ const Requests: React.FC = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-[#130f1c]/50 backdrop-blur-xl shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full mt-10"
+            className="flex flex-col items-center justify-center py-20 px-4 text-center shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono"
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/5 blur-[80px] rounded-full pointer-events-none" />
-            <div className="bg-white/10 border border-white/20 p-4 rounded-full mb-5 shadow-sm relative z-10">
+            <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
               <Inbox className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 relative z-10">
+            <h3 className="text-2xl font-bold text-white relative z-10">
               No pending contributions
             </h3>
-            <p className="text-gray-400 max-w-md text-sm relative z-10">
+            <p className="text-gray-400 max-w-md relative z-10">
               There are currently no open requests. Wait for collaborators to
               propose new additions to this draft!
             </p>
           </motion.div>
         ) : (
-          /* Main Content Block */
+          /* THE FIX 1: Main Content Block now acts as the parent stagger container */
           <motion.div
             key="main-content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             className="w-full flex flex-col gap-6"
           >
-            {/* Header & Filter Section */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-20 w-full max-w-7xl mx-auto">
-              <div className="w-full sm:w-56">
-                <Search setSearch={setSearchQuery} placeholder="Search" />
-              </div>
+            {/* THE FIX 2: Wrapped Action Bar in motion.div with itemVariants */}
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center justify-between gap-3 relative z-20 w-full max-w-7xl mx-auto"
+            >
+              <Search
+                setSearch={setSearchQuery}
+                placeholder="Search requests..."
+                className="w-full sm:max-w-60"
+              />
 
-              <div className="w-full sm:w-48 relative">
-                <Listbox value={selectedFilter} onChange={setSelectedFilter}>
-                  <ListboxButton className="flex w-full items-center justify-between gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all duration-300 text-sm font-semibold shadow-sm outline-none font-sans">
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-gray-400" />
-                      <span className="truncate">{selectedFilter.name}</span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
-                  </ListboxButton>
-
-                  <ListboxOptions
-                    transition
-                    className="absolute z-30 mt-2 w-full bg-[#1a1a20] border border-white/10 rounded-xl shadow-2xl outline-none overflow-hidden origin-top-right transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 font-sans"
-                  >
-                    {filterOptions.map((option) => (
-                      <ListboxOption
-                        key={option.id}
-                        value={option}
-                        className={({ active }) =>
-                          clsx(
-                            "relative cursor-pointer select-none py-3 pl-4 pr-10 transition-colors text-sm",
-                            active ? "bg-white/5 text-white" : "text-gray-300",
-                          )
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span
-                              className={clsx(
-                                "block truncate",
-                                selected
-                                  ? "font-bold text-white"
-                                  : "font-medium",
-                              )}
-                            >
-                              {option.name}
-                            </span>
-                            {selected && (
-                              <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-white">
-                                <Check className="w-4 h-4" />
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </ListboxOption>
-                    ))}
-                  </ListboxOptions>
-                </Listbox>
-              </div>
-            </div>
+              <Dropdown
+                options={filterOptions}
+                value={selectedFilter}
+                onChange={setSelectedFilter}
+                icon={Filter}
+                className="w-auto shrink-0"
+                collapseOnMobile={true}
+              />
+            </motion.div>
 
             {/* Feed Area */}
             {filteredAndSortedParagraphs.length === 0 ? (
               /* Search Empty State */
               <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                variants={itemVariants}
                 className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full"
               >
                 <div className="bg-white/10 border border-white/20 p-4 rounded-full mb-5 shadow-sm relative z-10">
@@ -283,12 +242,9 @@ const Requests: React.FC = () => {
                 </button>
               </motion.div>
             ) : (
-              /* THE FIX: Apply containerVariants directly to the Grid so cards stagger naturally */
+              /* Feed Grid Container */
               <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                layout
                 className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10"
               >
                 <AnimatePresence mode="popLayout">

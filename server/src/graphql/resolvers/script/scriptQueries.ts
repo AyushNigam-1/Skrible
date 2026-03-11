@@ -14,20 +14,18 @@ const toUnixString = (date: any) => {
 
 export const scriptQueries = {
   getAllScripts: async (_: any, __: any, { redis }: MyContext) => {
-    const cacheKey = "scripts:all:v2"; // Cache busted
+    const cacheKey = "scripts:all:v2";
 
-    // 1. Check Redis Cache
     const cachedScripts = await redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
 
-    // 2. Fetch from DB
     const scripts = await Script.find().populate("author");
 
-    // 3. Convert to object with virtuals, AND manually restore Unix timestamps
     const formattedScripts = scripts.map((script) => {
-      const obj = script.toObject({ virtuals: true });
+      // FIX: Cast to 'any' so TS allows us to mutate Date fields into strings
+      const obj: any = script.toObject({ virtuals: true });
       return {
         ...obj,
         createdAt: toUnixString(obj.createdAt),
@@ -35,7 +33,6 @@ export const scriptQueries = {
       };
     });
 
-    // 4. Save to Redis
     await redis.setEx(cacheKey, 300, JSON.stringify(formattedScripts));
 
     return formattedScripts;
@@ -46,7 +43,7 @@ export const scriptQueries = {
     { id }: { id: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `script:${id}:v2`; // Cache busted
+    const cacheKey = `script:${id}:v2`;
 
     const cachedScript = await redis.get(cacheKey);
     if (cachedScript) {
@@ -63,13 +60,12 @@ export const scriptQueries = {
 
     if (!script) throw new Error("Script not found");
 
-    const obj = script.toObject({ virtuals: true });
+    // FIX: Cast to 'any' so we can safely overwrite the strict Date types
+    const obj: any = script.toObject({ virtuals: true });
 
-    // Restore Unix timestamps for the main script
     obj.createdAt = toUnixString(obj.createdAt);
     obj.updatedAt = toUnixString(obj.updatedAt);
 
-    // Restore Unix timestamps for all nested paragraphs
     if (obj.paragraphs) {
       obj.paragraphs = obj.paragraphs.map((p: any) => ({
         ...p,
@@ -83,7 +79,6 @@ export const scriptQueries = {
       }));
     }
 
-    // Cache for 1 hour (3600 seconds)
     await redis.setEx(cacheKey, 3600, JSON.stringify(obj));
 
     return obj;
@@ -96,7 +91,7 @@ export const scriptQueries = {
   ) => {
     const genresKey =
       genres && genres.length ? genres.slice().sort().join(",") : "all";
-    const cacheKey = `scripts:genres:${genresKey}:v2`; // Cache busted
+    const cacheKey = `scripts:genres:${genresKey}:v2`;
 
     const cachedScripts = await redis.get(cacheKey);
     if (cachedScripts) {
@@ -106,9 +101,9 @@ export const scriptQueries = {
     const filter = genres && genres.length ? { genres: { $in: genres } } : {};
     const scripts = await Script.find(filter).populate("author");
 
-    // Restore Unix timestamps
     const formattedScripts = scripts.map((script) => {
-      const obj = script.toObject({ virtuals: true });
+      // FIX: Cast to 'any'
+      const obj: any = script.toObject({ virtuals: true });
       return {
         ...obj,
         createdAt: toUnixString(obj.createdAt),
@@ -126,7 +121,7 @@ export const scriptQueries = {
     { scriptId }: { scriptId: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `script:${scriptId}:contributors:v2`; // Cache busted
+    const cacheKey = `script:${scriptId}:contributors:v2`;
 
     const cachedContributors = await redis.get(cacheKey);
     if (cachedContributors) {
@@ -138,9 +133,9 @@ export const scriptQueries = {
       status: "approved",
     }).populate("author");
 
-    // Convert to objects and restore Unix timestamps
     const formattedParagraphs = paragraphs.map((p) => {
-      const obj = p.toObject({ virtuals: true });
+      // FIX: Cast to 'any'
+      const obj: any = p.toObject({ virtuals: true });
       return {
         ...obj,
         createdAt: toUnixString(obj.createdAt),
@@ -170,7 +165,6 @@ export const scriptQueries = {
       ),
     };
 
-    // Cache for 30 minutes (1800 seconds)
     await redis.setEx(cacheKey, 1800, JSON.stringify(result));
 
     return result;

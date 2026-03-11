@@ -94,7 +94,7 @@ const Explore = () => {
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex flex-col gap-4 w-full"
+              className="flex flex-col gap-6 w-full"
             >
               {/* Header Section */}
               <motion.div

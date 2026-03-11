@@ -7,13 +7,20 @@ interface MyContext {
   user: any;
 }
 
+// THE FIX: Forces dates back into the Unix timestamp strings your frontend relies on
+const toUnixString = (date: any) => {
+  if (!date) return null;
+  return new Date(date).getTime().toString();
+};
+
 export const paragraphQueries = {
   getParagraphById: async (
     _: any,
     { paragraphId }: { paragraphId: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `paragraph:${paragraphId}`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `paragraph:${paragraphId}:v3`;
 
     // 1. Check Redis Cache
     const cachedParagraph = await redis.get(cacheKey);
@@ -32,14 +39,48 @@ export const paragraphQueries = {
 
     if (!paragraph) throw new Error("Paragraph not found");
 
-    const result = paragraph.toObject({ virtuals: true });
-    result.likes = result.likes?.map((id: any) => id.toString()) || [];
-    result.dislikes = result.dislikes?.map((id: any) => id.toString()) || [];
+    // FIX: Cast to 'any' so we can overwrite Date fields
+    const obj: any = paragraph.toObject({ virtuals: true });
+    obj.likes = obj.likes?.map((id: any) => id.toString()) || [];
+    obj.dislikes = obj.dislikes?.map((id: any) => id.toString()) || [];
+
+    // Safely force all nested dates back to Unix strings
+    obj.createdAt = toUnixString(obj.createdAt);
+    obj.updatedAt = toUnixString(obj.updatedAt);
+
+    if (obj.author) {
+      obj.author.createdAt = toUnixString(obj.author.createdAt);
+      obj.author.updatedAt = toUnixString(obj.author.updatedAt);
+    }
+
+    if (obj.script) {
+      obj.script.createdAt = toUnixString(obj.script.createdAt);
+      obj.script.updatedAt = toUnixString(obj.script.updatedAt);
+      if (obj.script.author) {
+        obj.script.author.createdAt = toUnixString(obj.script.author.createdAt);
+        obj.script.author.updatedAt = toUnixString(obj.script.author.updatedAt);
+      }
+    }
+
+    if (obj.comments) {
+      obj.comments = obj.comments.map((c: any) => ({
+        ...c,
+        createdAt: toUnixString(c.createdAt),
+        updatedAt: toUnixString(c.updatedAt),
+        author: c.author
+          ? {
+              ...c.author,
+              createdAt: toUnixString(c.author.createdAt),
+              updatedAt: toUnixString(c.author.updatedAt),
+            }
+          : null,
+      }));
+    }
 
     // 3. Save to Redis (Cache for 1 hour = 3600 seconds)
-    await redis.setEx(cacheKey, 3600, JSON.stringify(result));
+    await redis.setEx(cacheKey, 3600, JSON.stringify(obj));
 
-    return result;
+    return obj;
   },
 
   getCombinedText: async (
@@ -70,7 +111,8 @@ export const paragraphQueries = {
     { scriptId }: { scriptId: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `script:${scriptId}:pending`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `script:${scriptId}:pending:v3`;
 
     const cachedPending = await redis.get(cacheKey);
     if (cachedPending) {
@@ -86,10 +128,26 @@ export const paragraphQueries = {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Cache for 5 minutes (300 seconds) since pending requests change frequently
-    await redis.setEx(cacheKey, 300, JSON.stringify(paragraphs));
+    // ERROR FIX: Re-map the lean array to inject IDs and fix Dates
+    const formattedParagraphs = paragraphs.map((p: any) => ({
+      ...p,
+      id: p._id?.toString(),
+      createdAt: toUnixString(p.createdAt),
+      updatedAt: toUnixString(p.updatedAt),
+      author: p.author
+        ? {
+            ...p.author,
+            id: p.author._id?.toString(),
+            createdAt: toUnixString(p.author.createdAt),
+            updatedAt: toUnixString(p.author.updatedAt),
+          }
+        : null,
+    }));
 
-    return paragraphs;
+    // Cache for 5 minutes (300 seconds) since pending requests change frequently
+    await redis.setEx(cacheKey, 300, JSON.stringify(formattedParagraphs));
+
+    return formattedParagraphs;
   },
 
   exportDocument: async (
@@ -97,6 +155,7 @@ export const paragraphQueries = {
     { scriptId, format }: { scriptId: string; format: string },
     { redis }: MyContext,
   ) => {
+    // Export data does not get parsed by your standard React components, so no date fix needed here
     const cacheKey = `script:${scriptId}:exportData`;
 
     let script;

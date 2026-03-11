@@ -7,42 +7,62 @@ interface MyContext {
   user: any;
 }
 
+// THE FIX: Forces dates back into the Unix timestamp strings your frontend relies on
+const toUnixString = (date: any) => {
+  if (!date) return null;
+  return new Date(date).getTime().toString();
+};
+
 export const userQueries = {
   getUserProfile: async (
     _: unknown,
     { id }: { id: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `user:${id}:profile`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `user:${id}:profile:v3`;
 
-    // 1. Check Redis Cache
     const cachedProfile = await redis.get(cacheKey);
     if (cachedProfile) {
       return JSON.parse(cachedProfile);
     }
 
-    // 2. Fetch from DB (Removed .lean() to preserve virtuals)
     const user = await User.findById(id)
       .populate("scripts")
       .populate("follows");
 
     if (!user) throw new Error("User not found");
 
-    // ERROR FIX: Generate the object with virtuals so nested scripts/follows get their 'id'
-    const result = user.toObject({ virtuals: true });
+    const obj: any = user.toObject({ virtuals: true });
 
-    // Ensure fallback arrays just in case
-    result.favourites = result.favourites || [];
-    result.languages = result.languages || [];
-    result.likes = result.likes || [];
-    result.followers = result.followers || [];
-    result.scripts = result.scripts || [];
-    result.views = result.views || [];
+    // Restore Unix timestamps for the main user
+    obj.createdAt = toUnixString(obj.createdAt);
+    obj.updatedAt = toUnixString(obj.updatedAt);
 
-    // 3. Save to Redis (Cache for 1 hour / 3600 seconds)
-    await redis.setEx(cacheKey, 3600, JSON.stringify(result));
+    // Ensure fallback arrays
+    obj.favourites = obj.favourites || [];
+    obj.languages = obj.languages || [];
+    obj.likes = obj.likes || [];
+    obj.followers = obj.followers || [];
+    obj.views = obj.views || [];
 
-    return result;
+    // Safely map Follows and their dates
+    obj.follows = (obj.follows || []).map((follow: any) => ({
+      ...follow,
+      createdAt: toUnixString(follow.createdAt),
+      updatedAt: toUnixString(follow.updatedAt),
+    }));
+
+    // Safely map Scripts and their dates
+    obj.scripts = (obj.scripts || []).map((script: any) => ({
+      ...script,
+      createdAt: toUnixString(script.createdAt),
+      updatedAt: toUnixString(script.updatedAt),
+    }));
+
+    await redis.setEx(cacheKey, 3600, JSON.stringify(obj));
+
+    return obj;
   },
 
   getUserScripts: async (
@@ -50,33 +70,32 @@ export const userQueries = {
     { userId }: { userId: string },
     { redis }: MyContext,
   ) => {
-    // 🚨 CACHE BUSTING: We added ':v2' to force Redis to fetch fresh data! 🚨
-    const cacheKey = `user:${userId}:scripts:v2`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `user:${userId}:scripts:v3`;
 
     const cachedScripts = await redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
 
-    // We use lean() here so we just get raw JSON, no Mongoose magic
-    const scripts = await Script.find({ author: userId })
-      .populate("author")
-      .lean();
+    const scripts = await Script.find({ author: userId }).populate("author");
 
-    // HYPER-DEFENSIVE: Manually force the '_id' string into the 'id' property
-    const formattedScripts = scripts.map((script: any) => ({
-      ...script,
-      id: script._id.toString(), // 100% guaranteed to be a string
+    const formattedScripts = scripts.map((script: any) => {
+      const obj: any = script.toObject({ virtuals: true });
+      return {
+        ...obj,
+        createdAt: toUnixString(obj.createdAt),
+        updatedAt: toUnixString(obj.updatedAt),
+        author: obj.author
+          ? {
+              ...obj.author,
+              createdAt: toUnixString(obj.author.createdAt),
+              updatedAt: toUnixString(obj.author.updatedAt),
+            }
+          : null,
+      };
+    });
 
-      author: script.author
-        ? {
-            ...script.author,
-            id: script.author._id.toString(), // 100% guaranteed to be a string
-          }
-        : null,
-    }));
-
-    // Save the newly formatted, correct data to Redis
     await redis.setEx(cacheKey, 3600, JSON.stringify(formattedScripts));
 
     return formattedScripts;
@@ -87,7 +106,8 @@ export const userQueries = {
     { userId }: { userId: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `user:${userId}:contributions`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `user:${userId}:contributions:v3`;
 
     const cachedContributions = await redis.get(cacheKey);
     if (cachedContributions) {
@@ -99,37 +119,35 @@ export const userQueries = {
       .populate("comments.author")
       .sort({ createdAt: -1 });
 
-    // HYPER-DEFENSIVE MAPPING: Prevents server crashes if relations are missing
     const result = paragraphs.map((p: any) => {
-      const formatted = p.toObject({ virtuals: true });
+      const obj: any = p.toObject({ virtuals: true });
 
       return {
-        ...formatted,
-        id: p._id?.toString(),
-        createdAt: p.createdAt ? new Date(p.createdAt).toString() : "",
+        ...obj,
+        createdAt: toUnixString(obj.createdAt),
+        updatedAt: toUnixString(obj.updatedAt),
 
-        // Safely handle the script even if it was deleted or didn't populate correctly
-        script: p.script
+        // Safely handle script and inject TITLE for your frontend cards
+        script: obj.script
           ? {
-              ...formatted.script,
+              ...obj.script,
               id: p.script._id?.toString() || p.script.id?.toString(),
+              title: p.script.title,
+              createdAt: toUnixString(obj.script.createdAt),
+              updatedAt: toUnixString(obj.script.updatedAt),
             }
           : null,
 
-        // Safely handle comments and their authors
-        comments: (p.comments || []).map((comment: any) => ({
-          ...(comment.toObject
-            ? comment.toObject({ virtuals: true })
-            : comment),
-          id: comment._id?.toString(),
+        // Safely handle comments and restore Unix dates
+        comments: (obj.comments || []).map((comment: any) => ({
+          ...comment,
+          createdAt: toUnixString(comment.createdAt),
+          updatedAt: toUnixString(comment.updatedAt),
           author: comment.author
             ? {
-                ...(comment.author.toObject
-                  ? comment.author.toObject({ virtuals: true })
-                  : comment.author),
-                id:
-                  comment.author._id?.toString() ||
-                  comment.author.id?.toString(),
+                ...comment.author,
+                createdAt: toUnixString(comment.author.createdAt),
+                updatedAt: toUnixString(comment.author.updatedAt),
               }
             : null,
         })),
@@ -146,7 +164,8 @@ export const userQueries = {
     { userId }: { userId: string },
     { redis }: MyContext,
   ) => {
-    const cacheKey = `user:${userId}:favourites`;
+    // 🚨 CACHE BUSTING
+    const cacheKey = `user:${userId}:favourites:v3`;
 
     const cachedFavs = await redis.get(cacheKey);
     if (cachedFavs) {
@@ -157,18 +176,29 @@ export const userQueries = {
       path: "favourites",
       populate: {
         path: "author",
-        select: "username",
+        select: "username createdAt updatedAt",
       },
-    }); // Removed .lean()
+    });
 
     if (!user) throw new Error("User not found");
 
-    // ERROR FIX: Map over the populated array to inject virtual 'id's
-    const formattedFavs = (user.favourites || []).map((fav: any) =>
-      fav.toObject ? fav.toObject({ virtuals: true }) : fav,
-    );
+    const formattedFavs = (user.favourites || []).map((fav: any) => {
+      const obj: any = fav.toObject ? fav.toObject({ virtuals: true }) : fav;
 
-    // Cache for 1 hour
+      return {
+        ...obj,
+        createdAt: toUnixString(obj.createdAt),
+        updatedAt: toUnixString(obj.updatedAt),
+        author: obj.author
+          ? {
+              ...obj.author,
+              createdAt: toUnixString(obj.author.createdAt),
+              updatedAt: toUnixString(obj.author.updatedAt),
+            }
+          : null,
+      };
+    });
+
     await redis.setEx(cacheKey, 3600, JSON.stringify(formattedFavs));
 
     return formattedFavs;

@@ -46,6 +46,7 @@ export const GET_USER_CONTRIBUTIONS = gql`
       createdAt
       script {
         id
+        title
       }
       comments {
         author {

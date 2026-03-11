@@ -8,7 +8,6 @@ import {
   Mail,
   Heart,
   Eye,
-  Users,
   MapPin,
   CalendarDays,
   Plus,
@@ -17,7 +16,7 @@ import {
   Loader2,
   Edit2,
   Check,
-  X,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -79,7 +78,6 @@ const Profile = () => {
 
   // Automatic Unique View Trigger
   useEffect(() => {
-    // Only trigger if we are viewing someone else's profile and we have an ID
     if (id && currentUser?.id && !isOwnProfile) {
       viewProfile({ variables: { profileId: id } }).catch((err) =>
         console.error("View profile error ignored:", err),
@@ -90,12 +88,11 @@ const Profile = () => {
   // Handle Profile Like
   const handleLikeProfile = async () => {
     if (!currentUser?.id) return alert("Please log in to like profiles.");
-    if (isOwnProfile) return; // Can't like your own profile
+    if (isOwnProfile) return;
 
     const prevLikes = [...localProfileLikes];
     const isLiked = localProfileLikes.includes(currentUser.id);
 
-    // Optimistic UI update
     if (isLiked) {
       setLocalProfileLikes(prevLikes.filter((uid) => uid !== currentUser.id));
     } else {
@@ -105,7 +102,6 @@ const Profile = () => {
     try {
       await likeProfile({ variables: { profileId: id || "" } });
     } catch (err) {
-      // Rollback on failure
       setLocalProfileLikes(prevLikes);
       console.error("Failed to like profile:", err);
     }
@@ -128,7 +124,11 @@ const Profile = () => {
     );
   }, [scriptsData, search]);
 
-  // Magic auto-resize effect AND Cursor Placement for zero-shift editing
+  // Boolean to cleanly hide the header when no scripts exist
+  const hasScripts =
+    scriptsData?.getUserScripts && scriptsData.getUserScripts.length > 0;
+
+  // Auto-resize effect AND Cursor Placement for zero-shift editing
   useEffect(() => {
     if (editingField && textareaRef.current) {
       textareaRef.current.style.height = "0px";
@@ -154,7 +154,6 @@ const Profile = () => {
           value: editValue,
         },
       });
-
       setEditingField(null);
     } catch (err) {
       console.error("Failed to update profile", err);
@@ -217,20 +216,23 @@ const Profile = () => {
   const statsInfo = [
     {
       title: "Profile Views",
-      value: localProfileViews.length, // <-- Updated to local state
+      value: localProfileViews.length,
       icon: Eye,
     },
     {
       title: "Total Likes",
-      value: localProfileLikes.length, // <-- Updated to local state
+      value: localProfileLikes.length,
       icon: Heart,
     },
   ];
 
   const initial = userProfile?.username?.charAt(0).toUpperCase() || "?";
 
+  // Dynamic Empty State Icon
+  const EmptyIcon = search ? SearchX : FileText;
+
   return (
-    <div className="w-full max-w-7xl mx-auto font-mono pb-12">
+    <div className="w-full max-w-7xl mx-auto font-mono ">
       <AnimatePresence mode="wait">
         {profileLoading ? (
           <motion.div
@@ -326,7 +328,7 @@ const Profile = () => {
                     </div>
 
                     {!isOwnProfile && (
-                      <div className="flex flex-col gap-3 mt-2">
+                      <div className="flex flex-col gap-3 ">
                         <button
                           onClick={handleLikeProfile}
                           disabled={isLikingProfile}
@@ -473,25 +475,27 @@ const Profile = () => {
               className="border-t border-white/10"
             />
             <motion.div variants={itemVariants} className="flex flex-col gap-6">
-              {/* Drafts Header */}
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <h2 className="text-3xl font-sans font-extrabold text-white tracking-tight">
-                  {isOwnProfile ? "Drafts" : "Published Drafts"}
-                </h2>
+              {/* --- ONLY SHOW HEADER IF THERE ARE SCRIPTS --- */}
+              {hasScripts && (
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                  <h2 className="text-3xl font-sans font-extrabold text-white tracking-tight">
+                    {isOwnProfile ? "Drafts" : "Published Drafts"}
+                  </h2>
 
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                  <div className="w-full sm:w-64">
-                    <Search
-                      setSearch={setSearch}
-                      placeholder={`Search ${isOwnProfile ? "my" : "their"} scripts...`}
-                    />
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <div className="w-full sm:w-64">
+                      <Search
+                        setSearch={setSearch}
+                        placeholder={`Search ${isOwnProfile ? "my" : "their"} scripts...`}
+                      />
+                    </div>
+                    {isOwnProfile && <Add />}
                   </div>
-                  {isOwnProfile && <Add />}
                 </div>
-              </div>
+              )}
 
               {/* Scripts Content Area (with AnimatePresence for smooth state switching) */}
-              <div className="flex-1 mt-2">
+              <div className="flex-1 ">
                 <AnimatePresence mode="wait">
                   {scriptsLoading ? (
                     <motion.div
@@ -525,35 +529,40 @@ const Profile = () => {
                       </div>
                     </motion.div>
                   ) : !filteredScripts || filteredScripts.length === 0 ? (
+                    /* --- PERFECTED PREMIUM EMPTY STATE --- */
                     <motion.div
                       key="scripts-empty"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="flex flex-col items-center justify-center text-center py-24 px-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg relative overflow-hidden"
+                      className="flex flex-col items-center justify-center text-center py-20 px-4  relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg space-y-4"
                     >
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gray-500/5 blur-[80px] rounded-full pointer-events-none" />
-                      <div className="bg-white/5 p-6 rounded-full mb-6 border border-white/10 relative z-10">
-                        <SearchX className="w-10 h-10 text-gray-400" />
+                      <div className="bg-white/10 p-5 rounded-full border border-white/20 relative z-10 shadow-sm">
+                        <EmptyIcon className="w-8 h-8 text-gray-300" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-3 tracking-tight relative z-10">
-                        No drafts available
+
+                      <h3 className="text-xl font-bold text-white  relative z-10">
+                        {search ? "No results found" : "No drafts available"}
                       </h3>
-                      <p className="text-gray-400 max-w-md mb-8 leading-relaxed relative z-10">
+
+                      <p className="text-gray-400 max-w-md  text-sm relative z-10">
                         {search
-                          ? "No drafts found matching your search."
+                          ? `We couldn't find any drafts matching "${search}".`
                           : isOwnProfile
                             ? "You haven't created any drafts yet. Click the button below to start your creative journey."
                             : "This user hasn't published any drafts yet."}
                       </p>
+
                       {isOwnProfile && !search && (
-                        <Link
-                          to="/add"
-                          className="flex items-center gap-2 px-8 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-semibold shadow-lg shadow-gray-900/20 transition-all active:scale-95 relative z-10"
-                        >
-                          <Plus className="w-5 h-5" />
-                          Start Creating
-                        </Link>
+                        <div className="relative z-10">
+                          <Link
+                            to="/add"
+                            className="flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-200 rounded-xl font-bold shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all active:scale-95  text-sm"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Start Creating
+                          </Link>
+                        </div>
                       )}
                     </motion.div>
                   ) : (

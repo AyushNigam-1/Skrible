@@ -28,8 +28,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const userId = user?.id || "guest";
 
   const menuItems: MenuItem[] = [
-    { name: "Explore", icon: Compass, route: "/" },
-    { name: "Contributions", icon: Award, route: "/my-contributions" },
+    { name: "Explore", icon: Compass, route: "/explore" },
+    { name: "Contributions", icon: Award, route: "/contributions" },
     { name: "Favorites", icon: Heart, route: "/favourites" },
     { name: "Profile", icon: User, route: `/profile/${userId}` },
   ];
@@ -49,7 +49,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           <img
             src="/logo.png"
             alt="Logo"
-            className="w-20 lg:w-28 brightness-110 drop-shadow-sm"
+            className="w-28 lg:w-32 brightness-110 drop-shadow-sm"
           />
           <button
             onClick={toggleSidebar}
@@ -74,7 +74,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                   group flex items-center gap-3 py-1 transition-all duration-300 outline-none relative overflow-hidden
                   ${
                     isActive
-                      ? "font-bold text-gray-100 pl-3"
+                      ? "font-bold text-white pl-3"
                       : "text-gray-400 hover:text-white pl-0"
                   }
                 `}
@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
         </nav>
 
         <Link
-          to="/login"
+          to="/logout"
           className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none"
         >
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" />

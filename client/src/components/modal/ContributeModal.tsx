@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { useSubmitParagraphMutation } from "../../graphql/generated/graphql";
+import { posthog } from "../providers/PostHogProvider";
 
 interface ContributeModalProps {
   scriptId: string;
@@ -40,6 +41,10 @@ const ContributeModal = ({
           scriptId: scriptId,
           text: finalPayload,
         },
+      });
+      posthog.capture("contribution_submitted", {
+        script_id: scriptId,
+        content_length: finalPayload.length,
       });
       refetch();
       closeModal();

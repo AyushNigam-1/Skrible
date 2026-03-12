@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { REGISTER_MUTATION } from "../../graphql/mutation/userMutations";
+import { posthog } from "../../components/providers/PostHogProvider";
 
 // --- Zod Validation Schema ---
 const registerSchema = z.object({
@@ -49,9 +50,13 @@ const CreateAccount: React.FC = () => {
         JSON.stringify({ id: user.id, username: user.username }),
       );
 
+      posthog.identify(user.id, { username: user.username });
+      posthog.capture("user_signed_up", { signup_method: "email" });
+
       toast.success("Account created successfully!");
       nav("/");
     } catch (err: any) {
+      posthog.capture("signup_failed", { error_message: err.message || "unknown" });
       toast.error(err.message || "Failed to create account");
       console.error("Register failed:", err.message);
     }

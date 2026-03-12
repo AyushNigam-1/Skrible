@@ -2,6 +2,32 @@ import Paragraph from "../../../models/Paragraph";
 import Script from "../../../models/Script";
 import { GraphQLError } from "graphql";
 
+const enforceRateLimit = async (
+  redis: any,
+  identifier: string,
+  action: string,
+  limit: number,
+  windowSeconds: number,
+) => {
+  if (!redis) return;
+
+  const key = `ratelimit:${action}:${identifier}`;
+  const currentCount = await redis.incr(key);
+
+  if (currentCount === 1) {
+    await redis.expire(key, windowSeconds);
+  }
+
+  if (currentCount > limit) {
+    throw new GraphQLError(
+      `Too many requests for ${action}. Please try again later.`,
+      {
+        extensions: { code: "TOO_MANY_REQUESTS", http: { status: 429 } },
+      },
+    );
+  }
+};
+
 export const paragraphMutations = {
   editParagraph: async (
     _: any,
@@ -10,6 +36,8 @@ export const paragraphMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "edit_paragraph", 30, 60);
 
     const paragraph = await Paragraph.findById(paragraphId);
     if (!paragraph) throw new GraphQLError("Paragraph not found");
@@ -37,6 +65,8 @@ export const paragraphMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
+    await enforceRateLimit(context.redis, userId, "delete_paragraph", 20, 60);
+
     const paragraph = await Paragraph.findById(paragraphId).populate("script");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
@@ -62,7 +92,6 @@ export const paragraphMutations = {
     return { status: true };
   },
 
-  // --- PARAGRAPH INTERACTIONS ---
   likeParagraph: async (
     _: any,
     { paragraphId }: { paragraphId: string },
@@ -70,6 +99,8 @@ export const paragraphMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "like_paragraph", 60, 60);
 
     const paragraph = await Paragraph.findById(paragraphId);
     if (!paragraph) throw new GraphQLError("Paragraph not found");
@@ -98,6 +129,8 @@ export const paragraphMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
+    await enforceRateLimit(context.redis, userId, "dislike_paragraph", 60, 60);
+
     const paragraph = await Paragraph.findById(paragraphId);
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
@@ -124,6 +157,8 @@ export const paragraphMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "add_comment", 30, 60);
 
     if (!text || text.trim() === "") {
       throw new GraphQLError("Comment cannot be empty");

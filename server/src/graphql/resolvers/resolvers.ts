@@ -1,9 +1,9 @@
-import { userQueries } from "./user/userQueries";
-import { userMutations } from "./user/userMutations";
-import { scriptQueries } from "./script/scriptQueries";
-import { scriptMutations } from "./script/scriptMutations";
-import { paragraphQueries } from "./paragrah/paragraphQueries";
-import { paragraphMutations } from "./paragrah/paragraphMutations";
+import { userQueries } from "./queries/userQueries";
+import { userMutations } from "./mutations/userMutations";
+import { scriptQueries } from "./queries/scriptQueries";
+import { scriptMutations } from "./mutations/scriptMutations";
+import { paragraphQueries } from "./queries/paragraphQueries";
+import { paragraphMutations } from "./mutations/paragraphMutations";
 
 export const resolvers = {
   Query: {

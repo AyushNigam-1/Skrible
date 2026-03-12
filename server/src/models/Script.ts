@@ -1,6 +1,9 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
-
+import mongooseFieldEncryption from "mongoose-field-encryption";
 const RoleEnum = ["OWNER", "EDITOR", "CONTRIBUTOR", "VIEWER"];
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export interface ICollaborator {
   user: Types.ObjectId;
@@ -97,7 +100,6 @@ const scriptSchema = new Schema(
   { timestamps: true },
 );
 
-/* ✅ GraphQL needs id, Mongo gives _id — add virtual */
 scriptSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });
@@ -109,6 +111,11 @@ scriptSchema.set("toJSON", {
 
 scriptSchema.set("toObject", {
   virtuals: true,
+});
+
+scriptSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
+  fields: ["title", "description", "combinedText"],
+  secret: process.env.FIELD_ENCRYPTION_KEY,
 });
 
 const Script: Model<IScript> = mongoose.model<IScript>("Script", scriptSchema);

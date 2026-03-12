@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { LOGOUT_MUTATION } from "../../graphql/mutation/userMutations";
 import Loader from "../../components/layout/Loader";
+import { posthog } from "../../components/providers/PostHogProvider";
 
 const Logout: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ const Logout: React.FC = () => {
 
       // 2. Nuke the Apollo Cache memory to prevent data leaks
       await client.clearStore();
+
+      posthog.capture("user_logged_out");
+      posthog.reset();
 
       // 3. Notify and redirect
       toast.success("Successfully logged out");

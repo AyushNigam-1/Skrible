@@ -114,19 +114,14 @@ const Explore = () => {
                     <Add />
                   </div>
                 </div>
-
-                {/* MOBILE LAYOUT: Search full width below the header.
-                    DESKTOP LAYOUT: Search and Add Button inline on the right.
-                */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                   <div className="w-full sm:w-72">
                     <Search setSearch={setSearch} />
                   </div>
-
-                  {/* The Add button is hidden on mobile here, and shown only on md+ screens */}
                   <div className="hidden md:block shrink-0">
                     <Add />
                   </div>
+                  );
                 </div>
               </motion.div>
 

@@ -25,7 +25,13 @@ export const authenticate = (
       const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
       req.user = { id: decoded.id };
     } catch (error) {
-      console.error("Invalid JWT token");
+      // 1. Log the actual reason (e.g., "jwt expired") to help with debugging
+      console.error(
+        "⚠️ JWT Verification failed:",
+        error instanceof Error ? error.message : "Unknown error",
+      );
+      // We don't return 401 here yet. We let req.user stay undefined
+      // so the allowlist logic below can do its job.
     }
   }
 
@@ -42,18 +48,33 @@ export const authenticate = (
       "Logout",
       "ExportDocument",
       "IntrospectionQuery",
+      // Just in case you start using operation names for your refresh mutation
+      "RefreshToken",
     ];
 
     const isIntrospection =
       query.includes("__schema") || query.includes("__type");
+
+    // 2. CRITICAL FIX: Explicitly allow the refresh mutation to pass
+    // even if it lacks an operationName from the frontend fetch
+    const isRefresh = query.includes("refreshToken");
+
     const isAllowed =
       (operationName && allowedOperations.includes(operationName)) ||
-      isIntrospection;
+      isIntrospection ||
+      isRefresh;
 
     if (!req.user && !isAllowed) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: No valid token provided" });
+      // 3. CRITICAL FIX: Return a beautifully formatted GraphQL error.
+      // This guarantees your frontend Apollo errorLink catches the "UNAUTHENTICATED" code!
+      return res.status(401).json({
+        errors: [
+          {
+            message: "Unauthorized: Token expired or missing",
+            extensions: { code: "UNAUTHENTICATED" },
+          },
+        ],
+      });
     }
   }
 

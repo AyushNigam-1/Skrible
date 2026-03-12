@@ -1,13 +1,40 @@
 import jsPDF from "jspdf";
 import Paragraph from "../../../models/Paragraph";
 import Script from "../../../models/Script";
+import { GraphQLError } from "graphql";
 
 interface MyContext {
   redis: any;
   user: any;
+  req: any;
 }
 
-// THE FIX: Forces dates back into the Unix timestamp strings your frontend relies on
+const enforceRateLimit = async (
+  redis: any,
+  identifier: string,
+  action: string,
+  limit: number,
+  windowSeconds: number,
+) => {
+  if (!redis) return;
+
+  const key = `ratelimit:${action}:${identifier}`;
+  const currentCount = await redis.incr(key);
+
+  if (currentCount === 1) {
+    await redis.expire(key, windowSeconds);
+  }
+
+  if (currentCount > limit) {
+    throw new GraphQLError(
+      `Too many requests for ${action}. Please try again later.`,
+      {
+        extensions: { code: "TOO_MANY_REQUESTS", http: { status: 429 } },
+      },
+    );
+  }
+};
+
 const toUnixString = (date: any) => {
   if (!date) return null;
   return new Date(date).getTime().toString();
@@ -17,18 +44,19 @@ export const paragraphQueries = {
   getParagraphById: async (
     _: any,
     { paragraphId }: { paragraphId: string },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
-    // 🚨 CACHE BUSTING
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_paragraph", 120, 60);
+
     const cacheKey = `paragraph:${paragraphId}:v3`;
 
-    // 1. Check Redis Cache
-    const cachedParagraph = await redis.get(cacheKey);
+    const cachedParagraph = await context.redis.get(cacheKey);
     if (cachedParagraph) {
       return JSON.parse(cachedParagraph);
     }
 
-    // 2. Fetch from DB if not in cache
     const paragraph = await Paragraph.findById(paragraphId)
       .populate("author")
       .populate("comments.author")
@@ -39,12 +67,10 @@ export const paragraphQueries = {
 
     if (!paragraph) throw new Error("Paragraph not found");
 
-    // FIX: Cast to 'any' so we can overwrite Date fields
     const obj: any = paragraph.toObject({ virtuals: true });
     obj.likes = obj.likes?.map((id: any) => id.toString()) || [];
     obj.dislikes = obj.dislikes?.map((id: any) => id.toString()) || [];
 
-    // Safely force all nested dates back to Unix strings
     obj.createdAt = toUnixString(obj.createdAt);
     obj.updatedAt = toUnixString(obj.updatedAt);
 
@@ -77,8 +103,7 @@ export const paragraphQueries = {
       }));
     }
 
-    // 3. Save to Redis (Cache for 1 hour = 3600 seconds)
-    await redis.setEx(cacheKey, 3600, JSON.stringify(obj));
+    await context.redis.setEx(cacheKey, 3600, JSON.stringify(obj));
 
     return obj;
   },
@@ -86,11 +111,15 @@ export const paragraphQueries = {
   getCombinedText: async (
     _: any,
     { scriptId }: { scriptId: string },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_combined_text", 120, 60);
+
     const cacheKey = `script:${scriptId}:combinedText`;
 
-    const cachedText = await redis.get(cacheKey);
+    const cachedText = await context.redis.get(cacheKey);
     if (cachedText) {
       return cachedText;
     }
@@ -100,8 +129,7 @@ export const paragraphQueries = {
 
     const text = script.combinedText || "";
 
-    // Cache for 1 hour
-    await redis.setEx(cacheKey, 3600, text);
+    await context.redis.setEx(cacheKey, 3600, text);
 
     return text;
   },
@@ -109,17 +137,19 @@ export const paragraphQueries = {
   getPendingParagraphs: async (
     _: any,
     { scriptId }: { scriptId: string },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
-    // 🚨 CACHE BUSTING
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_pending_paragraphs", 60, 60);
+
     const cacheKey = `script:${scriptId}:pending:v3`;
 
-    const cachedPending = await redis.get(cacheKey);
+    const cachedPending = await context.redis.get(cacheKey);
     if (cachedPending) {
       return JSON.parse(cachedPending);
     }
 
-    // Added .lean() here to make it easier to serialize into Redis
     const paragraphs = await Paragraph.find({
       script: scriptId,
       status: "pending",
@@ -128,7 +158,6 @@ export const paragraphQueries = {
       .sort({ createdAt: -1 })
       .lean();
 
-    // ERROR FIX: Re-map the lean array to inject IDs and fix Dates
     const formattedParagraphs = paragraphs.map((p: any) => ({
       ...p,
       id: p._id?.toString(),
@@ -144,8 +173,11 @@ export const paragraphQueries = {
         : null,
     }));
 
-    // Cache for 5 minutes (300 seconds) since pending requests change frequently
-    await redis.setEx(cacheKey, 300, JSON.stringify(formattedParagraphs));
+    await context.redis.setEx(
+      cacheKey,
+      300,
+      JSON.stringify(formattedParagraphs),
+    );
 
     return formattedParagraphs;
   },
@@ -153,13 +185,16 @@ export const paragraphQueries = {
   exportDocument: async (
     _: any,
     { scriptId, format }: { scriptId: string; format: string },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
-    // Export data does not get parsed by your standard React components, so no date fix needed here
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "export_document", 10, 60);
+
     const cacheKey = `script:${scriptId}:exportData`;
 
     let script;
-    const cachedScript = await redis.get(cacheKey);
+    const cachedScript = await context.redis.get(cacheKey);
 
     if (cachedScript) {
       script = JSON.parse(cachedScript);
@@ -167,8 +202,7 @@ export const paragraphQueries = {
       script = await Script.findById(scriptId).lean();
       if (!script) throw new Error("Script not found");
 
-      // Cache the raw script data for 1 hour to speed up future exports
-      await redis.setEx(cacheKey, 3600, JSON.stringify(script));
+      await context.redis.setEx(cacheKey, 3600, JSON.stringify(script));
     }
 
     const sanitizedTitle = script.title.replace(/[<>:"/\\|?*]+/g, "");

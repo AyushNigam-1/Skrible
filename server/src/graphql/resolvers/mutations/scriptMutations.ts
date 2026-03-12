@@ -4,13 +4,38 @@ import Paragraph from "../../../models/Paragraph";
 import User from "../../../models/User";
 import { GraphQLError } from "graphql";
 
+const enforceRateLimit = async (
+  redis: any,
+  identifier: string,
+  action: string,
+  limit: number,
+  windowSeconds: number,
+) => {
+  if (!redis) return;
+
+  const key = `ratelimit:${action}:${identifier}`;
+  const currentCount = await redis.incr(key);
+
+  if (currentCount === 1) {
+    await redis.expire(key, windowSeconds);
+  }
+
+  if (currentCount > limit) {
+    throw new GraphQLError(
+      `Too many requests for ${action}. Please try again later.`,
+      {
+        extensions: { code: "TOO_MANY_REQUESTS", http: { status: 429 } },
+      },
+    );
+  }
+};
+
 const verifyOwner = async (scriptId: string, currentUserId: string) => {
   const script = await Script.findById(scriptId);
   if (!script) throw new GraphQLError("Script not found");
 
   if (script.author.toString() === currentUserId) return script;
 
-  // TypeScript Bypass: Cast to any to access collaborators safely
   const scriptDoc = script as any;
   const collab = scriptDoc.collaborators?.find(
     (c: any) => c.user.toString() === currentUserId,
@@ -37,14 +62,17 @@ export const scriptMutations = {
       genres: string[];
       description: string;
     },
-    context: { user: { id: string } },
+    context: any,
   ) => {
-    if (!context.user?.id) {
+    const userId = context.user?.id;
+    if (!userId) {
       throw new GraphQLError("User not authenticated");
     }
 
+    await enforceRateLimit(context.redis, userId, "create_script", 10, 3600);
+
     const script = await Script.create({
-      author: new mongoose.Types.ObjectId(context.user.id),
+      author: new mongoose.Types.ObjectId(userId),
       title,
       visibility,
       description,
@@ -55,7 +83,7 @@ export const scriptMutations = {
       combinedText: "",
     });
 
-    await User.findByIdAndUpdate(context.user.id, {
+    await User.findByIdAndUpdate(userId, {
       $push: { scripts: script._id },
     });
 
@@ -65,10 +93,12 @@ export const scriptMutations = {
   submitParagraph: async (
     _: any,
     { scriptId, text }: { scriptId: string; text: string },
-    context: { user: { id: string } },
+    context: any,
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "submit_paragraph", 30, 3600);
 
     const paragraph = await Paragraph.create({
       script: scriptId,
@@ -83,7 +113,13 @@ export const scriptMutations = {
   approveParagraph: async (
     _: any,
     { paragraphId }: { paragraphId: string },
+    context: any,
   ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "approve_paragraph", 60, 60);
+
     const paragraph = await Paragraph.findByIdAndUpdate(
       paragraphId,
       { status: "approved" },
@@ -120,7 +156,16 @@ export const scriptMutations = {
     return { status: true };
   },
 
-  rejectParagraph: async (_: any, { paragraphId }: { paragraphId: string }) => {
+  rejectParagraph: async (
+    _: any,
+    { paragraphId }: { paragraphId: string },
+    context: any,
+  ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "reject_paragraph", 60, 60);
+
     await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" });
     return { status: true };
   },
@@ -132,6 +177,8 @@ export const scriptMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("Auth required");
+
+    await enforceRateLimit(context.redis, userId, "mark_interested", 60, 60);
 
     await User.findByIdAndUpdate(userId, {
       $addToSet: { interested: scriptId },
@@ -149,6 +196,14 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("Auth required");
 
+    await enforceRateLimit(
+      context.redis,
+      userId,
+      "mark_not_interested",
+      60,
+      60,
+    );
+
     await User.findByIdAndUpdate(userId, {
       $addToSet: { notInterested: scriptId },
       $pull: { interested: scriptId },
@@ -165,6 +220,8 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("Auth required");
 
+    await enforceRateLimit(context.redis, userId, "mark_favourite", 60, 60);
+
     await User.findByIdAndUpdate(userId, {
       $addToSet: { favourites: scriptId },
     });
@@ -172,7 +229,6 @@ export const scriptMutations = {
     return { status: true };
   },
 
-  // --- SETTINGS: DELETE SCRIPT (SECURED) ---
   deleteScript: async (
     _: any,
     { scriptId }: { scriptId: string },
@@ -181,19 +237,18 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("Auth required");
 
+    await enforceRateLimit(context.redis, userId, "delete_script", 20, 60);
+
     const script = await Script.findById(scriptId);
     if (!script) throw new GraphQLError("Script not found");
 
-    // SECURITY: Ensure only the original author can delete their script!
     if (script.author.toString() !== userId) {
       throw new GraphQLError("Not authorized to delete this script");
     }
 
-    // Delete the script and all its associated paragraphs
     await Script.findByIdAndDelete(scriptId);
     await Paragraph.deleteMany({ script: scriptId });
 
-    // CLEANUP: Remove the script reference from the user's array
     await User.findByIdAndUpdate(userId, {
       $pull: { scripts: scriptId },
     });
@@ -201,7 +256,6 @@ export const scriptMutations = {
     return { status: true };
   },
 
-  // --- SETTINGS: UPDATE SCRIPT ---
   updateScript: async (
     _: any,
     {
@@ -220,10 +274,11 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
+    await enforceRateLimit(context.redis, userId, "update_script", 30, 60);
+
     const script = await Script.findById(scriptId);
     if (!script) throw new GraphQLError("Script not found");
 
-    console.log(script.author.toString(), userId);
     if (script.author.toString() !== userId) {
       throw new GraphQLError("Not authorized to update this script");
     }
@@ -236,7 +291,6 @@ export const scriptMutations = {
     return script.populate("author");
   },
 
-  // --- SCRIPT (DRAFT) INTERACTIONS ---
   likeScript: async (
     _: any,
     { scriptId }: { scriptId: string },
@@ -244,6 +298,8 @@ export const scriptMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "like_script", 60, 60);
 
     const script = await Script.findById(scriptId);
     if (!script) throw new GraphQLError("Script not found");
@@ -271,6 +327,8 @@ export const scriptMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "dislike_script", 60, 60);
 
     const script = await Script.findById(scriptId);
     if (!script) throw new GraphQLError("Script not found");
@@ -302,6 +360,8 @@ export const scriptMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
 
     const script = await verifyOwner(scriptId, userId);
 
@@ -342,6 +402,8 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
+    await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
+
     const script = await verifyOwner(scriptId, userId);
 
     if (script.author.toString() === targetUserId) {
@@ -376,6 +438,8 @@ export const scriptMutations = {
   ) => {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
 
     const script = await verifyOwner(scriptId, userId);
 

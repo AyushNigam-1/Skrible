@@ -29,6 +29,10 @@ export const userTypeDefs = gql`
     comments: [Comment!]!
   }
 
+  type RefreshTokenResponse {
+    token: String!
+  }
+
   type Query {
     getUserProfile(id: ID!): User!
     getUserScripts(userId: ID!): [Script!]!
@@ -44,5 +48,6 @@ export const userTypeDefs = gql`
     updateUserProfileField(key: String!, value: String!): User!
     likeProfile(profileId: ID!): MutationResponse!
     viewProfile(profileId: ID!): MutationResponse!
+    refreshToken: RefreshTokenResponse!
   }
 `;

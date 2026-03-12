@@ -1,22 +1,53 @@
+import { GraphQLError } from "graphql";
 import Script from "../../../models/Script";
 import Paragraph from "../../../models/Paragraph";
 
 interface MyContext {
   redis: any;
   user: any;
+  req: any;
 }
 
-// THE FIX: Forces dates back into the Unix timestamp strings your frontend relies on
+const enforceRateLimit = async (
+  redis: any,
+  identifier: string,
+  action: string,
+  limit: number,
+  windowSeconds: number,
+) => {
+  if (!redis) return;
+
+  const key = `ratelimit:${action}:${identifier}`;
+  const currentCount = await redis.incr(key);
+
+  if (currentCount === 1) {
+    await redis.expire(key, windowSeconds);
+  }
+
+  if (currentCount > limit) {
+    throw new GraphQLError(
+      `Too many requests for ${action}. Please try again later.`,
+      {
+        extensions: { code: "TOO_MANY_REQUESTS", http: { status: 429 } },
+      },
+    );
+  }
+};
+
 const toUnixString = (date: any) => {
   if (!date) return null;
   return new Date(date).getTime().toString();
 };
 
 export const scriptQueries = {
-  getAllScripts: async (_: any, __: any, { redis }: MyContext) => {
+  getAllScripts: async (_: any, __: any, context: MyContext) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_all_scripts", 60, 60);
+
     const cacheKey = "scripts:all:v2";
 
-    const cachedScripts = await redis.get(cacheKey);
+    const cachedScripts = await context.redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
@@ -24,7 +55,6 @@ export const scriptQueries = {
     const scripts = await Script.find().populate("author");
 
     const formattedScripts = scripts.map((script) => {
-      // FIX: Cast to 'any' so TS allows us to mutate Date fields into strings
       const obj: any = script.toObject({ virtuals: true });
       return {
         ...obj,
@@ -33,19 +63,19 @@ export const scriptQueries = {
       };
     });
 
-    await redis.setEx(cacheKey, 300, JSON.stringify(formattedScripts));
+    await context.redis.setEx(cacheKey, 300, JSON.stringify(formattedScripts));
 
     return formattedScripts;
   },
 
-  getScriptById: async (
-    _: any,
-    { id }: { id: string },
-    { redis }: MyContext,
-  ) => {
+  getScriptById: async (_: any, { id }: { id: string }, context: MyContext) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_script_by_id", 120, 60);
+
     const cacheKey = `script:${id}:v2`;
 
-    const cachedScript = await redis.get(cacheKey);
+    const cachedScript = await context.redis.get(cacheKey);
     if (cachedScript) {
       return JSON.parse(cachedScript);
     }
@@ -60,7 +90,6 @@ export const scriptQueries = {
 
     if (!script) throw new Error("Script not found");
 
-    // FIX: Cast to 'any' so we can safely overwrite the strict Date types
     const obj: any = script.toObject({ virtuals: true });
 
     obj.createdAt = toUnixString(obj.createdAt);
@@ -79,7 +108,7 @@ export const scriptQueries = {
       }));
     }
 
-    await redis.setEx(cacheKey, 3600, JSON.stringify(obj));
+    await context.redis.setEx(cacheKey, 3600, JSON.stringify(obj));
 
     return obj;
   },
@@ -87,13 +116,17 @@ export const scriptQueries = {
   getScriptsByGenres: async (
     _: any,
     { genres }: { genres?: string[] },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_scripts_by_genre", 60, 60);
+
     const genresKey =
       genres && genres.length ? genres.slice().sort().join(",") : "all";
     const cacheKey = `scripts:genres:${genresKey}:v2`;
 
-    const cachedScripts = await redis.get(cacheKey);
+    const cachedScripts = await context.redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
@@ -102,7 +135,6 @@ export const scriptQueries = {
     const scripts = await Script.find(filter).populate("author");
 
     const formattedScripts = scripts.map((script) => {
-      // FIX: Cast to 'any'
       const obj: any = script.toObject({ virtuals: true });
       return {
         ...obj,
@@ -111,7 +143,7 @@ export const scriptQueries = {
       };
     });
 
-    await redis.setEx(cacheKey, 300, JSON.stringify(formattedScripts));
+    await context.redis.setEx(cacheKey, 300, JSON.stringify(formattedScripts));
 
     return formattedScripts;
   },
@@ -119,11 +151,21 @@ export const scriptQueries = {
   getScriptContributors: async (
     _: any,
     { scriptId }: { scriptId: string },
-    { redis }: MyContext,
+    context: MyContext,
   ) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(
+      context.redis,
+      ip,
+      "get_script_contributors",
+      60,
+      60,
+    );
+
     const cacheKey = `script:${scriptId}:contributors:v2`;
 
-    const cachedContributors = await redis.get(cacheKey);
+    const cachedContributors = await context.redis.get(cacheKey);
     if (cachedContributors) {
       return JSON.parse(cachedContributors);
     }
@@ -134,7 +176,6 @@ export const scriptQueries = {
     }).populate("author");
 
     const formattedParagraphs = paragraphs.map((p) => {
-      // FIX: Cast to 'any'
       const obj: any = p.toObject({ virtuals: true });
       return {
         ...obj,
@@ -165,7 +206,7 @@ export const scriptQueries = {
       ),
     };
 
-    await redis.setEx(cacheKey, 1800, JSON.stringify(result));
+    await context.redis.setEx(cacheKey, 1800, JSON.stringify(result));
 
     return result;
   },

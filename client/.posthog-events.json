@@ -1,0 +1,62 @@
+[
+  {
+    "event": "user_signed_up",
+    "description": "User successfully creates a new account",
+    "file": "src/pages/auth/CreateAccount.tsx"
+  },
+  {
+    "event": "user_logged_in",
+    "description": "User successfully logs in to an existing account",
+    "file": "src/pages/auth/Login.tsx"
+  },
+  {
+    "event": "user_logged_out",
+    "description": "User initiates and completes logout",
+    "file": "src/pages/auth/Logout.tsx"
+  },
+  {
+    "event": "draft_created",
+    "description": "User creates a new manuscript/draft with title, genres, language, and visibility",
+    "file": "src/components/modal/AddDraft.tsx"
+  },
+  {
+    "event": "contribution_submitted",
+    "description": "User submits a new paragraph/contribution to a script",
+    "file": "src/components/modal/ContributeModal.tsx"
+  },
+  {
+    "event": "contribution_approved",
+    "description": "Script owner approves a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "contribution_rejected",
+    "description": "Script owner rejects a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "contribution_liked",
+    "description": "User likes a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "contribution_disliked",
+    "description": "User dislikes a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "contribution_edited",
+    "description": "Author or owner edits a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "contribution_deleted",
+    "description": "Author or owner deletes a pending contribution",
+    "file": "src/pages/requests/RequestsPreview.tsx"
+  },
+  {
+    "event": "invite_sent",
+    "description": "User sends an invite to collaborate on a script",
+    "file": "src/components/modal/InviteModal.tsx"
+  }
+]

@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { LOGIN_MUTATION } from "../../graphql/mutation/userMutations";
+import { posthog } from "../../components/providers/PostHogProvider";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -41,9 +42,13 @@ const Login: React.FC = () => {
         JSON.stringify({ id: user.id, username: user.username }),
       );
 
+      posthog.identify(user.id, { username: user.username });
+      posthog.capture("user_logged_in", { login_method: "email" });
+
       toast.success("Welcome back!");
       nav("/explore");
     } catch (err: any) {
+      posthog.capture("login_failed", { error_message: err.message || "unknown" });
       toast.error(err.message || "Invalid credentials");
       console.error("Login failed:", err.message);
     }

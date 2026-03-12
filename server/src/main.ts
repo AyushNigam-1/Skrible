@@ -8,6 +8,8 @@ import morgan from "morgan";
 import { authenticate } from "./middleware/middleware";
 import cookieParser from "cookie-parser";
 import { redisClient } from "./database/redis";
+import rateLimit from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
 
 dotenv.config();
 
@@ -40,8 +42,28 @@ const startServer = async () => {
 
   app.use(authenticate);
 
+  const graphqlLimiter = rateLimit({
+    store: new RedisStore({
+      sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+    }),
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: {
+      errors: [
+        {
+          message:
+            "Too many requests from this IP, please try again after 15 minutes.",
+          extensions: { code: "TOO_MANY_REQUESTS" },
+        },
+      ],
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   app.use(
     "/graphql",
+    graphqlLimiter,
     expressMiddleware(server, {
       context: async ({ req, res }) => ({
         req,

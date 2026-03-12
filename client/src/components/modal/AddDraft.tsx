@@ -13,6 +13,7 @@ import {
 import clsx from "clsx";
 import { X, ChevronDown, Check, Loader2, Plus } from "lucide-react";
 import { ADD_SCRIPT } from "../../graphql/mutation/scriptMutations";
+import { posthog } from "../providers/PostHogProvider";
 
 interface VisibilityOption {
   id: number;
@@ -110,6 +111,13 @@ const Add = () => {
       });
 
       const scriptId = res.data.createScript.id;
+
+      posthog.capture("draft_created", {
+        script_id: scriptId,
+        visibility: selectedVisibility.name,
+        genre_count: genres.length,
+        has_language: languages.length > 0,
+      });
 
       e.currentTarget.reset();
       setSelectedGenres([]);

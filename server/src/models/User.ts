@@ -1,4 +1,8 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import mongooseFieldEncryption from "mongoose-field-encryption";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface IUser extends Document {
   username: string;
@@ -43,9 +47,12 @@ const UserSchema: Schema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: "Request",
       default: [],
-    }, // Added field
+    },
   },
   { timestamps: true },
 );
-
+UserSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
+  fields: ["email"],
+  secret: process.env.FIELD_ENCRYPTION_KEY,
+});
 export default mongoose.model<IUser>("User", UserSchema);

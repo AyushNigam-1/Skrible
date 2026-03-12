@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Dialog, DialogPanel, DialogBackdrop } from "@headlessui/react";
+import { posthog } from "../providers/PostHogProvider";
 import {
   Link as LinkIcon,
   Mail,
@@ -30,6 +31,10 @@ const InviteModal = ({ scriptTitle }: InviteModalProps) => {
 
   const handleSendInvite = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    posthog.capture("invite_sent", {
+      script_title: scriptTitle,
+      method: "email",
+    });
     alert(`Invite sent to ${email}`);
     setEmail("");
     setIsOpen(false);

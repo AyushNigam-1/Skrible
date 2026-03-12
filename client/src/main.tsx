@@ -23,15 +23,14 @@ import HomeLayout from "./layouts/HomeLayout";
 import ZenMode from "./pages/zen/ZenMode";
 import { UserProvider } from "./components/providers/UserProvider";
 import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
+import { PostHogProvider } from "./components/providers/PostHogProvider";
 import RequestsPreview from "./pages/requests/RequestsPreview";
 import { registerSW } from "virtual:pwa-register";
 import Contributions from "./pages/contributions/Contributions";
 import CreateAccount from "./pages/auth/CreateAccount";
 import Logout from "./pages/auth/Logout";
+import * as Sentry from "@sentry/react";
 
-// --- NEW: Public Route Guard ---
-// This checks if the user is already logged in.
-// If they are, it bounces them away from the auth pages and sends them to /explore.
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const user = localStorage.getItem("user");
   if (user) {
@@ -90,6 +89,11 @@ const router = createBrowserRouter([
   },
 ]);
 
+Sentry.init({
+  dsn: "https://2805ef33995874e631b94ef2244ed00d@o4511026054561792.ingest.de.sentry.io/4511029947334736",
+  sendDefaultPii: true,
+});
+
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 
@@ -98,10 +102,12 @@ registerSW({ immediate: true });
 
 createRoot(rootElement).render(
   <CustomApolloProvider>
-    <UserProvider>
-      <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
-        <RouterProvider router={router} />
-      </div>
-    </UserProvider>
+    <PostHogProvider>
+      <UserProvider>
+        <div className="relative z-0 flex flex-col min-h-screen bg-[#0A0A14]">
+          <RouterProvider router={router} />
+        </div>
+      </UserProvider>
+    </PostHogProvider>
   </CustomApolloProvider>,
 );

@@ -1,6 +1,17 @@
 import { gql } from "graphql-tag";
 
 export const paragraphTypeDefs = gql`
+  type Comment {
+    author: Author!
+    text: String!
+    createdAt: String!
+  }
+
+  input CommentInput {
+    text: String!
+    createdAt: String!
+  }
+
   type Paragraph {
     id: ID!
     script: Script!

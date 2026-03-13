@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import { AlertCircle, SearchX } from "lucide-react";
+import { AlertCircle, Globe2, SearchX, ThumbsDown, ThumbsUp } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
 import Add from "../../components/modal/AddDraft";
 import { useGetScriptsByGenresQuery } from "../../graphql/generated/graphql";
-import DraftCard from "../../components/card/DraftCard";
 import Genres from "../../components/layout/Genres";
+import { Link } from "react-router-dom";
 
 const Explore = () => {
   const [genres, setGenres] = useState<string[]>([]);
@@ -24,11 +24,20 @@ const Explore = () => {
 
   const filteredScripts = useMemo(() => {
     return data?.getScriptsByGenres?.filter((e) =>
-      e?.title?.toLowerCase().includes(search.toLowerCase()),
+      e?.title?.toLowerCase().includes(search.toLowerCase())
     );
   }, [data, search]);
 
-  // --- Smooth Slide-Up Variants ---
+  // --- Helper missing from inline migration ---
+  const formatDate = (timestamp?: string | null) => {
+    if (!timestamp) return "";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date(Number(timestamp)));
+  };
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
@@ -39,11 +48,34 @@ const Explore = () => {
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 30, scale: 0.98 },
     show: {
       opacity: 1,
       y: 0,
+      scale: 1,
       transition: { type: "tween", ease: "easeOut", duration: 0.4 },
+    },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+  };
+
+  // ── Card Container (Stagger Manager) ──
+  const cardContainerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 },
+    },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+  };
+
+  // ── Individual Card Variants (The specific bounce you requested) ──
+  const cardItemVariants: Variants = {
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] },
     },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
@@ -101,15 +133,10 @@ const Explore = () => {
                 variants={itemVariants}
                 className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
               >
-                {/* MOBILE LAYOUT: Title on Left, Add Button on Right.
-                    DESKTOP LAYOUT: Title on Left.
-                */}
                 <div className="flex items-center justify-between w-full md:w-auto">
                   <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
                     Explore
                   </h1>
-
-                  {/* The Add button is hidden on md+ screens here, and shown only on mobile */}
                   <div className="md:hidden shrink-0">
                     <Add />
                   </div>
@@ -121,13 +148,11 @@ const Explore = () => {
                   <div className="hidden md:block shrink-0">
                     <Add />
                   </div>
-                  );
                 </div>
               </motion.div>
 
               <motion.hr variants={itemVariants} className="border-white/10" />
 
-              {/* Filters Section */}
               <motion.div variants={itemVariants}>
                 <Genres
                   selectedGenres={genres}
@@ -135,12 +160,12 @@ const Explore = () => {
                 />
               </motion.div>
 
-              {/* Content Area (Grid or Empty State) */}
               <div className="flex-1">
                 {!filteredScripts || filteredScripts.length === 0 ? (
                   <motion.div
-                    variants={itemVariants}
-                    className="flex flex-col items-center justify-center text-center relative overflow-hidden"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0, transition: { duration: 0.4 } }}
+                    className="flex flex-col items-center justify-center text-center relative overflow-hidden pt-12"
                   >
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
                     <div className="bg-white/5 border border-white/10 p-6 rounded-full mb-6 shadow-inner relative z-10">
@@ -156,21 +181,62 @@ const Explore = () => {
                   </motion.div>
                 ) : (
                   <motion.div
-                    variants={containerVariants}
+                    variants={cardContainerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    layout
                     className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 font-sans"
                   >
                     <AnimatePresence mode="popLayout">
                       {filteredScripts.map((script) => (
                         <motion.div
+                          key={script!.id} // <--- Added key here!
                           layout
-                          variants={itemVariants}
+                          variants={cardItemVariants} // <--- Bound to cardItemVariants!
+                          // Note: initial, animate, and exit are inherited from the parent automatically, 
+                          // but since we are mapping, it's safer to explicitly declare them just in case.
                           initial="hidden"
-                          animate="show"
+                          animate="visible"
                           exit="exit"
-                          key={script!.id}
-                          className="h-full"
+                          className="group relative bg-white/5 rounded-2xl p-4 border border-white/10 font-mono hover:border-white/20 hover:-translate-y-1.5 transition-all duration-500 flex flex-col overflow-hidden"
                         >
-                          <DraftCard script={script!} />
+                          <Link
+                            to={`/timeline/${script.id}`}
+                            className="flex flex-col h-full cursor-pointer outline-none space-y-5 relative z-10"
+                          >
+                            <div className="flex flex-col gap-2">
+                              <h2 className="text-2xl font-extrabold text-white font-sans line-clamp-1 transition-colors tracking-tight">
+                                {script.title}
+                              </h2>
+                              <div className="flex items-center gap-1.5 text-gray-400 text-xs uppercase tracking-widest font-bold">
+                                ~ {formatDate(script.createdAt)}
+                              </div>
+                            </div>
+                            <p className="text-gray-300 line-clamp-4 leading-relaxed flex-grow">
+                              {script.description || "No description provided for this manuscript."}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4 text-gray-300 text-sm font-bold">
+                                <div className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                                  <ThumbsUp size={18} />
+                                  <span>{script.likes?.length || 0}</span>
+                                </div>
+                                <div className="flex items-center gap-2 hover:text-red-300 transition-colors">
+                                  <ThumbsDown size={18} />
+                                  <span>{script.dislikes?.length || 0}</span>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {script.languages && script.languages.length > 0 && (
+                                  <span className="flex items-center gap-1.5 text-gray-300 rounded-lg text-xs font-bold uppercase tracking-wider">
+                                    <Globe2 className="w-3 h-3" />
+                                    {script.languages[0]}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
                         </motion.div>
                       ))}
                     </AnimatePresence>

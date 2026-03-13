@@ -26,6 +26,7 @@ const Timeline = () => {
   if (loading) return <Loader />;
 
   // --- Filtering & Sorting Logic ---
+  const scriptId = data?.getScriptById?.id
   const rawParagraphs = data?.getScriptById?.paragraphs || [];
 
   const processedParagraphs = useMemo(() => {
@@ -148,10 +149,9 @@ const Timeline = () => {
             processedParagraphs.map((p: any) => (
               <motion.div key={p.id} variants={itemVariants} layout>
                 <Link
-                  to={`/contribution/${p.id}`}
+                  to={`/preview/${scriptId}/${p.id}`}
                   className="block bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-lg hover:bg-white/10 hover:border-white/30 hover:-translate-y-1 transition-all duration-300 group relative"
                 >
-                  {/* --- Card Header: User left, Date right --- */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="size-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white text-xs font-bold shadow-inner group-hover:bg-white group-hover:text-black transition-colors shrink-0">
@@ -162,13 +162,11 @@ const Timeline = () => {
                       </p>
                     </div>
 
-                    {/* Date inside the top right corner */}
                     <span className="text-xs text-gray-500 tracking-wider shrink-0">
                       {formatDate(p.createdAt)}
                     </span>
                   </div>
 
-                  {/* --- Card Body --- */}
                   <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300 leading-relaxed ">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {p.text}

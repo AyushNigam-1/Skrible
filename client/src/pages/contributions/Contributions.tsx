@@ -11,10 +11,11 @@ import {
   MessageSquare,
   FileText,
   Calendar,
-  BookOpen,
+  Globe2,
+  Search as SearchIcon,
 } from "lucide-react";
 import { GET_USER_CONTRIBUTIONS } from "../../graphql/query/userQueries";
-import Search from "../../components/layout/Search"; // Now fully reusable!
+import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
 
 const MyContributions = () => {
@@ -105,15 +106,15 @@ const MyContributions = () => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[90vh] text-center"
+            className="flex flex-col items-center justify-center min-h-[90vh] text-center px-4"
           >
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-full mb-4 shadow-sm">
-              <XCircle className="w-8 h-8" />
+            <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-full mb-6">
+              <XCircle className="w-8 h-8 text-red-500" />
             </div>
-            <h2 className="text-xl font-bold text-white font-sans tracking-tight">
+            <h2 className="text-xl font-bold text-white font-mono tracking-tight mb-2">
               Failed to load contributions
             </h2>
-            <p className="text-gray-400 mt-2 text-sm">{error.message}</p>
+            <p className="text-gray-400 mt-2 text-sm max-w-sm">{error.message}</p>
           </motion.div>
         ) : (
           <motion.div
@@ -122,28 +123,32 @@ const MyContributions = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col gap-6 w-full"
+            className={`flex flex-col gap-6 w-full ${contributions.length === 0 ? 'min-h-[80vh] justify-center' : ''}`}
           >
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-20"
-            >
-              <h3 className="text-3xl text-white font-sans font-extrabold shrink-0">
-                Contributions
-              </h3>
+            {/* Header Section - ONLY SHOW IF THERE ARE CONTRIBUTIONS */}
+            {contributions.length > 0 && (
+              <>
+                <motion.div
+                  variants={itemVariants}
+                  className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-20 mt-4"
+                >
+                  <h3 className="text-3xl text-white font-sans font-extrabold shrink-0">
+                    Contributions
+                  </h3>
 
-              {/* THE FIX: Replaced the wrapper div with the new className prop directly on the Search component */}
-              <Search
-                setSearch={setSearchQuery}
-                placeholder="Search your drafts..."
-                className="w-full sm:max-w-xs"
-              />
-            </motion.div>
+                  <Search
+                    setSearch={setSearchQuery}
+                    placeholder="Search your drafts..."
+                    className="w-full sm:max-w-xs"
+                  />
+                </motion.div>
 
-            <motion.hr
-              variants={itemVariants}
-              className="border-gray-200 dark:border-gray-800"
-            />
+                <motion.hr
+                  variants={itemVariants}
+                  className="border-white/10 mt-2 mb-4"
+                />
+              </>
+            )}
 
             {filteredContributions.length > 0 ? (
               <motion.div
@@ -164,7 +169,7 @@ const MyContributions = () => {
                       key={contribution.id}
                     >
                       <Link
-                        to={`/contribution/${contribution.id}`}
+                        to={`/preview/${contribution.script.id}/${contribution.id}`}
                         className="group flex flex-col bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-white/10 hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden relative gap-6"
                       >
                         {/* --- Header --- */}
@@ -217,23 +222,38 @@ const MyContributions = () => {
                 })}
               </motion.div>
             ) : (
-              /* --- Premium Empty State --- */
+              /* --- Minimalist Empty State (Matching Screenshot 3) --- */
               <motion.div
                 variants={itemVariants}
-                className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-[#130f1c]/50 backdrop-blur-xl shadow-lg relative overflow-hidden mt-2"
+                className="flex-1 flex flex-col items-center justify-center text-center py-20 px-4"
               >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-white/5 blur-[80px] rounded-full pointer-events-none" />
-                <div className="bg-white/10 border border-white/20 p-4 rounded-full mb-5 shadow-sm relative z-10">
-                  <FileText className="w-8 h-8 text-white" />
+                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
+                  {searchQuery ? (
+                    <SearchIcon className="w-8 h-8 text-gray-500" />
+                  ) : (
+                    <FileText className="w-8 h-8 text-gray-500" />
+                  )}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2 relative z-10 font-sans tracking-tight">
-                  {searchQuery ? "No matching drafts" : "No contributions yet"}
+
+                <h3 className="text-xl font-bold text-white mb-3 font-mono tracking-tight">
+                  {searchQuery ? "No Matches Found" : "No contributions yet"}
                 </h3>
-                <p className="text-gray-400 max-w-md text-sm relative z-10 leading-relaxed font-sans">
+
+                <p className="text-gray-400 max-w-sm text-sm font-mono leading-relaxed mb-8">
                   {searchQuery
-                    ? "Try tweaking your search term."
+                    ? `No drafts matching "${searchQuery}". Try adjusting your search.`
                     : "You haven't submitted any drafts yet. Find a story to collaborate on and make your mark!"}
                 </p>
+
+                {!searchQuery && (
+                  <Link
+                    to="/explore"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
+                  >
+                    <Globe2 className="w-4 h-4" />
+                    Find a Story
+                  </Link>
+                )}
               </motion.div>
             )}
           </motion.div>

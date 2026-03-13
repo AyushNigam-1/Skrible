@@ -24,7 +24,6 @@ import ZenMode from "./pages/zen/ZenMode";
 import { UserProvider } from "./components/providers/UserProvider";
 import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
 import { PostHogProvider } from "./components/providers/PostHogProvider";
-import RequestsPreview from "./pages/requests/RequestsPreview";
 import { registerSW } from "virtual:pwa-register";
 import Contributions from "./pages/contributions/Contributions";
 import CreateAccount from "./pages/auth/CreateAccount";
@@ -44,18 +43,13 @@ const router = createBrowserRouter([
     path: "/",
     element: <HomeLayout />,
     children: [
-      // Redirect base URL to login (which will then redirect to explore if logged in)
       { index: true, element: <Navigate to="/login" replace /> },
-
       { path: "/explore", element: <Explore /> },
       { path: "/favourites", element: <Favourites /> },
-      // { path: "/contributions", element: <Contributions /> },
-      // { path: "/notifications", element: <Notifications /> },
       { path: "/profile/:id", element: <Profile /> },
       { path: "/contributions", element: <Contributions /> },
-      { path: "/contribution/:id", element: <Contribution /> },
       { path: "/zen/:id", element: <ZenMode /> },
-      { path: "/preview/:id/:paragraphId", element: <RequestsPreview /> },
+      { path: "/preview/:id/:paragraphId", element: <Contribution /> },
       {
         path: "/",
         element: <DraftLayout />,
@@ -72,7 +66,6 @@ const router = createBrowserRouter([
 
   {
     path: "/",
-    // 🚨 Wrap the AuthLayout with our new PublicRoute guard
     element: (
       <PublicRoute>
         <AuthLayout />
@@ -97,7 +90,6 @@ Sentry.init({
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 
-// Register the service worker to auto-update
 registerSW({ immediate: true });
 
 createRoot(rootElement).render(

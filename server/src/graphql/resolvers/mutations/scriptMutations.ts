@@ -87,6 +87,9 @@ export const scriptMutations = {
       $push: { scripts: script._id },
     });
 
+    await context.redis.del(`user:${userId}:scripts:owner:v3`);
+    await context.redis.del(`user:${userId}:scripts:public:v3`);
+
     return Script.findById(script._id).populate("author");
   },
 

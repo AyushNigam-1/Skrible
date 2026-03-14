@@ -99,3 +99,31 @@ export const GET_SCRIPT_CONTRIBUTORS = gql`
     }
   }
 `;
+
+export const GET_USER_CONTRIBUTIONS_BY_SCRIPT = gql`
+  query GetUserContributionsByScript($userId: ID!, $scriptId: ID!) {
+    getUserContributionsByScript(userId: $userId, scriptId: $scriptId) {
+      id
+      text
+      status
+      createdAt
+      likes
+      dislikes
+      script {
+        id
+        title
+      }
+      author {
+        id
+        username
+      }
+      comments {
+        text
+        createdAt
+        author {
+          username
+        }
+      }
+    }
+  }
+`;

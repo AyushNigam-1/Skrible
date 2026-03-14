@@ -8,7 +8,6 @@ import {
 import Login from "./pages/auth/Login";
 import AuthLayout from "./layouts/AuthLayout";
 import Favourites from "./pages/favourites/Favourites";
-import Notifications from "./pages/notification/Notifications";
 import Requests from "./pages/requests/Requests";
 import Contribution from "./pages/contribution/Contribution";
 import Profile from "./pages/profile/Profile";
@@ -18,7 +17,6 @@ import Timeline from "./pages/timeline/Timeline";
 import ScriptDetails from "./pages/about/ScriptDetails";
 import Contributors from "./pages/contributors/Contributors";
 import DraftSettings from "./pages/setting/DraftSettings";
-import MyContributions from "./pages/contributions/Contributions";
 import HomeLayout from "./layouts/HomeLayout";
 import ZenMode from "./pages/zen/ZenMode";
 import { UserProvider } from "./components/providers/UserProvider";
@@ -29,6 +27,7 @@ import Contributions from "./pages/contributions/Contributions";
 import CreateAccount from "./pages/auth/CreateAccount";
 import Logout from "./pages/auth/Logout";
 import * as Sentry from "@sentry/react";
+import UserContributions from "./pages/ UserContributions";
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const user = localStorage.getItem("user");
@@ -50,6 +49,7 @@ const router = createBrowserRouter([
       { path: "/contributions", element: <Contributions /> },
       { path: "/zen/:id", element: <ZenMode /> },
       { path: "/preview/:id/:paragraphId", element: <Contribution /> },
+      { path: "/contributions/:draftId/:userId", element: <UserContributions /> },
       {
         path: "/",
         element: <DraftLayout />,

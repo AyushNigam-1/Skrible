@@ -124,14 +124,21 @@ export const scriptQueries = {
 
     const genresKey =
       genres && genres.length ? genres.slice().sort().join(",") : "all";
-    const cacheKey = `scripts:genres:${genresKey}:v2`;
+
+    // Bumped cache version to v3 to instantly wipe out the old cache containing private scripts
+    const cacheKey = `scripts:genres:public:${genresKey}:v3`;
 
     const cachedScripts = await context.redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
 
-    const filter = genres && genres.length ? { genres: { $in: genres } } : {};
+    const filter: any = { visibility: "Public" };
+
+    if (genres && genres.length) {
+      filter.genres = { $in: genres };
+    }
+
     const scripts = await Script.find(filter).populate("author");
 
     const formattedScripts = scripts.map((script) => {
@@ -209,5 +216,65 @@ export const scriptQueries = {
     await context.redis.setEx(cacheKey, 1800, JSON.stringify(result));
 
     return result;
+  },
+
+  getUserContributionsByScript: async (
+    _: any,
+    { userId, scriptId }: { userId: string; scriptId: string },
+    context: MyContext,
+  ) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+
+    await enforceRateLimit(context.redis, ip, "get_user_contributions_by_script", 100, 60);
+
+    const cacheKey = `user:${userId}:script:${scriptId}:contributions:v1`;
+
+    const cachedContributions = await context.redis.get(cacheKey);
+    console.log("cachedContributions", cachedContributions)
+    if (cachedContributions) {
+      return JSON.parse(cachedContributions);
+    }
+    console.log(cachedContributions)
+    const contributions = await Paragraph.find({
+      author: userId,
+      script: scriptId
+    })
+      .populate("author")
+      .populate("script")
+      .populate("comments.author")
+      .sort({ createdAt: -1 });
+
+    const formattedContributions = contributions.map((contribution) => {
+      const obj: any = contribution.toObject({ virtuals: true });
+      return {
+        ...obj,
+        createdAt: toUnixString(obj.createdAt),
+        updatedAt: toUnixString(obj.updatedAt),
+        author: obj.author
+          ? {
+            ...obj.author,
+            createdAt: toUnixString(obj.author.createdAt),
+            updatedAt: toUnixString(obj.author.updatedAt),
+          }
+          : null,
+        script: obj.script
+          ? {
+            ...obj.script,
+            createdAt: toUnixString(obj.script.createdAt),
+            updatedAt: toUnixString(obj.script.updatedAt),
+          }
+          : null,
+        comments: (obj.comments || []).map((c: any) => ({
+          ...c,
+          createdAt: toUnixString(c.createdAt),
+          updatedAt: toUnixString(c.updatedAt),
+        })),
+      };
+    });
+
+    await context.redis.setEx(cacheKey, 900, JSON.stringify(formattedContributions));
+
+    return formattedContributions;
   },
 };

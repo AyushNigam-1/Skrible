@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogPanel, DialogBackdrop } from "@headlessui/react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   PlusCircle,
-  Send,
   X,
   Loader2,
-  Type,
-  FileText,
-  File,
   Plus,
 } from "lucide-react";
 import clsx from "clsx";
 import { useSubmitParagraphMutation } from "../../graphql/generated/graphql";
 import { posthog } from "../providers/PostHogProvider";
+
+const contributeSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Summary is required")
+    .max(150, "Summary is too long (max 150 characters)"),
+  content: z.string().min(1, "Content cannot be empty"),
+});
+
+type ContributeFormValues = z.infer<typeof contributeSchema>;
 
 interface ContributeModalProps {
   scriptId: string;
@@ -26,53 +36,57 @@ const ContributeModal = ({
   variant = "header",
 }: ContributeModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // --- New Field Added ---
-  const [title, setTitle] = useState("");
-  const [manualText, setManualText] = useState("");
+  const navigate = useNavigate();
 
   const [submitParagraph, { loading: isSubmitting }] =
     useSubmitParagraphMutation();
 
-  const handleCreateContribution = async (finalPayload: string) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<ContributeFormValues>({
+    resolver: zodResolver(contributeSchema),
+    mode: "onChange",
+  });
+
+  const closeModal = () => {
+    setIsOpen(false);
+    reset();
+  };
+
+  const onSubmit = async (data: ContributeFormValues) => {
+    const finalPayload = `### ${data.title.trim()}\n\n${data.content.trim()}`;
+
     try {
-      await submitParagraph({
+      const response = await submitParagraph({
         variables: {
           scriptId: scriptId,
           text: finalPayload,
         },
       });
+
       posthog.capture("contribution_submitted", {
         script_id: scriptId,
         content_length: finalPayload.length,
       });
+
       refetch();
       closeModal();
+      const newParagraphId = response.data?.submitParagraph?.id;
+      if (newParagraphId) {
+        navigate(`/preview/${scriptId}/${newParagraphId}`);
+      } else {
+        navigate(`/requests/${scriptId}`);
+      }
+
     } catch (error) {
       console.error("Error submitting contribution:", error);
       alert("Failed to submit. Please try again.");
     }
   };
 
-  const closeModal = () => {
-    setIsOpen(false);
-    setTitle("");
-    setManualText("");
-  };
-
-  // Require both a title and content to submit
-  const canSubmit = title.trim().length > 0 && manualText.trim().length > 0;
-
-  const handleSubmitClick = () => {
-    if (canSubmit) {
-      // Format the title as a Markdown Header so it looks great in the review feed
-      // without requiring any backend database schema changes!
-      const finalPayload = `### ${title.trim()}\n\n${manualText.trim()}`;
-      handleCreateContribution(finalPayload);
-    }
-  };
-
-  // --- Sleek Theme Classes ---
   const inputClass =
     "w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-600 text-sm font-sans shadow-inner disabled:opacity-50 disabled:cursor-not-allowed";
   const labelClass =
@@ -80,7 +94,6 @@ const ContributeModal = ({
 
   return (
     <>
-      {/* Dynamic Trigger Button */}
       {variant === "empty" ? (
         <button
           onClick={() => setIsOpen(true)}
@@ -120,9 +133,6 @@ const ContributeModal = ({
                   <h3 className="text-2xl font-extrabold text-white tracking-tight">
                     New Contribution
                   </h3>
-                  {/*<p className="text-sm text-gray-500 mt-1 font-medium">
-                    Propose the next chapter or a new edit to this manuscript.
-                  </p>*/}
                 </div>
                 <button
                   onClick={closeModal}
@@ -133,43 +143,51 @@ const ContributeModal = ({
               </div>
               <hr className="border-b border-white/5" />
 
-              {/* Body */}
-              <div className="flex flex-col gap-6">
-                {/* --- NEW FIELD: Title / Summary --- */}
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+
                 <div>
-                  <label className={labelClass}>
-                    {/*<Type className="w-4 h-4 text-gray-500" />*/}
-                    Summary
-                  </label>
+                  <label className={labelClass}>Summary</label>
                   <input
                     type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    {...register("title")}
                     disabled={isSubmitting}
-                    className={inputClass}
+                    className={clsx(
+                      inputClass,
+                      errors.title && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                    )}
                     placeholder="e.g., Introduced a new plot twist..."
                     autoFocus
                   />
+                  {errors.title && (
+                    <p className="text-red-400 text-xs mt-1.5 ml-1 font-mono">
+                      {errors.title.message}
+                    </p>
+                  )}
                 </div>
 
-                {/* Main Content Area */}
                 <div>
                   <label className={labelClass}>Content</label>
                   <textarea
-                    value={manualText}
-                    onChange={(e) => setManualText(e.target.value)}
+                    {...register("content")}
                     rows={10}
                     disabled={isSubmitting}
                     className={clsx(
                       inputClass,
                       "resize-none leading-relaxed font-mono",
+                      errors.content && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
                     )}
                     placeholder="Write the next sequence here... (Markdown formatting is supported)"
                   />
+                  {errors.content && (
+                    <p className="text-red-400 text-xs mt-1.5 ml-1 font-mono">
+                      {errors.content.message}
+                    </p>
+                  )}
                 </div>
+
                 <button
-                  disabled={!canSubmit || isSubmitting}
-                  onClick={handleSubmitClick}
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
                   className="group flex items-center mx-auto justify-center w-[140px] gap-2 px-6 py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
                 >
                   {isSubmitting ? (
@@ -181,7 +199,8 @@ const ContributeModal = ({
                     </>
                   )}
                 </button>
-              </div>
+              </form>
+
             </DialogPanel>
           </div>
         </div>

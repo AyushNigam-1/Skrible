@@ -31,9 +31,7 @@ const startServer = async () => {
     cors({
       origin: [
         "http://localhost:5173",
-        "http://10.207.18.43:5173",
-        "http://10.207.18.43:4173",
-        "http://localhost:4173",
+        "http://10.43.186.43:5173/"
       ],
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,

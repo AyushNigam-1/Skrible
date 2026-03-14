@@ -86,6 +86,7 @@ export const scriptTypeDefs = gql`
     getParagraphById(paragraphId: ID!): Paragraph
     getCombinedText(scriptId: ID!): String!
     exportDocument(scriptId: ID!, format: String!): ExportedDocument!
+    getUserContributionsByScript(userId: ID!, scriptId: ID!): [Paragraph!]!
   }
 
   type Mutation {

@@ -144,18 +144,17 @@ const Favourites = () => {
 
                 <motion.hr
                   variants={itemVariants}
-                  className="border-white/10 mt-2 mb-4"
+                  className="border-white/10"
                 />
               </>
             )}
 
-            {/* --- Minimalist Empty State (Matching Screenshot 3) --- */}
             {filteredFavourites.length === 0 ? (
               <motion.div
                 variants={itemVariants}
-                className="flex-1 flex flex-col items-center justify-center text-center py-20 px-4"
+                className="flex-1 flex flex-col items-center gap-4 justify-center text-center font-mono"
               >
-                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
+                <div className="bg-white/5 border border-white/10 p-5 rounded-full ">
                   {search ? (
                     <SearchIcon className="w-8 h-8 text-gray-500" />
                   ) : (
@@ -163,11 +162,11 @@ const Favourites = () => {
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-3 font-mono tracking-tight">
+                <h3 className="text-2xl font-bold text-white relative z-10">
                   {search ? "No Matches Found" : "Library is Empty"}
                 </h3>
 
-                <p className="text-gray-400 max-w-sm text-sm font-mono leading-relaxed mb-8">
+                <p className="text-gray-400 max-w-md relative z-10">
                   {search
                     ? `No saved manuscripts matching "${search}". Try adjusting your search.`
                     : "You haven't bookmarked any drafts yet. Start exploring to build your collection."}
@@ -176,10 +175,10 @@ const Favourites = () => {
                 {!search && (
                   <Link
                     to="/explore"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all duration-300 font-bold shadow-sm active:scale-95 font-sans"
                   >
                     <Globe2 className="w-4 h-4" />
-                    Explore Manuscripts
+                    Explore
                   </Link>
                 )}
               </motion.div>

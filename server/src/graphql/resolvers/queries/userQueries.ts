@@ -100,14 +100,27 @@ export const userQueries = {
       context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
     await enforceRateLimit(context.redis, ip, "get_user_scripts", 100, 60);
 
-    const cacheKey = `user:${userId}:scripts:v3`;
+    // 🚨 THE FIX: Extract the ID safely and force String comparison
+    const requesterId = context.user?.id || context.user?._id;
+    const isOwner = Boolean(requesterId && String(requesterId) === String(userId));
+
+    const cacheKey = isOwner
+      ? `user:${userId}:scripts:owner:v3`
+      : `user:${userId}:scripts:public:v3`;
 
     const cachedScripts = await context.redis.get(cacheKey);
     if (cachedScripts) {
       return JSON.parse(cachedScripts);
     }
 
-    const scripts = await Script.find({ author: userId }).populate("author");
+    const query: any = { author: userId };
+
+    // If they aren't the owner, lock it down to Public only
+    if (!isOwner) {
+      query.visibility = "Public";
+    }
+
+    const scripts = await Script.find(query).populate("author");
 
     const formattedScripts = scripts.map((script: any) => {
       const obj: any = script.toObject({ virtuals: true });
@@ -117,10 +130,10 @@ export const userQueries = {
         updatedAt: toUnixString(obj.updatedAt),
         author: obj.author
           ? {
-              ...obj.author,
-              createdAt: toUnixString(obj.author.createdAt),
-              updatedAt: toUnixString(obj.author.updatedAt),
-            }
+            ...obj.author,
+            createdAt: toUnixString(obj.author.createdAt),
+            updatedAt: toUnixString(obj.author.updatedAt),
+          }
           : null,
       };
     });
@@ -167,12 +180,12 @@ export const userQueries = {
 
         script: obj.script
           ? {
-              ...obj.script,
-              id: p.script._id?.toString() || p.script.id?.toString(),
-              title: p.script.title,
-              createdAt: toUnixString(obj.script.createdAt),
-              updatedAt: toUnixString(obj.script.updatedAt),
-            }
+            ...obj.script,
+            id: p.script._id?.toString() || p.script.id?.toString(),
+            title: p.script.title,
+            createdAt: toUnixString(obj.script.createdAt),
+            updatedAt: toUnixString(obj.script.updatedAt),
+          }
           : null,
 
         comments: (obj.comments || []).map((comment: any) => ({
@@ -181,10 +194,10 @@ export const userQueries = {
           updatedAt: toUnixString(comment.updatedAt),
           author: comment.author
             ? {
-                ...comment.author,
-                createdAt: toUnixString(comment.author.createdAt),
-                updatedAt: toUnixString(comment.author.updatedAt),
-              }
+              ...comment.author,
+              createdAt: toUnixString(comment.author.createdAt),
+              updatedAt: toUnixString(comment.author.updatedAt),
+            }
             : null,
         })),
       };
@@ -230,10 +243,10 @@ export const userQueries = {
         updatedAt: toUnixString(obj.updatedAt),
         author: obj.author
           ? {
-              ...obj.author,
-              createdAt: toUnixString(obj.author.createdAt),
-              updatedAt: toUnixString(obj.author.updatedAt),
-            }
+            ...obj.author,
+            createdAt: toUnixString(obj.author.createdAt),
+            updatedAt: toUnixString(obj.author.updatedAt),
+          }
           : null,
       };
     });
@@ -242,4 +255,5 @@ export const userQueries = {
 
     return formattedFavs;
   },
+
 };

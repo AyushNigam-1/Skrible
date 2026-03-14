@@ -37,7 +37,7 @@ const Search: React.FC<SearchProps> = ({
 
   return (
     <div className={clsx("relative group flex items-center w-full", className)}>
-      <SearchIcon className="absolute left-4 w-[18px] h-[18px] text-gray-500 group-focus-within:text-white transition-colors duration-300 pointer-events-none z-10" />
+      <SearchIcon className="absolute left-4 size-4 text-gray-500 group-focus-within:text-white transition-colors duration-300 pointer-events-none z-10" />
 
       <label htmlFor="Search" className="sr-only">
         Search
@@ -50,7 +50,7 @@ const Search: React.FC<SearchProps> = ({
         onChange={handleChange}
         placeholder={placeholder}
         className={clsx(
-          "w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-10 text-sm text-gray-200 placeholder-gray-500 outline-none font-sans shadow-sm",
+          "w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-10 text-sm text-gray-200 placeholder-gray-500 outline-none font-sans shadow-sm",
           "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           "focus:bg-white/10 focus:border-white/20 focus:ring-2 focus:ring-blue-500/40"
         )}

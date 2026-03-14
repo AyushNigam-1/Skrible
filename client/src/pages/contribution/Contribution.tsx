@@ -134,15 +134,17 @@ const Contribution: React.FC = () => {
     }
   }, [editText, isEditing]);
 
-  // Scroll to the specific paragraph card if it exists
+  // --- TARGET SCROLL LOGIC ---
   useEffect(() => {
     if (paragraphId && paragraph) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const el = document.getElementById("target-card");
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          // block: "start" pulls it to the top. Native behavior handles the rest perfectly.
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      }, 300);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [paragraphId, paragraph]);
 
@@ -490,16 +492,25 @@ const Contribution: React.FC = () => {
       {paragraphLoading || scriptLoading ? (
         <motion.div
           key="loader"
-          className="flex items-center justify-center w-full h-[60vh]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center justify-center w-full min-h-[96vh]"
         >
           <Loader />
         </motion.div>
       ) : paragraphError || !paragraph ? (
         <motion.div
           key="error"
-          className="flex items-center justify-center w-full h-[60vh] text-center text-red-500 font-mono"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col items-center justify-center w-full min-h-[80vh] text-center text-red-500 font-mono gap-4"
         >
-          Failed to load contribution.
+          <XCircle className="w-10 h-10" />
+          <p>Failed to load contribution.</p>
         </motion.div>
       ) : (
         <motion.div
@@ -510,9 +521,9 @@ const Contribution: React.FC = () => {
           className="w-full max-w-7xl mx-auto flex font-mono min-h-screen relative"
         >
           <div
-            className={`w-full flex flex-col transition-all duration-300 ease-in-out`}
+            className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-4`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => navigate(-1)}
@@ -523,58 +534,56 @@ const Contribution: React.FC = () => {
                 <div className="font-bold font-sans text-2xl text-gray-200">
                   Contribution
                 </div>
-
               </div>
-
             </div>
             <motion.hr className="border-white/10" />
 
-            <div className="flex flex-col w-full  px-2 sm:px-0">
-              {approvedParagraphs.length > 0 ? (
-                <>
-                  {approvedParagraphs.reduce((acc: JSX.Element[], para, index, arr) => {
-                    if (para.id === paragraphId) {
-                      acc.push(
-                        <div key={para.id} id="target-card" className="scroll-mt-24 not-prose">
-                          {renderTargetCard()}
-                        </div>
-                      );
-                    } else {
-                      const lastElement = acc[acc.length - 1];
+            {/* <div className="flex flex-col w-full  px-2 sm:px-0"> */}
+            {approvedParagraphs.length > 0 ? (
+              <>
+                {approvedParagraphs.reduce((acc: JSX.Element[], para, index, arr) => {
+                  if (para.id === paragraphId) {
+                    acc.push(
+                      <div key={para.id} id="target-card" className="not-prose">
+                        {renderTargetCard()}
+                      </div>
+                    );
+                  } else {
+                    const lastElement = acc[acc.length - 1];
 
-                      if (lastElement && lastElement.props.className?.includes("connected-block")) {
-                        const prevChildren = React.Children.toArray(lastElement.props.children);
-                        acc[acc.length - 1] = React.cloneElement(lastElement, {}, [
-                          ...prevChildren,
-                          <div key={para.id} className="opacity-70 mt-4">
+                    if (lastElement && lastElement.props.className?.includes("connected-block")) {
+                      const prevChildren = React.Children.toArray(lastElement.props.children);
+                      acc[acc.length - 1] = React.cloneElement(lastElement, {}, [
+                        ...prevChildren,
+                        <div key={para.id} className="opacity-70">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{para.text}</ReactMarkdown>
+                        </div>
+                      ]);
+                    } else {
+                      acc.push(
+                        <div key={`block-${para.id}`} className="connected-block flex flex-col bg-white/5 rounded-2xl border border-white/10  p-6 h-auto prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300">
+                          <div key={para.id} className="opacity-70">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>{para.text}</ReactMarkdown>
                           </div>
-                        ]);
-                      } else {
-                        acc.push(
-                          <div key={`block-${para.id}`} className="connected-block flex flex-col bg-white/5 rounded-2xl border border-white/10 my-4 p-6 h-auto prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300">
-                            <div key={para.id} className="opacity-70">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{para.text}</ReactMarkdown>
-                            </div>
-                          </div>
-                        );
-                      }
+                        </div>
+                      );
                     }
-                    return acc;
-                  }, [])}
-                </>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-500 italic font-mono bg-white/5 rounded-2xl border border-white/10 p-6">
-                  <FileText className="w-4 h-4" /> This draft currently has no approved content.
-                </div>
-              )}
+                  }
+                  return acc;
+                }, [])}
+              </>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-gray-500 italic font-mono bg-white/5 rounded-2xl border border-white/10 p-6">
+                <FileText className="w-4 h-4" /> This draft currently has no approved content.
+              </div>
+            )}
 
-              {!isTargetApproved && paragraph && (
-                <div id="target-card" className="scroll-mt-24 my-6">
-                  {renderTargetCard()}
-                </div>
-              )}
-            </div>
+            {!isTargetApproved && paragraph && (
+              <div id="target-card" className="">
+                {renderTargetCard()}
+              </div>
+            )}
+            {/* </div> */}
           </div>
 
           <DiscussionPanel

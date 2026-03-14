@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   User,
@@ -10,7 +10,6 @@ import {
   Eye,
   MapPin,
   CalendarDays,
-  Plus,
   SearchX,
   AlertCircle,
   Loader2,
@@ -29,9 +28,9 @@ import {
 
 import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
-import DraftCard from "../../components/card/DraftCard";
 import { useUserStore } from "../../store/useAuthStore";
 import Add from "../../components/modal/AddDraft";
+import DraftCard from "../../components/card/DraftCard";
 
 const Profile = () => {
   const { id } = useParams<{ id: string }>();
@@ -227,8 +226,6 @@ const Profile = () => {
   ];
 
   const initial = userProfile?.username?.charAt(0).toUpperCase() || "?";
-
-  // Dynamic Empty State Icon
   const EmptyIcon = search ? SearchX : FileText;
 
   return (
@@ -271,12 +268,8 @@ const Profile = () => {
             exit="fadeExit"
             className="flex flex-col gap-6 w-full"
           >
-            {/* ========================================= */}
-            {/* TOP SECTION: PROFILE INFO                 */}
-            {/* ========================================= */}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col lg:flex-row gap-4">
-                {/* --- Left Sidebar (Avatar & Actions) --- */}
                 <motion.div
                   variants={itemVariants}
                   className="w-full lg:w-80 flex flex-col gap-4 shrink-0"
@@ -332,18 +325,18 @@ const Profile = () => {
                         <button
                           onClick={handleLikeProfile}
                           disabled={isLikingProfile}
-                          className={`flex items-center justify-center gap-2 w-full py-3 border font-bold rounded-2xl transition-all active:scale-95 ${
-                            localProfileLikes.includes(currentUser?.id || "")
-                              ? "bg-white/10 border-white/20 text-white"
-                              : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-200"
-                          }`}
+                          className={`flex items-center justify-center gap-2 w-full py-3 border font-bold rounded-2xl transition-all active:scale-95 ${localProfileLikes.includes(currentUser?.id || "")
+                            ? "bg-white/10 border-white/20 text-white"
+                            : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-200"
+                            }`}
                         >
                           <Heart
-                            className={`w-5 h-5 ${
-                              localProfileLikes.includes(currentUser?.id || "")
-                                ? "fill-pink-500 text-pink-500"
-                                : "text-pink-500"
-                            }`}
+                            className={`w-5 h-5 ${localProfileLikes.includes(
+                              currentUser?.id || "",
+                            )
+                              ? "fill-pink-500 text-pink-500"
+                              : "text-pink-500"
+                              }`}
                           />
                           {localProfileLikes.includes(currentUser?.id || "")
                             ? "Liked"
@@ -425,7 +418,6 @@ const Profile = () => {
                                   transition={{ duration: 0.15 }}
                                   className="col-start-1 row-start-1 w-full z-10"
                                 >
-                                  {/* EXACT same font classes as the <p> tag to prevent shifting */}
                                   <textarea
                                     ref={textareaRef}
                                     value={editValue}
@@ -436,7 +428,6 @@ const Profile = () => {
                                     placeholder={`Enter your ${detail.title.toLowerCase()}...`}
                                   />
 
-                                  {/* Action Buttons */}
                                   <div className="flex items-center gap-3 mt-4">
                                     <button
                                       onClick={() => setEditingField(null)}
@@ -494,8 +485,8 @@ const Profile = () => {
                 </div>
               )}
 
-              {/* Scripts Content Area (with AnimatePresence for smooth state switching) */}
-              <div className="flex-1 ">
+              {/* Scripts Content Area */}
+              <div className="flex-1">
                 <AnimatePresence mode="wait">
                   {scriptsLoading ? (
                     <motion.div
@@ -529,23 +520,22 @@ const Profile = () => {
                       </div>
                     </motion.div>
                   ) : !filteredScripts || filteredScripts.length === 0 ? (
-                    /* --- PERFECTED PREMIUM EMPTY STATE --- */
                     <motion.div
                       key="scripts-empty"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="flex flex-col items-center justify-center text-center py-20 px-4  relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg space-y-4"
+                      className="flex flex-col items-center justify-center text-center py-20 px-4 relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg space-y-4"
                     >
                       <div className="bg-white/10 p-5 rounded-full border border-white/20 relative z-10 shadow-sm">
                         <EmptyIcon className="w-8 h-8 text-gray-300" />
                       </div>
 
-                      <h3 className="text-xl font-bold text-white  relative z-10">
+                      <h3 className="text-xl font-bold text-white relative z-10">
                         {search ? "No results found" : "No drafts available"}
                       </h3>
 
-                      <p className="text-gray-400 max-w-md  text-sm relative z-10">
+                      <p className="text-gray-400 max-w-md text-sm relative z-10">
                         {search
                           ? `We couldn't find any drafts matching "${search}".`
                           : isOwnProfile
@@ -555,13 +545,7 @@ const Profile = () => {
 
                       {isOwnProfile && !search && (
                         <div className="relative z-10">
-                          <Link
-                            to="/add"
-                            className="flex items-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-200 rounded-xl font-bold shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all active:scale-95  text-sm"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Start Creating
-                          </Link>
+                          <Add />
                         </div>
                       )}
                     </motion.div>
@@ -575,17 +559,7 @@ const Profile = () => {
                     >
                       <AnimatePresence mode="popLayout">
                         {filteredScripts.map((script) => (
-                          <motion.div
-                            layout
-                            key={script!.id}
-                            variants={itemVariants}
-                            initial="fadeInit"
-                            animate="fadeShow"
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="h-full"
-                          >
-                            <DraftCard script={script!} />
-                          </motion.div>
+                          < DraftCard key={script!.id} script={script! as any} />
                         ))}
                       </AnimatePresence>
                     </motion.div>

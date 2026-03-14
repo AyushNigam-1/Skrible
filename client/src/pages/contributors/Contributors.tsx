@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Users, Trophy, Medal, Filter } from "lucide-react";
 import Search from "../../components/layout/Search";
@@ -36,6 +36,8 @@ const filterOptions: DropdownOption[] = [
 ];
 
 const Contributors: React.FC = () => {
+  const { id: draftId } = useParams<{ id: string }>();
+
   const { data, loading } = useOutletContext<ScriptContext>();
   const paragraphs = data?.getScriptById?.paragraphs || [];
   const [searchQuery, setSearchQuery] = useState("");
@@ -152,7 +154,6 @@ const Contributors: React.FC = () => {
       variants={containerVariants}
       className="flex flex-col gap-6 w-full mx-auto font-mono pb-10"
     >
-      {/* --- Absolute Empty State (No Contributors At All) --- */}
       {paragraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
@@ -170,20 +171,17 @@ const Contributors: React.FC = () => {
         </motion.div>
       )}
 
-      {/* --- Header: Search & Filter (Hidden when totally empty) --- */}
       {paragraphs.length > 0 && (
         <motion.div
           variants={itemVariants}
           className="flex items-center justify-between gap-3 relative z-20 w-full"
         >
-          {/* Action Bar Search */}
           <Search
             setSearch={setSearchQuery}
             placeholder="Search users..."
             className="flex-1 min-w-0 sm:max-w-60"
           />
 
-          {/* Action Bar Dropdown */}
           <Dropdown
             options={filterOptions}
             value={selectedFilter}
@@ -195,7 +193,6 @@ const Contributors: React.FC = () => {
         </motion.div>
       )}
 
-      {/* --- Content Area (Grid or Search Empty State) --- */}
       {paragraphs.length > 0 && (
         <AnimatePresence mode="wait">
           {contributorsLeaderboard.length > 0 ? (
@@ -210,7 +207,8 @@ const Contributors: React.FC = () => {
               {contributorsLeaderboard.map((contributor, index) => (
                 <motion.div variants={itemVariants} key={contributor.username}>
                   <Link
-                    to={`/profile/${contributor.id}`}
+                    // --- UPDATED ROUTE ---
+                    to={`/contributions/${draftId}/${contributor.id}`}
                     className="group flex items-center justify-between bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-white/5 hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="flex items-center gap-4 min-w-0">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -6,11 +6,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ThumbsUp,
-  ThumbsDown,
-  MessageSquare,
   FileText,
-  Calendar,
   Globe2,
   Search as SearchIcon,
 } from "lucide-react";
@@ -27,13 +23,14 @@ const MyContributions = () => {
   const { loading, error, data } = useQuery(GET_USER_CONTRIBUTIONS, {
     variables: { userId },
     skip: !userId,
+    fetchPolicy: "cache-and-network",
   });
 
   // Safe Date Parser
-  const formatFancyDate = (dateString: string) => {
+  const formatFancyDate = (dateString: string | number) => {
     if (!dateString) return "Unknown Date";
 
-    const isNumeric = /^\d+$/.test(dateString);
+    const isNumeric = /^\d+$/.test(String(dateString));
     const date = isNumeric
       ? new Date(Number(dateString))
       : new Date(dateString);
@@ -47,26 +44,52 @@ const MyContributions = () => {
     }).format(date);
   };
 
-  const statusConfig: Record<string, any> = {
-    approved: {
-      color: "bg-green-500/10 text-green-400 border-green-500/20",
-      icon: CheckCircle,
-    },
-    pending: {
-      color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-      icon: Clock,
-    },
-    rejected: {
-      color: "bg-red-500/10 text-red-400 border-red-500/20",
-      icon: XCircle,
-    },
-  };
-
   const contributions = data?.getUserContributions || [];
 
-  const filteredContributions = contributions.filter((c: any) =>
-    c.text.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // --- Group Contributions by Script ---
+  const groupedDrafts = useMemo(() => {
+    const map = new Map();
+
+    contributions.forEach((c: any) => {
+      if (!c.script) return;
+      const scriptId = c.script.id;
+
+      if (!map.has(scriptId)) {
+        map.set(scriptId, {
+          script: c.script,
+          total: 0,
+          approved: 0,
+          pending: 0,
+          rejected: 0,
+          latestDate: c.createdAt,
+        });
+      }
+
+      const group = map.get(scriptId);
+      group.total += 1;
+
+      const status = c.status?.toLowerCase() || "pending";
+      if (status === "approved") group.approved += 1;
+      else if (status === "rejected") group.rejected += 1;
+      else group.pending += 1;
+
+      if (Number(c.createdAt) > Number(group.latestDate)) {
+        group.latestDate = c.createdAt;
+      }
+    });
+
+    let result = Array.from(map.values());
+
+    if (searchQuery) {
+      result = result.filter((g) =>
+        g.script.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    result.sort((a, b) => Number(b.latestDate) - Number(a.latestDate));
+
+    return result;
+  }, [contributions, searchQuery]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -83,7 +106,7 @@ const MyContributions = () => {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] },
+      transition: { duration: 0.5, ease: "easeOut" },
     },
   };
 
@@ -96,7 +119,7 @@ const MyContributions = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center w-full min-h-[98vh] gap-4"
+            className="flex flex-col items-center justify-center w-full min-h-[80vh] gap-4"
           >
             <Loader />
           </motion.div>
@@ -106,7 +129,7 @@ const MyContributions = () => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[90vh] text-center px-4"
+            className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4"
           >
             <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-full mb-6">
               <XCircle className="w-8 h-8 text-red-500" />
@@ -123,111 +146,84 @@ const MyContributions = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`flex flex-col gap-6 w-full ${contributions.length === 0 ? 'min-h-[80vh] justify-center' : ''}`}
+            className={`flex flex-col gap-6 w-full ${groupedDrafts.length === 0 && !searchQuery ? 'min-h-[80vh] justify-center' : ''}`}
           >
-            {/* Header Section - ONLY SHOW IF THERE ARE CONTRIBUTIONS */}
             {contributions.length > 0 && (
               <>
                 <motion.div
                   variants={itemVariants}
-                  className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-20 mt-4"
+                  className="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-20"
                 >
-                  <h3 className="text-3xl text-white font-sans font-extrabold shrink-0">
-                    Contributions
+                  <h3 className="text-3xl text-white font-sans font-extrabold shrink-0 tracking-tight">
+                    My Drafts
                   </h3>
 
                   <Search
                     setSearch={setSearchQuery}
-                    placeholder="Search your drafts..."
+                    placeholder="Search manuscripts..."
                     className="w-full sm:max-w-xs"
                   />
                 </motion.div>
-
-                <motion.hr
-                  variants={itemVariants}
-                  className="border-white/10 mt-2 mb-4"
-                />
+                <motion.hr variants={itemVariants} className="border-white/10" />
               </>
             )}
 
-            {filteredContributions.length > 0 ? (
+            {groupedDrafts.length > 0 ? (
               <motion.div
                 variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 font-sans"
               >
-                {filteredContributions.map((contribution: any) => {
-                  const status =
-                    contribution.status?.toLowerCase() || "pending";
-                  const StatusIcon = statusConfig[status]?.icon || Clock;
-                  const statusColor =
-                    statusConfig[status]?.color || statusConfig.pending.color;
-
-                  return (
-                    <motion.div
-                      layout
-                      variants={itemVariants}
-                      key={contribution.id}
+                {groupedDrafts.map((group) => (
+                  <motion.div layout variants={itemVariants} key={group.script.id}>
+                    <Link
+                      to={`/contributions/${group.script.id}/${userId}`}
+                      className="group flex flex-col justify-between bg-[#13131a] hover:bg-white/5 border border-white/10 rounded-2xl p-5 transition-all duration-300 min-h-[140px] h-full"
                     >
-                      <Link
-                        to={`/preview/${contribution.script.id}/${contribution.id}`}
-                        className="group flex flex-col bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-white/10 hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden relative gap-6"
-                      >
-                        {/* --- Header --- */}
-                        <div className="flex justify-between items-center space-x-4">
-                          <h4 className="font-extrabold font-sans truncate text-xl text-gray-100">
-                            {contribution.script?.title}
+                      {/* --- Top Half: Title & Minimal Badge --- */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-lg font-extrabold text-white line-clamp-1 group-hover:text-gray-200 transition-colors tracking-tight">
+                            {group.script.title}
                           </h4>
-                          <span
-                            className={`shrink-0 inline-flex items-center justify-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest leading-none border ${statusColor}`}
-                          >
-                            <StatusIcon className="w-3.5 h-3.5 shrink-0" />
-                            <span className="translate-y-[1px]">{status}</span>
+                          <span className="text-[10px] text-gray-500 font-mono font-bold uppercase tracking-widest">
+                            Active ~ {formatFancyDate(group.latestDate)}
                           </span>
                         </div>
 
-                        {/* --- Body --- */}
-                        <div className="relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-white/30 rounded-full group-hover:bg-white/30 transition-colors"></div>
-                          <p className="text-gray-300 line-clamp-4 pl-4 group-hover:text-gray-200 transition-colors">
-                            {contribution.text.replace(/^#+\s/gm, "")}
-                          </p>
+                        {/* Ultra-Minimal Count Badge */}
+                        <div className="shrink-0 flex items-center justify-center px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 text-[11px] font-bold font-mono text-gray-300 group-hover:bg-white/10 transition-colors">
+                          {group.total} {group.total === 1 ? 'DRAFT' : 'DRAFTS'}
                         </div>
+                      </div>
 
-                        {/* --- Footer: Date & Stats --- */}
-                        <div className="flex items-center justify-between mt-auto">
-                          <div className="flex space-x-4">
-                            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold group-hover:text-gray-400 transition-colors">
-                              <ThumbsUp className="w-4 h-4" />
-                              {contribution.likes?.length || 0}
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold group-hover:text-gray-400 transition-colors">
-                              <ThumbsDown className="w-4 h-4" />
-                              {contribution.dislikes?.length || 0}
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold group-hover:text-gray-400 transition-colors">
-                              <MessageSquare className="w-4 h-4" />
-                              {contribution.comments?.length || 0}
-                            </div>
+                      {/* --- Bottom Half: Subtle Status Tally --- */}
+                      <div className="flex items-center gap-4 mt-6">
+                        {group.approved > 0 && (
+                          <div className="flex items-center gap-1.5 text-green-500/70 text-xs font-bold font-mono" title={`${group.approved} Approved`}>
+                            <CheckCircle size={14} /> <span>{group.approved}</span>
                           </div>
-                          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 leading-none">
-                            <Calendar className="w-3.5 h-3.5 opacity-70 shrink-0" />
-                            <span className="translate-y-[1px]">
-                              {formatFancyDate(contribution.createdAt)}
-                            </span>
-                          </span>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+                        )}
+                        {group.pending > 0 && (
+                          <div className="flex items-center gap-1.5 text-amber-500/70 text-xs font-bold font-mono" title={`${group.pending} Pending`}>
+                            <Clock size={14} /> <span>{group.pending}</span>
+                          </div>
+                        )}
+                        {group.rejected > 0 && (
+                          <div className="flex items-center gap-1.5 text-red-500/70 text-xs font-bold font-mono" title={`${group.rejected} Rejected`}>
+                            <XCircle size={14} /> <span>{group.rejected}</span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
               </motion.div>
             ) : (
-              /* --- Minimalist Empty State (Matching Screenshot 3) --- */
               <motion.div
                 variants={itemVariants}
                 className="flex-1 flex flex-col items-center justify-center text-center py-20 px-4"
               >
-                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
+                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-4">
                   {searchQuery ? (
                     <SearchIcon className="w-8 h-8 text-gray-500" />
                   ) : (
@@ -235,20 +231,20 @@ const MyContributions = () => {
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-3 font-mono tracking-tight">
+                <h3 className="text-xl font-bold text-white font-mono">
                   {searchQuery ? "No Matches Found" : "No contributions yet"}
                 </h3>
 
-                <p className="text-gray-400 max-w-sm text-sm font-mono leading-relaxed mb-8">
+                <p className="text-gray-400 max-w-sm text-sm font-mono mt-2">
                   {searchQuery
-                    ? `No drafts matching "${searchQuery}". Try adjusting your search.`
+                    ? `No manuscripts matching "${searchQuery}". Try adjusting your search.`
                     : "You haven't submitted any drafts yet. Find a story to collaborate on and make your mark!"}
                 </p>
 
                 {!searchQuery && (
                   <Link
                     to="/explore"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all duration-300 font-bold shadow-sm active:scale-95 font-sans mt-6"
                   >
                     <Globe2 className="w-4 h-4" />
                     Find a Story

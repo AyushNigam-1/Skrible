@@ -14,3 +14,16 @@
 ::-webkit-scrollbar-button {
     display: none;
 }
+
+@layer base {
+
+    /* This styles the main browser window scrollbar */
+    html {
+        @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/5 hover:scrollbar-thumb-white/10 scrollbar-thumb-rounded-full scrollbar-track-rounded-full;
+    }
+
+    /* Optional: Set a dark background so the transparent track looks good */
+    body {
+        @apply bg-[#0A0A12] text-white;
+    }
+}

@@ -28,6 +28,25 @@ const enforceRateLimit = async (
   }
 };
 
+// 🚨 NEW: Centralized, versionless, robust cache clearing helper
+const invalidateParagraphCache = async (
+  redis: any,
+  scriptId: string,
+  paragraphId: string,
+  authorId: string
+) => {
+  if (!redis) return;
+
+  const keysToDelete = [
+    `script:${scriptId}`,                                  // The main script timeline
+    `paragraph:${paragraphId}`,                            // The specific paragraph preview
+    `user:${authorId}:script:${scriptId}:contributions`,   // The author's specific drafts
+    `script:${scriptId}:contributors`                      // The leaderboard/contributors list
+  ];
+
+  await redis.del(keysToDelete);
+};
+
 export const paragraphMutations = {
   editParagraph: async (
     _: any,
@@ -51,8 +70,15 @@ export const paragraphMutations = {
     }
 
     paragraph.text = text;
-
     await paragraph.save();
+
+    // Bust cache instantly
+    await invalidateParagraphCache(
+      context.redis,
+      paragraph.script.toString(),
+      paragraphId,
+      paragraph.author.toString()
+    );
 
     return paragraph.populate("author");
   },
@@ -71,7 +97,8 @@ export const paragraphMutations = {
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const script: any = paragraph.script;
-    const isParagraphAuthor = paragraph.author.toString() === userId;
+    const paragraphAuthorId = paragraph.author.toString();
+    const isParagraphAuthor = paragraphAuthorId === userId;
     const isScriptOwner = script.author.toString() === userId;
 
     const isCollaboratorAdmin = script.collaborators?.some(
@@ -89,6 +116,14 @@ export const paragraphMutations = {
       $pull: { paragraphs: paragraphId },
     });
 
+    // Bust cache instantly
+    await invalidateParagraphCache(
+      context.redis,
+      script._id.toString(),
+      paragraphId,
+      paragraphAuthorId
+    );
+
     return { status: true };
   },
 
@@ -102,7 +137,7 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "like_paragraph", 60, 60);
 
-    const paragraph = await Paragraph.findById(paragraphId);
+    const paragraph = await Paragraph.findById(paragraphId).select("script author likes");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const hasLiked = paragraph.likes?.includes(userId) || false;
@@ -118,6 +153,14 @@ export const paragraphMutations = {
       });
     }
 
+    // Bust cache instantly
+    await invalidateParagraphCache(
+      context.redis,
+      paragraph.script.toString(),
+      paragraphId,
+      paragraph.author.toString()
+    );
+
     return { status: true };
   },
 
@@ -131,7 +174,8 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "dislike_paragraph", 60, 60);
 
-    const paragraph = await Paragraph.findById(paragraphId);
+    // We fetch script and author here so we can invalidate the cache later
+    const paragraph = await Paragraph.findById(paragraphId).select("script author dislikes");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const hasDisliked = paragraph.dislikes?.includes(userId) || false;
@@ -146,6 +190,14 @@ export const paragraphMutations = {
         $pull: { likes: userId },
       });
     }
+
+    // Bust cache instantly
+    await invalidateParagraphCache(
+      context.redis,
+      paragraph.script.toString(),
+      paragraphId,
+      paragraph.author.toString()
+    );
 
     return { status: true };
   },
@@ -178,6 +230,13 @@ export const paragraphMutations = {
     ).populate("comments.author");
 
     if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
+
+    await invalidateParagraphCache(
+      context.redis,
+      updatedParagraph.script.toString(),
+      paragraphId,
+      updatedParagraph.author.toString()
+    );
 
     return updatedParagraph;
   },

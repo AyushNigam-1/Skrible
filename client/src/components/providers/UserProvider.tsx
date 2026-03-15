@@ -1,40 +1,34 @@
 import React, { useEffect } from "react";
 import { useUserStore } from "../../store/useAuthStore";
-import { useGetUserProfileQuery } from "../../graphql/generated/graphql";
+import { authClient } from "../../lib/authClient";
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { setUser, setLoading, setError } = useUserStore();
 
-  // Grab the ID from localStorage
-  const storedUser = localStorage.getItem("user");
-  const currentUserId = storedUser ? JSON.parse(storedUser).id : null;
-
-  // Fetch the data
-  const { data, loading, error } = useGetUserProfileQuery({
-    variables: { id: currentUserId || "" },
-    skip: !currentUserId,
-    fetchPolicy: "cache-first", // Uses cache if available, saving network requests
-  });
+  const { data: session, isPending, error: sessionError } = authClient.useSession();
 
   useEffect(() => {
-    if (!currentUserId) {
-      setLoading(false);
+    setLoading(isPending);
+
+    if (sessionError) {
+      console.error("Session verification failed:", sessionError);
+      setError("Failed to verify session");
       return;
     }
 
-    setLoading(loading);
-
-    if (error) {
-      console.error("Failed to fetch global user:", error);
-      setError(error.message);
+    if (session?.user) {
+      setUser({
+        id: session.user.id,
+        username: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+      } as any);
+    } else if (!isPending) {
+      setUser(null);
     }
-
-    if (data?.getUserProfile) {
-      setUser(data.getUserProfile as any);
-    }
-  }, [data, loading, error, currentUserId, setUser, setLoading, setError]);
+  }, [session, isPending, sessionError, setUser, setLoading, setError]);
 
   return <>{children}</>;
 };

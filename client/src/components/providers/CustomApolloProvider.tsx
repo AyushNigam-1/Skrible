@@ -9,7 +9,7 @@ import {
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 
-const uri = `http://${window.location.hostname}:4000/graphql`;
+const uri = `http://${window.location.hostname}:3000/graphql`;
 
 const httpLink = new HttpLink({
   uri,

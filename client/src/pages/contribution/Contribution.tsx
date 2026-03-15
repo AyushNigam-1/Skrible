@@ -11,10 +11,8 @@ import {
   XCircle,
   FileText,
   Loader2,
-  Edit2,
   Trash2,
   MessageSquare,
-  X,
 } from "lucide-react";
 
 import {
@@ -24,7 +22,6 @@ import {
   useRejectParagraphMutation,
   useLikeParagraphMutation,
   useDislikeParagraphMutation,
-  useEditParagraphMutation,
   useDeleteParagraphMutation,
   useAddCommentMutation,
 } from "../../graphql/generated/graphql";
@@ -33,6 +30,7 @@ import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 import { posthog } from "../../components/providers/PostHogProvider";
 import DiscussionPanel from "../../components/panel/DiscussionPanel";
+import ContributeModal from "../../components/modal/ContributeModal";
 
 const Contribution: React.FC = () => {
   const { id, paragraphId } = useParams<{ id: string; paragraphId: string }>();
@@ -43,9 +41,7 @@ const Contribution: React.FC = () => {
   // --- Main Content States ---
   const [localLikes, setLocalLikes] = useState<string[]>([]);
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isTargetSticky, setIsTargetSticky] = useState(false); // <-- ADDED: Tracks if target header is at top
 
   // --- Layout & Discussion States ---
   const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
@@ -64,6 +60,7 @@ const Contribution: React.FC = () => {
     data: paragraphData,
     loading: paragraphLoading,
     error: paragraphError,
+    refetch,
   } = useGetParagraphByIdQuery({
     variables: { paragraphId: paragraphId || "" },
     skip: !paragraphId,
@@ -97,8 +94,6 @@ const Contribution: React.FC = () => {
     useRejectParagraphMutation();
   const [likeParagraph] = useLikeParagraphMutation();
   const [dislikeParagraph] = useDislikeParagraphMutation();
-  const [editParagraph, { loading: isEditingLoading }] =
-    useEditParagraphMutation();
   const [deleteParagraph, { loading: isDeleting }] =
     useDeleteParagraphMutation();
   const [addComment, { loading: isCommenting }] = useAddCommentMutation();
@@ -108,31 +103,9 @@ const Contribution: React.FC = () => {
     if (paragraph) {
       setLocalLikes((paragraph.likes as string[]) || []);
       setLocalDislikes((paragraph.dislikes as string[]) || []);
-      setEditText(paragraph.text);
       setLocalComments(paragraph.comments || []);
     }
   }, [paragraph]);
-
-  // Magic auto-resize effect AND Cursor Placement for editing
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.style.height = "0px";
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = `${scrollHeight}px`;
-      textareaRef.current.focus();
-
-      setTimeout(() => {
-        if (textareaRef.current) {
-          const length = textareaRef.current.value.length;
-          textareaRef.current.setSelectionRange(length, length);
-          textareaRef.current.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-        }
-      }, 400);
-    }
-  }, [editText, isEditing]);
 
   // --- TARGET SCROLL LOGIC ---
   useEffect(() => {
@@ -147,6 +120,20 @@ const Contribution: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [paragraphId, paragraph]);
+
+  // --- STICKY HEADER SCROLL LISTENER (ADDED) ---
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = document.getElementById("target-card");
+      if (el) {
+        // Trigger sticky logic if target card hits the top of the viewport
+        setIsTargetSticky(el.getBoundingClientRect().top <= 1);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check on mount
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // --- Formatters ---
   const formatDate = (timestamp?: string | number): string => {
@@ -204,23 +191,6 @@ const Contribution: React.FC = () => {
       navigate(`/requests/${scriptId}`);
     } catch (err) {
       alert("Failed to delete contribution.");
-    }
-  };
-
-  const handleEditSubmit = async () => {
-    if (!editText.trim()) return;
-    try {
-      await editParagraph({
-        variables: { paragraphId: paragraphId || "", text: editText },
-      });
-      posthog.capture("contribution_edited", {
-        paragraph_id: paragraphId,
-        script_id: scriptId,
-        content_length: editText.length,
-      });
-      setIsEditing(false);
-    } catch (err) {
-      alert("Failed to save changes.");
     }
   };
 
@@ -299,18 +269,42 @@ const Contribution: React.FC = () => {
   const renderTargetCard = () => (
     <div className="flex flex-col h-auto bg-white/5 border border-white/10 rounded-2xl relative shadow-2xl">
       {/* --- CARD HEADER (Floating Pill Design) --- */}
-      <div className="sticky top-0 z-30 flex items-center border-b border-white/10 justify-between p-4 bg-[#161620]/95 rounded-t-2xl">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0 ">
-            {paragraph?.author.username.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="font-bold text-white text-base leading-tight">
-              {paragraph?.author.username}
-            </p>
-            <p className="text-xs text-gray-400 font-mono mt-0.5">
-              {formatDate(paragraph?.createdAt)}
-            </p>
+      {/* ADDED: z-50 ensures it stays above the main page sticky header when it hits the top */}
+      <div className="sticky top-0 z-50 flex items-center justify-between p-4 bg-[#161620]/95 rounded-t-2xl transition-all duration-300">
+        <div className="flex items-center">
+          {/* Animated Back Button Wrapper */}
+          <AnimatePresence>
+            {isTargetSticky && (
+              <motion.div
+                initial={{ opacity: 0, width: 0, marginRight: 0 }}
+                animate={{ opacity: 1, width: 36, marginRight: 12 }} // 12px perfectly mimics gap-3
+                exit={{ opacity: 0, width: 0, marginRight: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="overflow-hidden shrink-0 flex items-center"
+              >
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center justify-center text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors shrink-0 h-9 w-9"
+                >
+                  <ArrowLeft size={18} className="shrink-0" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Inner div: Groups the avatar and text with its own safe gap */}
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0 ">
+              {paragraph?.author.username.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-bold text-white text-base leading-tight">
+                {paragraph?.author.username}
+              </p>
+              <p className="text-xs text-gray-400 font-mono mt-0.5">
+                {formatDate(paragraph?.createdAt)}
+              </p>
+            </div>
           </div>
         </div>
         {isOwner && paragraph?.status === "pending" && (
@@ -343,46 +337,19 @@ const Contribution: React.FC = () => {
       {/* --- CARD BODY --- */}
       <div className="p-4 h-auto">
         <div className="grid w-full relative items-start">
-          <AnimatePresence>
-            {!isEditing && (
-              <motion.div
-                key="markdown-view"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, pointerEvents: "none" }}
-                className="col-start-1 row-start-1 text-white font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap"
-              >
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    ul: ({ children }) => (
-                      <ul className="list-disc ml-5 m-0 p-0">{children}</ul>
-                    ),
-                    p: ({ children }) => <p className="m-0 p-0">{children}</p>,
-                  }}
-                >
-                  {paragraph?.text}
-                </ReactMarkdown>
-              </motion.div>
-            )}
-            {isEditing && (
-              <motion.div
-                key="textarea-edit"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, pointerEvents: "none" }}
-                className="col-start-1 row-start-1 w-full"
-              >
-                <textarea
-                  ref={textareaRef}
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="w-full bg-transparent text-white border-none p-0 m-0 focus:outline-none focus:ring-0 resize-none overflow-hidden font-medium text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] placeholder-gray-600 caret-amber-500 block"
-                  placeholder="Edit your contribution..."
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="col-start-1 row-start-1 text-white font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                ul: ({ children }) => (
+                  <ul className="list-disc ml-5 m-0 p-0">{children}</ul>
+                ),
+                p: ({ children }) => <p className="m-0 p-0">{children}</p>,
+              }}
+            >
+              {paragraph?.text}
+            </ReactMarkdown>
+          </div>
         </div>
       </div>
 
@@ -435,51 +402,25 @@ const Contribution: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 justify-end">
-            {isEditing ? (
-              <>
+            {(isAuthor || isOwner) && paragraph?.status === "pending" && (
+              <div className="flex items-center gap-2">
+                {/* --- REPLACED: Edit UI perfectly replaced with new Edit Modal --- */}
+                <ContributeModal
+                  mode="edit"
+                  variant="edit"
+                  paragraphId={paragraph.id}
+                  initialTitle={paragraph?.text?.split('\n')[0]?.replace(/^#+\s*/, '') || ''}
+                  initialContent={paragraph?.text?.split('\n')?.slice(1)?.join('\n')?.trim() || ''}
+                  refetch={refetch}
+                />
                 <button
-                  onClick={() => {
-                    setEditText(paragraph?.text || "");
-                    setIsEditing(false);
-                  }}
-                  className="flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-2 text-sm font-bold text-gray-400 hover:text-white transition-colors bg-white/5 rounded-lg border border-white/10"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50 transition-colors"
                 >
-                  <X size={18} />
-                  <span className="hidden sm:inline">Cancel</span>
+                  <Trash2 size={18} />
                 </button>
-
-                <button
-                  onClick={handleEditSubmit}
-                  disabled={isEditingLoading || !editText.trim()}
-                  className="flex items-center justify-center gap-2 p-2 sm:px-4 sm:py-2 bg-white text-black rounded-lg text-sm font-bold transition-all disabled:opacity-50"
-                >
-                  {isEditingLoading ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <CheckCircle size={18} />
-                  )}
-                  <span className="hidden sm:inline">Save</span>
-                </button>
-              </>
-            ) : (
-              (isAuthor || isOwner) &&
-              paragraph?.status === "pending" && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1.5 text-gray-400 p-2 bg-white/5 rounded-lg border border-white/10 transition-colors"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              )
+              </div>
             )}
           </div>
         </div>
@@ -523,6 +464,7 @@ const Contribution: React.FC = () => {
           <div
             className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-4`}
           >
+            {/* ADDED: Dynamic sticky classes applied based on !isTargetSticky */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
               <div className="flex items-center gap-3">
                 <button

@@ -9,6 +9,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
+import { authClient } from "../../lib/authClient";
 
 interface MenuItem {
   name: string;
@@ -36,15 +37,12 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   return (
     <aside
-      className={`sticky top-4 h-[calc(100vh-2rem)] transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${
-        isOpen
-          ? "w-72 ml-4 my-4 opacity-100 visible"
-          : "w-0 m-0 opacity-0 invisible"
-      }`}
+      className={`sticky top-4 h-[calc(100vh-2rem)] transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${isOpen
+        ? "w-72 ml-4 my-4 opacity-100 visible"
+        : "w-0 m-0 opacity-0 invisible"
+        }`}
     >
-      {/* Inner container: Replaced bg-white/5 and backdrop-blur-2xl with solid bg-[#161620] */}
       <div className="w-full h-full space-y-10 bg-[#161620] border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
-        {/* --- Header / Logo --- */}
         <div className="flex justify-between items-center shrink-0">
           <img
             src="/logo.png"
@@ -60,7 +58,6 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           </button>
         </div>
 
-        {/* --- Navigation Links --- */}
         <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
@@ -72,25 +69,22 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 key={index}
                 className={`
                   group flex items-center gap-3 py-1 transition-all duration-300 outline-none relative overflow-hidden
-                  ${
-                    isActive
-                      ? "font-bold text-white pl-3"
-                      : "text-gray-400 hover:text-white pl-0"
+                  ${isActive
+                    ? "font-bold text-white pl-3"
+                    : "text-gray-400 hover:text-white pl-0"
                   }
                 `}
               >
                 <div
-                  className={`absolute left-0 top-0 bottom-0 w-[2px] bg-gray-100 transition-transform duration-300 ease-out origin-center ${
-                    isActive ? "scale-y-100" : "scale-y-0"
-                  }`}
+                  className={`absolute left-0 top-0 bottom-0 w-[2px] bg-gray-100 transition-transform duration-300 ease-out origin-center ${isActive ? "scale-y-100" : "scale-y-0"
+                    }`}
                 />
 
                 <Icon
-                  className={`w-5 h-5 shrink-0 transition-all duration-300 ${
-                    isActive
-                      ? "stroke-[2.5px] scale-110 ml-1"
-                      : "stroke-2 opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                  }`}
+                  className={`w-5 h-5 shrink-0 transition-all duration-300 ${isActive
+                    ? "stroke-[2.5px] scale-110 ml-1"
+                    : "stroke-2 opacity-70 group-hover:opacity-100 group-hover:scale-110"
+                    }`}
                 />
                 <span className="text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                   {item.name}
@@ -100,15 +94,24 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           })}
         </nav>
 
-        <Link
-          to="/logout"
-          className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none"
+        <button
+          onClick={async () => {
+            await authClient.signOut({
+              fetchOptions: {
+                onSuccess: () => {
+                  localStorage.removeItem("user");
+                  window.location.href = "/login";
+                },
+              },
+            });
+          }}
+          className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none border-none bg-transparent cursor-pointer"
         >
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" />
           <span className="font-bold font-mono text-base tracking-widest whitespace-nowrap">
             Logout
           </span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

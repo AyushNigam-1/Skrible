@@ -5,11 +5,12 @@ import dotenv from "dotenv";
 import { graphqlServer } from "./graphql/server";
 import cors from "cors";
 import morgan from "morgan";
-import { authenticate } from "./middleware/middleware";
 import cookieParser from "cookie-parser";
 import { redisClient } from "./database/redis";
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import { auth } from "./auth";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ const startServer = async () => {
   app.use(morgan("dev"));
   app.use(cookieParser());
   app.use(express.json());
+
   app.use(
     cors({
       origin: [
@@ -38,7 +40,11 @@ const startServer = async () => {
     }),
   );
 
-  app.use(authenticate);
+  // 🚨 ADDED: Mount Better Auth REST endpoints BEFORE your GraphQL route
+  // This automatically handles /api/auth/sign-in, /api/auth/sign-up, etc.
+  app.all("/api/auth/*", toNodeHandler(auth));
+
+  // app.use(authenticate); // <-- REMOVED: Better Auth replaces your custom middleware
 
   const graphqlLimiter = rateLimit({
     store: new RedisStore({
@@ -63,12 +69,20 @@ const startServer = async () => {
     "/graphql",
     graphqlLimiter,
     expressMiddleware(server, {
-      context: async ({ req, res }) => ({
-        req,
-        res,
-        user: req.user || null,
-        redis: redisClient,
-      }),
+      context: async ({ req, res }) => {
+
+        const session = await auth.api.getSession({
+          headers: fromNodeHeaders(req.headers),
+        });
+
+        return {
+          req,
+          res,
+          user: session?.user || null,
+          session: session?.session || null,
+          redis: redisClient,
+        };
+      },
     }),
   );
 

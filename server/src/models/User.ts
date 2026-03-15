@@ -5,10 +5,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 interface IUser extends Document {
-  username: string;
+  name: string;
   languages: string[];
   location: string;
-  password: string;
   bio: string;
   email: string;
   scripts: Types.ObjectId[];
@@ -16,20 +15,19 @@ interface IUser extends Document {
   follows: number;
   views: Types.ObjectId[];
   followers: Types.ObjectId[];
-  favourites: Types.ObjectId[]; // Script IDs marked as favourites
-  interested: Types.ObjectId[]; // Script IDs marked as interested
+  favourites: Types.ObjectId[];
+  interested: Types.ObjectId[];
   notInterested: Types.ObjectId[];
   contributions: Types.ObjectId[];
 }
 
 const UserSchema: Schema = new Schema(
   {
-    username: { type: String, required: true },
+    name: { type: String },
     languages: { type: [String] },
     location: { type: String },
     bio: { type: String },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
+    email: { type: String },
     scripts: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     views: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
@@ -38,21 +36,18 @@ const UserSchema: Schema = new Schema(
     followers: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
     favourites: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
     interested: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
-    notInterested: {
-      type: [Schema.Types.ObjectId],
-      ref: "Script",
-      default: [],
-    },
-    contributions: {
-      type: [Schema.Types.ObjectId],
-      ref: "Request",
-      default: [],
-    },
+    notInterested: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
+    contributions: { type: [Schema.Types.ObjectId], ref: "Request", default: [] },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    collection: "user"
+  },
 );
+
 UserSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
   fields: ["email"],
   secret: process.env.FIELD_ENCRYPTION_KEY,
 });
+
 export default mongoose.model<IUser>("User", UserSchema);

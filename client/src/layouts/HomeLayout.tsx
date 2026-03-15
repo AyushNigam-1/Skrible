@@ -3,9 +3,10 @@ import Sidebar from "../components/panel/Sidebar";
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUserStore } from "../store/useAuthStore";
 
 const HomeLayout = () => {
-  const user = localStorage.getItem("user");
+  const { user } = useUserStore();
   const location = useLocation();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(
@@ -36,9 +37,8 @@ const HomeLayout = () => {
 
   return (
     <div
-      className={`min-h-screen w-full relative ${
-        path === "zen" ? "" : user ? "flex" : ""
-      }`}
+      className={`min-h-screen w-full relative ${path === "zen" ? "" : user ? "flex" : ""
+        }`}
     >
       {user && path !== "zen" && !isSidebarOpen && (
         <button
@@ -82,13 +82,12 @@ const HomeLayout = () => {
 
       {/* --- Main Content Area --- */}
       <div
-        className={`p-4 w-full ${
-          path === "zen"
-            ? "container mx-auto"
-            : user
-              ? "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
-              : "flex flex-col gap-3"
-        }`}
+        className={`p-4 w-full ${path === "zen"
+          ? "container mx-auto"
+          : user
+            ? "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
+            : "flex flex-col gap-3"
+          }`}
       >
         <Outlet context={{ path }} />
       </div>

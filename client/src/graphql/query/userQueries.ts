@@ -4,7 +4,7 @@ export const GET_USER_PROFILE = gql`
   query GetUserProfile($id: ID!) {
     getUserProfile(id: $id) {
       id
-      username
+      name
       email
       bio
       languages
@@ -29,7 +29,7 @@ export const GET_USER_SCRIPTS = gql`
       createdAt
       updatedAt
       author {
-        username
+        name
       }
     }
   }
@@ -50,7 +50,7 @@ export const GET_USER_CONTRIBUTIONS = gql`
       }
       comments {
         author {
-          username
+          name
         }
         text
         createdAt
@@ -71,7 +71,7 @@ export const GET_USER_FAVOURITES = gql`
       createdAt
       updatedAt
       author {
-        username
+        name
       }
     }
   }

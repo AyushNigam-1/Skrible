@@ -28,26 +28,102 @@ const enforceRateLimit = async (
   }
 };
 
-// 🚨 NEW: Centralized, versionless, robust cache clearing helper
+// 🚨 THE FIX: This now wipes EVERYTHING related to the script AND the paragraph
 const invalidateParagraphCache = async (
   redis: any,
   scriptId: string,
-  paragraphId: string,
-  authorId: string
+  paragraphId: string
 ) => {
   if (!redis) return;
+  try {
+    // 1. Find all keys containing the script ID (Timeline, Requests, Contributors)
+    const scriptKeys = await redis.keys(`*${scriptId}*`);
+    // 2. Find all keys containing the paragraph ID (The specific preview page)
+    const paragraphKeys = await redis.keys(`*${paragraphId}*`);
 
-  const keysToDelete = [
-    `script:${scriptId}`,                                  // The main script timeline
-    `paragraph:${paragraphId}`,                            // The specific paragraph preview
-    `user:${authorId}:script:${scriptId}:contributions`,   // The author's specific drafts
-    `script:${scriptId}:contributors`                      // The leaderboard/contributors list
-  ];
+    // Merge them and remove duplicates
+    const keysToDelete = [...new Set([...scriptKeys, ...paragraphKeys])];
 
-  await redis.del(keysToDelete);
+    if (keysToDelete.length > 0) {
+      await redis.del(keysToDelete);
+    }
+  } catch (err) {
+    console.error("Redis cache clearing failed", err);
+  }
 };
 
 export const paragraphMutations = {
+  // 🚨 MOVED FROM SCRIPT MUTATIONS
+  approveParagraph: async (
+    _: any,
+    { paragraphId }: { paragraphId: string },
+    context: any,
+  ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "approve_paragraph", 60, 60);
+
+    const paragraph = await Paragraph.findByIdAndUpdate(
+      paragraphId,
+      { status: "approved" },
+      { new: true },
+    );
+
+    if (!paragraph) throw new GraphQLError("Paragraph not found");
+
+    const script = await Script.findById(paragraph.script);
+    if (!script) throw new GraphQLError("Script not found");
+
+    const paragraphAuthorId = paragraph.author.toString();
+    const scriptOwnerId = script.author.toString();
+
+    const isAlreadyCollaborator = script.collaborators?.some(
+      (c: any) => c.user.toString() === paragraphAuthorId,
+    );
+
+    const updateQuery: any = {
+      $addToSet: { paragraphs: paragraph._id },
+    };
+
+    if (!isAlreadyCollaborator && paragraphAuthorId !== scriptOwnerId) {
+      updateQuery.$push = {
+        collaborators: {
+          user: paragraph.author,
+          role: "CONTRIBUTOR",
+        },
+      };
+    }
+
+    await Script.findByIdAndUpdate(paragraph.script, updateQuery);
+
+    // 🚨 Indestructible cache wipe applied here
+    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+
+    return { status: true };
+  },
+
+  // 🚨 MOVED FROM SCRIPT MUTATIONS
+  rejectParagraph: async (
+    _: any,
+    { paragraphId }: { paragraphId: string },
+    context: any,
+  ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    await enforceRateLimit(context.redis, userId, "reject_paragraph", 60, 60);
+
+    const paragraph = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" });
+
+    if (paragraph) {
+      // 🚨 Indestructible cache wipe applied here
+      await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+    }
+
+    return { status: true };
+  },
+
   editParagraph: async (
     _: any,
     { paragraphId, text }: { paragraphId: string; text: string },
@@ -72,13 +148,7 @@ export const paragraphMutations = {
     paragraph.text = text;
     await paragraph.save();
 
-    // Bust cache instantly
-    await invalidateParagraphCache(
-      context.redis,
-      paragraph.script.toString(),
-      paragraphId,
-      paragraph.author.toString()
-    );
+    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
     return paragraph.populate("author");
   },
@@ -116,13 +186,7 @@ export const paragraphMutations = {
       $pull: { paragraphs: paragraphId },
     });
 
-    // Bust cache instantly
-    await invalidateParagraphCache(
-      context.redis,
-      script._id.toString(),
-      paragraphId,
-      paragraphAuthorId
-    );
+    await invalidateParagraphCache(context.redis, script._id.toString(), paragraphId);
 
     return { status: true };
   },
@@ -153,13 +217,7 @@ export const paragraphMutations = {
       });
     }
 
-    // Bust cache instantly
-    await invalidateParagraphCache(
-      context.redis,
-      paragraph.script.toString(),
-      paragraphId,
-      paragraph.author.toString()
-    );
+    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
     return { status: true };
   },
@@ -174,7 +232,6 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "dislike_paragraph", 60, 60);
 
-    // We fetch script and author here so we can invalidate the cache later
     const paragraph = await Paragraph.findById(paragraphId).select("script author dislikes");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
@@ -191,13 +248,7 @@ export const paragraphMutations = {
       });
     }
 
-    // Bust cache instantly
-    await invalidateParagraphCache(
-      context.redis,
-      paragraph.script.toString(),
-      paragraphId,
-      paragraph.author.toString()
-    );
+    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
     return { status: true };
   },
@@ -231,12 +282,7 @@ export const paragraphMutations = {
 
     if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
 
-    await invalidateParagraphCache(
-      context.redis,
-      updatedParagraph.script.toString(),
-      paragraphId,
-      updatedParagraph.author.toString()
-    );
+    await invalidateParagraphCache(context.redis, updatedParagraph.script.toString(), paragraphId);
 
     return updatedParagraph;
   },

@@ -36,7 +36,7 @@ const Timeline = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (p: any) =>
-          p.author?.username?.toLowerCase().includes(query) ||
+          p.author?.name?.toLowerCase().includes(query) ||
           p.text?.toLowerCase().includes(query),
       );
     }
@@ -155,10 +155,10 @@ const Timeline = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="size-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white text-xs font-bold shadow-inner group-hover:bg-white group-hover:text-black transition-colors shrink-0">
-                        {p.author.username.charAt(0).toUpperCase()}
+                        {p.author.name.charAt(0).toUpperCase()}
                       </div>
                       <p className="font-mono text-sm font-bold text-white tracking-tight truncate">
-                        @{p.author.username}
+                        @{p.author.name}
                       </p>
                     </div>
 

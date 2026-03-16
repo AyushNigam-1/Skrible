@@ -6,7 +6,7 @@ interface Comment {
   text: string;
   createdAt: string | number;
   author: {
-    username: string;
+    name: string;
   };
 }
 
@@ -99,12 +99,12 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                         className="flex gap-2 items-start"
                       >
                         <div className="px-2 py-1 shrink-0 rounded-full bg-white/10 border border-white/5 flex items-center justify-center text-gray-300 font-bold text-xs ">
-                          {comment.author?.username?.charAt(0).toUpperCase()}
+                          {comment.author?.name?.charAt(0).toUpperCase()}
                         </div>
                         <div className="bg-white/5 border space-y-3 border-white/5 p-3 rounded-2xl rounded-tl-sm w-full shadow-sm">
                           <div className="flex justify-between items-center ">
                             <span className=" text-sm text-gray-300">
-                              {comment.author.username}
+                              {comment.author.name}
                             </span>
                             <span className="text-xs  tracking-wider font-bold text-gray-400">
                               {formatDate(comment.createdAt)}

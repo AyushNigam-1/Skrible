@@ -19,9 +19,9 @@ export const PostHogProvider: React.FC<{ children: React.ReactNode }> = ({
     const stored = localStorage.getItem("user");
     if (stored && POSTHOG_KEY) {
       try {
-        const { id, username } = JSON.parse(stored);
+        const { id, name } = JSON.parse(stored);
         if (id) {
-          posthog.identify(id, { username });
+          posthog.identify(id, { name });
         }
       } catch {
         // ignore parse errors

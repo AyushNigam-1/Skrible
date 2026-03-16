@@ -16,14 +16,14 @@ export const GET_SCRIPT_BY_ID = gql`
 
       author {
         id
-        username
+        name
       }
 
       collaborators {
         role
         user {
           id
-          username
+          name
         }
       }
 
@@ -36,12 +36,12 @@ export const GET_SCRIPT_BY_ID = gql`
         createdAt
         author {
           id
-          username
+          name
         }
         comments {
           author {
             id
-            username
+            name
           }
           text
           createdAt
@@ -63,7 +63,7 @@ export const GET_SCRIPTS_BY_GENRES = gql`
       dislikes
       createdAt
       author {
-        username
+        name
       }
     }
   }
@@ -84,11 +84,11 @@ export const GET_SCRIPT_CONTRIBUTORS = gql`
             likes
             dislikes
             author {
-              username
+              name
             }
             comments {
               author {
-                username
+                name
               }
               text
               createdAt
@@ -115,13 +115,13 @@ export const GET_USER_CONTRIBUTIONS_BY_SCRIPT = gql`
       }
       author {
         id
-        username
+        name
       }
       comments {
         text
         createdAt
         author {
-          username
+          name
         }
       }
     }

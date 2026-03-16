@@ -183,9 +183,9 @@ const Profile = () => {
 
   const userDetails = [
     {
-      id: "username",
+      id: "name",
       title: "Full Name",
-      value: userProfile?.username || "",
+      value: userProfile?.name || "",
       icon: User,
       editable: true,
     },
@@ -225,7 +225,7 @@ const Profile = () => {
     },
   ];
 
-  const initial = userProfile?.username?.charAt(0).toUpperCase() || "?";
+  const initial = userProfile?.name?.charAt(0).toUpperCase() || "?";
   const EmptyIcon = search ? SearchX : FileText;
 
   return (
@@ -281,10 +281,10 @@ const Profile = () => {
                     </div>
                     <div className="relative z-10">
                       <h2 className="text-2xl font-bold text-white tracking-wide">
-                        {userProfile?.username}
+                        {userProfile?.name}
                       </h2>
                       <p className="text-sm text-gray-400 font-medium mt-1">
-                        @{userProfile?.username?.toLowerCase()}
+                        @{userProfile?.name?.toLowerCase()}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2  w-full text-sm text-gray-400 font-medium relative z-10">

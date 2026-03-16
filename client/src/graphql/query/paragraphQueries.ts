@@ -23,12 +23,12 @@ export const GET_PARAGRAPH_BY_ID = gql`
       dislikes
       author {
         id
-        username
+        name
       }
       comments {
         author {
           id
-          username
+          name
         }
         text
         createdAt
@@ -45,7 +45,7 @@ export const GET_PENDING_PARAGRAPHS = gql`
       createdAt
       status
       author {
-        username
+        name
       }
     }
   }

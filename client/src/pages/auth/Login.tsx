@@ -44,8 +44,8 @@ const Login: React.FC = () => {
     }
 
     if (authData?.user) {
-      localStorage.setItem("user", JSON.stringify({ id: authData.user.id, username: authData.user.name }));
-      posthog.identify(authData.user.id, { username: authData.user.name });
+      localStorage.setItem("user", JSON.stringify({ id: authData.user.id, name: authData.user.name }));
+      posthog.identify(authData.user.id, { name: authData.user.name });
       posthog.capture("user_logged_in", { login_method: "email" });
       toast.success("Welcome back!");
       nav("/explore");

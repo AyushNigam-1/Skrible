@@ -199,7 +199,7 @@ const Add = () => {
                 </h3>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 md:p-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-white/20"
+                  className="text-gray-500 hover:text-white  transition-colors outline-none"
                 >
                   <X className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
@@ -293,7 +293,6 @@ const Add = () => {
                     )}
                   </div>
 
-                  {/* Language (Controller for Headless UI) */}
                   <div>
                     <label className={labelClass}>Language</label>
                     <Controller
@@ -346,7 +345,7 @@ const Add = () => {
                         </Listbox>
                       )}
                     />
-                    {errors.language && (
+                    {errors.language?.message && (
                       <p className="text-red-400 text-xs mt-1.5 ml-1 font-mono">
                         {errors.language.message}
                       </p>
@@ -431,10 +430,10 @@ const Add = () => {
                 <button
                   type="submit"
                   disabled={loading || !isValid}
-                  className="flex items-center mx-0 sm:mx-auto font-mono justify-center w-full sm:w-[160px] gap-2 px-6 py-3 sm:py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold transition-all disabled:opacity-50 active:scale-95"
+                  className="flex items-center mx-0 sm:mx-auto font-mono justify-center w-full sm:w-[140px] gap-2 px-6 py-3 sm:py-2.5 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold transition-all disabled:opacity-50 active:scale-95"
                 >
                   {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-black" />
+                    <Loader2 className="size-5 animate-spin text-black" />
                   ) : (
                     <>
                       <Plus size={18} className="md:w-5 md:h-5" />

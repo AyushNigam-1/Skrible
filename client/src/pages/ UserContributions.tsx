@@ -85,7 +85,7 @@ const UserContributions = () => {
     };
 
     const scriptTitle = contributions[0]?.script?.title || "Manuscript";
-    const authorName = contributions[0]?.author?.username || "Author";
+    const authorName = contributions[0]?.author?.name || "Author";
 
     return (
         <div className="w-full max-w-7xl mx-auto font-mono pb-12">
@@ -182,11 +182,11 @@ const UserContributions = () => {
                                                 <div className="flex items-start justify-between mb-4 gap-4">
                                                     <div className="flex items-center gap-3.5">
                                                         <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center font-bold text-white text-sm shrink-0 shadow-inner">
-                                                            {contribution.author.username.charAt(0).toUpperCase()}
+                                                            {contribution.author.name.charAt(0).toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-white font-bold font-sans text-base leading-tight">
-                                                                {contribution.author.username}
+                                                                {contribution.author.name}
                                                             </span>
                                                             <span className="text-xs text-gray-500 font-mono mt-0.5">
                                                                 {formatDate(contribution.createdAt)}

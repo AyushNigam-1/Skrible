@@ -1,39 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Search as SearchIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
 interface SearchProps {
+  value: string; // 🚨 FIX: Changed from initialValue to standard value
   setSearch: (value: string) => void;
   placeholder?: string;
   className?: string;
-  initialValue?: string;
 }
 
 const Search: React.FC<SearchProps> = ({
+  value,
   setSearch,
   placeholder = "Search...",
   className = "",
-  initialValue = "",
 }) => {
-  const [localSearch, setLocalSearch] = useState(initialValue);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLocalSearch(value);
-    setSearch(value);
+    setSearch(e.target.value);
   };
 
   const handleClear = () => {
-    setLocalSearch("");
     setSearch("");
   };
-
-  useEffect(() => {
-    if (initialValue !== localSearch) {
-      setLocalSearch(initialValue);
-    }
-  }, [initialValue]);
 
   return (
     <div className={clsx("relative group flex items-center w-full", className)}>
@@ -46,7 +35,7 @@ const Search: React.FC<SearchProps> = ({
       <input
         type="text"
         id="Search"
-        value={localSearch}
+        value={value} // 🚨 FIX: Input is now strictly controlled by the parent
         onChange={handleChange}
         placeholder={placeholder}
         className={clsx(
@@ -57,7 +46,7 @@ const Search: React.FC<SearchProps> = ({
       />
 
       <AnimatePresence>
-        {localSearch && (
+        {value && ( // 🚨 FIX: Now checks the parent's value to show/hide the X
           <motion.button
             initial={{ opacity: 0, scale: 0.8, rotate: -45 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}

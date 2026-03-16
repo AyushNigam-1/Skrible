@@ -30,6 +30,18 @@ const enforceRateLimit = async (
   }
 };
 
+const invalidateScriptCache = async (redis: any, scriptId: string) => {
+  if (!redis) return;
+  try {
+    const keys = await redis.keys(`*${scriptId}*`);
+    if (keys.length > 0) {
+      await redis.del(keys);
+    }
+  } catch (error) {
+    console.error("Redis cache clearing failed:", error);
+  }
+};
+
 const verifyOwner = async (scriptId: string, currentUserId: string) => {
   const script = await Script.findById(scriptId);
   if (!script) throw new GraphQLError("Script not found");
@@ -110,68 +122,12 @@ export const scriptMutations = {
       status: "pending",
     });
 
+    await invalidateScriptCache(context.redis, scriptId);
+
     return paragraph.populate("author");
   },
 
-  approveParagraph: async (
-    _: any,
-    { paragraphId }: { paragraphId: string },
-    context: any,
-  ) => {
-    const userId = context.user?.id;
-    if (!userId) throw new GraphQLError("User not authenticated");
-
-    await enforceRateLimit(context.redis, userId, "approve_paragraph", 60, 60);
-
-    const paragraph = await Paragraph.findByIdAndUpdate(
-      paragraphId,
-      { status: "approved" },
-      { new: true },
-    );
-
-    if (!paragraph) throw new GraphQLError("Paragraph not found");
-
-    const script = await Script.findById(paragraph.script);
-    if (!script) throw new GraphQLError("Script not found");
-
-    const paragraphAuthorId = paragraph.author.toString();
-    const scriptOwnerId = script.author.toString();
-
-    const isAlreadyCollaborator = script.collaborators?.some(
-      (c: any) => c.user.toString() === paragraphAuthorId,
-    );
-
-    const updateQuery: any = {
-      $addToSet: { paragraphs: paragraph._id },
-    };
-
-    if (!isAlreadyCollaborator && paragraphAuthorId !== scriptOwnerId) {
-      updateQuery.$push = {
-        collaborators: {
-          user: paragraph.author,
-          role: "CONTRIBUTOR",
-        },
-      };
-    }
-
-    await Script.findByIdAndUpdate(paragraph.script, updateQuery);
-
-    return { status: true };
-  },
-
-  rejectParagraph: async (
-    _: any,
-    { paragraphId }: { paragraphId: string },
-    context: any,
-  ) => {
-    const userId = context.user?.id;
-    if (!userId) throw new GraphQLError("User not authenticated");
-
-    await enforceRateLimit(context.redis, userId, "reject_paragraph", 60, 60);
-
-    await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" });
-    return { status: true };
-  },
+  // 🚨 approveParagraph and rejectParagraph HAVE BEEN DELETED FROM HERE
 
   markAsInterested: async (
     _: any,
@@ -256,6 +212,8 @@ export const scriptMutations = {
       $pull: { scripts: scriptId },
     });
 
+    await invalidateScriptCache(context.redis, scriptId);
+
     return { status: true };
   },
 
@@ -291,6 +249,9 @@ export const scriptMutations = {
     if (visibility !== undefined) script.visibility = visibility;
 
     await script.save();
+
+    await invalidateScriptCache(context.redis, scriptId);
+
     return script.populate("author");
   },
 
@@ -356,9 +317,9 @@ export const scriptMutations = {
     _: any,
     {
       scriptId,
-      username,
+      name,
       role,
-    }: { scriptId: string; username: string; role: string },
+    }: { scriptId: string; name: string; role: string },
     context: any,
   ) => {
     const userId = context.user?.id;
@@ -368,8 +329,8 @@ export const scriptMutations = {
 
     const script = await verifyOwner(scriptId, userId);
 
-    const targetUser = await User.findOne({ username });
-    if (!targetUser) throw new GraphQLError(`User @${username} not found`);
+    const targetUser = await User.findOne({ name });
+    if (!targetUser) throw new GraphQLError(`User @${name} not found`);
 
     const targetUserId = (targetUser as any)._id;
 
@@ -393,6 +354,8 @@ export const scriptMutations = {
     )
       .populate("author")
       .populate("collaborators.user");
+
+    await invalidateScriptCache(context.redis, scriptId);
 
     return updatedScript;
   },
@@ -426,6 +389,8 @@ export const scriptMutations = {
     )
       .populate("author")
       .populate("collaborators.user");
+
+    await invalidateScriptCache(context.redis, scriptId);
 
     return updatedScript;
   },
@@ -462,6 +427,8 @@ export const scriptMutations = {
 
     if (!updatedScript)
       throw new GraphQLError("Collaborator not found on this script");
+
+    await invalidateScriptCache(context.redis, scriptId);
 
     return updatedScript;
   },

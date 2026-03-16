@@ -35,8 +35,8 @@ const contributeSchema = z.object({
 type ContributeFormValues = z.infer<typeof contributeSchema>;
 
 interface ContributeModalProps {
-  scriptId?: string; // Optional if in edit mode
-  paragraphId?: string; // Required if in edit mode
+  scriptId?: string;
+  paragraphId?: string;
   refetch: () => void;
   variant?: "header" | "empty" | "edit";
   mode?: "create" | "edit";
@@ -80,7 +80,6 @@ const ContributeModal = ({
   const currentContent = watch("content", "");
 
   const openModal = () => {
-    // Ensures the form has the latest initial data when opened
     reset({ title: initialTitle, content: initialContent });
     setIsPreview(false);
     setIsOpen(true);
@@ -127,7 +126,6 @@ const ContributeModal = ({
     }
   };
 
-  // Shared UI Classes
   const inputClass =
     "w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-600 text-sm font-sans shadow-inner disabled:opacity-50 disabled:cursor-not-allowed";
   const labelClass =
@@ -135,7 +133,6 @@ const ContributeModal = ({
 
   return (
     <>
-      {/* Dynamic Trigger Button based on Variant */}
       {variant === "empty" ? (
         <button
           onClick={openModal}
@@ -162,7 +159,6 @@ const ContributeModal = ({
         </button>
       )}
 
-      {/* Modal Dialog */}
       <Dialog open={isOpen} onClose={closeModal} className="relative z-50 font-sans">
         <DialogBackdrop
           transition
@@ -172,7 +168,7 @@ const ContributeModal = ({
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-4 p-4 md:p-6"
+              className="relative transform overflow-hidden rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-6 p-4 md:p-6"
             >
               <div className="flex justify-between items-center ">
                 <div>
@@ -182,7 +178,7 @@ const ContributeModal = ({
                 </div>
                 <button
                   onClick={closeModal}
-                  className="p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/10 transition-colors outline-none focus:ring-2 focus:ring-white/20"
+                  className=" text-gray-500 hover:text-white transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -212,7 +208,6 @@ const ContributeModal = ({
                 </div>
 
                 <div className="flex flex-col">
-                  {/* Content Header with Toggle Button */}
                   <div className="flex items-center justify-between mb-2">
                     <label className={labelClass}>Content</label>
                     <button
@@ -237,16 +232,16 @@ const ContributeModal = ({
                     </button>
                   </div>
 
-                  {/* Body: Smooth Animated Textarea vs Markdown Preview */}
                   <div className="relative h-[400px] w-full scrollbar-none">
                     <AnimatePresence mode="wait">
                       {isPreview ? (
                         <motion.div
                           key="preview-pane"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          transition={{ duration: 0.2 }}
+                          // 🚨 REMOVED: y coordinates. Pure opacity fade for stability.
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15, ease: "easeInOut" }}
                           className={clsx(
                             inputClass,
                             "absolute scrollbar-thin inset-0 h-full overflow-y-auto text-white font-medium text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap prose prose-invert prose-p:mb-4 prose-ul:list-disc prose-ul:ml-5 max-w-none"
@@ -265,10 +260,11 @@ const ContributeModal = ({
                       ) : (
                         <motion.textarea
                           key="editor-pane"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          transition={{ duration: 0.2 }}
+                          // 🚨 REMOVED: y coordinates. Pure opacity fade for stability.
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15, ease: "easeInOut" }}
                           {...register("content")}
                           disabled={isSubmitting}
                           className={clsx(
@@ -292,14 +288,14 @@ const ContributeModal = ({
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="group flex items-center mx-auto justify-center min-w-[160px] gap-2 px-6 py-3 mt-4 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
+                  className="group flex items-center mx-auto justify-center min-w-[140px] gap-2 px-6 py-3 mt-4 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin text-black" />
                   ) : mode === "edit" ? (
                     <>
                       <Save className="w-5 h-5 ml-1" />
-                      Save Changes
+                      Save
                     </>
                   ) : (
                     <>

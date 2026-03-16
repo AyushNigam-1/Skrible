@@ -21,7 +21,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     if (session?.user) {
       setUser({
         id: session.user.id,
-        username: session.user.name,
+        name: session.user.name,
         email: session.user.email,
         image: session.user.image,
       } as any);

@@ -15,8 +15,9 @@ import {
 
 import Loader from "../../components/layout/Loader";
 import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
-import Search from "../../components/layout/Search"; // Now fully reusable!
+import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Filters";
+
 // --- Types ---
 type Paragraph = {
   id: string;
@@ -24,7 +25,7 @@ type Paragraph = {
 };
 
 type Author = {
-  username?: string;
+  name?: string;
 };
 
 type RequestType = {
@@ -75,6 +76,7 @@ const Requests: React.FC = () => {
     {
       variables: { scriptId },
       skip: !scriptId,
+      fetchPolicy: "cache-and-network",
     },
   );
 
@@ -95,7 +97,7 @@ const Requests: React.FC = () => {
       result = result.filter(
         (req) =>
           req.text?.toLowerCase().includes(query) ||
-          req.author?.username?.toLowerCase().includes(query),
+          req.author?.name?.toLowerCase().includes(query),
       );
     }
 
@@ -188,7 +190,7 @@ const Requests: React.FC = () => {
             </p>
           </motion.div>
         ) : (
-          /* THE FIX 1: Main Content Block now acts as the parent stagger container */
+          /* Main Content Block */
           <motion.div
             key="main-content"
             variants={containerVariants}
@@ -197,12 +199,13 @@ const Requests: React.FC = () => {
             exit="exit"
             className="w-full flex flex-col gap-6"
           >
-            {/* THE FIX 2: Wrapped Action Bar in motion.div with itemVariants */}
+            {/* Action Bar */}
             <motion.div
               variants={itemVariants}
               className="flex items-center justify-between gap-3 relative z-20 w-full max-w-7xl mx-auto"
             >
               <Search
+                value={searchQuery} // 🚨 FIX: Tied directly to state
                 setSearch={setSearchQuery}
                 placeholder="Search requests..."
                 className="w-full sm:max-w-60"
@@ -220,23 +223,24 @@ const Requests: React.FC = () => {
 
             {/* Feed Area */}
             {filteredAndSortedParagraphs.length === 0 ? (
-              /* Search Empty State */
+              /* Search Empty State (Clean, no background) */
               <motion.div
+                key="empty-state-search"
                 variants={itemVariants}
-                className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-white/5 backdrop-blur-xl shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full"
+                className="flex flex-col items-center justify-center py-20 px-4 text-center relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono"
               >
-                <div className="bg-white/10 border border-white/20 p-4 rounded-full mb-5 shadow-sm relative z-10">
-                  <SearchIcon className="w-8 h-8 text-gray-400" />
+                <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10 mb-2">
+                  <SearchIcon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2 relative z-10">
+                <h3 className="text-2xl font-bold text-white relative z-10">
                   No results found
                 </h3>
-                <p className="text-gray-400 max-w-md text-sm relative z-10">
+                <p className="text-gray-400 max-w-md relative z-10">
                   We couldn't find any contributions matching "{searchQuery}".
                 </p>
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="mt-6 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition-colors"
+                  className="mt-6 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-sm font-semibold transition-all active:scale-95 z-10"
                 >
                   Clear Search
                 </button>
@@ -247,12 +251,17 @@ const Requests: React.FC = () => {
                 layout
                 className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10"
               >
-                <AnimatePresence mode="popLayout">
+                {/* 🚨 FIX: Removed buggy popLayout */}
+                <AnimatePresence>
                   {filteredAndSortedParagraphs.map((req) => (
                     <motion.div
                       layout
                       key={req.id}
                       variants={itemVariants}
+                      // 🚨 FIX: Explicitly enforce the animation states here
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                       onClick={() => navigate(`/preview/${scriptId}/${req.id}`)}
@@ -260,11 +269,11 @@ const Requests: React.FC = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white font-semibold shadow-inner border border-white/10">
-                          {req.author?.username?.charAt(0).toUpperCase()}
+                          {req.author?.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-white font-mono">
-                            {req.author?.username || "Unknown"}
+                            {req.author?.name || "Unknown"}
                           </p>
                           <p className="text-sm text-gray-400 font-mono">
                             {formatDate(req.createdAt)}

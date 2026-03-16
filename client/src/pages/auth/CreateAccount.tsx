@@ -10,7 +10,7 @@ import { posthog } from "../../components/providers/PostHogProvider";
 import { authClient } from "../../lib/authClient";
 
 const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  name: z.string().min(3, "name must be at least 3 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -35,7 +35,7 @@ const CreateAccount: React.FC = () => {
     const { data: authData, error } = await authClient.signUp.email({
       email: data.email,
       password: data.password,
-      name: data.username,
+      name: data.name,
     });
     setLoading(false);
 
@@ -46,8 +46,8 @@ const CreateAccount: React.FC = () => {
     }
 
     if (authData?.user) {
-      localStorage.setItem("user", JSON.stringify({ id: authData.user.id, username: authData.user.name }));
-      posthog.identify(authData.user.id, { username: authData.user.name });
+      localStorage.setItem("user", JSON.stringify({ id: authData.user.id, name: authData.user.name }));
+      posthog.identify(authData.user.id, { name: authData.user.name });
       posthog.capture("user_signed_up", { signup_method: "email" });
       toast.success("Account created successfully!");
       nav("/");
@@ -127,13 +127,13 @@ const CreateAccount: React.FC = () => {
         <div className={inputWrapperClass}>
           <div className="relative w-full">
             <User className={iconClass} />
-            <input type="text" id="username" required {...register("username")} className={getInputClass(!!errors.username)} />
-            <label htmlFor="username" className={floatingLabelClass}>Username</label>
+            <input type="text" id="name" required {...register("name")} className={getInputClass(!!errors.name)} />
+            <label htmlFor="name" className={floatingLabelClass}>name</label>
           </div>
           <AnimatePresence>
-            {errors.username && (
+            {errors.name && (
               <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-red-500 text-xs mt-1.5 ml-2 flex items-center gap-1 font-semibold">
-                <AlertCircle className="w-3 h-3" /> {errors.username.message}
+                <AlertCircle className="w-3 h-3" /> {errors.name.message}
               </motion.p>
             )}
           </AnimatePresence>

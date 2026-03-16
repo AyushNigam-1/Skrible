@@ -147,10 +147,10 @@ const Explore = () => {
                     <div className="bg-white/5 border border-white/10 p-6 rounded-full mb-6 shadow-inner relative z-10">
                       <SearchX className="w-10 h-10 text-gray-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white mb-3 font-['Playfair_Display'] tracking-tight relative z-10">
+                    <h3 className="text-3xl font-bold text-white mb-3 tracking-tight relative z-10">
                       No Manuscripts Found
                     </h3>
-                    <p className="text-gray-400 max-w-md text-base font-['Literata'] leading-relaxed relative z-10">
+                    <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10">
                       We couldn't find any stories matching your current search
                       or genre filters. Try adjusting them!
                     </p>

@@ -38,6 +38,8 @@ export const paragraphTypeDefs = gql`
   }
 
   type Mutation {
+    approveParagraph(paragraphId: ID!): MutationResponse!
+    rejectParagraph(paragraphId: ID!): MutationResponse!
     editParagraph(paragraphId: ID!, text: String!): Paragraph!
     deleteParagraph(paragraphId: ID!): MutationResponse!
     likeParagraph(paragraphId: ID!): MutationResponse!

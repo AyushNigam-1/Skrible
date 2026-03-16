@@ -3,7 +3,7 @@ import { gql } from "graphql-tag";
 export const userTypeDefs = gql`
   type User {
     id: ID
-    username: String!
+    name: String!
     email: String!
     token: String!
     languages: [String]
@@ -41,8 +41,8 @@ export const userTypeDefs = gql`
   }
 
   type Mutation {
-    register(username: String!, password: String!, email: String): User
-    login(username: String!, password: String!): User
+    register(name: String!, password: String!, email: String): User
+    login(name: String!, password: String!): User
     logout: Boolean!
     toggleBookmark(scriptId: ID!): MutationResponse!
     updateUserProfileField(key: String!, value: String!): User!

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -14,7 +14,6 @@ import {
   Trash2,
   MessageSquare,
 } from "lucide-react";
-
 import {
   useGetParagraphByIdQuery,
   useGetScriptByIdQuery,
@@ -25,12 +24,13 @@ import {
   useDeleteParagraphMutation,
   useAddCommentMutation,
 } from "../../graphql/generated/graphql";
-
 import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 import { posthog } from "../../components/providers/PostHogProvider";
 import DiscussionPanel from "../../components/panel/DiscussionPanel";
 import ContributeModal from "../../components/modal/ContributeModal";
+// 🚨 ADDED: Import the new reusable Delete Confirm Modal
+import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 
 const Contribution: React.FC = () => {
   const { id, paragraphId } = useParams<{ id: string; paragraphId: string }>();
@@ -41,12 +41,15 @@ const Contribution: React.FC = () => {
   // --- Main Content States ---
   const [localLikes, setLocalLikes] = useState<string[]>([]);
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
-  const [isTargetSticky, setIsTargetSticky] = useState(false); // <-- ADDED: Tracks if target header is at top
+  const [isTargetSticky, setIsTargetSticky] = useState(false);
 
   // --- Layout & Discussion States ---
   const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
   const [localComments, setLocalComments] = useState<any[]>([]);
+
+  // 🚨 ADDED: State to control the Delete Modal visibility
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Responsive listener for sliding panel direction
   useEffect(() => {
@@ -87,15 +90,19 @@ const Contribution: React.FC = () => {
     (p) => p.id === paragraphId
   );
 
-  // --- Mutations ---
-  const [approveParagraph, { loading: isApproving }] =
-    useApproveParagraphMutation();
-  const [rejectParagraph, { loading: isRejecting }] =
-    useRejectParagraphMutation();
+  const [approveParagraph, { loading: isApproving }] = useApproveParagraphMutation({
+    refetchQueries: ["GetPendingParagraphs", "GetScriptById", "GetScriptContributors"]
+  });
+
+  const [rejectParagraph, { loading: isRejecting }] = useRejectParagraphMutation({
+    refetchQueries: ["GetPendingParagraphs"]
+  });
+
+  const [deleteParagraph, { loading: isDeleting }] = useDeleteParagraphMutation({
+    refetchQueries: ["GetPendingParagraphs"]
+  });
   const [likeParagraph] = useLikeParagraphMutation();
   const [dislikeParagraph] = useDislikeParagraphMutation();
-  const [deleteParagraph, { loading: isDeleting }] =
-    useDeleteParagraphMutation();
   const [addComment, { loading: isCommenting }] = useAddCommentMutation();
 
   // --- Effects ---
@@ -113,7 +120,6 @@ const Contribution: React.FC = () => {
       const timer = setTimeout(() => {
         const el = document.getElementById("target-card");
         if (el) {
-          // block: "start" pulls it to the top. Native behavior handles the rest perfectly.
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }, 500);
@@ -121,17 +127,16 @@ const Contribution: React.FC = () => {
     }
   }, [paragraphId, paragraph]);
 
-  // --- STICKY HEADER SCROLL LISTENER (ADDED) ---
+  // --- STICKY HEADER SCROLL LISTENER ---
   useEffect(() => {
     const handleScroll = () => {
       const el = document.getElementById("target-card");
       if (el) {
-        // Trigger sticky logic if target card hits the top of the viewport
         setIsTargetSticky(el.getBoundingClientRect().top <= 1);
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Check on mount
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -149,11 +154,18 @@ const Contribution: React.FC = () => {
   // --- Action Handlers ---
   const handleApprove = async () => {
     try {
-      await approveParagraph({ variables: { paragraphId: paragraphId || "" } });
+      await approveParagraph({
+        variables: { paragraphId: paragraphId || "" },
+        refetchQueries: ["GetPendingParagraphs", "GetScriptById", "GetParagraphById"]
+      });
+
       posthog.capture("contribution_approved", {
         paragraph_id: paragraphId,
         script_id: scriptId,
       });
+
+      // 🚨 Force the current page to fetch fresh data before navigating
+      await refetch();
       navigate(`/requests/${scriptId}`);
     } catch (err) {
       alert("Failed to approve contribution.");
@@ -164,11 +176,17 @@ const Contribution: React.FC = () => {
     if (!window.confirm("Are you sure you want to reject this contribution?"))
       return;
     try {
-      await rejectParagraph({ variables: { paragraphId: paragraphId || "" } });
+      await rejectParagraph({
+        variables: { paragraphId: paragraphId || "" },
+        refetchQueries: ["GetPendingParagraphs", "GetParagraphById"]
+      });
+
       posthog.capture("contribution_rejected", {
         paragraph_id: paragraphId,
         script_id: scriptId,
       });
+
+      await refetch();
       navigate(`/requests/${scriptId}`);
     } catch (err) {
       alert("Failed to reject contribution.");
@@ -176,18 +194,18 @@ const Contribution: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to completely delete this request?",
-      )
-    )
-      return;
     try {
-      await deleteParagraph({ variables: { paragraphId: paragraphId || "" } });
+      await deleteParagraph({
+        variables: { paragraphId: paragraphId || "" },
+        refetchQueries: ["GetPendingParagraphs", "GetParagraphById"]
+      });
+
       posthog.capture("contribution_deleted", {
         paragraph_id: paragraphId,
         script_id: scriptId,
       });
+
+      setShowDeleteConfirm(false);
       navigate(`/requests/${scriptId}`);
     } catch (err) {
       alert("Failed to delete contribution.");
@@ -250,7 +268,7 @@ const Contribution: React.FC = () => {
       const newComment = {
         text: submittedText,
         createdAt: Date.now().toString(),
-        author: { username: currentUser.username },
+        author: { username: currentUser.name },
       };
 
       setLocalComments((prev) => [...prev, newComment]);
@@ -268,16 +286,13 @@ const Contribution: React.FC = () => {
   // --- REUSABLE TARGET CARD UI ---
   const renderTargetCard = () => (
     <div className="flex flex-col h-auto bg-white/5 border border-white/10 rounded-2xl relative shadow-2xl">
-      {/* --- CARD HEADER (Floating Pill Design) --- */}
-      {/* ADDED: z-50 ensures it stays above the main page sticky header when it hits the top */}
       <div className="sticky top-0 z-50 flex items-center justify-between p-4 bg-[#161620]/95 rounded-t-2xl transition-all duration-300">
         <div className="flex items-center">
-          {/* Animated Back Button Wrapper */}
           <AnimatePresence>
             {isTargetSticky && (
               <motion.div
                 initial={{ opacity: 0, width: 0, marginRight: 0 }}
-                animate={{ opacity: 1, width: 36, marginRight: 12 }} // 12px perfectly mimics gap-3
+                animate={{ opacity: 1, width: 36, marginRight: 12 }}
                 exit={{ opacity: 0, width: 0, marginRight: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
                 className="overflow-hidden shrink-0 flex items-center"
@@ -292,14 +307,13 @@ const Contribution: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Inner div: Groups the avatar and text with its own safe gap */}
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0 ">
-              {paragraph?.author.username.charAt(0).toUpperCase()}
+              {paragraph?.author.name.charAt(0).toUpperCase()}
             </div>
             <div>
               <p className="font-bold text-white text-base leading-tight">
-                {paragraph?.author.username}
+                {paragraph?.author.name}
               </p>
               <p className="text-xs text-gray-400 font-mono mt-0.5">
                 {formatDate(paragraph?.createdAt)}
@@ -334,7 +348,6 @@ const Contribution: React.FC = () => {
         )}
       </div>
 
-      {/* --- CARD BODY --- */}
       <div className="p-4 h-auto">
         <div className="grid w-full relative items-start">
           <div className="col-start-1 row-start-1 text-white font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap">
@@ -353,7 +366,6 @@ const Contribution: React.FC = () => {
         </div>
       </div>
 
-      {/* --- CARD FOOTER --- */}
       <div className="sticky bottom-0 border-t border-white/5 z-30 p-4 bg-[#161620]/95 backdrop-blur-md rounded-b-2xl">
         <div className="flex flex-row items-center justify-between gap-4 text-gray-400 text-sm font-mono flex-wrap">
           <div className="flex items-center gap-2">
@@ -404,7 +416,6 @@ const Contribution: React.FC = () => {
           <div className="flex items-center gap-2 justify-end">
             {(isAuthor || isOwner) && paragraph?.status === "pending" && (
               <div className="flex items-center gap-2">
-                {/* --- REPLACED: Edit UI perfectly replaced with new Edit Modal --- */}
                 <ContributeModal
                   mode="edit"
                   variant="edit"
@@ -414,7 +425,8 @@ const Contribution: React.FC = () => {
                   refetch={refetch}
                 />
                 <button
-                  onClick={handleDelete}
+                  // 🚨 UPDATED: Triggers the new modal instead of window.confirm
+                  onClick={() => setShowDeleteConfirm(true)}
                   disabled={isDeleting}
                   className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50 transition-colors"
                 >
@@ -464,7 +476,6 @@ const Contribution: React.FC = () => {
           <div
             className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-4`}
           >
-            {/* ADDED: Dynamic sticky classes applied based on !isTargetSticky */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
               <div className="flex items-center gap-3">
                 <button
@@ -480,7 +491,6 @@ const Contribution: React.FC = () => {
             </div>
             <motion.hr className="border-white/10" />
 
-            {/* <div className="flex flex-col w-full  px-2 sm:px-0"> */}
             {approvedParagraphs.length > 0 ? (
               <>
                 {approvedParagraphs.reduce((acc: JSX.Element[], para, index, arr) => {
@@ -525,7 +535,6 @@ const Contribution: React.FC = () => {
                 {renderTargetCard()}
               </div>
             )}
-            {/* </div> */}
           </div>
 
           <DiscussionPanel
@@ -536,6 +545,16 @@ const Contribution: React.FC = () => {
             onAddComment={handleAddComment}
             isCommenting={isCommenting}
             formatDate={formatDate}
+          />
+
+          {/* 🚨 ADDED: Placed the Delete Confirm Modal inside the main content tree */}
+          <DeleteConfirmModal
+            isOpen={showDeleteConfirm}
+            onClose={() => setShowDeleteConfirm(false)}
+            onConfirm={handleDelete}
+            isDeleting={isDeleting}
+            title="Delete Request?"
+            description="Are you sure you want to completely delete this request? This action cannot be undone."
           />
         </motion.div>
       )}

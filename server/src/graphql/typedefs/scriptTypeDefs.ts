@@ -10,7 +10,7 @@ export const scriptTypeDefs = gql`
 
   type Author {
     id: ID!
-    username: String!
+    name: String!
     email: String
   }
 
@@ -104,15 +104,13 @@ export const scriptTypeDefs = gql`
       visibility: String
     ): Script!
     submitParagraph(scriptId: ID!, text: String!): Paragraph!
-    approveParagraph(paragraphId: ID!): MutationResponse!
-    rejectParagraph(paragraphId: ID!): MutationResponse!
     markAsInterested(scriptId: ID!): MutationResponse!
     markAsNotInterested(scriptId: ID!): MutationResponse!
     markAsFavourite(scriptId: ID!): MutationResponse!
     deleteScript(scriptId: ID!): MutationResponse!
     likeScript(scriptId: ID!): MutationResponse!
     dislikeScript(scriptId: ID!): MutationResponse!
-    addCollaborator(scriptId: ID!, username: String!, role: Role!): Script!
+    addCollaborator(scriptId: ID!, name: String!, role: Role!): Script!
     removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
     updateCollaboratorRole(
       scriptId: ID!

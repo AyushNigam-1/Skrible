@@ -228,7 +228,7 @@ export const userQueries = {
       path: "favourites",
       populate: {
         path: "author",
-        select: "username createdAt updatedAt",
+        select: "name createdAt updatedAt",
       },
     });
 

@@ -27,7 +27,7 @@ import {
 interface Collaborator {
   user: {
     id: string;
-    username: string;
+    name: string;
   };
   role: string;
 }
@@ -41,7 +41,7 @@ interface ScriptContext {
       visibility?: string;
       author?: {
         id: string;
-        username: string;
+        name: string;
       };
       collaborators?: Collaborator[];
     };
@@ -50,7 +50,7 @@ interface ScriptContext {
 
 interface StoredUser {
   id: string;
-  username: string;
+  name: string;
 }
 
 type VisibilityType = "Public" | "Private" | "Archived";
@@ -73,7 +73,7 @@ const DraftSettings: React.FC = () => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   // Collaboration State
-  const [inviteUsername, setInviteUsername] = useState("");
+  const [invitename, setInvitename] = useState("");
   const [inviteRole, setInviteRole] = useState<RoleType>("CONTRIBUTOR");
 
   useEffect(() => {
@@ -109,20 +109,20 @@ const DraftSettings: React.FC = () => {
   };
 
   const handleInvite = async () => {
-    if (!inviteUsername.trim() || !script) return;
+    if (!invitename.trim() || !script) return;
     try {
       await addCollaborator({
         variables: {
           scriptId: script.id,
-          username: inviteUsername.trim(),
+          name: invitename.trim(),
           role: inviteRole,
         },
       });
-      setInviteUsername(""); // Clear input on success
+      setInvitename(""); // Clear input on success
     } catch (err: any) {
       console.error(err);
       alert(
-        err.message || "Failed to invite user. Check if username is correct.",
+        err.message || "Failed to invite user. Check if name is correct.",
       );
     }
   };
@@ -332,9 +332,9 @@ const DraftSettings: React.FC = () => {
               </span>
               <input
                 type="text"
-                placeholder="username"
-                value={inviteUsername}
-                onChange={(e) => setInviteUsername(e.target.value)}
+                placeholder="name"
+                value={invitename}
+                onChange={(e) => setInvitename(e.target.value)}
                 className="w-full pl-8 pr-4 py-2.5 bg-black/40 border border-white/20 rounded-xl text-white focus:ring-1 focus:ring-white/50 text-sm outline-none shadow-inner"
               />
             </div>
@@ -366,7 +366,7 @@ const DraftSettings: React.FC = () => {
             </div>
             <button
               onClick={handleInvite}
-              disabled={isAddingCollab || !inviteUsername.trim()}
+              disabled={isAddingCollab || !invitename.trim()}
               className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-xl text-sm font-bold transition-colors shadow-sm disabled:opacity-50 active:scale-95 whitespace-nowrap"
             >
               {isAddingCollab ? (
@@ -396,11 +396,11 @@ const DraftSettings: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold shrink-0">
-                        {collab.user.username.charAt(0).toUpperCase()}
+                        {collab.user.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <p className="font-bold text-white text-sm">
-                          @{collab.user.username}
+                          @{collab.user.name}
                         </p>
                         {collab.role === "OWNER" && (
                           <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">

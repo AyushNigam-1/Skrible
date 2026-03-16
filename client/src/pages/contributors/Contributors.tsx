@@ -10,7 +10,7 @@ import Dropdown, { DropdownOption } from "../../components/layout/Filters";
 interface Paragraph {
   author?: {
     id: string;
-    username: string;
+    name: string;
   };
 }
 
@@ -25,7 +25,7 @@ interface ScriptContext {
 
 interface Contributor {
   id: string;
-  username: string;
+  name: string;
   count: number;
 }
 
@@ -51,15 +51,15 @@ const Contributors: React.FC = () => {
 
     // 1. Group and Count
     paragraphs.forEach((item) => {
-      const username = item.author?.username;
+      const name = item.author?.name;
       const id = item.author?.id;
 
-      if (!username || !id) return;
+      if (!name || !id) return;
 
-      if (!grouped[username]) {
-        grouped[username] = { id, username, count: 0 };
+      if (!grouped[name]) {
+        grouped[name] = { id, name, count: 0 };
       }
-      grouped[username].count += 1;
+      grouped[name].count += 1;
     });
 
     let result = Object.values(grouped);
@@ -68,7 +68,7 @@ const Contributors: React.FC = () => {
     if (searchQuery.trim()) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter((c) =>
-        c.username.toLowerCase().includes(lowerQuery),
+        c.name.toLowerCase().includes(lowerQuery),
       );
     }
 
@@ -77,7 +77,7 @@ const Contributors: React.FC = () => {
       if (selectedFilter.name === "Highest First") return b.count - a.count;
       if (selectedFilter.name === "Lowest First") return a.count - b.count;
       if (selectedFilter.name === "A-Z")
-        return a.username.localeCompare(b.username);
+        return a.name.localeCompare(b.name);
       return 0;
     });
 
@@ -205,7 +205,7 @@ const Contributors: React.FC = () => {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               {contributorsLeaderboard.map((contributor, index) => (
-                <motion.div variants={itemVariants} key={contributor.username}>
+                <motion.div variants={itemVariants} key={contributor.name}>
                   <Link
                     // --- UPDATED ROUTE ---
                     to={`/contributions/${draftId}/${contributor.id}`}
@@ -213,12 +213,12 @@ const Contributors: React.FC = () => {
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black text-lg font-bold shadow-inner shrink-0 transition-transform group-hover:scale-105">
-                        {contributor.username.charAt(0).toUpperCase()}
+                        {contributor.name.charAt(0).toUpperCase()}
                       </div>
 
                       <div className="flex flex-col min-w-0">
                         <h5 className="text-white font-bold text-lg truncate transition-colors font-sans">
-                          @{contributor.username}
+                          @{contributor.name}
                         </h5>
                         <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
                           {contributor.count}{" "}

@@ -22,7 +22,7 @@ export const ADD_SCRIPT = gql`
       genres
       description
       author {
-        username
+        name
       }
     }
   }
@@ -78,13 +78,13 @@ export const DISLIKE_SCRIPT = gql`
   }
 `;
 export const ADD_COLLABORATOR = gql`
-  mutation AddCollaborator($scriptId: ID!, $username: String!, $role: Role!) {
-    addCollaborator(scriptId: $scriptId, username: $username, role: $role) {
+  mutation AddCollaborator($scriptId: ID!, $name: String!, $role: Role!) {
+    addCollaborator(scriptId: $scriptId, name: $name, role: $role) {
       id
       collaborators {
         user {
           id
-          username
+          name
         }
         role
       }
@@ -99,7 +99,7 @@ export const REMOVE_COLLABORATOR = gql`
       collaborators {
         user {
           id
-          username
+          name
         }
         role
       }
@@ -122,7 +122,7 @@ export const UPDATE_COLLABORATOR_ROLE = gql`
       collaborators {
         user {
           id
-          username
+          name
         }
         role
       }

@@ -1,86 +1,12 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Navigate,
-} from "react-router-dom";
-import Login from "./pages/auth/Login";
-import AuthLayout from "./layouts/AuthLayout";
-import Favourites from "./pages/favourites/Favourites";
-import Requests from "./pages/requests/Requests";
-import Contribution from "./pages/contribution/Contribution";
-import Profile from "./pages/profile/Profile";
-import DraftLayout from "./layouts/DraftLayout";
-import Explore from "./pages/explore/Explore";
-import Timeline from "./pages/timeline/Timeline";
-import ScriptDetails from "./pages/about/ScriptDetails";
-import Contributors from "./pages/contributors/Contributors";
-import DraftSettings from "./pages/setting/DraftSettings";
-import HomeLayout from "./layouts/HomeLayout";
-import ZenMode from "./pages/zen/ZenMode";
+import { RouterProvider } from "react-router-dom";
+import * as Sentry from "@sentry/react";
+import { registerSW } from "virtual:pwa-register";
 import { UserProvider } from "./components/providers/UserProvider";
 import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
 import { PostHogProvider } from "./components/providers/PostHogProvider";
-import { registerSW } from "virtual:pwa-register";
-import Contributions from "./pages/contributions/Contributions";
-import CreateAccount from "./pages/auth/CreateAccount";
-import Logout from "./pages/auth/Logout";
-import * as Sentry from "@sentry/react";
-import UserContributions from "./pages/ UserContributions";
-
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const user = localStorage.getItem("user");
-  if (user) {
-    return <Navigate to="/explore" replace />;
-  }
-  return <>{children}</>;
-};
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomeLayout />,
-    children: [
-      { index: true, element: <Navigate to="/login" replace /> },
-      { path: "/explore", element: <Explore /> },
-      { path: "/favourites", element: <Favourites /> },
-      { path: "/profile/:id", element: <Profile /> },
-      { path: "/contributions", element: <Contributions /> },
-      { path: "/zen/:id", element: <ZenMode /> },
-      { path: "/preview/:id/:paragraphId", element: <Contribution /> },
-      { path: "/contributions/:draftId/:userId", element: <UserContributions /> },
-      {
-        path: "/",
-        element: <DraftLayout />,
-        children: [
-          { path: "/timeline/:id", element: <Timeline /> },
-          { path: "/requests/:id", element: <Requests /> },
-          { path: "/contributors/:id", element: <Contributors /> },
-          { path: "/about/:id", element: <ScriptDetails /> },
-          { path: "/settings/:id", element: <DraftSettings /> },
-        ],
-      },
-    ],
-  },
-
-  {
-    path: "/",
-    element: (
-      <PublicRoute>
-        <AuthLayout />
-      </PublicRoute>
-    ),
-    children: [
-      { path: "/login", element: <Login /> },
-      { path: "/create-account", element: <CreateAccount /> },
-    ],
-  },
-  {
-    path: "/logout",
-    element: <Logout />,
-  },
-]);
+import { router } from "./router";
 
 Sentry.init({
   dsn: "https://2805ef33995874e631b94ef2244ed00d@o4511026054561792.ingest.de.sentry.io/4511029947334736",

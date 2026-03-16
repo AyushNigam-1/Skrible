@@ -8,7 +8,7 @@ export const EDIT_PARAGRAPH = gql`
       createdAt
       author {
         id
-        username
+        name
       }
     }
   }
@@ -47,7 +47,7 @@ export const ADD_COMMENT = gql`
         createdAt
         author {
           id
-          username
+          name
         }
       }
     }

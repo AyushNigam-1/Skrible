@@ -12,7 +12,7 @@ export interface DraftCardProps {
     dislikes?: any[] | null;
     languages?: string[] | null;
     genres?: string[] | null;
-    author?: { username: string } | null;
+    author?: { name: string } | null;
   };
 }
 

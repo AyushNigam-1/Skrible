@@ -28,7 +28,7 @@ interface ScriptDetailsContext {
       description?: string;
       visibility?: string;
       createdAt?: string;
-      author?: { id: string; username: string };
+      author?: { id: string; name: string };
       genres?: string[];
       languages?: string[];
       paragraphs?: any[];
@@ -148,7 +148,7 @@ const ScriptDetails = () => {
     {
       id: "author",
       label: "Author",
-      value: `@${script?.author?.username || "Unknown"}`,
+      value: `@${script?.author?.name || "Unknown"}`,
       icon: <User className="w-5 h-5" />,
     },
     {
@@ -278,9 +278,8 @@ const ScriptDetails = () => {
                   {card.label}
                 </p>
                 <p
-                  className={` font-bold text-white leading-none truncate font-sans ${
-                    card.isCapitalized ? "capitalize" : ""
-                  }`}
+                  className={` font-bold text-white leading-none truncate font-sans ${card.isCapitalized ? "capitalize" : ""
+                    }`}
                 >
                   {card.value}
                 </p>

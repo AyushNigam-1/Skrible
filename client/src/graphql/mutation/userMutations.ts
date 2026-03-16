@@ -1,10 +1,10 @@
 import { gql } from "@apollo/client";
 
 export const REGISTER_MUTATION = gql`
-  mutation Register($username: String!, $email: String!, $password: String!) {
-    register(username: $username, email: $email, password: $password) {
+  mutation Register($name: String!, $email: String!, $password: String!) {
+    register(name: $name, email: $email, password: $password) {
       id
-      username
+      name
       email
       token
     }
@@ -12,10 +12,10 @@ export const REGISTER_MUTATION = gql`
 `;
 
 export const LOGIN_MUTATION = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
+  mutation Login($name: String!, $password: String!) {
+    login(name: $name, password: $password) {
       id
-      username
+      name
       email
       token
     }
@@ -40,7 +40,7 @@ export const UPDATE_USER_PROFILE_FIELD = gql`
   mutation UpdateUserProfileField($key: String!, $value: String!) {
     updateUserProfileField(key: $key, value: $value) {
       id
-      username
+      name
       bio
       languages
       interests

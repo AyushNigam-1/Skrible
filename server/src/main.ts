@@ -4,47 +4,88 @@ import { expressMiddleware } from "@apollo/server/express4";
 import dotenv from "dotenv";
 import { graphqlServer } from "./graphql/server";
 import cors from "cors";
-import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { redisClient } from "./database/redis";
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
+import pino from "pino";
+import pinoHttp from "pino-http";
+import helmet from "helmet";
+import { z } from "zod";
 
 dotenv.config();
 
-const startServer = async () => {
-  const uri = process.env.MONGO_URI || "mongodb://localhost:27017/mydatabase";
-  const port = Number(process.env.PORT) || 4000;
+const envSchema = z.object({
+  PORT: z.string().default("4000"),
+  MONGO_URI: z.url(),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  LOG_LEVEL: z.string().default("info"),
+});
 
-  await connectDB(uri);
-  await redisClient.connect();
+const envParsed = envSchema.safeParse(process.env);
+if (!envParsed.success) {
+  console.error("❌ Invalid environment variables:", envParsed.error.format());
+  process.exit(1);
+}
+const env = envParsed.data;
+
+const isDev = env.NODE_ENV !== "production";
+
+export const logger = pino({
+  level: process.env.NODE_ENV === "development" ? "debug" : "info",
+  transport:
+    process.env.NODE_ENV === "development"
+      ? {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "SYS:HH:MM:ss",
+          // 🚨 THIS IS THE MAGIC LINE: It hides the massive request/response dumps!
+          ignore: "pid,hostname,req,res,responseTime",
+          messageFormat: "{msg}",
+        },
+      }
+      : undefined,
+});
+
+const startServer = async () => {
+  const port = Number(env.PORT);
+
+  try {
+    await connectDB(env.MONGO_URI);
+    await redisClient.connect();
+    logger.info("✅ Database and Redis connected successfully");
+  } catch (err) {
+    logger.error({ err }, "❌ Failed to connect to backing services");
+    process.exit(1);
+  }
 
   const server = graphqlServer();
   await server.start();
   const app = express();
 
-  app.use(morgan("dev"));
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: isDev ? false : undefined,
+    })
+  );
+
+  app.use(pinoHttp({ logger }));
   app.use(cookieParser());
   app.use(express.json());
 
   app.use(
     cors({
-      origin: [
-        "http://localhost:5173",
-        "http://10.43.186.43:5173/"
-      ],
+      origin: ["http://localhost:5173", "http://10.43.186.43:5173/"],
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
     }),
   );
 
-  // 🚨 ADDED: Mount Better Auth REST endpoints BEFORE your GraphQL route
-  // This automatically handles /api/auth/sign-in, /api/auth/sign-up, etc.
   app.all("/api/auth/*", toNodeHandler(auth));
-
-  // app.use(authenticate); // <-- REMOVED: Better Auth replaces your custom middleware
 
   const graphqlLimiter = rateLimit({
     store: new RedisStore({
@@ -55,8 +96,7 @@ const startServer = async () => {
     message: {
       errors: [
         {
-          message:
-            "Too many requests from this IP, please try again after 15 minutes.",
+          message: "Too many requests from this IP. Try again in 15 mins.",
           extensions: { code: "TOO_MANY_REQUESTS" },
         },
       ],
@@ -70,7 +110,6 @@ const startServer = async () => {
     graphqlLimiter,
     expressMiddleware(server, {
       context: async ({ req, res }) => {
-
         const session = await auth.api.getSession({
           headers: fromNodeHeaders(req.headers),
         });
@@ -87,7 +126,7 @@ const startServer = async () => {
   );
 
   app.listen(port, "0.0.0.0", () =>
-    console.log(`Server started on port ${port}`),
+    logger.info(`🚀 Server started on port ${port}`)
   );
 };
 

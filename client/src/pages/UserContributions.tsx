@@ -17,6 +17,7 @@ import {
 // IMPORTANT: Adjust this import path to wherever your frontend queries are defined
 import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../graphql/query/scriptQueries";
 import Loader from "../components/layout/Loader";
+import Search from "../components/layout/Search";
 
 const UserContributions = () => {
     // 🚨 FIX 1: Grabbing draftId from the URL exactly as defined in your Route
@@ -125,43 +126,35 @@ const UserContributions = () => {
                         exit="exit"
                         className="flex flex-col gap-6 w-full"
                     >
-                        <div className="flex flex-col gap-5">
-                            <div className="flex items-center gap-4">
+                        <motion.div
+                            variants={itemVariants}
+                            className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
+                        >
+                            <div className="flex items-center gap-3 justify-between w-full md:w-auto">
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-gray-300 hover:text-white transition-all active:scale-95"
+                                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 p-2 rounded-full"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-extrabold text-white font-sans tracking-tight line-clamp-1">
-                                        {authorName}'s Drafts
-                                    </h1>
-                                    <p className="text-gray-400 text-sm mt-1">
-                                        Contributions to <span className="text-gray-200 font-medium">{scriptTitle}</span>
-                                    </p>
+                                <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
+                                    {authorName.split(" ")[0]}'s Contributions
+                                </h1>
+                                <div className="md:hidden shrink-0">
+                                    {/* <Filter /> */}
                                 </div>
                             </div>
-
-                            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-2">
-                                <div className="relative w-full sm:max-w-md">
-                                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search requests..."
-                                        className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-200 focus:bg-white/10 focus:border-white/20 outline-none transition-all placeholder:text-gray-600"
-                                    />
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                                <div className="w-full sm:w-72">
+                                    <Search setSearch={setSearchQuery} />
                                 </div>
-
-                                <button className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 text-gray-300 rounded-xl text-sm font-bold hover:bg-white/10 transition-colors">
-                                    Newest First
-                                </button>
+                                <div className="hidden md:block shrink-0">
+                                    {/* <Filter /> */}
+                                </div>
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <hr className="border-white/10" />
+                        <motion.hr variants={itemVariants} className="border-white/10" />
 
                         {filteredContributions.length > 0 ? (
                             <motion.div

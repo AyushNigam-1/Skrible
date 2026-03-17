@@ -4,15 +4,13 @@ import { Loader2 } from "lucide-react";
 import AuthLayout from "./layouts/AuthLayout";
 import DraftLayout from "./layouts/DraftLayout";
 import HomeLayout from "./layouts/HomeLayout";
-
 const Login = lazy(() => import("./pages/auth/Login"));
 const CreateAccount = lazy(() => import("./pages/auth/CreateAccount"));
-const Logout = lazy(() => import("./pages/auth/Logout"));
 const Explore = lazy(() => import("./pages/explore/Explore"));
 const Favourites = lazy(() => import("./pages/favourites/Favourites"));
 const Profile = lazy(() => import("./pages/profile/Profile"));
 const Contributions = lazy(() => import("./pages/contributions/Contributions"));
-// const UserContributions = lazy(() => import("./pages/UserContributions")); // Fixed the space in your import path
+const UserContributions = lazy(() => import("./pages/UserContributions")); // Fixed the space in your import path
 const ZenMode = lazy(() => import("./pages/zen/ZenMode"));
 const Contribution = lazy(() => import("./pages/contribution/Contribution"));
 const Timeline = lazy(() => import("./pages/timeline/Timeline"));
@@ -48,12 +46,12 @@ export const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="/login" replace /> },
             { path: "/explore", element: Loadable(Explore) },
-            { path: "/favourites", element: Loadable(Favourites) },
+            { path: "/bookmarks", element: Loadable(Favourites) },
             { path: "/profile/:id", element: Loadable(Profile) },
             { path: "/contributions", element: Loadable(Contributions) },
             { path: "/zen/:id", element: Loadable(ZenMode) },
             { path: "/preview/:id/:paragraphId", element: Loadable(Contribution) },
-            // { path: "/contributions/:draftId/:userId", element: Loadable(UserContributions) },
+            { path: "/contributions/:draftId/:userId", element: Loadable(UserContributions) },
             {
                 path: "/",
                 element: <DraftLayout />,
@@ -78,9 +76,5 @@ export const router = createBrowserRouter([
             { path: "/login", element: Loadable(Login) },
             { path: "/create-account", element: Loadable(CreateAccount) },
         ],
-    },
-    {
-        path: "/logout",
-        element: Loadable(Logout),
     },
 ]);

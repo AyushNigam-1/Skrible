@@ -15,7 +15,11 @@ import {
 
 const DraftLayout = () => {
   const { id } = useParams<{ id: string }>();
-  const { user: currentUser } = useUserStore();
+
+  // 🚨 THE FIX: Pulling these out separately stops the Zustand infinite render loop!
+  const currentUser = useUserStore((state: any) => state.user);
+  const setUser = useUserStore((state: any) => state.setUser);
+
   const currentUserId = currentUser?.id;
   const [request, setRequest] = useState<any>(null);
   const [tab, setTab] = useState<string>("Timeline");
@@ -32,8 +36,7 @@ const DraftLayout = () => {
 
   const [likeScript, { loading: isLiking }] = useLikeScriptMutation();
   const [dislikeScript, { loading: isDisliking }] = useDislikeScriptMutation();
-  const [toggleBookmark, { loading: isBookmarking }] =
-    useToggleBookmarkMutation();
+  const [toggleBookmark, { loading: isBookmarking }] = useToggleBookmarkMutation();
 
   const script = data?.getScriptById;
 
@@ -59,9 +62,7 @@ const DraftLayout = () => {
   }, [script, currentUser, id]);
 
   const isLiked = currentUserId ? localLikes.includes(currentUserId) : false;
-  const isDisliked = currentUserId
-    ? localDislikes.includes(currentUserId)
-    : false;
+  const isDisliked = currentUserId ? localDislikes.includes(currentUserId) : false;
 
   if (error)
     return (
@@ -79,13 +80,12 @@ const DraftLayout = () => {
       setLocalLikes(prevLikes.filter((userId) => userId !== currentUserId));
     } else {
       setLocalLikes([...prevLikes, currentUserId]);
-      setLocalDislikes(
-        prevDislikes.filter((userId) => userId !== currentUserId),
-      );
+      setLocalDislikes(prevDislikes.filter((userId) => userId !== currentUserId));
     }
 
     try {
       await likeScript({ variables: { scriptId: id || "" } });
+      refetch();
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
@@ -99,9 +99,7 @@ const DraftLayout = () => {
     const prevDislikes = [...localDislikes];
 
     if (isDisliked) {
-      setLocalDislikes(
-        prevDislikes.filter((userId) => userId !== currentUserId),
-      );
+      setLocalDislikes(prevDislikes.filter((userId) => userId !== currentUserId));
     } else {
       setLocalDislikes([...prevDislikes, currentUserId]);
       setLocalLikes(prevLikes.filter((userId) => userId !== currentUserId));
@@ -109,6 +107,7 @@ const DraftLayout = () => {
 
     try {
       await dislikeScript({ variables: { scriptId: id || "" } });
+      refetch();
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
@@ -123,6 +122,16 @@ const DraftLayout = () => {
 
     try {
       await toggleBookmark({ variables: { scriptId: id || "" } });
+
+      if (setUser && currentUser) {
+        const currentFavs = currentUser.favourites || [];
+        const updatedFavs = !prevBookmark
+          ? [...currentFavs, id]
+          : currentFavs.filter((favId: any) => favId !== id && favId.id !== id);
+
+        setUser({ ...currentUser, favourites: updatedFavs });
+      }
+
     } catch (err) {
       setIsBookmarked(prevBookmark);
       console.error("Failed to toggle bookmark:", err);
@@ -173,11 +182,10 @@ const DraftLayout = () => {
               <button
                 onClick={handleLike}
                 disabled={isLiking}
-                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                  isLiked
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${isLiked
+                  ? "bg-white/10 text-white shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
               >
                 <ThumbsUp
                   className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`}
@@ -188,11 +196,10 @@ const DraftLayout = () => {
               <button
                 onClick={handleDislike}
                 disabled={isDisliking}
-                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                  isDisliked
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
+                className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${isDisliked
+                  ? "bg-white/10 text-white shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
               >
                 <ThumbsDown
                   className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`}
@@ -205,11 +212,10 @@ const DraftLayout = () => {
               <button
                 onClick={handleBookmark}
                 disabled={isBookmarking}
-                className={`p-2 rounded-xl transition-all ${
-                  isBookmarked
-                    ? "text-white bg-white/10 shadow-sm"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
+                className={`p-2 rounded-xl transition-all ${isBookmarked
+                  ? "text-white bg-white/10 shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
               >
                 {isBookmarking ? (
                   <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />

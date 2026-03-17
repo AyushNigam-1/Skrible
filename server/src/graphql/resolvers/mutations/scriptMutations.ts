@@ -124,10 +124,11 @@ export const scriptMutations = {
 
     await invalidateScriptCache(context.redis, scriptId);
 
+    const userCacheKey = `user:${userId}:contributions:v3`;
+    await context.redis.del(userCacheKey);
+
     return paragraph.populate("author");
   },
-
-  // 🚨 approveParagraph and rejectParagraph HAVE BEEN DELETED FROM HERE
 
   markAsInterested: async (
     _: any,
@@ -181,9 +182,24 @@ export const scriptMutations = {
 
     await enforceRateLimit(context.redis, userId, "mark_favourite", 60, 60);
 
-    await User.findByIdAndUpdate(userId, {
-      $addToSet: { favourites: scriptId },
-    });
+    const user = await User.findById(userId);
+    if (!user) throw new GraphQLError("User not found");
+
+    const hasFavourited = user.favourites?.some(
+      (id: any) => id.toString() === scriptId.toString()
+    );
+
+    if (hasFavourited) {
+      await User.findByIdAndUpdate(userId, {
+        $pull: { favourites: scriptId },
+      });
+    } else {
+      await User.findByIdAndUpdate(userId, {
+        $addToSet: { favourites: scriptId },
+      });
+    }
+
+    await context.redis.del(`user:${userId}`);
 
     return { status: true };
   },
@@ -281,6 +297,8 @@ export const scriptMutations = {
       });
     }
 
+    await invalidateScriptCache(context.redis, scriptId);
+
     return { status: true };
   },
 
@@ -309,6 +327,8 @@ export const scriptMutations = {
         $pull: { likes: userId },
       });
     }
+
+    await invalidateScriptCache(context.redis, scriptId);
 
     return { status: true };
   },

@@ -11,7 +11,7 @@ import { authClient } from "../../lib/authClient";
 
 const registerSchema = z.object({
   name: z.string().min(3, "name must be at least 3 characters"),
-  email: z.string().email("Please enter a valid email address"),
+  email: z.email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -95,7 +95,6 @@ const CreateAccount: React.FC = () => {
         <p className="text-gray-500 dark:text-gray-400 font-['Literata'] text-sm sm:text-base">Start your journey and collaborate with writers worldwide.</p>
       </motion.div>
 
-      {/* 🚨 UPDATED: Social Providers Grid */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 relative z-10">
         <button
           type="button"

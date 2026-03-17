@@ -7,6 +7,7 @@ import {
   LogOut,
   LucideIcon,
   ChevronLeft,
+  Bookmark,
 } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
 import { authClient } from "../../lib/authClient";
@@ -31,7 +32,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const menuItems: MenuItem[] = [
     { name: "Explore", icon: Compass, route: "/explore" },
     { name: "Contributions", icon: Award, route: "/contributions" },
-    { name: "Favorites", icon: Heart, route: "/favourites" },
+    { name: "Bookmark", icon: Bookmark, route: "/bookmarks" },
     { name: "Profile", icon: User, route: `/profile/${userId}` },
   ];
 

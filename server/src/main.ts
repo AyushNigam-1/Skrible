@@ -42,7 +42,6 @@ export const logger = pino({
         options: {
           colorize: true,
           translateTime: "SYS:HH:MM:ss",
-          // 🚨 THIS IS THE MAGIC LINE: It hides the massive request/response dumps!
           ignore: "pid,hostname,req,res,responseTime",
           messageFormat: "{msg}",
         },

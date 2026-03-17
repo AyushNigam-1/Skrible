@@ -55,6 +55,14 @@ export const REJECT_PARAGRAPH = gql`
   }
 `;
 
+export const TOGGLE_BOOKMARK = gql`
+  mutation ToggleBookmark($scriptId: ID!) {
+    markAsFavourite(scriptId: $scriptId) {
+      status
+    }
+  }
+`;
+
 export const DELETE_SCRIPT = gql`
   mutation DeleteScript($scriptId: ID!) {
     deleteScript(scriptId: $scriptId) {

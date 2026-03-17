@@ -28,13 +28,6 @@ export const LOGOUT_MUTATION = gql`
   }
 `;
 
-export const TOGGLE_BOOKMARK = gql`
-  mutation ToggleBookmark($scriptId: ID!) {
-    toggleBookmark(scriptId: $scriptId) {
-      status
-    }
-  }
-`;
 
 export const UPDATE_USER_PROFILE_FIELD = gql`
   mutation UpdateUserProfileField($key: String!, $value: String!) {

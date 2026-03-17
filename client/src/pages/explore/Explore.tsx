@@ -148,7 +148,7 @@ const Explore = () => {
                       <SearchX className="w-10 h-10 text-gray-400" />
                     </div>
                     <h3 className="text-3xl font-bold text-white mb-3 tracking-tight relative z-10">
-                      No Manuscripts Found
+                      No Drafts Found
                     </h3>
                     <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10">
                       We couldn't find any stories matching your current search

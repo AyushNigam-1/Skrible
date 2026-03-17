@@ -10,16 +10,15 @@ import {
   Lock,
   Search as SearchIcon,
 } from "lucide-react";
-
 import { GET_USER_FAVOURITES } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
 import DraftCard from "../../components/card/DraftCard";
+import { useUserStore } from "../../store/useAuthStore";
 
 const Favourites = () => {
-  const storedUser = localStorage.getItem("user");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
-  const currentUserId = currentUser?.id;
+  const { user } = useUserStore();
+  const currentUserId = user?.id;
   const [search, setSearch] = useState("");
 
   const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {

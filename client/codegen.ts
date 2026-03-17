@@ -2,7 +2,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   // Replace this with your actual local or production GraphQL endpoint
-  schema: "http://localhost:4000/graphql",
+  schema: "http://localhost:3000/graphql",
   // Tells it to look at all your frontend files for gql`` tags
   documents: ["src/**/*.tsx", "src/**/*.ts", "src/**/*.js", "src/**/*.jsx"],
   generates: {

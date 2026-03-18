@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -9,17 +9,32 @@ import {
   Globe2,
   Lock,
   Search as SearchIcon,
+  SearchX,
+  ListFilter
 } from "lucide-react";
 import { GET_USER_FAVOURITES } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
+import Dropdown from "../../components/layout/Dropdown";
 import Loader from "../../components/layout/Loader";
 import DraftCard from "../../components/card/DraftCard";
 import { useUserStore } from "../../store/useAuthStore";
 
+// Genre Filter Options
+const FILTER_OPTIONS = [
+  { id: "all", name: "All Genres" },
+  { id: "fantasy", name: "Fantasy" },
+  { id: "science fiction", name: "Science Fiction" },
+  { id: "mystery", name: "Mystery" },
+  { id: "thriller", name: "Thriller" },
+  { id: "romance", name: "Romance" },
+  { id: "horror", name: "Horror" },
+];
+
 const Favourites = () => {
   const { user } = useUserStore();
   const currentUserId = user?.id;
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
 
   const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {
     variables: { userId: currentUserId },
@@ -27,21 +42,43 @@ const Favourites = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  // --- Sleek Slide-Up Variants (Matches Explore page) ---
+  const favourites = data?.getUserFavourites || [];
+
+  // Filter Logic
+  const filteredFavourites = useMemo(() => {
+    let result = favourites;
+
+    if (searchQuery) {
+      result = result.filter((script: any) =>
+        script.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedFilter.id !== "all") {
+      result = result.filter((script: any) =>
+        script.genres?.some((genre: string) => genre.toLowerCase() === selectedFilter.id)
+      );
+    }
+
+    return result;
+  }, [favourites, searchQuery, selectedFilter]);
+
+  // --- Sleek Slide-Up Variants ---
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.08 },
+      transition: { staggerChildren: 0.05 },
     },
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
     show: {
       opacity: 1,
       y: 0,
+      scale: 1,
       transition: { type: "tween", ease: "easeOut", duration: 0.4 },
     },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
@@ -60,7 +97,7 @@ const Favourites = () => {
           <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
             <Lock className="w-8 h-8 text-gray-500" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 font-mono tracking-tight">
+          <h2 className="text-2xl font-bold text-white mb-2 font-sans tracking-tight">
             Authentication Required
           </h2>
           <p className="text-gray-400 text-sm font-mono leading-relaxed mb-8 max-w-[280px]">
@@ -77,13 +114,13 @@ const Favourites = () => {
     );
   }
 
-  const favourites = data?.getUserFavourites || [];
-  const filteredFavourites = favourites.filter((script: any) =>
-    script.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  // Check if user has zero favorites globally
+  const hasAnyFavorites = favourites.length > 0;
+  // Check if they are actively searching/filtering
+  const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-2">
+    <div className="w-full max-w-7xl mx-auto h-full text-white pb-10">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -91,22 +128,20 @@ const Favourites = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center w-full min-h-[90vh]"
+            className="flex flex-col items-center justify-center w-full min-h-[60vh]"
           >
             <Loader />
           </motion.div>
         ) : error ? (
           <motion.div
             key="error"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[90vh] text-center px-4"
+            className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
           >
-            <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-full">
-              <AlertCircle className="w-8 h-8 text-red-500" />
-            </div>
-            <h2 className="text-xl font-bold text-white font-mono tracking-tight">
+            <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
+            <h2 className="text-base font-bold text-white mb-1">
               Failed to load favorites
             </h2>
             <p className="text-gray-400 max-w-sm text-sm font-mono">
@@ -120,71 +155,82 @@ const Favourites = () => {
             initial="hidden"
             animate="show"
             exit="exit"
-            className={`flex flex-col gap-4 ${favourites.length === 0 ? 'min-h-[80vh] justify-center' : 'min-h-[80vh]'}`}
+            className="flex flex-col w-full gap-5"
           >
-            {/* Header Section - ONLY SHOW IF THERE ARE FAVORITES TO SEARCH/VIEW */}
-            {favourites.length > 0 && (
+            {(hasAnyFavorites || isFiltering) && (
               <>
-                <motion.div
-                  variants={itemVariants}
-                  className="flex flex-col md:flex-row md:items-end justify-between gap-4"
-                >
-                  <h1 className="text-3xl font-extrabold text-white tracking-tight antialiased flex items-center gap-3">
-                    Favorites
-                  </h1>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h1 className="text-3xl font-extrabold font-sans tracking-tight">Favorites</h1>
 
-                  <div className="w-full md:w-80">
-                    <Search
-                      setSearch={setSearch}
-                      placeholder="Search your library..."
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <div className="w-full sm:w-64">
+                      <Search setSearch={setSearchQuery} placeholder="Search your library..." />
+                    </div>
+                    <Dropdown
+                      options={FILTER_OPTIONS}
+                      value={selectedFilter}
+                      onChange={setSelectedFilter}
+                      icon={ListFilter}
+                      collapseOnMobile={true}
+                      className="w-full sm:w-auto shrink-0"
                     />
                   </div>
-                </motion.div>
-
-                <motion.hr
-                  variants={itemVariants}
-                  className="border-white/10"
-                />
+                </div>
+                <hr className="border border-white/5" />
               </>
             )}
 
-            {filteredFavourites.length === 0 ? (
+            {/* --- CONTENT AREA --- */}
+            {!hasAnyFavorites && !isFiltering ? (
+              /* --- GLOBAL EMPTY STATE (No Bookmarks at all) --- */
               <motion.div
-                variants={itemVariants}
-                className="flex-1 flex flex-col items-center gap-4 justify-center text-center font-mono"
+                key="empty-library"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex flex-col items-center justify-center py-28 text-center"
               >
-                <div className="bg-white/5 border border-white/10 p-5 rounded-full ">
-                  {search ? (
-                    <SearchIcon className="w-8 h-8 text-gray-500" />
-                  ) : (
-                    <Bookmark className="w-8 h-8 text-gray-500" />
-                  )}
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                  <Bookmark className="w-10 h-10 text-gray-400" />
                 </div>
-
-                <h3 className="text-2xl font-bold text-white relative z-10">
-                  {search ? "No Matches Found" : "Library is Empty"}
+                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                  Library is Empty
                 </h3>
-
-                <p className="text-gray-400 max-w-md relative z-10">
-                  {search
-                    ? `No saved manuscripts matching "${search}". Try adjusting your search.`
-                    : "You haven't bookmarked any drafts yet. Start exploring to build your collection."}
+                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                  You haven't bookmarked any drafts yet. Start exploring to build your collection.
                 </p>
-
-                {!search && (
-                  <Link
-                    to="/explore"
-                    className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all duration-300 font-bold shadow-sm active:scale-95 font-sans"
-                  >
-                    <Globe2 className="w-4 h-4" />
-                    Explore
-                  </Link>
-                )}
+                <Link
+                  to="/explore"
+                  className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                >
+                  <Globe2 className="w-4 h-4" />
+                  Explore Stories
+                </Link>
+              </motion.div>
+            ) : filteredFavourites.length === 0 ? (
+              /* --- NOT FOUND STATE (Filtering yielded 0 results - Matches Screenshot!) --- */
+              <motion.div
+                key="not-found"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex flex-col items-center justify-center py-28 text-center"
+              >
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                  <SearchX className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                  No Drafts Found
+                </h3>
+                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                  We couldn't find any stories matching your current search or genre filters. Try adjusting them!
+                </p>
               </motion.div>
             ) : (
+              /* --- GRID OF CARDS --- */
               <motion.div
                 variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"
               >
                 <AnimatePresence mode="popLayout">
                   {filteredFavourites.map((script: any) => (

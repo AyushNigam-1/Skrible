@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Users, Trophy, Medal, Filter } from "lucide-react";
 import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
-import Dropdown, { DropdownOption } from "../../components/layout/Filters";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 
 // --- Types ---
 interface Paragraph {

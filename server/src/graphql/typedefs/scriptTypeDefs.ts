@@ -13,11 +13,10 @@ export const scriptTypeDefs = gql`
     name: String!
     email: String
   }
-
   type Collaborator {
-    user: Author! # Reusing your existing Author type for user details
-    role: Role!
-    addedAt: String
+    user: User!
+    role: String!
+    status: String! # Will be "PENDING" or "ACCEPTED"
   }
 
   type Comment {
@@ -112,6 +111,8 @@ export const scriptTypeDefs = gql`
     dislikeScript(scriptId: ID!): MutationResponse!
     addCollaborator(scriptId: ID!, name: String!, role: Role!): Script!
     removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
+    acceptInvitation(scriptId: ID!): Script!
+    declineInvitation(scriptId: ID!): Script!
     updateCollaboratorRole(
       scriptId: ID!
       targetUserId: ID!

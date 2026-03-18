@@ -59,7 +59,7 @@ const DraftCard = ({ script }: DraftCardProps) => {
             {script.title}
           </h2>
           <div className="flex items-center gap-1.5 text-gray-400 text-xs uppercase tracking-widest font-bold">
-            ~ {formatDate(script.createdAt)}
+            ~ PUBLISHED ON: {formatDate(script.createdAt)}
           </div>
         </div>
         <p className="text-gray-300 line-clamp-4 leading-relaxed flex-grow">

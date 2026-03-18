@@ -85,10 +85,7 @@ const scriptSchema = new Schema(
           enum: RoleEnum,
           required: true,
         },
-        addedAt: {
-          type: Date,
-          default: Date.now,
-        },
+        status: { type: String, enum: ["PENDING", "ACCEPTED"], default: "PENDING" }
       },
     ],
 

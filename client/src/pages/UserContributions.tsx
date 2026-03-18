@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -12,21 +12,29 @@ import {
     FileText,
     Clock,
     CheckCircle,
+    SearchX,
+    ListFilter
 } from "lucide-react";
-
-// IMPORTANT: Adjust this import path to wherever your frontend queries are defined
 import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../graphql/query/scriptQueries";
 import Loader from "../components/layout/Loader";
 import Search from "../components/layout/Search";
+import Dropdown from "../components/layout/Dropdown";
+
+// Filter Options for the Dropdown
+const FILTER_OPTIONS = [
+    { id: "all", name: "All Requests" },
+    { id: "approved", name: "Approved" },
+    { id: "pending", name: "Pending" },
+    { id: "rejected", name: "Rejected" },
+];
 
 const UserContributions = () => {
-    // 🚨 FIX 1: Grabbing draftId from the URL exactly as defined in your Route
     const { draftId, userId } = useParams<{ draftId: string; userId: string }>();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
 
     const { data, loading, error } = useQuery(GET_USER_CONTRIBUTIONS_BY_SCRIPT, {
-        // 🚨 FIX 2: Mapping draftId to the scriptId variable expected by the backend
         variables: { scriptId: draftId || "", userId: userId || "" },
         skip: !draftId || !userId,
         fetchPolicy: "cache-and-network",
@@ -35,11 +43,24 @@ const UserContributions = () => {
     const contributions = data?.getUserContributionsByScript || [];
 
     const filteredContributions = useMemo(() => {
-        if (!searchQuery) return contributions;
-        return contributions.filter((c: any) =>
-            c.text.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [contributions, searchQuery]);
+        let result = contributions;
+
+        // 1. Apply Search Query
+        if (searchQuery) {
+            result = result.filter((c: any) =>
+                c.text.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        // 2. Apply Dropdown Filter
+        if (selectedFilter.id !== "all") {
+            result = result.filter((c: any) =>
+                (c.status?.toLowerCase() || "pending") === selectedFilter.id
+            );
+        }
+
+        return result;
+    }, [contributions, searchQuery, selectedFilter]);
 
     const formatDate = (timestamp?: string | number) => {
         if (!timestamp) return "";
@@ -76,7 +97,7 @@ const UserContributions = () => {
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+        visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
         exit: { opacity: 0, transition: { duration: 0.2 } },
     };
 
@@ -86,7 +107,9 @@ const UserContributions = () => {
     };
 
     const scriptTitle = contributions[0]?.script?.title || "Manuscript";
-    const authorName = contributions[0]?.author?.name || "Author";
+
+    // Determine if we are actively searching/filtering vs just having an empty view
+    const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
     return (
         <div className="w-full max-w-7xl mx-auto font-mono pb-12">
@@ -104,18 +127,16 @@ const UserContributions = () => {
                 ) : error ? (
                     <motion.div
                         key="error"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4"
+                        className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
                     >
-                        <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-full mb-6">
-                            <XCircle className="w-8 h-8 text-red-500" />
-                        </div>
-                        <h2 className="text-xl font-bold text-white tracking-tight mb-2">
+                        <XCircle className="w-8 h-8 text-red-500 mb-3" />
+                        <h2 className="text-base font-bold text-white mb-1">
                             Failed to load contributions
                         </h2>
-                        <p className="text-gray-400 text-sm">{error.message}</p>
+                        <p className="text-gray-400 text-sm font-mono max-w-sm">{error.message}</p>
                     </motion.div>
                 ) : (
                     <motion.div
@@ -126,36 +147,52 @@ const UserContributions = () => {
                         exit="exit"
                         className="flex flex-col gap-6 w-full"
                     >
-                        <motion.div
-                            variants={itemVariants}
-                            className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
-                        >
-                            <div className="flex items-center gap-3 justify-between w-full md:w-auto">
+                        {/* --- HEADER --- */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 p-2 rounded-full"
+                                    className="flex items-center justify-center w-9 h-9 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-gray-300 hover:text-white transition-all active:scale-95 shrink-0"
                                 >
                                     <ArrowLeft size={18} />
                                 </button>
-                                <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
-                                    {authorName.split(" ")[0]}'s Contributions
+                                <h1 className="text-2xl sm:text-3xl font-extrabold font-sans text-white tracking-tight antialiased line-clamp-1">
+                                    {scriptTitle}
                                 </h1>
-                                <div className="md:hidden shrink-0">
-                                    {/* <Filter /> */}
-                                </div>
                             </div>
-                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                                <div className="w-full sm:w-72">
-                                    <Search setSearch={setSearchQuery} />
+
+                            {/* Search & Filter Controls */}
+                            {/* <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                                        <div className="w-full sm:w-64">
+                                            <Search setSearch={setSearchQuery} placeholder="Search your library..." />
+                                        </div>
+                                        <Dropdown
+                                            options={FILTER_OPTIONS}
+                                            value={selectedFilter}
+                                            onChange={setSelectedFilter}
+                                            icon={ListFilter}
+                                            collapseOnMobile={true}
+                                            className="w-full sm:w-auto shrink-0"
+                                        />
+                                    </div> */}
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                                <div className="w-full sm:w-64">
+                                    <Search setSearch={setSearchQuery} placeholder="Search requests..." />
                                 </div>
-                                <div className="hidden md:block shrink-0">
-                                    {/* <Filter /> */}
-                                </div>
+                                <Dropdown
+                                    options={FILTER_OPTIONS}
+                                    value={selectedFilter}
+                                    onChange={setSelectedFilter}
+                                    icon={ListFilter}
+                                    collapseOnMobile={true}
+                                    className="w-full sm:w-auto shrink-0"
+                                />
                             </div>
-                        </motion.div>
+                        </div>
 
-                        <motion.hr variants={itemVariants} className="border-white/10" />
+                        <hr className="border border-white/5" />
 
+                        {/* --- GRID OR EMPTY STATE --- */}
                         {filteredContributions.length > 0 ? (
                             <motion.div
                                 variants={containerVariants}
@@ -168,9 +205,8 @@ const UserContributions = () => {
                                     return (
                                         <motion.div key={contribution.id} variants={itemVariants} layout>
                                             <Link
-                                                // 🚨 FIX 3: Using draftId to securely build the preview URL
                                                 to={`/preview/${draftId}/${contribution.id}`}
-                                                className="group flex flex-col h-full bg-[#13131a] hover:bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 transition-all duration-300 overflow-hidden relative"
+                                                className="group flex flex-col h-full bg-white/5 hover:bg-white/5 border border-white/10 rounded-2xl p-5 md:p-5 transition-all duration-300 overflow-hidden relative"
                                             >
                                                 <div className="flex items-start justify-between mb-4 gap-4">
                                                     <div className="flex items-center gap-3.5">
@@ -223,21 +259,41 @@ const UserContributions = () => {
                                 })}
                             </motion.div>
                         ) : (
+                            /* --- EMPTY STATE (Animated & Matches Theme) --- */
                             <motion.div
-                                variants={itemVariants}
-                                className="flex flex-col items-center justify-center py-20 px-4 text-center"
+                                key="empty-state"
+                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="flex flex-col items-center justify-center py-24 text-center"
                             >
-                                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-4">
-                                    <FileText className="w-8 h-8 text-gray-500" />
+                                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                                    {isFiltering ? (
+                                        <SearchX className="w-10 h-10 text-gray-400" />
+                                    ) : (
+                                        <FileText className="w-10 h-10 text-gray-400" />
+                                    )}
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">
-                                    No requests found
+
+                                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                                    {isFiltering ? "No Requests Found" : "No Contributions Yet"}
                                 </h3>
-                                <p className="text-gray-400 text-sm max-w-sm">
-                                    {searchQuery
-                                        ? `No matching contributions found for "${searchQuery}".`
-                                        : "This user has not made any contributions to this manuscript yet."}
+
+                                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                                    {isFiltering
+                                        ? "We couldn't find any requests matching your current search or status filters."
+                                        : "This user hasn't submitted any contributions to this manuscript yet."}
                                 </p>
+
+                                {!isFiltering && (
+                                    <button
+                                        onClick={() => navigate(-1)}
+                                        className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                                    >
+                                        <ArrowLeft className="w-4 h-4" />
+                                        Go Back
+                                    </button>
+                                )}
                             </motion.div>
                         )}
                     </motion.div>

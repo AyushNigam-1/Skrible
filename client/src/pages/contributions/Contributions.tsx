@@ -8,14 +8,25 @@ import {
   XCircle,
   FileText,
   Globe2,
+  SearchX,
+  ListFilter
 } from "lucide-react";
 import { GET_USER_CONTRIBUTIONS } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
+import Dropdown from "../../components/layout/Dropdown";
 import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 
+const FILTER_OPTIONS = [
+  { id: "all", name: "All Drafts" },
+  { id: "approved", name: "Has Approved" },
+  { id: "pending", name: "Has Pending" },
+  { id: "rejected", name: "Has Rejected" },
+];
+
 const MyContributions = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
   const { user } = useUserStore();
 
   const { loading, error, data } = useQuery(GET_USER_CONTRIBUTIONS, {
@@ -69,14 +80,27 @@ const MyContributions = () => {
     });
 
     let result = Array.from(map.values());
+
+    // 1. Apply Search Query
     if (searchQuery) {
       result = result.filter((g) =>
         g.script.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
+
+    // 2. Apply Dropdown Filter
+    if (selectedFilter.id !== "all") {
+      result = result.filter((g) => {
+        if (selectedFilter.id === "approved") return g.approved > 0;
+        if (selectedFilter.id === "pending") return g.pending > 0;
+        if (selectedFilter.id === "rejected") return g.rejected > 0;
+        return true;
+      });
+    }
+
     result.sort((a, b) => Number(b.latestDate) - Number(a.latestDate));
     return result;
-  }, [contributions, searchQuery]);
+  }, [contributions, searchQuery, selectedFilter]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -85,12 +109,15 @@ const MyContributions = () => {
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: "easeOut" } },
   };
 
+  // Determine if we are actively searching/filtering vs just having an empty profile
+  const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
+
   return (
-    <div className="w-full h-full text-white max-w-7xl mx-auto  pb-10">
+    <div className="w-full h-full text-white max-w-7xl mx-auto pb-10">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -125,13 +152,27 @@ const MyContributions = () => {
           >
             {/* --- HEADER --- */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h1 className="text-3xl font-bold tracking-tight">Contributions</h1>
-              <div className="w-full sm:w-64">
-                <Search setSearch={setSearchQuery} placeholder="Search drafts..." />
+              <h1 className="text-3xl font-extrabold font-sans tracking-tight">Contributions</h1>
+
+              {/* Search & Filter Controls */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <div className="w-full sm:w-64">
+                  <Search setSearch={setSearchQuery} placeholder="Search drafts..." />
+                </div>
+                <Dropdown
+                  options={FILTER_OPTIONS}
+                  value={selectedFilter}
+                  onChange={setSelectedFilter}
+                  icon={ListFilter}
+                  collapseOnMobile={true}
+                  className="w-full sm:w-44 shrink-0"
+                />
               </div>
             </div>
+
             <hr className="border border-white/5" />
-            {/* --- GRID OF CARDS --- */}
+
+            {/* --- GRID OR EMPTY STATE --- */}
             {groupedDrafts.length > 0 ? (
               <motion.div
                 variants={containerVariants}
@@ -141,80 +182,92 @@ const MyContributions = () => {
                   <motion.div layout variants={itemVariants} key={group.script.id}>
                     <Link
                       to={`/contributions/${group.script.id}/${user?.id}`}
-                      className="group flex flex-col gap-4 h-full bg-white/5 border border-white/10 rounded-xl p-5 hover:border-white/20 hover:bg-[#16161e] transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-black/20 "
+                      className="group flex flex-col gap-4 h-full bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all duration-300"
                     >
-                      {/* Card Header & Total Badge */}
-                      <div className="flex items-start justify-between gap-4 ">
-                        <h3 className="font-bold text-white text-2xl line-clamp-1 tracking-tight">
-                          {group.script.title}
-                        </h3>
-                        <div className="shrink-0 flex items-center justify-center px-2 py-1 rounded bg-white/[0.03] border border-white/5 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest group-hover:text-gray-300 transition-colors">
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-2">
+                          <h3 className="font-extrabold text-white text-xl md:text-2xl line-clamp-1 font-sans tracking-tight">
+                            {group.script.title}
+                          </h3>
+                          <div className="flex items-center gap-1.5 text-gray-400 text-xs uppercase tracking-widest font-bold">
+                            ~ LAST SUBMIT: {formatFancyDate(group.latestDate)}
+                          </div>
+                        </div>
+                        <div className="shrink-0 flex items-center justify-center px-2 py-1 rounded bg-white/5 border border-white/5 text-xs text-gray-400 font-mono font-bold uppercase tracking-widest group-hover:text-gray-300 transition-colors">
                           {group.total} TOTAL
                         </div>
                       </div>
 
-                      {/* Date Row */}
-                      <div className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">
-                        LAST SUBMIT: {formatFancyDate(group.latestDate)}
+                      <div className="text-gray-400 line-clamp-3 leading-relaxed flex-grow font-mono group-hover:text-gray-300 transition-colors mt-2 mb-2">
+                        View all your contributions, feedback, and edits submitted to this draft.
                       </div>
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto nobis esse ut nesciunt
-                      </div>
-                      {/* <div className="flex-1" /> */}
 
-                      {/* --- Sleek Profile-Style Stats Dashboard --- */}
                       <div className="grid grid-cols-2 gap-2 mt-auto">
 
-                        {/* Pending Stat Box */}
-                        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.04] transition-colors">
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">
-                            <Clock size={12} className="text-amber-500/70" /> Pending
+                        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.08] transition-colors">
+                          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-400 uppercase tracking-widest leading-none">
+                            <Clock size={14} className="text-gray-400 shrink-0" />
+                            <span className="mt-[1px]">Pending</span>
                           </div>
-                          <span className="text-xs font-bold text-amber-500/90">{group.pending}</span>
+                          <span className="text-xs font-bold text-gray-400 leading-none">{group.pending}</span>
                         </div>
 
                         {/* Active Stat Box */}
-                        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.04] transition-colors">
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">
-                            <CheckCircle size={12} className="text-green-500/70" /> Active
+                        <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.08] transition-colors">
+                          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-400 uppercase tracking-widest leading-none">
+                            <CheckCircle size={14} className="text-gray-400 shrink-0" />
+                            <span className="mt-[1px]">Active</span>
                           </div>
-                          <span className="text-xs font-bold text-green-500/90">{group.approved}</span>
+                          <span className="text-xs font-bold text-gray-400 leading-none">{group.approved}</span>
                         </div>
 
-                        {/* Rejected Stat Box (Only shows if there are rejections, spans full width to keep grid clean) */}
+                        {/* Rejected Stat Box (Only shows if > 0) */}
                         {group.rejected > 0 && (
                           <div className="col-span-2 flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.05] group-hover:bg-white/[0.04] transition-colors mt-1">
-                            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">
-                              <XCircle size={12} className="text-red-500/70" /> Rejected
+                            <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500 uppercase tracking-widest leading-none">
+                              <XCircle size={14} className="text-red-500/70 shrink-0" />
+                              <span className="mt-[1px]">Rejected</span>
                             </div>
-                            <span className="text-xs font-bold text-red-500/90">{group.rejected}</span>
+                            <span className="text-xs font-bold text-red-500/90 leading-none">{group.rejected}</span>
                           </div>
                         )}
-
                       </div>
                     </Link>
                   </motion.div>
                 ))}
               </motion.div>
             ) : (
+              /* --- EMPTY STATE (Animated & Matches Screenshot) --- */
               <motion.div
-                variants={itemVariants}
-                className="flex flex-col items-center justify-center py-24 text-center border border-white/5 border-dashed rounded-xl bg-[#13131a]/50"
+                key="empty-state"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex flex-col items-center justify-center py-24 text-center"
               >
-                <FileText className="w-6 h-6 text-gray-600 mb-3" />
-                <h3 className="text-base font-bold text-white mb-1">
-                  {searchQuery ? "No matches found" : "No contributions yet"}
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                  {isFiltering ? (
+                    <SearchX className="w-10 h-10 text-gray-400" />
+                  ) : (
+                    <FileText className="w-10 h-10 text-gray-400" />
+                  )}
+                </div>
+
+                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                  {isFiltering ? "No Drafts Found" : "No Contributions Yet"}
                 </h3>
-                <p className="text-gray-500 text-sm font-mono max-w-sm mb-6">
-                  {searchQuery
-                    ? `No manuscripts matching "${searchQuery}".`
-                    : "You haven't submitted any drafts yet."}
+
+                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                  {isFiltering
+                    ? "We couldn't find any drafts matching your current search or status filters. Try adjusting them!"
+                    : "You haven't submitted any drafts yet. Find a story to collaborate on and make your mark!"}
                 </p>
 
-                {!searchQuery && (
+                {!isFiltering && (
                   <Link
                     to="/explore"
-                    className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm rounded-lg transition-colors font-bold"
+                    className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
                   >
                     <Globe2 className="w-4 h-4" />
                     Find a Story

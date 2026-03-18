@@ -16,7 +16,7 @@ import {
 import Loader from "../../components/layout/Loader";
 import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
 import Search from "../../components/layout/Search";
-import Dropdown, { DropdownOption } from "../../components/layout/Filters";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 
 // --- Types ---
 type Paragraph = {

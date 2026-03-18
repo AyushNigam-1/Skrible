@@ -53,7 +53,8 @@ const verifyOwner = async (scriptId: string, currentUserId: string) => {
     (c: any) => c.user.toString() === currentUserId,
   );
 
-  if (collab && collab.role === "OWNER") return script;
+  // We also ensure only ACCEPTED owners can manage roles (if you ever allow multiple owners)
+  if (collab && collab.role === "OWNER" && collab.status === "ACCEPTED") return script;
 
   throw new GraphQLError("Access Denied: Only Owners can manage roles.");
 };
@@ -358,7 +359,7 @@ export const scriptMutations = {
     const alreadyExists = scriptDoc.collaborators?.some(
       (c: any) => c.user.toString() === targetUserId.toString(),
     );
-    if (alreadyExists) throw new GraphQLError("User is already a collaborator");
+    if (alreadyExists) throw new GraphQLError("User is already a collaborator or has a pending invite.");
 
     const updatedScript = await Script.findByIdAndUpdate(
       scriptId,
@@ -367,6 +368,7 @@ export const scriptMutations = {
           collaborators: {
             user: targetUserId,
             role: role,
+            status: "PENDING" // 🚨 Users start as pending!
           },
         },
       },
@@ -450,6 +452,58 @@ export const scriptMutations = {
 
     await invalidateScriptCache(context.redis, scriptId);
 
+    return updatedScript;
+  },
+
+  // 🚨 NEW: For the invited user to accept the invite
+  acceptInvitation: async (
+    _: any,
+    { scriptId }: { scriptId: string },
+    context: any,
+  ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    // Finds the script where the user is specifically a PENDING collaborator, and flips them to ACCEPTED
+    const updatedScript = await Script.findOneAndUpdate(
+      { _id: scriptId, "collaborators.user": userId, "collaborators.status": "PENDING" },
+      {
+        $set: { "collaborators.$.status": "ACCEPTED" },
+      },
+      { new: true },
+    ).populate("author").populate("collaborators.user");
+
+    if (!updatedScript) {
+      throw new GraphQLError("Invitation not found or already accepted.");
+    }
+
+    await invalidateScriptCache(context.redis, scriptId);
+    return updatedScript;
+  },
+
+  // 🚨 NEW: For the invited user to reject/decline the invite
+  declineInvitation: async (
+    _: any,
+    { scriptId }: { scriptId: string },
+    context: any,
+  ) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    // Pulls the user out of the collaborators array entirely if they were pending
+    const updatedScript = await Script.findByIdAndUpdate(
+      scriptId,
+      {
+        $pull: { collaborators: { user: userId, status: "PENDING" } },
+      },
+      { new: true },
+    ).populate("author").populate("collaborators.user");
+
+    if (!updatedScript) {
+      throw new GraphQLError("Invitation not found.");
+    }
+
+    await invalidateScriptCache(context.redis, scriptId);
     return updatedScript;
   },
 };

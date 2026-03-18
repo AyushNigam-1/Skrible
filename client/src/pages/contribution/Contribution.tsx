@@ -425,7 +425,6 @@ const Contribution: React.FC = () => {
                   refetch={refetch}
                 />
                 <button
-                  // 🚨 UPDATED: Triggers the new modal instead of window.confirm
                   onClick={() => setShowDeleteConfirm(true)}
                   disabled={isDeleting}
                   className="hover:text-red-400 text-red-500/80 p-2 bg-white/5 rounded-lg border border-white/10 disabled:opacity-50 transition-colors"
@@ -471,7 +470,7 @@ const Contribution: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="w-full max-w-7xl mx-auto flex font-mono min-h-screen relative"
+          className="w-full max-w-7xl mx-auto flex font-mono relative"
         >
           <div
             className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-4`}
@@ -490,7 +489,6 @@ const Contribution: React.FC = () => {
               </div>
             </div>
             <motion.hr className="border-white/10" />
-
             {approvedParagraphs.length > 0 ? (
               <>
                 {approvedParagraphs.reduce((acc: JSX.Element[], para, index, arr) => {
@@ -547,7 +545,6 @@ const Contribution: React.FC = () => {
             formatDate={formatDate}
           />
 
-          {/* 🚨 ADDED: Placed the Delete Confirm Modal inside the main content tree */}
           <DeleteConfirmModal
             isOpen={showDeleteConfirm}
             onClose={() => setShowDeleteConfirm(false)}

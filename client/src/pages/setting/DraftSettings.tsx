@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Fragment } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -13,7 +13,8 @@ import {
   Loader2,
   ListFilter,
   Users,
-  X
+  X,
+  Eye
 } from "lucide-react";
 
 import {
@@ -26,7 +27,7 @@ import {
 
 // --- Components ---
 import Search from "../../components/layout/Search";
-import Dropdown from "../../components/layout/Dropdown";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import { useUserStore } from "../../store/useAuthStore";
 import { Dialog, DialogPanel } from "@headlessui/react";
 
@@ -84,11 +85,11 @@ const DraftSettings: React.FC = () => {
   // Invite Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [invitename, setInvitename] = useState("");
-  const [inviteRole, setInviteRole] = useState(ROLE_OPTIONS[1]); // Default to Contributor
+  const [inviteRole, setInviteRole] = useState<DropdownOption>(ROLE_OPTIONS[1]); // Default to Contributor
 
   // Filter & Search State
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
+  const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
   // Inline Confirmation State for Kicking Users
   const [confirmingRemoveId, setConfirmingRemoveId] = useState<string | null>(null);
@@ -128,9 +129,15 @@ const DraftSettings: React.FC = () => {
   const handleVisibilityChange = async (newVisibility: VisibilityType) => {
     if (visibility === newVisibility || !script) return;
     setVisibility(newVisibility);
+
     try {
       await updateScript({
-        variables: { scriptId: script.id, visibility: newVisibility },
+        variables: {
+          scriptId: script.id,
+          visibility: newVisibility,
+          title: script.title,
+          description: script.description
+        },
       });
     } catch (err) {
       console.error("Failed to update visibility:", err);
@@ -230,12 +237,13 @@ const DraftSettings: React.FC = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col gap-8 w-full font-mono pb-10"
+        className="flex flex-col gap-6 w-full font-mono"
       >
         {/* --- ACCESS & VISIBILITY --- */}
         <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-lg">
           <div className="p-6 border-b border-white/10">
-            <h2 className="text-xl font-bold text-white tracking-tight font-sans">
+            <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2">
+              <Eye className="w-5 h-5" />
               Access & Visibility
             </h2>
             <p className="text-sm text-gray-400 mt-1">
@@ -244,33 +252,34 @@ const DraftSettings: React.FC = () => {
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <label className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Public" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
+            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Public" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
               <input type="radio" name="visibility" value="Public" checked={visibility === "Public"} onChange={() => handleVisibilityChange("Public")} className="sr-only" />
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3">
                 <Globe2 className={`w-5 h-5 ${visibility === "Public" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`} />
                 <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Public" ? "text-white" : "text-gray-300"}`}>Public</span>
               </div>
               <p className="text-sm text-gray-500 font-sans leading-relaxed">Anyone can view, read, and request to contribute.</p>
             </label>
 
-            <label className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Private" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
+            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Private" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
               <input type="radio" name="visibility" value="Private" checked={visibility === "Private"} onChange={() => handleVisibilityChange("Private")} className="sr-only" />
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3 ">
                 <Lock className={`w-5 h-5 ${visibility === "Private" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`} />
                 <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Private" ? "text-white" : "text-gray-300"}`}>Private</span>
               </div>
-              <p className="text-sm text-gray-500 font-sans leading-relaxed">Only you and invited members can view and edit this draft.</p>
+              <p className="text-sm text-gray-500 font-sans leading-relaxed">Invited members can view and edit draft.</p>
             </label>
 
-            <label className={`flex flex-col items-start p-5 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Archived" ? "border-amber-500/40 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
+            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Archived" ? "border-amber-500/40 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
               <input type="radio" name="visibility" value="Archived" checked={visibility === "Archived"} onChange={() => handleVisibilityChange("Archived")} className="sr-only" />
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3">
                 <Archive className={`w-5 h-5 ${visibility === "Archived" ? "text-amber-400" : "text-gray-500 group-hover:text-gray-300"}`} />
                 <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Archived" ? "text-amber-400" : "text-gray-300"}`}>Archived</span>
               </div>
-              <p className="text-sm text-gray-500 font-sans leading-relaxed">Hidden from explore. Frozen and read-only for everyone.</p>
+              <p className="text-sm text-gray-500 font-sans leading-relaxed">Frozen and read-only for everyone.</p>
             </label>
           </div>
+
         </motion.div>
 
         {/* --- COLLABORATORS & ROLES --- */}
@@ -289,7 +298,8 @@ const DraftSettings: React.FC = () => {
             {/* --- SEARCH, FILTER & INVITE BAR --- */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
               <div className="w-full sm:w-72">
-                <Search setSearch={setSearchQuery} placeholder="Search members..." />
+                <Search value={searchQuery}
+                  setSearch={setSearchQuery} placeholder="Search members..." />
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -464,18 +474,14 @@ const DraftSettings: React.FC = () => {
         </motion.div>
       </motion.div>
 
-      {/* --- INVITE MODAL --- */}
-      {/* --- INVITE MODAL --- */}
       <AnimatePresence>
         {isInviteModalOpen && (
           <Dialog
             transition
-            // static // Tells Headless UI to let Framer Motion handle the unmounting
             open={isInviteModalOpen}
             onClose={() => setIsInviteModalOpen(false)}
             className="relative z-50"
           >
-            {/* Background Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -484,80 +490,80 @@ const DraftSettings: React.FC = () => {
               className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             />
 
-            {/* Modal Container */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <DialogPanel
-                as={motion.div}
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl overflow-visible font-mono"
-              >
-                <div className="flex items-center justify-between p-6 border-b border-white/10">
-                  <h3 className="text-xl font-bold text-white font-sans tracking-tight">
-                    Invite Collaborator
-                  </h3>
-                  <button
-                    onClick={() => setIsInviteModalOpen(false)}
-                    className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+              <DialogPanel as={Fragment}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl overflow-visible font-mono"
+                >
+                  <div className="flex items-center justify-between p-6 border-b border-white/10">
+                    <h3 className="text-xl font-bold text-white font-sans tracking-tight">
+                      Invite Collaborator
+                    </h3>
+                    <button
+                      onClick={() => setIsInviteModalOpen(false)}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
-                <div className="p-6 flex flex-col gap-5">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-                      Username
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
-                        @
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="e.g. johndoe"
-                        value={invitename}
-                        onChange={(e) => setInvitename(e.target.value)}
-                        className="w-full pl-9 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white outline-none focus:border-white/30 focus:bg-white/5 transition-all text-sm"
+                  <div className="p-6 flex flex-col gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                        Username
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
+                          @
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="e.g. johndoe"
+                          value={invitename}
+                          onChange={(e) => setInvitename(e.target.value)}
+                          className="w-full pl-9 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white outline-none focus:border-white/30 focus:bg-white/5 transition-all text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 relative z-50">
+                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                        Assign Role
+                      </label>
+                      <Dropdown
+                        options={ROLE_OPTIONS}
+                        value={inviteRole}
+                        onChange={setInviteRole}
+                        className="w-full"
                       />
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 relative z-50">
-                    <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-                      Assign Role
-                    </label>
-                    <Dropdown
-                      options={ROLE_OPTIONS}
-                      value={inviteRole}
-                      onChange={setInviteRole}
-                      className="w-full"
-                    />
+                  <div className="p-6 border-t border-white/10 flex items-center justify-end gap-3 bg-white/[0.02] rounded-b-2xl">
+                    <button
+                      onClick={() => setIsInviteModalOpen(false)}
+                      className="px-5 py-2.5 text-gray-300 hover:text-white font-bold text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleInvite}
+                      disabled={isAddingCollab || !invitename.trim()}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold text-sm transition-all disabled:opacity-50 active:scale-95 shadow-sm"
+                    >
+                      {isAddingCollab ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <UserPlus className="w-4 h-4" />
+                      )}
+                      Send Invite
+                    </button>
                   </div>
-                </div>
-
-                <div className="p-6 border-t border-white/10 flex items-center justify-end gap-3 bg-white/[0.02] rounded-b-2xl">
-                  <button
-                    onClick={() => setIsInviteModalOpen(false)}
-                    className="px-5 py-2.5 text-gray-300 hover:text-white font-bold text-sm transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleInvite}
-                    disabled={isAddingCollab || !invitename.trim()}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold text-sm transition-all disabled:opacity-50 active:scale-95 shadow-sm"
-                  >
-                    {isAddingCollab ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <UserPlus className="w-4 h-4" />
-                    )}
-                    Send Invite
-                  </button>
-                </div>
+                </motion.div>
               </DialogPanel>
             </div>
           </Dialog>

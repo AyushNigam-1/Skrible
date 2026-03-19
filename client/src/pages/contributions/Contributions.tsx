@@ -9,11 +9,12 @@ import {
   FileText,
   Globe2,
   SearchX,
-  ListFilter
+  ListFilter,
+  FileExclamationPoint
 } from "lucide-react";
 import { GET_USER_CONTRIBUTIONS } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
-import Dropdown from "../../components/layout/Dropdown";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 
@@ -26,7 +27,7 @@ const FILTER_OPTIONS = [
 
 const MyContributions = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
+  const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
   const { user } = useUserStore();
 
   const { loading, error, data } = useQuery(GET_USER_CONTRIBUTIONS, {
@@ -49,6 +50,7 @@ const MyContributions = () => {
   };
 
   const contributions = data?.getUserContributions || [];
+  const hasAnyContributions = contributions.length > 0;
 
   const groupedDrafts = useMemo(() => {
     const map = new Map();
@@ -117,7 +119,7 @@ const MyContributions = () => {
   const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
   return (
-    <div className="w-full h-full text-white max-w-7xl mx-auto pb-10">
+    <div className="w-full h-full text-white max-w-7xl mx-auto">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -125,7 +127,7 @@ const MyContributions = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center w-full min-h-[60vh]"
+            className="flex flex-col items-center justify-center w-full min-h-[96vh]"
           >
             <Loader />
           </motion.div>
@@ -135,7 +137,7 @@ const MyContributions = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
+            className="flex flex-col items-center justify-center min-h-[96vh] text-center px-4"
           >
             <XCircle className="w-8 h-8 text-red-500 mb-3" />
             <h2 className="text-base font-bold text-white mb-1">Failed to load contributions</h2>
@@ -150,27 +152,31 @@ const MyContributions = () => {
             exit="exit"
             className="flex flex-col w-full gap-5"
           >
-            {/* --- HEADER --- */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h1 className="text-3xl font-extrabold font-sans tracking-tight">Contributions</h1>
+            {/* --- HEADER (Only visible if there are contributions or an active filter) --- */}
+            {(hasAnyContributions || isFiltering) && (
+              <>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h1 className="text-3xl font-extrabold font-sans tracking-tight">Contributions</h1>
 
-              {/* Search & Filter Controls */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <div className="w-full sm:w-64">
-                  <Search setSearch={setSearchQuery} placeholder="Search drafts..." />
+                  {/* Search & Filter Controls */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <div className="w-full sm:w-64">
+                      <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search drafts..." />
+                    </div>
+                    <Dropdown
+                      options={FILTER_OPTIONS}
+                      value={selectedFilter}
+                      onChange={setSelectedFilter}
+                      icon={ListFilter}
+                      collapseOnMobile={true}
+                      className="w-full sm:w-44 shrink-0"
+                    />
+                  </div>
                 </div>
-                <Dropdown
-                  options={FILTER_OPTIONS}
-                  value={selectedFilter}
-                  onChange={setSelectedFilter}
-                  icon={ListFilter}
-                  collapseOnMobile={true}
-                  className="w-full sm:w-44 shrink-0"
-                />
-              </div>
-            </div>
 
-            <hr className="border border-white/5" />
+                <hr className="border border-white/5" />
+              </>
+            )}
 
             {/* --- GRID OR EMPTY STATE --- */}
             {groupedDrafts.length > 0 ? (
@@ -244,21 +250,21 @@ const MyContributions = () => {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col items-center justify-center py-24 text-center"
+                className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[96vh]"
               >
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
                   {isFiltering ? (
                     <SearchX className="w-10 h-10 text-gray-400" />
                   ) : (
-                    <FileText className="w-10 h-10 text-gray-400" />
+                    <FileExclamationPoint className="w-10 h-10 text-gray-400" />
                   )}
                 </div>
 
-                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans">
                   {isFiltering ? "No Drafts Found" : "No Contributions Yet"}
                 </h3>
 
-                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
                   {isFiltering
                     ? "We couldn't find any drafts matching your current search or status filters. Try adjusting them!"
                     : "You haven't submitted any drafts yet. Find a story to collaborate on and make your mark!"}
@@ -267,10 +273,10 @@ const MyContributions = () => {
                 {!isFiltering && (
                   <Link
                     to="/explore"
-                    className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                    className="flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
                   >
                     <Globe2 className="w-4 h-4" />
-                    Find a Story
+                    Explore
                   </Link>
                 )}
               </motion.div>

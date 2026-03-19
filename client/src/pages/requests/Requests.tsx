@@ -17,6 +17,7 @@ import Loader from "../../components/layout/Loader";
 import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
 import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
+import ContributeModal from "../../components/modal/ContributeModal";
 
 // --- Types ---
 type Paragraph = {
@@ -71,7 +72,7 @@ const Requests: React.FC = () => {
 
   const scriptId = data?.getScriptById?.id;
 
-  const { data: pendingData, loading } = useQuery<PendingData>(
+  const { data: pendingData, loading, refetch } = useQuery<PendingData>(
     GET_PENDING_PARAGRAPHS,
     {
       variables: { scriptId },
@@ -158,13 +159,13 @@ const Requests: React.FC = () => {
   return (
     <div className="w-full flex-1 flex flex-col" id="requests">
       <AnimatePresence mode="wait">
-        {loading ? (
+        {loading && !pendingData ? (
           <motion.div
             key="loader"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex items-center justify-center w-full min-h-[60vh]"
+            className="flex items-center justify-center w-full min-h-[81vh]"
           >
             <Loader />
           </motion.div>
@@ -176,18 +177,23 @@ const Requests: React.FC = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col items-center justify-center py-20 px-4 text-center shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono"
+            className="flex flex-col items-center justify-center py-20 px-4 text-center shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono min-h-[81vh]"
           >
             <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
               <Inbox className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white relative z-10">
+            <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
               No pending contributions
             </h3>
             <p className="text-gray-400 max-w-md relative z-10">
               There are currently no open requests. Wait for collaborators to
               propose new additions to this draft!
             </p>
+            <ContributeModal
+              scriptId={data?.getScriptById?.id}
+              refetch={refetch}
+              variant="empty"
+            />
           </motion.div>
         ) : (
           /* Main Content Block */
@@ -205,7 +211,7 @@ const Requests: React.FC = () => {
               className="flex items-center justify-between gap-3 relative z-20 w-full max-w-7xl mx-auto"
             >
               <Search
-                value={searchQuery} // 🚨 FIX: Tied directly to state
+                value={searchQuery}
                 setSearch={setSearchQuery}
                 placeholder="Search requests..."
                 className="w-full sm:max-w-60"

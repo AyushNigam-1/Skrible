@@ -117,6 +117,13 @@ const Profile = () => {
     fetchPolicy: "cache-and-network",
   });
 
+  // 🚨 COMBINED LOADING STATE
+  // Wait if profile is loading, scripts are loading, or if we are in that split-second gap between them.
+  const isCompletelyLoading =
+    profileLoading ||
+    scriptsLoading ||
+    (!!profileData && !scriptsData && !scriptsError);
+
   const filteredScripts = useMemo(() => {
     return scriptsData?.getUserScripts?.filter((script) =>
       script?.title?.toLowerCase().includes(search.toLowerCase()),
@@ -231,7 +238,8 @@ const Profile = () => {
   return (
     <div className="w-full max-w-7xl mx-auto font-mono ">
       <AnimatePresence mode="wait">
-        {profileLoading ? (
+        {/* 🚨 Use the new combined loading state here */}
+        {isCompletelyLoading ? (
           <motion.div
             key="profile-loader"
             initial={{ opacity: 0 }}
@@ -476,6 +484,7 @@ const Profile = () => {
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                     <div className="w-full sm:w-64">
                       <Search
+                        value={search}
                         setSearch={setSearch}
                         placeholder={`Search ${isOwnProfile ? "my" : "their"} scripts...`}
                       />
@@ -488,20 +497,8 @@ const Profile = () => {
               {/* Scripts Content Area */}
               <div className="flex-1">
                 <AnimatePresence mode="wait">
-                  {scriptsLoading ? (
-                    <motion.div
-                      key="scripts-loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex justify-center items-center min-h-[300px] flex-col gap-4"
-                    >
-                      <Loader2 className="w-10 h-10 animate-spin text-gray-500" />
-                      <p className="text-gray-400 text-sm">
-                        Loading scripts...
-                      </p>
-                    </motion.div>
-                  ) : scriptsError ? (
+                  {/* 🚨 Removed the internal scriptsLoading loader entirely! */}
+                  {scriptsError ? (
                     <motion.div
                       key="scripts-error"
                       initial={{ opacity: 0, y: 10 }}

@@ -152,17 +152,17 @@ const Contributors: React.FC = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col gap-6 w-full mx-auto font-mono pb-10"
+      className="flex flex-col gap-6 w-full mx-auto font-mono"
     >
       {paragraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-4 relative overflow-hidden"
+          className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center space-y-4 relative overflow-hidden"
         >
-          <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
+          <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
             <Users className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-white relative z-10">
+          <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
             No contributors yet
           </h3>
           <p className="text-gray-400 max-w-md relative z-10">
@@ -177,6 +177,7 @@ const Contributors: React.FC = () => {
           className="flex items-center justify-between gap-3 relative z-20 w-full"
         >
           <Search
+            value={searchQuery}
             setSearch={setSearchQuery}
             placeholder="Search users..."
             className="flex-1 min-w-0 sm:max-w-60"

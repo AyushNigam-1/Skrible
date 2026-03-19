@@ -10,16 +10,16 @@ import {
   Lock,
   Search as SearchIcon,
   SearchX,
-  ListFilter
+  ListFilter,
+  BookmarkX
 } from "lucide-react";
 import { GET_USER_FAVOURITES } from "../../graphql/query/userQueries";
 import Search from "../../components/layout/Search";
-import Dropdown from "../../components/layout/Dropdown";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import Loader from "../../components/layout/Loader";
 import DraftCard from "../../components/card/DraftCard";
 import { useUserStore } from "../../store/useAuthStore";
 
-// Genre Filter Options
 const FILTER_OPTIONS = [
   { id: "all", name: "All Genres" },
   { id: "fantasy", name: "Fantasy" },
@@ -34,7 +34,7 @@ const Favourites = () => {
   const { user } = useUserStore();
   const currentUserId = user?.id;
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
+  const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
   const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {
     variables: { userId: currentUserId },
@@ -114,9 +114,7 @@ const Favourites = () => {
     );
   }
 
-  // Check if user has zero favorites globally
   const hasAnyFavorites = favourites.length > 0;
-  // Check if they are actively searching/filtering
   const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
   return (
@@ -128,7 +126,7 @@ const Favourites = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center w-full min-h-[60vh]"
+            className="flex flex-col items-center justify-center w-full min-h-[96vh]"
           >
             <Loader />
           </motion.div>
@@ -164,7 +162,7 @@ const Favourites = () => {
 
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                     <div className="w-full sm:w-64">
-                      <Search setSearch={setSearchQuery} placeholder="Search your library..." />
+                      <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search your library..." />
                     </div>
                     <Dropdown
                       options={FILTER_OPTIONS}
@@ -180,41 +178,38 @@ const Favourites = () => {
               </>
             )}
 
-            {/* --- CONTENT AREA --- */}
             {!hasAnyFavorites && !isFiltering ? (
-              /* --- GLOBAL EMPTY STATE (No Bookmarks at all) --- */
               <motion.div
                 key="empty-library"
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col items-center justify-center py-28 text-center"
+                className="flex flex-col items-center justify-center gap-4  text-center min-h-[96vh]"
               >
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
-                  <Bookmark className="w-10 h-10 text-gray-400" />
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
+                  <BookmarkX className="w-10 h-10 text-gray-400" />
                 </div>
-                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
-                  Library is Empty
+                <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans">
+                  No Bookmarks Yet
                 </h3>
-                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
                   You haven't bookmarked any drafts yet. Start exploring to build your collection.
                 </p>
                 <Link
                   to="/explore"
-                  className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                  className="flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
                 >
                   <Globe2 className="w-4 h-4" />
-                  Explore Stories
+                  Explore
                 </Link>
               </motion.div>
             ) : filteredFavourites.length === 0 ? (
-              /* --- NOT FOUND STATE (Filtering yielded 0 results - Matches Screenshot!) --- */
               <motion.div
                 key="not-found"
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col items-center justify-center py-28 text-center"
+                className="flex flex-col items-center justify-center py-28 text-center min-h-[96vh]"
               >
                 <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
                   <SearchX className="w-10 h-10 text-gray-400" />
@@ -227,7 +222,6 @@ const Favourites = () => {
                 </p>
               </motion.div>
             ) : (
-              /* --- GRID OF CARDS --- */
               <motion.div
                 variants={containerVariants}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"

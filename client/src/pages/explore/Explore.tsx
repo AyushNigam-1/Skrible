@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AlertCircle, SearchX } from "lucide-react";
+import { AlertCircle, SearchX, FileText, FileExclamationPoint } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
@@ -22,11 +22,13 @@ const Explore = () => {
     refetch({ genres: newGenres });
   };
 
+  const rawScripts = data?.getScriptsByGenres || [];
+
   const filteredScripts = useMemo(() => {
-    return data?.getScriptsByGenres?.filter((e) =>
+    return rawScripts.filter((e) =>
       e?.title?.toLowerCase().includes(search.toLowerCase())
     );
-  }, [data, search]);
+  }, [rawScripts, search]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -56,6 +58,11 @@ const Explore = () => {
     },
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
+
+  // Check if we are actively searching or filtering by genre
+  const isFiltering = search !== "" || genres.length > 0;
+  // Check if there are any scripts returned at all
+  const hasAnyScripts = rawScripts.length > 0;
 
   return (
     <div className="w-full transition-colors font-mono duration-300 pb-12">
@@ -102,43 +109,70 @@ const Explore = () => {
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex flex-col gap-6 w-full"
+              className="flex flex-col gap-4 w-full"
             >
-              {/* Header Section */}
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
-              >
-                <div className="flex items-center justify-between w-full md:w-auto">
-                  <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
-                    Explore
-                  </h1>
-                  <div className="md:hidden shrink-0">
-                    <Add />
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                  <div className="w-full sm:w-72">
-                    <Search setSearch={setSearch} />
-                  </div>
-                  <div className="hidden md:block shrink-0">
-                    <Add />
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.hr variants={itemVariants} className="border-white/10" />
-
-              <motion.div variants={itemVariants}>
-                <Genres
-                  selectedGenres={genres}
-                  onGenreChange={handleGenreChange}
-                />
-              </motion.div>
-
-              <div className="flex-1">
-                {!filteredScripts || filteredScripts.length === 0 ? (
+              {(hasAnyScripts || isFiltering) && (
+                <>
                   <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
+                  >
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                      <h1 className="text-3xl font-extrabold font-sans text-white tracking-tight antialiased">
+                        Explore
+                      </h1>
+                      <div className="md:hidden shrink-0">
+                        <Add />
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                      <div className="w-full sm:w-72">
+                        <Search value={search} setSearch={setSearch} />
+                      </div>
+                      <div className="hidden md:block shrink-0">
+                        <Add />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.hr variants={itemVariants} className="border-white/10" />
+
+                  <motion.div variants={itemVariants}>
+                    <Genres
+                      selectedGenres={genres}
+                      onGenreChange={handleGenreChange}
+                    />
+                  </motion.div>
+                </>
+              )}
+
+              {/* --- CONTENT AREA --- */}
+              <div className="flex-1">
+                {!hasAnyScripts && !isFiltering ? (
+                  /* GLOBAL EMPTY STATE (Platform has 0 drafts) */
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col gap-4 items-center justify-center text-center relative overflow-hidden min-h-[96vh]"
+                  >
+                    <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
+                      <FileExclamationPoint className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans relative z-10">
+                      No Drafts Yet
+                    </h3>
+                    <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
+                      There are currently no drafts published on the platform. Be the first to start a story!
+                    </p>
+                    <div className="relative z-10">
+                      <Add />
+                    </div>
+                  </motion.div>
+                ) : !filteredScripts || filteredScripts.length === 0 ? (
+                  /* NOT FOUND STATE (Filtering yielded 0 results) */
+                  <motion.div
+                    key="not-found"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0, transition: { duration: 0.4 } }}
                     className="flex flex-col items-center justify-center text-center relative overflow-hidden pt-12"
@@ -147,15 +181,16 @@ const Explore = () => {
                     <div className="bg-white/5 border border-white/10 p-6 rounded-full mb-6 shadow-inner relative z-10">
                       <SearchX className="w-10 h-10 text-gray-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white mb-3 tracking-tight relative z-10">
+                    <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
                       No Drafts Found
                     </h3>
-                    <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10">
+                    <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
                       We couldn't find any stories matching your current search
                       or genre filters. Try adjusting them!
                     </p>
                   </motion.div>
                 ) : (
+                  /* GRID OF CARDS */
                   <motion.div
                     variants={cardContainerVariants}
                     initial="hidden"

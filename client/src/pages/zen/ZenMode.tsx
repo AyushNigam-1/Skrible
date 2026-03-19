@@ -3,13 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Pin, PinOff, FileText } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useGetScriptByIdQuery } from "../../graphql/generated/graphql";
 import Loader from "../../components/layout/Loader";
 
-const smoothTransition = {
+const smoothTransition: Transition = {
   duration: 0.7,
-  ease: [0.16, 1, 0.3, 1], // Custom iOS-like easing curve
+  ease: [0.16, 1, 0.3, 1],
 };
 
 const ZenMode = () => {
@@ -31,7 +31,6 @@ const ZenMode = () => {
   };
 
   return (
-    // AnimatePresence is REQUIRED for exit animations to work between conditional renders
     <AnimatePresence mode="wait">
       {loading ? (
         <motion.div
@@ -51,11 +50,9 @@ const ZenMode = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={smoothTransition}
-          className={`max-w-5xl mx-auto h-[calc(100vh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 ${
-            isPinned ? "cursor-crosshair" : "cursor-default"
-          }`}
+          className={`max-w-5xl mx-auto h-[calc(100vh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 ${isPinned ? "cursor-crosshair" : "cursor-default"
+            }`}
         >
-          {/* --- Sticky Glass Header --- */}
           <div className="sticky top-0 z-50 flex justify-between items-center border-b border-white/5 pb-4 bg-[#0A0A14]">
             <button
               onClick={() => navigate(-1)}
@@ -76,11 +73,10 @@ const ZenMode = () => {
 
             <button
               onClick={handlePinClick}
-              className={`p-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white/30 ${
-                isPinned
-                  ? "bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-                  : "text-gray-500 hover:bg-white/5 hover:text-white"
-              }`}
+              className={`p-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white/30 ${isPinned
+                ? "bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                : "text-gray-500 hover:bg-white/5 hover:text-white"
+                }`}
               title={isPinned ? "Unpin" : "Pin Content"}
             >
               {isPinned ? (
@@ -121,10 +117,10 @@ const ZenMode = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, ...smoothTransition }}
-                className="flex flex-col items-center justify-center h-full text-center opacity-70 font-mono min-h-[50vh]"
+                className="flex flex-col items-center justify-center gap-4 h-full text-center opacity-70 font-mono min-h-[88vh]"
               >
-                <FileText className="w-12 h-12 text-gray-600 mb-6" />
-                <h3 className="text-xl font-bold text-gray-400 mb-2 tracking-widest uppercase">
+                <FileText className="w-12 h-12 text-gray-600" />
+                <h3 className="text-xl font-bold text-gray-400 tracking-widest uppercase">
                   A blank canvas
                 </h3>
                 <p className="text-gray-600 max-w-sm text-sm mx-auto">

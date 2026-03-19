@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
 import { authClient } from "../../lib/authClient";
+import { motion } from "framer-motion"
 
 interface MenuItem {
   name: string;
@@ -38,12 +39,13 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   return (
     <aside
-      className={`sticky top-4 h-[calc(100vh-2rem)] transition-all duration-300 ease-in-out shrink-0 overflow-hidden ${isOpen
-        ? "w-72 ml-4 my-4 opacity-100 visible"
-        : "w-0 m-0 opacity-0 invisible"
+      className={`sticky top-0 h-screen transition-all duration-300 ease-in-out shrink-0 overflow-hidden z-40 ${isOpen
+        ? "w-72 opacity-100 visible"
+        : "w-0 opacity-0 invisible"
         }`}
     >
-      <div className="w-full h-full space-y-10 bg-[#161620] border border-white/10 rounded-2xl flex flex-col font-mono p-4 lg:p-5">
+      {/* 🚨 Removed the rounding and outer borders to make it flush with the edges */}
+      <div className="w-full h-full space-y-4 bg-[#161620] border-r border-white/10 flex flex-col font-mono p-4 lg:p-5">
         <div className="flex justify-between items-center shrink-0">
           <img
             src="/logo.png"
@@ -58,8 +60,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             <ChevronLeft size={20} />
           </button>
         </div>
-
-        <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4">
+        <motion.hr className="border-b border-white/5" />
+        <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4 mt-2">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.route;
@@ -106,7 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
               },
             });
           }}
-          className="group flex w-full items-center gap-3 px-3 py-3 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none border-none bg-transparent cursor-pointer"
+          className="group flex w-full items-center gap-3 px-3 py-3 mb-2 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none border-none bg-transparent cursor-pointer"
         >
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" />
           <span className="font-bold font-mono text-base tracking-widest whitespace-nowrap">

@@ -1,16 +1,16 @@
 import React, { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import AuthLayout from "./layouts/AuthLayout";
 import DraftLayout from "./layouts/DraftLayout";
 import HomeLayout from "./layouts/HomeLayout";
+
 const Login = lazy(() => import("./pages/auth/Login"));
 const CreateAccount = lazy(() => import("./pages/auth/CreateAccount"));
 const Explore = lazy(() => import("./pages/explore/Explore"));
 const Favourites = lazy(() => import("./pages/favourites/Favourites"));
 const Profile = lazy(() => import("./pages/profile/Profile"));
 const Contributions = lazy(() => import("./pages/contributions/Contributions"));
-const UserContributions = lazy(() => import("./pages/UserContributions")); // Fixed the space in your import path
+const UserContributions = lazy(() => import("./pages/UserContributions"));
 const ZenMode = lazy(() => import("./pages/zen/ZenMode"));
 const Contribution = lazy(() => import("./pages/contribution/Contribution"));
 const Timeline = lazy(() => import("./pages/timeline/Timeline"));
@@ -20,9 +20,7 @@ const ScriptDetails = lazy(() => import("./pages/about/ScriptDetails"));
 const DraftSettings = lazy(() => import("./pages/setting/DraftSettings"));
 
 const PageLoader = () => (
-    <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-    </div>
+    <div className="min-h-[50vh] w-full bg-transparent" />
 );
 
 const Loadable = (Component: React.LazyExoticComponent<React.FC<any>>) => (

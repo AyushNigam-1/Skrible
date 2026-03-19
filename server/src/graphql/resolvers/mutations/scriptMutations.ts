@@ -53,7 +53,6 @@ const verifyOwner = async (scriptId: string, currentUserId: string) => {
     (c: any) => c.user.toString() === currentUserId,
   );
 
-  // We also ensure only ACCEPTED owners can manage roles (if you ever allow multiple owners)
   if (collab && collab.role === "OWNER" && collab.status === "ACCEPTED") return script;
 
   throw new GraphQLError("Access Denied: Only Owners can manage roles.");
@@ -100,8 +99,20 @@ export const scriptMutations = {
       $push: { scripts: script._id },
     });
 
+    // 1. Clear the user's personal caches
     await context.redis.del(`user:${userId}:scripts:owner:v3`);
     await context.redis.del(`user:${userId}:scripts:public:v3`);
+
+    if (visibility === "Public") {
+      try {
+        const exploreCacheKeys = await context.redis.keys("scripts:genres:public:*");
+        if (exploreCacheKeys.length > 0) {
+          await context.redis.del(exploreCacheKeys);
+        }
+      } catch (err) {
+        console.error("Failed to clear explore cache:", err);
+      }
+    }
 
     return Script.findById(script._id).populate("author");
   },
@@ -222,6 +233,8 @@ export const scriptMutations = {
       throw new GraphQLError("Not authorized to delete this script");
     }
 
+    const wasPublic = script.visibility === "Public";
+
     await Script.findByIdAndDelete(scriptId);
     await Paragraph.deleteMany({ script: scriptId });
 
@@ -230,6 +243,21 @@ export const scriptMutations = {
     });
 
     await invalidateScriptCache(context.redis, scriptId);
+
+    await context.redis.del(`user:${userId}:scripts:owner:v3`);
+    await context.redis.del(`user:${userId}:scripts:public:v3`);
+
+    if (wasPublic) {
+      try {
+        const exploreCacheKeys = await context.redis.keys("scripts:genres:public:*");
+        if (exploreCacheKeys.length > 0) {
+          await Promise.all(exploreCacheKeys.map((key: string) => context.redis.del(key)));
+          console.log(`✅ Cleared ${exploreCacheKeys.length} Explore cache keys after deletion!`);
+        }
+      } catch (err) {
+        console.error("❌ Failed to clear explore cache:", err);
+      }
+    }
 
     return { status: true };
   },
@@ -261,15 +289,36 @@ export const scriptMutations = {
       throw new GraphQLError("Not authorized to update this script");
     }
 
-    if (title !== undefined) script.title = title;
-    if (description !== undefined) script.description = description;
-    if (visibility !== undefined) script.visibility = visibility;
+    const wasPublic = script.visibility === "Public";
+
+    if (title !== undefined && title !== null) script.title = title;
+    if (description !== undefined && description !== null) script.description = description;
+    if (visibility !== undefined && visibility !== null) script.visibility = visibility;
+
+    const isNowPublic = script.visibility === "Public";
 
     await script.save();
 
     await invalidateScriptCache(context.redis, scriptId);
 
-    return script.populate("author");
+    await context.redis.del(`user:${userId}:scripts:owner:v3`);
+    await context.redis.del(`user:${userId}:scripts:public:v3`);
+
+    if (wasPublic || isNowPublic) {
+      try {
+        const exploreCacheKeys = await context.redis.keys("scripts:genres:public:*");
+        if (exploreCacheKeys.length > 0) {
+          await Promise.all(exploreCacheKeys.map((key: string) => context.redis.del(key)));
+          console.log(`✅ Cleared ${exploreCacheKeys.length} Explore cache keys after update!`);
+        }
+      } catch (err) {
+        console.error("❌ Failed to clear explore cache:", err);
+      }
+    }
+
+    const decryptedScript = await Script.findById(scriptId).populate("author");
+
+    return decryptedScript;
   },
 
   likeScript: async (
@@ -481,7 +530,6 @@ export const scriptMutations = {
     return updatedScript;
   },
 
-  // 🚨 NEW: For the invited user to reject/decline the invite
   declineInvitation: async (
     _: any,
     { scriptId }: { scriptId: string },

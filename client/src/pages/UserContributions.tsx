@@ -18,7 +18,7 @@ import {
 import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../graphql/query/scriptQueries";
 import Loader from "../components/layout/Loader";
 import Search from "../components/layout/Search";
-import Dropdown from "../components/layout/Dropdown";
+import Dropdown, { DropdownOption } from "../components/layout/Dropdown";
 
 // Filter Options for the Dropdown
 const FILTER_OPTIONS = [
@@ -32,7 +32,7 @@ const UserContributions = () => {
     const { draftId, userId } = useParams<{ draftId: string; userId: string }>();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedFilter, setSelectedFilter] = useState(FILTER_OPTIONS[0]);
+    const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
     const { data, loading, error } = useQuery(GET_USER_CONTRIBUTIONS_BY_SCRIPT, {
         variables: { scriptId: draftId || "", userId: userId || "" },
@@ -177,7 +177,7 @@ const UserContributions = () => {
                                     </div> */}
                             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                 <div className="w-full sm:w-64">
-                                    <Search setSearch={setSearchQuery} placeholder="Search requests..." />
+                                    <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search requests..." />
                                 </div>
                                 <Dropdown
                                     options={FILTER_OPTIONS}

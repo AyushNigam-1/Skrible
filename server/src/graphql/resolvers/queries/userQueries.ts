@@ -100,7 +100,6 @@ export const userQueries = {
       context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
     await enforceRateLimit(context.redis, ip, "get_user_scripts", 100, 60);
 
-    // 🚨 THE FIX: Extract the ID safely and force String comparison
     const requesterId = context.user?.id || context.user?._id;
     const isOwner = Boolean(requesterId && String(requesterId) === String(userId));
 
@@ -115,7 +114,6 @@ export const userQueries = {
 
     const query: any = { author: userId };
 
-    // If they aren't the owner, lock it down to Public only
     if (!isOwner) {
       query.visibility = "Public";
     }
@@ -256,4 +254,30 @@ export const userQueries = {
     return formattedFavs;
   },
 
+  searchUsers: async (_: any, { query }: { query: string }, context: any) => {
+    const currentUserId = context.user?.id;
+    if (!currentUserId) throw new GraphQLError("User not authenticated");
+    console.log(query)
+    if (!query || query.trim().length < 2) return [];
+
+    try {
+      const searchRegex = new RegExp(query, "i");
+
+      const users = await User.find({
+        _id: { $ne: currentUserId },
+        $or: [
+          { username: searchRegex },
+          { name: searchRegex },
+          { email: searchRegex }
+        ]
+      })
+        .select("id name username image")
+        .limit(10);
+
+      return users;
+    } catch (error) {
+      console.error("Search Users Error:", error);
+      throw new GraphQLError("Failed to search users");
+    }
+  }
 };

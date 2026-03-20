@@ -1,5 +1,6 @@
 import { connectDB } from "./database/database";
 import express from "express";
+import { createServer } from "http";
 import { expressMiddleware } from "@apollo/server/express4";
 import dotenv from "dotenv";
 import { graphqlServer } from "./graphql/server";
@@ -14,6 +15,7 @@ import pino from "pino";
 import pinoHttp from "pino-http";
 import helmet from "helmet";
 import { z } from "zod";
+import { initSocket } from "./utils/socket";
 
 dotenv.config();
 
@@ -61,9 +63,13 @@ const startServer = async () => {
     process.exit(1);
   }
 
+  const app = express();
+  const httpServer = createServer(app);
+
+  initSocket(httpServer);
+
   const server = graphqlServer();
   await server.start();
-  const app = express();
 
   app.use(
     helmet({
@@ -72,7 +78,7 @@ const startServer = async () => {
     })
   );
 
-  app.use(pinoHttp({ logger }));
+  // app.use(pinoHttp({ logger }));
   app.use(cookieParser());
   app.use(express.json());
 
@@ -124,9 +130,9 @@ const startServer = async () => {
     }),
   );
 
-  app.listen(port, "0.0.0.0", () =>
-    logger.info(`🚀 Server started on port ${port}`)
-  );
+  httpServer.listen(port, "0.0.0.0", () => {
+    logger.info(`🚀 HTTP & Socket.io Server started on port ${port}`);
+  });
 };
 
 startServer();

@@ -2,7 +2,42 @@ import mongoose from "mongoose";
 import Script from "../../../models/Script";
 import Paragraph from "../../../models/Paragraph";
 import User from "../../../models/User";
+import Notification from "../../../models/Notification";
+import { getIO } from "../../../utils/socket";
 import { GraphQLError } from "graphql";
+
+const dispatchNotification = (
+  recipientId: any,
+  senderId: any,
+  type: string,
+  message: string,
+  link: string
+) => {
+  const recipientStr = recipientId.toString();
+  if (recipientStr === senderId.toString()) return;
+
+  Notification.create({
+    recipient: recipientId,
+    sender: senderId,
+    type,
+    message,
+    link,
+  })
+    .then(async (newNotif: any) => {
+      const populatedNotif = await newNotif.populate("sender", "id name");
+      const obj = populatedNotif.toObject({ virtuals: true });
+
+      const payload = {
+        ...obj,
+        id: obj.id || newNotif._id.toString(),
+        createdAt: newNotif.createdAt.getTime().toString(),
+      };
+
+      console.log(`🚀 Sending Socket.io Ping to room: ${recipientStr}`);
+      getIO().to(recipientStr).emit("new notification", payload);
+    })
+    .catch(console.error);
+};
 
 const enforceRateLimit = async (
   redis: any,
@@ -99,7 +134,6 @@ export const scriptMutations = {
       $push: { scripts: script._id },
     });
 
-    // 1. Clear the user's personal caches
     await context.redis.del(`user:${userId}:scripts:owner:v3`);
     await context.redis.del(`user:${userId}:scripts:public:v3`);
 
@@ -127,12 +161,24 @@ export const scriptMutations = {
 
     await enforceRateLimit(context.redis, userId, "submit_paragraph", 30, 3600);
 
+    const script = await Script.findById(scriptId);
+    if (!script) throw new GraphQLError("Script not found");
+
     const paragraph = await Paragraph.create({
       script: scriptId,
       author: userId,
       text,
       status: "pending",
     });
+
+    // 🚨 NOTIFICATION: Someone submitted a paragraph to the script
+    await dispatchNotification(
+      script.author,
+      userId,
+      "REQUEST",
+      "{name} submitted a new paragraph to your script.",
+      `/script/${scriptId}`
+    );
 
     await invalidateScriptCache(context.redis, scriptId);
 
@@ -252,7 +298,6 @@ export const scriptMutations = {
         const exploreCacheKeys = await context.redis.keys("scripts:genres:public:*");
         if (exploreCacheKeys.length > 0) {
           await Promise.all(exploreCacheKeys.map((key: string) => context.redis.del(key)));
-          console.log(`✅ Cleared ${exploreCacheKeys.length} Explore cache keys after deletion!`);
         }
       } catch (err) {
         console.error("❌ Failed to clear explore cache:", err);
@@ -309,7 +354,6 @@ export const scriptMutations = {
         const exploreCacheKeys = await context.redis.keys("scripts:genres:public:*");
         if (exploreCacheKeys.length > 0) {
           await Promise.all(exploreCacheKeys.map((key: string) => context.redis.del(key)));
-          console.log(`✅ Cleared ${exploreCacheKeys.length} Explore cache keys after update!`);
         }
       } catch (err) {
         console.error("❌ Failed to clear explore cache:", err);
@@ -345,6 +389,15 @@ export const scriptMutations = {
         $addToSet: { likes: userId },
         $pull: { dislikes: userId },
       });
+
+      // 🚨 NOTIFICATION: Someone liked the script
+      await dispatchNotification(
+        script.author,
+        userId,
+        "LIKE",
+        "{name} liked your script.",
+        `/script/${scriptId}`
+      );
     }
 
     await invalidateScriptCache(context.redis, scriptId);
@@ -387,9 +440,9 @@ export const scriptMutations = {
     _: any,
     {
       scriptId,
-      name,
+      identifier,
       role,
-    }: { scriptId: string; name: string; role: string },
+    }: { scriptId: string; identifier: string; role: string },
     context: any,
   ) => {
     const userId = context.user?.id;
@@ -399,11 +452,15 @@ export const scriptMutations = {
 
     const script = await verifyOwner(scriptId, userId);
 
-    const targetUser = await User.findOne({ name });
-    if (!targetUser) throw new GraphQLError(`User @${name} not found`);
+    // 🚨 Search by Username OR Email seamlessly
+    const targetUser = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }]
+    });
+
+    if (!targetUser) throw new GraphQLError(`User '${identifier}' not found on Skrible.`);
 
     const targetUserId = (targetUser as any)._id;
-
+    const userName = context.user?.name;
     const scriptDoc = script as any;
     const alreadyExists = scriptDoc.collaborators?.some(
       (c: any) => c.user.toString() === targetUserId.toString(),
@@ -417,7 +474,7 @@ export const scriptMutations = {
           collaborators: {
             user: targetUserId,
             role: role,
-            status: "PENDING" // 🚨 Users start as pending!
+            status: "PENDING"
           },
         },
       },
@@ -425,6 +482,14 @@ export const scriptMutations = {
     )
       .populate("author")
       .populate("collaborators.user");
+
+    await dispatchNotification(
+      targetUserId,
+      userId,
+      "REQUEST",
+      `${userName} invited you to collaborate on a draft.`,
+      `/timeline/${scriptId}` // Adjust this link to wherever they can accept invites!
+    );
 
     await invalidateScriptCache(context.redis, scriptId);
 
@@ -504,7 +569,6 @@ export const scriptMutations = {
     return updatedScript;
   },
 
-  // 🚨 NEW: For the invited user to accept the invite
   acceptInvitation: async (
     _: any,
     { scriptId }: { scriptId: string },
@@ -513,7 +577,6 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
-    // Finds the script where the user is specifically a PENDING collaborator, and flips them to ACCEPTED
     const updatedScript = await Script.findOneAndUpdate(
       { _id: scriptId, "collaborators.user": userId, "collaborators.status": "PENDING" },
       {
@@ -525,6 +588,15 @@ export const scriptMutations = {
     if (!updatedScript) {
       throw new GraphQLError("Invitation not found or already accepted.");
     }
+
+    // 🚨 NOTIFICATION: Let the script owner know they accepted!
+    await dispatchNotification(
+      updatedScript.author,
+      userId,
+      "INFO",
+      `{name} accepted your invitation to collaborate.`,
+      `/script/${scriptId}`
+    );
 
     await invalidateScriptCache(context.redis, scriptId);
     return updatedScript;
@@ -538,7 +610,6 @@ export const scriptMutations = {
     const userId = context.user?.id;
     if (!userId) throw new GraphQLError("User not authenticated");
 
-    // Pulls the user out of the collaborators array entirely if they were pending
     const updatedScript = await Script.findByIdAndUpdate(
       scriptId,
       {

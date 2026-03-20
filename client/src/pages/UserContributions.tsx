@@ -265,7 +265,7 @@ const UserContributions = () => {
                                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="flex flex-col items-center justify-center py-24 text-center"
+                                className="flex flex-col items-center justify-center  text-center min-h-[86vh]"
                             >
                                 <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
                                     {isFiltering ? (

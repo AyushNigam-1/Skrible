@@ -56,3 +56,19 @@ export const VIEW_PROFILE = gql`
     }
   }
 `;
+
+export const ACCEPT_INVITATION = gql`
+  mutation AcceptInvitation($scriptId: ID!) {
+    acceptInvitation(scriptId: $scriptId) {
+      id
+    }
+  }
+`;
+
+export const DECLINE_INVITATION = gql`
+  mutation DeclineInvitation($scriptId: ID!) {
+    declineInvitation(scriptId: $scriptId) {
+      id
+    }
+  }
+`;

@@ -226,7 +226,7 @@ const DraftLayout = () => {
                 )}
               </button>
 
-              <InviteModal scriptTitle={script?.title || "Draft"} />
+              <InviteModal scriptId={script?.id} />
             </div>
           </div>
           <motion.hr className="border-b-0.5 border-white/10" />

@@ -5,6 +5,8 @@ export const userTypeDefs = gql`
     id: ID
     name: String!
     email: String!
+    username: String
+    image: String
     token: String!
     languages: [String]
     bio: String
@@ -38,6 +40,7 @@ export const userTypeDefs = gql`
     getUserScripts(userId: ID!): [Script!]!
     getUserContributions(userId: ID!): [UserContribution!]!
     getUserFavourites(userId: ID!): [Script!]!
+    searchUsers(query: String!): [User]
   }
 
   type Mutation {

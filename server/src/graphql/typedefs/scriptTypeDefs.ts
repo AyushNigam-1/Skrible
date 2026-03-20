@@ -109,7 +109,7 @@ export const scriptTypeDefs = gql`
     deleteScript(scriptId: ID!): MutationResponse!
     likeScript(scriptId: ID!): MutationResponse!
     dislikeScript(scriptId: ID!): MutationResponse!
-    addCollaborator(scriptId: ID!, name: String!, role: Role!): Script!
+    addCollaborator(scriptId: ID!, identifier: String!, role: String!): Script
     removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
     acceptInvitation(scriptId: ID!): Script!
     declineInvitation(scriptId: ID!): Script!

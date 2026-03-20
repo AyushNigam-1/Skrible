@@ -26,9 +26,9 @@ export type Author = {
 
 export type Collaborator = {
   __typename?: 'Collaborator';
-  addedAt?: Maybe<Scalars['String']['output']>;
-  role: Role;
-  user: Author;
+  role: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  user: User;
 };
 
 export type Comment = {
@@ -64,10 +64,12 @@ export type ExportedDocument = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptInvitation: Script;
   addCollaborator: Script;
   addComment: Paragraph;
   approveParagraph: MutationResponse;
   createScript: Script;
+  declineInvitation: Script;
   deleteParagraph: MutationResponse;
   deleteScript: MutationResponse;
   dislikeParagraph: MutationResponse;
@@ -91,6 +93,11 @@ export type Mutation = {
   updateScript: Script;
   updateUserProfileField: User;
   viewProfile: MutationResponse;
+};
+
+
+export type MutationAcceptInvitationArgs = {
+  scriptId: Scalars['ID']['input'];
 };
 
 
@@ -118,6 +125,11 @@ export type MutationCreateScriptArgs = {
   languages: Array<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   visibility: Scalars['String']['input'];
+};
+
+
+export type MutationDeclineInvitationArgs = {
+  scriptId: Scalars['ID']['input'];
 };
 
 
@@ -242,6 +254,18 @@ export type MutationResponse = {
   status: Scalars['Boolean']['output'];
 };
 
+export type Notification = {
+  __typename?: 'Notification';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isRead: Scalars['Boolean']['output'];
+  link?: Maybe<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
+  recipient: User;
+  sender?: Maybe<User>;
+  type: Scalars['String']['output'];
+};
+
 export type Paragraph = {
   __typename?: 'Paragraph';
   author: Author;
@@ -260,6 +284,7 @@ export type Query = {
   exportDocument: ExportedDocument;
   getAllScripts: Array<Script>;
   getCombinedText: Scalars['String']['output'];
+  getNotifications: Array<Notification>;
   getParagraphById?: Maybe<Paragraph>;
   getPendingParagraphs: Array<Paragraph>;
   getScriptById?: Maybe<Script>;
@@ -504,7 +529,7 @@ export type AddCollaboratorMutationVariables = Exact<{
 }>;
 
 
-export type AddCollaboratorMutation = { __typename?: 'Mutation', addCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, name: string } }> | null } };
+export type AddCollaboratorMutation = { __typename?: 'Mutation', addCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } };
 
 export type RemoveCollaboratorMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -512,7 +537,7 @@ export type RemoveCollaboratorMutationVariables = Exact<{
 }>;
 
 
-export type RemoveCollaboratorMutation = { __typename?: 'Mutation', removeCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, name: string } }> | null } };
+export type RemoveCollaboratorMutation = { __typename?: 'Mutation', removeCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } };
 
 export type UpdateCollaboratorRoleMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -521,7 +546,7 @@ export type UpdateCollaboratorRoleMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCollaboratorRoleMutation = { __typename?: 'Mutation', updateCollaboratorRole: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, name: string } }> | null } };
+export type UpdateCollaboratorRoleMutation = { __typename?: 'Mutation', updateCollaboratorRole: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } };
 
 export type UpdateScriptMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -577,12 +602,17 @@ export type ViewProfileMutationVariables = Exact<{
 
 export type ViewProfileMutation = { __typename?: 'Mutation', viewProfile: { __typename?: 'MutationResponse', status: boolean } };
 
+export type GetNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetNotificationsQuery = { __typename?: 'Query', getNotifications: Array<{ __typename?: 'Notification', id: string, type: string, message: string, link?: string | null, isRead: boolean, createdAt: string, sender?: { __typename?: 'User', id?: string | null, name: string } | null }> };
+
 export type GetParagraphByIdQueryVariables = Exact<{
   paragraphId: Scalars['ID']['input'];
 }>;
 
 
-export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, script: { __typename?: 'Script', id: string, author: { __typename?: 'Author', id: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string } }> | null }, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, name: string } }> } | null };
+export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, script: { __typename?: 'Script', id: string, author: { __typename?: 'Author', id: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null } }> | null }, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, name: string } }> } | null };
 
 export type GetPendingParagraphsQueryVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -604,7 +634,7 @@ export type GetScriptByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetScriptByIdQuery = { __typename?: 'Query', getScriptById?: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, createdAt: string, combinedText?: string | null, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, name: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: Role, user: { __typename?: 'Author', id: string, name: string } }> | null, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, name: string } }> }> } | null };
+export type GetScriptByIdQuery = { __typename?: 'Query', getScriptById?: { __typename?: 'Script', id: string, title: string, visibility: string, languages: Array<string>, genres: Array<string>, description: string, createdAt: string, combinedText?: string | null, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, name: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null, paragraphs: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, likes: Array<string>, dislikes: Array<string>, createdAt: string, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, name: string } }> }> } | null };
 
 export type GetScriptsByGenresQueryVariables = Exact<{
   genres: Array<Scalars['String']['input']> | Scalars['String']['input'];
@@ -1506,6 +1536,57 @@ export function useViewProfileMutation(baseOptions?: Apollo.MutationHookOptions<
 export type ViewProfileMutationHookResult = ReturnType<typeof useViewProfileMutation>;
 export type ViewProfileMutationResult = Apollo.MutationResult<ViewProfileMutation>;
 export type ViewProfileMutationOptions = Apollo.BaseMutationOptions<ViewProfileMutation, ViewProfileMutationVariables>;
+export const GetNotificationsDocument = gql`
+    query GetNotifications {
+  getNotifications {
+    id
+    type
+    message
+    link
+    isRead
+    createdAt
+    sender {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetNotificationsQuery__
+ *
+ * To run a query within a React component, call `useGetNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotificationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotificationsQuery(baseOptions?: Apollo.QueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, options);
+      }
+export function useGetNotificationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, options);
+        }
+// @ts-ignore
+export function useGetNotificationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNotificationsQuery, GetNotificationsQueryVariables>;
+export function useGetNotificationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>): Apollo.UseSuspenseQueryResult<GetNotificationsQuery | undefined, GetNotificationsQueryVariables>;
+export function useGetNotificationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, options);
+        }
+export type GetNotificationsQueryHookResult = ReturnType<typeof useGetNotificationsQuery>;
+export type GetNotificationsLazyQueryHookResult = ReturnType<typeof useGetNotificationsLazyQuery>;
+export type GetNotificationsSuspenseQueryHookResult = ReturnType<typeof useGetNotificationsSuspenseQuery>;
+export type GetNotificationsQueryResult = Apollo.QueryResult<GetNotificationsQuery, GetNotificationsQueryVariables>;
 export const GetParagraphByIdDocument = gql`
     query GetParagraphById($paragraphId: ID!) {
   getParagraphById(paragraphId: $paragraphId) {

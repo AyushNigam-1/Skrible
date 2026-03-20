@@ -214,6 +214,42 @@ const DraftSettings: React.FC = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
   };
 
+  const VISIBILITY_OPTIONS = [
+    {
+      id: "Public",
+      icon: Globe2,
+      title: "Public",
+      description: "Anyone can view, read, and contribute.",
+      activeClasses: {
+        container: "border-white/40 bg-white/10",
+        textIcon: "text-white",
+        description: "text-gray-300",
+      },
+    },
+    {
+      id: "Private",
+      icon: Lock,
+      title: "Private",
+      description: "Invited members can view and edit draft.",
+      activeClasses: {
+        container: "border-white/40 bg-white/10",
+        textIcon: "text-white",
+        description: "text-gray-300",
+      },
+    },
+    {
+      id: "Archived",
+      icon: Archive,
+      title: "Archived",
+      description: "Frozen and read-only for everyone.",
+      activeClasses: {
+        container: "border-white/40 bg-white/10",
+        textIcon: "text-white",
+        description: "text-gray-300",
+      },
+    },
+  ];
+
   if (!isAuthor) {
     return (
       <motion.div
@@ -252,32 +288,51 @@ const DraftSettings: React.FC = () => {
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Public" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
-              <input type="radio" name="visibility" value="Public" checked={visibility === "Public"} onChange={() => handleVisibilityChange("Public")} className="sr-only" />
-              <div className="flex items-center gap-3">
-                <Globe2 className={`w-5 h-5 ${visibility === "Public" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`} />
-                <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Public" ? "text-white" : "text-gray-300"}`}>Public</span>
-              </div>
-              <p className="text-sm text-gray-500 font-sans leading-relaxed">Anyone can view, read, and request to contribute.</p>
-            </label>
+            {VISIBILITY_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              const isActive = visibility === option.id;
 
-            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Private" ? "border-white/40 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
-              <input type="radio" name="visibility" value="Private" checked={visibility === "Private"} onChange={() => handleVisibilityChange("Private")} className="sr-only" />
-              <div className="flex items-center gap-3 ">
-                <Lock className={`w-5 h-5 ${visibility === "Private" ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`} />
-                <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Private" ? "text-white" : "text-gray-300"}`}>Private</span>
-              </div>
-              <p className="text-sm text-gray-500 font-sans leading-relaxed">Invited members can view and edit draft.</p>
-            </label>
+              return (
+                <label
+                  key={option.id}
+                  className={`flex gap-2 justify-between items-center p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${isActive
+                    ? option.activeClasses.container
+                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value={option.id}
+                    checked={isActive}
+                    onChange={() => handleVisibilityChange(option.id as VisibilityType)}
+                    className="sr-only"
+                  />
 
-            <label className={`flex flex-col items-start p-4 rounded-2xl border cursor-pointer transition-all duration-300 shadow-sm group ${visibility === "Archived" ? "border-amber-500/40 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)]" : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"}`}>
-              <input type="radio" name="visibility" value="Archived" checked={visibility === "Archived"} onChange={() => handleVisibilityChange("Archived")} className="sr-only" />
-              <div className="flex items-center gap-3">
-                <Archive className={`w-5 h-5 ${visibility === "Archived" ? "text-amber-400" : "text-gray-500 group-hover:text-gray-300"}`} />
-                <span className={`font-bold text-lg font-sans tracking-tight ${visibility === "Archived" ? "text-amber-400" : "text-gray-300"}`}>Archived</span>
-              </div>
-              <p className="text-sm text-gray-500 font-sans leading-relaxed">Frozen and read-only for everyone.</p>
-            </label>
+                  <div className="flex flex-col">
+
+                    <span
+                      className={`font-bold text-lg font-sans tracking-tight ${isActive ? option.activeClasses.textIcon : "text-gray-300"
+                        }`}
+                    >
+                      {option.title}
+                    </span>
+                    <p
+                      className={`text-sm font-sans leading-relaxed ${isActive ? option.activeClasses.description : "text-gray-400"
+                        }`}
+                    >
+                      {option.description}
+                    </p>
+                  </div>
+                  <Icon
+                    className={`w-10 ${isActive
+                      ? option.activeClasses.textIcon
+                      : "text-gray-500"
+                      }`}
+                  />
+                </label>
+              );
+            })}
           </div>
 
         </motion.div>
@@ -472,7 +527,7 @@ const DraftSettings: React.FC = () => {
             </AnimatePresence>
           </div>
         </motion.div>
-      </motion.div>
+      </motion.div >
 
       <AnimatePresence>
         {isInviteModalOpen && (

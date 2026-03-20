@@ -1,6 +1,8 @@
 import Paragraph from "../../../models/Paragraph";
 import Script from "../../../models/Script";
+import Notification from "../../../models/Notification";
 import { GraphQLError } from "graphql";
+import { getIO } from "../../../utils/socket";
 
 const enforceRateLimit = async (
   redis: any,
@@ -28,7 +30,6 @@ const enforceRateLimit = async (
   }
 };
 
-// 🚨 THE FIX: This now wipes EVERYTHING related to the script AND the paragraph
 const invalidateParagraphCache = async (
   redis: any,
   scriptId: string,
@@ -36,12 +37,8 @@ const invalidateParagraphCache = async (
 ) => {
   if (!redis) return;
   try {
-    // 1. Find all keys containing the script ID (Timeline, Requests, Contributors)
     const scriptKeys = await redis.keys(`*${scriptId}*`);
-    // 2. Find all keys containing the paragraph ID (The specific preview page)
     const paragraphKeys = await redis.keys(`*${paragraphId}*`);
-
-    // Merge them and remove duplicates
     const keysToDelete = [...new Set([...scriptKeys, ...paragraphKeys])];
 
     if (keysToDelete.length > 0) {
@@ -52,8 +49,40 @@ const invalidateParagraphCache = async (
   }
 };
 
+const dispatchNotification = (
+  recipientId: any,
+  senderId: any,
+  type: string,
+  message: string,
+  link: string
+) => {
+  const recipientStr = recipientId.toString();
+  if (recipientStr === senderId.toString()) return;
+
+  Notification.create({
+    recipient: recipientId,
+    sender: senderId,
+    type,
+    message,
+    link,
+  })
+    .then(async (newNotif: any) => {
+      const populatedNotif = await newNotif.populate("sender", "id name");
+      const obj = populatedNotif.toObject({ virtuals: true });
+
+      const payload = {
+        ...obj,
+        id: obj.id || newNotif._id.toString(),
+        createdAt: newNotif.createdAt.getTime().toString(),
+      };
+
+      console.log(`🚀 Sending Socket.io Ping to room: ${recipientStr}`);
+      getIO().to(recipientStr).emit("new notification", payload);
+    })
+    .catch(console.error);
+};
+
 export const paragraphMutations = {
-  // 🚨 MOVED FROM SCRIPT MUTATIONS
   approveParagraph: async (
     _: any,
     { paragraphId }: { paragraphId: string },
@@ -96,14 +125,21 @@ export const paragraphMutations = {
     }
 
     await Script.findByIdAndUpdate(paragraph.script, updateQuery);
-
-    // 🚨 Indestructible cache wipe applied here
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+
+    // 🚨 NOTIFICATION
+    const userName = context.user?.name || "Someone";
+    await dispatchNotification(
+      paragraph.author,
+      userId,
+      "REQUEST",
+      `${userName} approved and merged your contribution!`,
+      `/script/${paragraph.script}`
+    );
 
     return { status: true };
   },
 
-  // 🚨 MOVED FROM SCRIPT MUTATIONS
   rejectParagraph: async (
     _: any,
     { paragraphId }: { paragraphId: string },
@@ -117,8 +153,17 @@ export const paragraphMutations = {
     const paragraph = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" });
 
     if (paragraph) {
-      // 🚨 Indestructible cache wipe applied here
       await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+
+      // 🚨 NOTIFICATION
+      const userName = context.user?.name || "Someone";
+      await dispatchNotification(
+        paragraph.author,
+        userId,
+        "INFO",
+        `${userName} declined your paragraph submission.`,
+        `/script/${paragraph.script}`
+      );
     }
 
     return { status: true };
@@ -147,7 +192,6 @@ export const paragraphMutations = {
 
     paragraph.text = text;
     await paragraph.save();
-
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
     return paragraph.populate("author");
@@ -201,7 +245,7 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "like_paragraph", 60, 60);
 
-    const paragraph = await Paragraph.findById(paragraphId).select("script author likes");
+    const paragraph = await Paragraph.findById(paragraphId).select("script author likes dislikes");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const hasLiked = paragraph.likes?.includes(userId) || false;
@@ -215,10 +259,19 @@ export const paragraphMutations = {
         $addToSet: { likes: userId },
         $pull: { dislikes: userId },
       });
+
+      // 🚨 NOTIFICATION
+      const userName = context.user?.name || "Someone";
+      await dispatchNotification(
+        paragraph.author,
+        userId,
+        "LIKE",
+        `${userName} liked your contribution.`,
+        `/script/${paragraph.script}`
+      );
     }
 
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
-
     return { status: true };
   },
 
@@ -283,6 +336,16 @@ export const paragraphMutations = {
     if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
 
     await invalidateParagraphCache(context.redis, updatedParagraph.script.toString(), paragraphId);
+
+    // 🚨 NOTIFICATION
+    const userName = context.user?.name || "Someone";
+    await dispatchNotification(
+      updatedParagraph.author,
+      userId,
+      "COMMENT",
+      `${userName} commented: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+      `/script/${updatedParagraph.script}`
+    );
 
     return updatedParagraph;
   },

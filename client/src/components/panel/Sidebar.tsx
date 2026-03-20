@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
 import { authClient } from "../../lib/authClient";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
+import NotificationModal from "../../pages/Notifications";
 
 interface MenuItem {
   name: string;
@@ -33,18 +34,17 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
   const menuItems: MenuItem[] = [
     { name: "Explore", icon: Compass, route: "/explore" },
     { name: "Contributions", icon: Award, route: "/contributions" },
-    { name: "Bookmark", icon: Bookmark, route: "/bookmarks" },
+    { name: "Bookmarks", icon: Bookmark, route: "/bookmarks" },
     { name: "Profile", icon: User, route: `/profile/${userId}` },
   ];
 
   return (
     <aside
-      className={`sticky top-0 h-screen transition-all duration-300 ease-in-out shrink-0 overflow-hidden z-40 ${isOpen
-        ? "w-72 opacity-100 visible"
-        : "w-0 opacity-0 invisible"
+      className={`sticky top-0 h-screen transition-all duration-300 ease-in-out shrink-0 z-40 ${isOpen
+        ? "w-72 opacity-100 visible overflow-hidden"
+        : "w-0 opacity-0 invisible overflow-hidden"
         }`}
     >
-      {/* 🚨 Removed the rounding and outer borders to make it flush with the edges */}
       <div className="w-full h-full space-y-4 bg-[#161620] border-r border-white/10 flex flex-col font-mono p-4 lg:p-5">
         <div className="flex justify-between items-center shrink-0">
           <img
@@ -52,13 +52,16 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             alt="Logo"
             className="w-28 lg:w-32 brightness-110 drop-shadow-sm"
           />
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-full text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-200"
-            title="Close Sidebar"
-          >
-            <ChevronLeft size={20} />
-          </button>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-full text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-200"
+              title="Close Sidebar"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          </div>
         </div>
         <motion.hr className="border-b border-white/5" />
         <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4 mt-2">
@@ -95,6 +98,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
               </Link>
             );
           })}
+          <NotificationModal />
+
         </nav>
 
         <button

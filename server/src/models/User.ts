@@ -10,6 +10,7 @@ interface IUser extends Document {
   location: string;
   bio: string;
   email: string;
+  username: string,
   scripts: Types.ObjectId[];
   likes: Types.ObjectId[];
   follows: number;
@@ -28,6 +29,7 @@ const UserSchema: Schema = new Schema(
     location: { type: String },
     bio: { type: String },
     email: { type: String },
+    username: { type: String, unique: true },
     scripts: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     views: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

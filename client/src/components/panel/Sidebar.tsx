@@ -12,7 +12,7 @@ import {
 import { useUserStore } from "../../store/useAuthStore";
 import { authClient } from "../../lib/authClient";
 import { motion } from "framer-motion";
-import NotificationModal from "../../pages/Notifications";
+import NotificationModal from "../../pages/home/Notifications";
 
 interface MenuItem {
   name: string;

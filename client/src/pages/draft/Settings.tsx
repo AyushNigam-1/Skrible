@@ -30,6 +30,8 @@ import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import { useUserStore } from "../../store/useAuthStore";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import InviteCollaborator from "../../components/modal/InviteModal";
+import { toast } from "sonner";
 
 // --- Types ---
 interface Collaborator {
@@ -81,17 +83,11 @@ const DraftSettings: React.FC = () => {
 
   const [visibility, setVisibility] = useState<VisibilityType>("Public");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-
-  // Invite Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [invitename, setInvitename] = useState("");
   const [inviteRole, setInviteRole] = useState<DropdownOption>(ROLE_OPTIONS[1]); // Default to Contributor
-
-  // Filter & Search State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
-
-  // Inline Confirmation State for Kicking Users
   const [confirmingRemoveId, setConfirmingRemoveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -129,21 +125,24 @@ const DraftSettings: React.FC = () => {
   const handleVisibilityChange = async (newVisibility: VisibilityType) => {
     if (visibility === newVisibility || !script) return;
     setVisibility(newVisibility);
+    const updatePromise = updateScript({
+      variables: {
+        scriptId: script.id,
+        visibility: newVisibility,
+        title: script.title,
+        description: script.description
+      },
+    })
 
-    try {
-      await updateScript({
-        variables: {
-          scriptId: script.id,
-          visibility: newVisibility,
-          title: script.title,
-          description: script.description
-        },
-      });
-    } catch (err) {
-      console.error("Failed to update visibility:", err);
-      if (script.visibility) setVisibility(script.visibility as VisibilityType);
-      alert("Failed to update visibility. Please try again.");
-    }
+    toast.promise(
+      updatePromise,
+      {
+        loading: "Updating visibility...",
+        success: `Draft is now ${newVisibility}!`,
+        error: "Failed to update visibility.",
+      }
+    );
+
   };
 
   const handleInvite = async () => {
@@ -157,51 +156,63 @@ const DraftSettings: React.FC = () => {
         },
       });
       setInvitename("");
-      setIsInviteModalOpen(false); // Close modal on success!
+      setIsInviteModalOpen(false);
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Failed to invite user. Check if name is correct.");
     }
   };
 
-  const handleRoleChange = async (targetUserId: string, newRoleObj: any) => {
+  const handleRoleChange = (targetUserId: string, newRole: any) => {
     if (!script) return;
-    try {
-      await updateRole({
-        variables: {
-          scriptId: script.id,
-          targetUserId,
-          role: newRoleObj.id,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update role.");
-    }
+
+    const rolePromise = updateRole({
+      variables: {
+        scriptId: script.id,
+        targetUserId,
+        role: newRole.id,
+      },
+    });
+
+    toast.promise(rolePromise, {
+      loading: `Updating role to ${newRole.name}...`,
+      success: `Role updated to ${newRole.name}`,
+      error: (err) => err.message || "Failed to update role",
+    });
   };
 
-  const handleRemoveCollab = async (targetUserId: string) => {
+  const handleRemoveCollab = (targetUserId: string) => {
     if (!script) return;
-    try {
-      await removeCollaborator({
-        variables: { scriptId: script.id, targetUserId },
-      });
-      setConfirmingRemoveId(null); // Reset confirmation state on success
-    } catch (err) {
-      console.error(err);
-      alert("Failed to remove collaborator.");
-    }
+
+    const removePromise = removeCollaborator({
+      variables: { scriptId: script.id, targetUserId },
+    });
+
+    toast.promise(removePromise, {
+      loading: "Removing collaborator...",
+      success: () => {
+        setConfirmingRemoveId(null);
+        return "Member successfully removed.";
+      },
+      error: "Failed to remove collaborator.",
+    });
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!script) return;
-    try {
-      await deleteScript({ variables: { scriptId: script.id } });
-      navigate("/explore");
-    } catch (err) {
-      console.error("Failed to delete script:", err);
-      alert("Failed to delete the draft. Please try again.");
-    }
+
+    const deletePromise = deleteScript({
+      variables: { scriptId: script.id }
+    });
+
+    toast.promise(deletePromise, {
+      loading: "Deleting draft permanently...",
+      success: () => {
+        navigate("/explore");
+        return "Draft deleted.";
+      },
+      error: "Failed to delete the draft. Please try again.",
+    });
   };
 
   const containerVariants: Variants = {
@@ -350,7 +361,6 @@ const DraftSettings: React.FC = () => {
           </div>
 
           <div className="p-6">
-            {/* --- SEARCH, FILTER & INVITE BAR --- */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
               <div className="w-full sm:w-72">
                 <Search value={searchQuery}
@@ -366,14 +376,7 @@ const DraftSettings: React.FC = () => {
                   className="w-full sm:w-max shrink-0"
                 />
 
-                {/* Floating Invite Button */}
-                <button
-                  onClick={() => setIsInviteModalOpen(true)}
-                  className="flex items-center justify-center gap-2 px-5 py-2 bg-white text-black hover:bg-gray-200 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95 shrink-0"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Invite</span>
-                </button>
+                <InviteCollaborator scriptId={script!.id} />
               </div>
             </div>
 
@@ -401,7 +404,7 @@ const DraftSettings: React.FC = () => {
                         </div>
                         <div className="flex flex-col">
                           <p className="font-bold text-white text-sm">
-                            @{member.user.name}
+                            {member.user.name}
                           </p>
                           {member.role === "OWNER" && (
                             <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">
@@ -447,11 +450,11 @@ const DraftSettings: React.FC = () => {
                                 value={ROLE_OPTIONS.find(r => r.id === member.role) || ROLE_OPTIONS[2]}
                                 onChange={(opt) => handleRoleChange(member.user.id, opt)}
                                 options={ROLE_OPTIONS}
-                                className="flex-1 sm:w-36"
+                                className="flex-1 "
                               />
                               <button
                                 onClick={() => setConfirmingRemoveId(member.user.id)}
-                                className="flex items-center justify-center p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded-lg transition-all shrink-0"
+                                className="flex items-center justify-center p-2.5  border-red-400/30 text-red-400 bg-red-500/10 border s hover:border-red-500/20 rounded-lg transition-all shrink-0"
                                 title="Remove User"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -528,102 +531,6 @@ const DraftSettings: React.FC = () => {
           </div>
         </motion.div>
       </motion.div >
-
-      <AnimatePresence>
-        {isInviteModalOpen && (
-          <Dialog
-            transition
-            open={isInviteModalOpen}
-            onClose={() => setIsInviteModalOpen(false)}
-            className="relative z-50"
-          >
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-            />
-
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-              <DialogPanel as={Fragment}>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl overflow-visible font-mono"
-                >
-                  <div className="flex items-center justify-between p-6 border-b border-white/10">
-                    <h3 className="text-xl font-bold text-white font-sans tracking-tight">
-                      Invite Collaborator
-                    </h3>
-                    <button
-                      onClick={() => setIsInviteModalOpen(false)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <div className="p-6 flex flex-col gap-5">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-                        Username
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
-                          @
-                        </span>
-                        <input
-                          type="text"
-                          placeholder="e.g. johndoe"
-                          value={invitename}
-                          onChange={(e) => setInvitename(e.target.value)}
-                          className="w-full pl-9 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white outline-none focus:border-white/30 focus:bg-white/5 transition-all text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2 relative z-50">
-                      <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-                        Assign Role
-                      </label>
-                      <Dropdown
-                        options={ROLE_OPTIONS}
-                        value={inviteRole}
-                        onChange={setInviteRole}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-6 border-t border-white/10 flex items-center justify-end gap-3 bg-white/[0.02] rounded-b-2xl">
-                    <button
-                      onClick={() => setIsInviteModalOpen(false)}
-                      className="px-5 py-2.5 text-gray-300 hover:text-white font-bold text-sm transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleInvite}
-                      disabled={isAddingCollab || !invitename.trim()}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold text-sm transition-all disabled:opacity-50 active:scale-95 shadow-sm"
-                    >
-                      {isAddingCollab ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <UserPlus className="w-4 h-4" />
-                      )}
-                      Send Invite
-                    </button>
-                  </div>
-                </motion.div>
-              </DialogPanel>
-            </div>
-          </Dialog>
-        )}
-      </AnimatePresence>
     </>
   );
 };

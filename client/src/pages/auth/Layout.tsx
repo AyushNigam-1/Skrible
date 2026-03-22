@@ -5,12 +5,8 @@ import { motion } from "framer-motion";
 const AuthLayout = () => {
   return (
     <div className="min-h-screen w-full flex bg-[#0A0A12] font-sans text-gray-200 selection:bg-amber-500/30 overflow-hidden">
-      {/* ========================================= */}
-      {/* LEFT SIDE: The Editorial Canvas (Desktop) */}
-      {/* ========================================= */}
       <div className="hidden lg:flex flex-col justify-between flex-1 relative overflow-hidden bg-[#0A0A12] border-r border-white/10 p-12 xl:p-20 z-10">
 
-        {/* Immersive Ambient Glows (Animated) */}
         <motion.div
           animate={{
             scale: [1, 1.1, 1],

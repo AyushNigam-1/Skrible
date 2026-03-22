@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
 import { motion, Variants } from "framer-motion";
-import Tabs from "../components/layout/Tabs";
-import Loader from "../components/layout/Loader";
+import Tabs from "../../components/layout/Tabs";
+import Loader from "../../components/layout/Loader";
 import { ThumbsUp, ThumbsDown, Bookmark, Loader2 } from "lucide-react";
-import InviteModal from "../components/modal/InviteModal";
-import { useUserStore } from "../store/useAuthStore";
+import { useUserStore } from "../../store/useAuthStore";
 import { useParams, Outlet } from "react-router-dom";
 import {
   useDislikeScriptMutation,
   useGetScriptByIdQuery,
   useLikeScriptMutation,
   useToggleBookmarkMutation,
-} from "../graphql/generated/graphql";
+} from "../../graphql/generated/graphql";
 
 const DraftLayout = () => {
   const { id } = useParams<{ id: string }>();
 
-  // 🚨 THE FIX: Pulling these out separately stops the Zustand infinite render loop!
   const currentUser = useUserStore((state: any) => state.user);
   const setUser = useUserStore((state: any) => state.setUser);
 
@@ -226,7 +224,6 @@ const DraftLayout = () => {
                 )}
               </button>
 
-              <InviteModal scriptId={script?.id} />
             </div>
           </div>
           <motion.hr className="border-b-0.5 border-white/10" />

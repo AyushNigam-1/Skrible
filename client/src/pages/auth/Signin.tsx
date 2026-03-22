@@ -94,7 +94,6 @@ const Login: React.FC = () => {
         <p className="text-gray-500 dark:text-gray-400 font-['Literata'] text-sm sm:text-base">Enter your credentials to access your manuscripts.</p>
       </motion.div>
 
-      {/* 🚨 UPDATED: Social Providers Grid */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 relative z-10">
         <button
           type="button"

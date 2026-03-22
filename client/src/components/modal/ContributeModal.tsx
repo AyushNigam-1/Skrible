@@ -168,7 +168,7 @@ const ContributeModal = ({
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden rounded-3xl bg-[#0f0f15] text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-6 p-4 md:p-6"
+              className="relative transform overflow-hidden rounded-3xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-6 p-4 md:p-6"
             >
               <div className="flex justify-between items-center ">
                 <div>

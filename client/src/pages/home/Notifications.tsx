@@ -3,9 +3,9 @@ import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { Bell, Heart, MessageSquare, Inbox, Info, X, Loader as LoaderIcon, UserPlus } from "lucide-react";
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
-import { GET_NOTIFICATIONS } from "../graphql/query/notificationQueries";
-import { useUserStore } from "../store/useAuthStore";
-import { MARK_ALL_READ } from "../graphql/mutation/notificationMutations";
+import { GET_NOTIFICATIONS } from "../../graphql/query/notificationQueries";
+import { useUserStore } from "../../store/useAuthStore";
+import { MARK_ALL_READ } from "../../graphql/mutation/notificationMutations";
 import { io } from "socket.io-client";
 
 const ENDPOINT = `http://${window.location.hostname}:3000`;
@@ -208,7 +208,6 @@ const NotificationModal = () => {
                                                 {notif.message}
                                             </p>
 
-                                            {/* 🚨 3. The Interactive Buttons for Invites */}
                                             {notif.type === "REQUEST" && (
                                                 <div className="flex items-center gap-3 mt-3">
                                                     <button

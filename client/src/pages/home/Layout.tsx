@@ -1,10 +1,9 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Sidebar from "../components/panel/Sidebar";
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStore } from "../store/useAuthStore";
-
+import { useUserStore } from "../../store/useAuthStore";
+import Sidebar from "../../components/panel/Sidebar"
 const HomeLayout = () => {
   const { user } = useUserStore();
   const location = useLocation();

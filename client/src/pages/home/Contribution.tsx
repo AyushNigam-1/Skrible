@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ThumbsUp,
@@ -29,7 +30,6 @@ import { useUserStore } from "../../store/useAuthStore";
 import { posthog } from "../../components/providers/PostHogProvider";
 import DiscussionPanel from "../../components/panel/DiscussionPanel";
 import ContributeModal from "../../components/modal/ContributeModal";
-// 🚨 ADDED: Import the new reusable Delete Confirm Modal
 import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 
 const Contribution: React.FC = () => {
@@ -38,27 +38,20 @@ const Contribution: React.FC = () => {
   const { user: currentUser } = useUserStore();
   const currentUserId = currentUser?.id;
 
-  // --- Main Content States ---
   const [localLikes, setLocalLikes] = useState<string[]>([]);
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
   const [isTargetSticky, setIsTargetSticky] = useState(false);
-
-  // --- Layout & Discussion States ---
   const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
   const [localComments, setLocalComments] = useState<any[]>([]);
-
-  // 🚨 ADDED: State to control the Delete Modal visibility
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Responsive listener for sliding panel direction
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // --- Queries ---
   const {
     data: paragraphData,
     loading: paragraphLoading,
@@ -85,7 +78,6 @@ const Contribution: React.FC = () => {
   const isOwner = currentUserId == scriptOwnerId;
   const isAuthor = currentUserId === paragraph?.author?.id;
 
-  // Check if the targeted paragraph is part of the approved context
   const isTargetApproved = approvedParagraphs.some(
     (p) => p.id === paragraphId
   );
@@ -105,7 +97,6 @@ const Contribution: React.FC = () => {
   const [dislikeParagraph] = useDislikeParagraphMutation();
   const [addComment, { loading: isCommenting }] = useAddCommentMutation();
 
-  // --- Effects ---
   useEffect(() => {
     if (paragraph) {
       setLocalLikes((paragraph.likes as string[]) || []);
@@ -114,7 +105,6 @@ const Contribution: React.FC = () => {
     }
   }, [paragraph]);
 
-  // --- TARGET SCROLL LOGIC ---
   useEffect(() => {
     if (paragraphId && paragraph) {
       const timer = setTimeout(() => {
@@ -127,7 +117,6 @@ const Contribution: React.FC = () => {
     }
   }, [paragraphId, paragraph]);
 
-  // --- STICKY HEADER SCROLL LISTENER ---
   useEffect(() => {
     const handleScroll = () => {
       const el = document.getElementById("target-card");
@@ -140,7 +129,6 @@ const Contribution: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- Formatters ---
   const formatDate = (timestamp?: string | number): string => {
     if (!timestamp) return "";
     return new Intl.DateTimeFormat("en-US", {
@@ -151,7 +139,6 @@ const Contribution: React.FC = () => {
     }).format(new Date(Number(timestamp)));
   };
 
-  // --- Action Handlers ---
   const handleApprove = async () => {
     try {
       await approveParagraph({
@@ -164,11 +151,11 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
-      // 🚨 Force the current page to fetch fresh data before navigating
+      toast.success("Contribution approved successfully!"); // 🚨 Sonner
       await refetch();
       navigate(`/requests/${scriptId}`);
     } catch (err) {
-      alert("Failed to approve contribution.");
+      toast.error("Failed to approve contribution."); // 🚨 Sonner
     }
   };
 
@@ -186,10 +173,11 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
+      toast.success("Contribution rejected."); // 🚨 Sonner
       await refetch();
       navigate(`/requests/${scriptId}`);
     } catch (err) {
-      alert("Failed to reject contribution.");
+      toast.error("Failed to reject contribution."); // 🚨 Sonner
     }
   };
 
@@ -205,15 +193,16 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
+      toast.success("Contribution deleted."); // 🚨 Sonner
       setShowDeleteConfirm(false);
       navigate(`/requests/${scriptId}`);
     } catch (err) {
-      alert("Failed to delete contribution.");
+      toast.error("Failed to delete contribution."); // 🚨 Sonner
     }
   };
 
   const handleLike = async () => {
-    if (!currentUserId) return alert("Please log in.");
+    if (!currentUserId) return toast.error("Please log in to like this."); // 🚨 Sonner
     const isLiked = localLikes.includes(currentUserId);
     const prevLikes = [...localLikes];
     const prevDislikes = [...localDislikes];
@@ -234,11 +223,12 @@ const Contribution: React.FC = () => {
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
+      toast.error("Failed to update like status."); // 🚨 Sonner
     }
   };
 
   const handleDislike = async () => {
-    if (!currentUserId) return alert("Please log in.");
+    if (!currentUserId) return toast.error("Please log in to dislike this."); // 🚨 Sonner
     const isDisliked = localDislikes.includes(currentUserId);
     const prevLikes = [...localLikes];
     const prevDislikes = [...localDislikes];
@@ -259,11 +249,15 @@ const Contribution: React.FC = () => {
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
+      toast.error("Failed to update dislike status."); // 🚨 Sonner
     }
   };
 
   const handleAddComment = async (submittedText: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      toast.error("Please log in to comment."); // 🚨 Sonner
+      return;
+    }
     try {
       const newComment = {
         text: submittedText,
@@ -276,9 +270,10 @@ const Contribution: React.FC = () => {
       await addComment({
         variables: { paragraphId: paragraphId || "", text: submittedText },
       });
+      // Optional: toast.success("Comment posted!");
     } catch (err) {
       console.error("Failed to add comment:", err);
-      alert("Failed to post comment.");
+      toast.error("Failed to post comment."); // 🚨 Sonner
       setLocalComments(paragraph?.comments || []);
     }
   };
@@ -473,7 +468,7 @@ const Contribution: React.FC = () => {
           className="w-full max-w-7xl mx-auto flex font-mono relative"
         >
           <div
-            className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-4`}
+            className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-5`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
               <div className="flex items-center gap-3">
@@ -483,7 +478,7 @@ const Contribution: React.FC = () => {
                 >
                   <ArrowLeft size={18} />
                 </button>
-                <div className="font-bold font-sans text-2xl text-gray-200">
+                <div className="font-extrabold font-sans text-3xl text-gray-200">
                   Contribution
                 </div>
               </div>

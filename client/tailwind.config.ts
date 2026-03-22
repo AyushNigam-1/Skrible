@@ -6,6 +6,13 @@ export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#0A0A14",
+      },
+    },
+  },
   plugins: [
     plugin(function ({ addUtilities }) {
       const newUtilities = {

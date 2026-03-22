@@ -15,10 +15,10 @@ import {
     SearchX,
     ListFilter
 } from "lucide-react";
-import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../graphql/query/scriptQueries";
-import Loader from "../components/layout/Loader";
-import Search from "../components/layout/Search";
-import Dropdown, { DropdownOption } from "../components/layout/Dropdown";
+import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../../graphql/query/scriptQueries";
+import Loader from "../../components/layout/Loader";
+import Search from "../../components/layout/Search";
+import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 
 // Filter Options for the Dropdown
 const FILTER_OPTIONS = [

@@ -7,6 +7,7 @@ const db = client.db();
 
 export const auth = betterAuth({
     database: mongodbAdapter(db),
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
     trustedOrigins: [
         "http://localhost:5173",
         "http://127.0.0.1:5173"
@@ -52,6 +53,18 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
+        sendResetPassword: async ({ user, url, token }) => {
+            // For testing, just log it so you can click it in your terminal
+            console.log(`[TESTING] Password reset link for ${user.email}: ${url}`);
+
+            // In production, you will use an email service here like Resend or Nodemailer:
+            // await resend.emails.send({
+            //     from: "noreply@skrible.com",
+            //     to: user.email,
+            //     subject: "Reset your password",
+            //     html: `<a href="${url}">Click here to reset your password</a>`
+            // });
+        },
     },
     socialProviders: {
         google: {

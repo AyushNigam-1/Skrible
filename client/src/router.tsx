@@ -1,23 +1,24 @@
 import React, { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import AuthLayout from "./layouts/AuthLayout";
-import DraftLayout from "./layouts/DraftLayout";
-import HomeLayout from "./layouts/HomeLayout";
+import AuthLayout from "./pages/auth/Layout";
+import DraftLayout from "./pages/draft/Layout";
+import HomeLayout from "./pages/home/Layout";
 
-const Login = lazy(() => import("./pages/auth/Login"));
-const CreateAccount = lazy(() => import("./pages/auth/CreateAccount"));
-const Explore = lazy(() => import("./pages/explore/Explore"));
-const Favourites = lazy(() => import("./pages/favourites/Favourites"));
-const Profile = lazy(() => import("./pages/profile/Profile"));
-const Contributions = lazy(() => import("./pages/contributions/Contributions"));
-const UserContributions = lazy(() => import("./pages/UserContributions"));
-const ZenMode = lazy(() => import("./pages/zen/ZenMode"));
-const Contribution = lazy(() => import("./pages/contribution/Contribution"));
-const Timeline = lazy(() => import("./pages/timeline/Timeline"));
-const Requests = lazy(() => import("./pages/requests/Requests"));
-const Contributors = lazy(() => import("./pages/contributors/Contributors"));
-const ScriptDetails = lazy(() => import("./pages/about/ScriptDetails"));
-const DraftSettings = lazy(() => import("./pages/setting/DraftSettings"));
+const Explore = lazy(() => import("./pages/home/Explore"));
+const Favourites = lazy(() => import("./pages/home/Bookmarks"));
+const Profile = lazy(() => import("./pages/home/Profile"));
+const MyContributions = lazy(() => import("./pages/home/Contributions"));
+const ZenMode = lazy(() => import("./pages/draft/ZenMode"));
+const Contribution = lazy(() => import("./pages/home/Contribution"));
+const UserContributions = lazy(() => import("./pages/home/UserContributions"));
+const Timeline = lazy(() => import("./pages/draft/Timeline"));
+const Requests = lazy(() => import("./pages/draft/Requests"));
+const Contributors = lazy(() => import("./pages/draft/Contributors"));
+const ScriptDetails = lazy(() => import("./pages/draft/About"));
+const DraftSettings = lazy(() => import("./pages/draft/Settings"));
+const Login = lazy(() => import("./pages/auth/Signin"));
+const CreateAccount = lazy(() => import("./pages/auth/Signup"));
+
 
 const PageLoader = () => (
     <div className="min-h-[50vh] w-full bg-transparent" />
@@ -46,7 +47,7 @@ export const router = createBrowserRouter([
             { path: "/explore", element: Loadable(Explore) },
             { path: "/bookmarks", element: Loadable(Favourites) },
             { path: "/profile/:id", element: Loadable(Profile) },
-            { path: "/contributions", element: Loadable(Contributions) },
+            { path: "/contributions", element: Loadable(MyContributions) },
             { path: "/zen/:id", element: Loadable(ZenMode) },
             { path: "/preview/:id/:paragraphId", element: Loadable(Contribution) },
             { path: "/contributions/:draftId/:userId", element: Loadable(UserContributions) },

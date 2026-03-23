@@ -3,12 +3,9 @@ import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
-  Loader2,
   AlertCircle,
-  Bookmark,
   Globe2,
   Lock,
-  Search as SearchIcon,
   SearchX,
   ListFilter,
   BookmarkX
@@ -157,21 +154,32 @@ const Favourites = () => {
           >
             {(hasAnyFavorites || isFiltering) && (
               <>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h1 className="text-3xl font-extrabold font-sans tracking-tight">Favorites</h1>
+                {/* 🚨 THE FIX: CSS Grid for Mobile (Heading + Dropdown top, Search bottom) transitioning to Flex for Desktop */}
+                <div className="grid grid-cols-[1fr_auto] gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full">
+                  {/* Heading dynamically resizes */}
+                  <h1 className="text-2xl sm:text-3xl font-extrabold font-sans tracking-tight self-center">
+                    Favorites
+                  </h1>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <div className="w-full sm:w-64">
+                  {/* display: contents allows Search and Dropdown to participate in the parent Grid on mobile */}
+                  <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
+
+                    {/* Search is forced to the bottom row on mobile (col-span-2, order-last) */}
+                    <div className="col-span-2 order-last sm:order-none w-full sm:w-64">
                       <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search your library..." />
                     </div>
-                    <Dropdown
-                      options={FILTER_OPTIONS}
-                      value={selectedFilter}
-                      onChange={setSelectedFilter}
-                      icon={ListFilter}
-                      collapseOnMobile={true}
-                      className="w-full sm:w-auto shrink-0"
-                    />
+
+                    {/* Dropdown naturally sits in Col 2, Row 1 next to the heading on mobile */}
+                    <div className="shrink-0 sm:w-auto self-center">
+                      <Dropdown
+                        options={FILTER_OPTIONS}
+                        value={selectedFilter}
+                        onChange={setSelectedFilter}
+                        icon={ListFilter}
+                        collapseOnMobile={true}
+                      />
+                    </div>
+
                   </div>
                 </div>
                 <hr className="border border-white/5" />

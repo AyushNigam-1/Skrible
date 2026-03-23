@@ -101,6 +101,8 @@ export const scriptTypeDefs = gql`
       title: String
       description: String
       visibility: String
+      genres: [String]      
+      languages: [String]
     ): Script!
     submitParagraph(scriptId: ID!, text: String!): Paragraph!
     markAsInterested(scriptId: ID!): MutationResponse!
@@ -113,6 +115,8 @@ export const scriptTypeDefs = gql`
     removeCollaborator(scriptId: ID!, targetUserId: ID!): Script!
     acceptInvitation(scriptId: ID!): Script!
     declineInvitation(scriptId: ID!): Script!
+    removeAllParagraphs(scriptId: ID!): Script
+    removeAllCollaborators(scriptId: ID!): Script
     updateCollaboratorRole(
       scriptId: ID!
       targetUserId: ID!

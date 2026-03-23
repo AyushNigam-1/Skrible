@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { useUserStore } from "../../store/useAuthStore";
 import { authClient } from "../../lib/authClient";
 
+const parseFavs = (favs: any[] = []) => favs.map(f => f?.buffer ? Object.values(f.buffer).map((b: any) => b.toString(16).padStart(2, "0")).join("") : f);
+
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -20,10 +22,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (session?.user) {
       setUser({
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        image: session.user.image,
+        ...session.user,
+        favourites: parseFavs((session.user as any).favourites),
       } as any);
     } else if (!isPending) {
       setUser(null);

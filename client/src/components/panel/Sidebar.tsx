@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Compass,
   User,
-  Heart,
   Award,
   LogOut,
   LucideIcon,

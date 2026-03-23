@@ -177,7 +177,7 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
     <Fragment>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-center gap-2 px-5 py-2 bg-white text-black hover:bg-gray-200 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95 shrink-0"
+        className="flex items-center justify-center gap-2 p-3 bg-white text-black hover:bg-gray-200 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 shrink-0"
       >
         <UserPlus className="w-4 h-4" />
         <span className="hidden sm:inline">Invite</span>

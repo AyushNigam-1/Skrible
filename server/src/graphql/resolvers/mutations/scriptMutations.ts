@@ -243,19 +243,24 @@ export const scriptMutations = {
     const user = await User.findById(userId);
     if (!user) throw new GraphQLError("User not found");
 
-    const hasFavourited = user.favourites?.some(
+    if (!user.favourites) {
+      user.favourites = [];
+    }
+
+    const hasFavourited = user.favourites.some(
       (id: any) => id.toString() === scriptId.toString()
     );
 
     if (hasFavourited) {
-      await User.findByIdAndUpdate(userId, {
-        $pull: { favourites: scriptId },
-      });
+      user.favourites = user.favourites.filter(
+        (id: any) => id.toString() !== scriptId.toString()
+      );
     } else {
-      await User.findByIdAndUpdate(userId, {
-        $addToSet: { favourites: scriptId },
-      });
+      const objectId = new mongoose.Types.ObjectId(scriptId);
+      user.favourites.push(objectId as any);
     }
+
+    await user.save();
 
     await context.redis.del(`user:${userId}`);
 
@@ -306,7 +311,42 @@ export const scriptMutations = {
 
     return { status: true };
   },
+  removeAllParagraphs: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
 
+    const script = await Script.findById(scriptId);
+    if (!script) throw new GraphQLError("Script not found");
+
+    if (script.author.toString() !== userId) {
+      throw new GraphQLError("Only the author can clear the script");
+    }
+
+    // Wipe all paragraphs
+    script.paragraphs = [];
+    await script.save();
+
+    await invalidateScriptCache(context.redis, scriptId);
+    return script;
+  },
+
+  removeAllCollaborators: async (_: any, { scriptId }: { scriptId: string }, context: any) => {
+    const userId = context.user?.id;
+    if (!userId) throw new GraphQLError("User not authenticated");
+
+    const script = await Script.findById(scriptId);
+    if (!script) throw new GraphQLError("Script not found");
+
+    if (script.author.toString() !== userId) {
+      throw new GraphQLError("Only the author can remove all members");
+    }
+
+    script.collaborators = [];
+    await script.save();
+
+    await invalidateScriptCache(context.redis, scriptId);
+    return script;
+  },
   updateScript: async (
     _: any,
     {
@@ -314,11 +354,15 @@ export const scriptMutations = {
       title,
       description,
       visibility,
+      genres, // 🚨 ADDED
+      languages, // 🚨 ADDED
     }: {
       scriptId: string;
       title?: string;
       description?: string;
       visibility?: string;
+      genres?: string[]; // 🚨 ADDED
+      languages?: string[]; // 🚨 ADDED
     },
     context: any,
   ) => {
@@ -339,6 +383,9 @@ export const scriptMutations = {
     if (title !== undefined && title !== null) script.title = title;
     if (description !== undefined && description !== null) script.description = description;
     if (visibility !== undefined && visibility !== null) script.visibility = visibility;
+
+    if (genres !== undefined && genres !== null) script.genres = genres;
+    if (languages !== undefined && languages !== null) script.languages = languages;
 
     const isNowPublic = script.visibility === "Public";
 

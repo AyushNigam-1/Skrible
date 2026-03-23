@@ -27,11 +27,10 @@ const Dropdown: React.FC<DropdownProps> = ({
   options,
   value,
   onChange,
-  className = "w-max", // Changed default to w-max so it doesn't force full width
+  className = "w-max",
   icon: Icon,
   collapseOnMobile = false,
 }) => {
-  // Find the longest option string to set our fixed ghost width
   const longestOptionName = useMemo(() => {
     return [...options].sort((a, b) => b.name.length - a.name.length)[0]?.name || "Select...";
   }, [options]);
@@ -43,17 +42,18 @@ const Dropdown: React.FC<DropdownProps> = ({
           <>
             <ListboxButton
               className={clsx(
-                "relative rounded-xl bg-white/5 border border-white/10 shadow-sm outline-none transition-all duration-300 font-sans",
+                "relative rounded-xl bg-white/5 border border-white/10 shadow-sm outline-none transition-all duration-300 font-sans block",
                 "hover:bg-white/10 hover:border-white/20",
                 "focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50",
                 open && "bg-white/10 border-white/20 ring-2 ring-white/10"
               )}
             >
-              {/* 🚨 GHOST ELEMENT: Invisible, but dictates the exact width of the button based on the longest option! */}
               <div
                 className={clsx(
-                  "invisible flex items-center justify-between gap-2",
-                  collapseOnMobile ? "p-2 sm:py-2.5 sm:pl-3.5 sm:pr-3.5" : "py-2 pl-3.5 pr-3.5"
+                  "invisible flex items-center gap-2",
+                  collapseOnMobile
+                    ? "justify-center sm:justify-between p-2.5 sm:py-2.5 sm:px-3.5"
+                    : "justify-between py-2 px-3.5"
                 )}
                 aria-hidden="true"
               >
@@ -66,15 +66,18 @@ const Dropdown: React.FC<DropdownProps> = ({
                 <ChevronDown className={clsx("h-4 w-4 shrink-0", collapseOnMobile && "hidden sm:block")} />
               </div>
 
-              {/* VISIBLE ELEMENT: Absolutely positioned over the ghost element */}
+              {/* 🚨 VISIBLE ELEMENT */}
               <div
                 className={clsx(
-                  "absolute inset-0 flex items-center justify-between gap-2",
-                  collapseOnMobile ? "p-2 sm:py-2.5 sm:pl-3.5 sm:pr-3.5" : "py-2 pl-3.5 pr-3.5"
+                  "absolute inset-0 flex items-center gap-2",
+                  // Synchronized to perfectly match the ghost element
+                  collapseOnMobile
+                    ? "justify-center sm:justify-between p-2.5 sm:py-2.5 sm:px-3.5"
+                    : "justify-between py-2 px-3.5"
                 )}
               >
                 <div className="flex items-center gap-2 truncate text-sm font-semibold text-white">
-                  {Icon && <Icon className="w-5 h-5 sm:w-4 sm:h-4 text-gray-400 shrink-0" />}
+                  {Icon && <Icon className="w-5 h-5 sm:w-4 sm:h-4 text-gray-400 shrink-0 transition-colors group-hover:text-white" />}
                   <span className={clsx("truncate", collapseOnMobile && "hidden sm:block")}>
                     {value?.name || "Select..."}
                   </span>
@@ -94,8 +97,8 @@ const Dropdown: React.FC<DropdownProps> = ({
               anchor="bottom end"
               transition
               className={clsx(
-                // 🚨 FIX: Removed min-w-full. Added min-w-[var(--button-width)] so it perfectly matches the button size but never over-stretches!
-                "w-max min-w-[var(--button-width)] z-50 mt-2 rounded-xl border border-white/10 bg-[#161620] p-1.5 shadow-2xl outline-none font-sans",
+                "w-max z-50 mt-2 rounded-xl border border-white/10 bg-[#161620] p-1.5 shadow-2xl outline-none font-sans",
+                collapseOnMobile ? "min-w-[160px] sm:min-w-[var(--button-width)]" : "min-w-[var(--button-width)]",
                 "transition duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top",
                 "data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:-translate-y-2"
               )}

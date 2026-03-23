@@ -6,7 +6,6 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  FileText,
   Globe2,
   SearchX,
   ListFilter,
@@ -115,7 +114,6 @@ const MyContributions = () => {
     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: "easeOut" } },
   };
 
-  // Determine if we are actively searching/filtering vs just having an empty profile
   const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
   return (
@@ -152,25 +150,35 @@ const MyContributions = () => {
             exit="exit"
             className="flex flex-col w-full gap-5"
           >
-            {/* --- HEADER (Only visible if there are contributions or an active filter) --- */}
+            {/* --- HEADER --- */}
             {(hasAnyContributions || isFiltering) && (
               <>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h1 className="text-3xl font-extrabold font-sans tracking-tight">Contributions</h1>
+                {/* 🚨 THE FIX: CSS Grid for Mobile (Heading + Dropdown top, Search bottom) transitioning to Flex for Desktop */}
+                <div className="grid grid-cols-[1fr_auto] gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full">
+                  {/* 🚨 Heading dynamically resizes */}
+                  <h1 className="text-2xl sm:text-3xl font-extrabold font-sans tracking-tight self-center">
+                    Contributions
+                  </h1>
 
-                  {/* Search & Filter Controls */}
-                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <div className="w-full sm:w-64">
+                  {/* display: contents allows Search and Dropdown to participate in the parent Grid on mobile */}
+                  <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
+
+                    {/* Search is forced to the bottom row on mobile (col-span-2, order-last) */}
+                    <div className="col-span-2 order-last sm:order-none w-full sm:w-64">
                       <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search drafts..." />
                     </div>
-                    <Dropdown
-                      options={FILTER_OPTIONS}
-                      value={selectedFilter}
-                      onChange={setSelectedFilter}
-                      icon={ListFilter}
-                      collapseOnMobile={true}
-                      className="w-full sm:w-44 shrink-0"
-                    />
+
+                    {/* Dropdown naturally sits in Col 2, Row 1 next to the heading on mobile */}
+                    <div className="shrink-0 sm:w-44 self-center">
+                      <Dropdown
+                        options={FILTER_OPTIONS}
+                        value={selectedFilter}
+                        onChange={setSelectedFilter}
+                        icon={ListFilter}
+                        collapseOnMobile={true}
+                      />
+                    </div>
+
                   </div>
                 </div>
 
@@ -191,26 +199,25 @@ const MyContributions = () => {
                       className="group flex flex-col gap-4 h-full bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all duration-300"
                     >
                       {/* Card Header */}
-                      <div className="flex items-start justify-between">
-                        <div className="flex flex-col gap-2">
-                          <h3 className="font-extrabold text-white text-xl md:text-2xl line-clamp-1 font-sans tracking-tight">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex flex-col gap-2 min-w-0">
+                          <h3 className="font-extrabold text-white text-xl md:text-2xl truncate font-sans tracking-tight">
                             {group.script.title}
                           </h3>
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs uppercase tracking-widest font-bold">
                             ~ LAST SUBMIT: {formatFancyDate(group.latestDate)}
                           </div>
                         </div>
-                        <div className="shrink-0 flex items-center justify-center px-2 py-1 rounded bg-white/5 border border-white/5 text-xs text-gray-400 font-mono font-bold uppercase tracking-widest group-hover:text-gray-300 transition-colors">
+                        <div className="shrink-0 flex items-center justify-center px-2 py-1 rounded bg-white/5 border border-white/5 text-[10px] sm:text-xs text-gray-400 font-mono font-bold uppercase tracking-widest group-hover:text-gray-300 transition-colors mt-0.5">
                           {group.total} TOTAL
                         </div>
                       </div>
 
-                      <div className="text-gray-400 line-clamp-3 leading-relaxed flex-grow font-mono group-hover:text-gray-300 transition-colors mt-2 mb-2">
+                      <div className="text-gray-400 line-clamp-3 leading-relaxed flex-grow font-mono group-hover:text-gray-300 transition-colors mt-1 mb-2">
                         View all your contributions, feedback, and edits submitted to this draft.
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-auto">
-
                         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.08] transition-colors">
                           <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-400 uppercase tracking-widest leading-none">
                             <Clock size={14} className="text-gray-400 shrink-0" />
@@ -219,7 +226,6 @@ const MyContributions = () => {
                           <span className="text-xs font-bold text-gray-400 leading-none">{group.pending}</span>
                         </div>
 
-                        {/* Active Stat Box */}
                         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/[0.08] transition-colors">
                           <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-400 uppercase tracking-widest leading-none">
                             <CheckCircle size={14} className="text-gray-400 shrink-0" />
@@ -228,7 +234,6 @@ const MyContributions = () => {
                           <span className="text-xs font-bold text-gray-400 leading-none">{group.approved}</span>
                         </div>
 
-                        {/* Rejected Stat Box (Only shows if > 0) */}
                         {group.rejected > 0 && (
                           <div className="col-span-2 flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.05] group-hover:bg-white/[0.04] transition-colors mt-1">
                             <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-500 uppercase tracking-widest leading-none">
@@ -244,7 +249,6 @@ const MyContributions = () => {
                 ))}
               </motion.div>
             ) : (
-              /* --- EMPTY STATE (Animated & Matches Screenshot) --- */
               <motion.div
                 key="empty-state"
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}

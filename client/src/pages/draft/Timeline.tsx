@@ -7,11 +7,10 @@ import remarkGfm from "remark-gfm";
 import { FileText } from "lucide-react";
 
 import Loader from "../../components/layout/Loader";
-import Search from "../../components/layout/Search"; // Imported our reusable Search component
+import Search from "../../components/layout/Search";
 import ContributeModal from "../../components/modal/ContributeModal";
 import { EXPORT_DOCUMENT_QUERY } from "../../graphql/query/paragraphQueries";
 
-// 1. Define the Interface for the Outlet Context
 interface TimelineContext {
   data: any;
   refetch: () => void;
@@ -23,10 +22,11 @@ const Timeline = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [fetchDocument] = useLazyQuery(EXPORT_DOCUMENT_QUERY);
 
-  if (loading) return <Loader />;
+  // 🚨 REMOVED: if (loading) return <Loader />;
 
   // --- Filtering & Sorting Logic ---
-  const scriptId = data?.getScriptById?.id
+  // Default to empty arrays if data is still loading
+  const scriptId = data?.getScriptById?.id;
   const rawParagraphs = data?.getScriptById?.paragraphs || [];
 
   const processedParagraphs = useMemo(() => {
@@ -47,7 +47,6 @@ const Timeline = () => {
     );
   }, [rawParagraphs, searchQuery]);
 
-  // SAFE DATE PARSER (Formats to e.g., "Mar 8, 2026, 10:29 AM")
   const formatDate = (timestamp?: string | number): string => {
     if (!timestamp) return "";
     const isNumeric = /^\d+$/.test(String(timestamp));
@@ -62,7 +61,6 @@ const Timeline = () => {
     }).format(date);
   };
 
-  // --- Animation Variants ---
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -79,6 +77,15 @@ const Timeline = () => {
       transition: { duration: 0.5, ease: "easeOut" },
     },
   };
+
+  // 🚨 MOVED THE LOADING CHECK HERE
+  if (loading && !data) {
+    return (
+      <div className="flex justify-center items-center w-full min-h-[50vh]">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -104,7 +111,7 @@ const Timeline = () => {
             the draft!
           </p>
           <ContributeModal
-            scriptId={data?.getScriptById?.id}
+            scriptId={scriptId}
             refetch={refetch}
             variant="empty"
           />
@@ -126,7 +133,7 @@ const Timeline = () => {
 
           <div className="shrink-0">
             <ContributeModal
-              scriptId={data?.getScriptById?.id}
+              scriptId={scriptId}
               refetch={refetch}
               variant="header"
             />

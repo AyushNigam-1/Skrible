@@ -19,6 +19,12 @@ export const auth = betterAuth({
                 type: "string",
                 required: true,
                 unique: true,
+            },
+            favourites: {
+                type: "string[]",
+                required: false,
+                defaultValue: [],
+                input: false,
             }
         }
     },

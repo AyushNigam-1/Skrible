@@ -143,17 +143,49 @@ export const UPDATE_SCRIPT = gql`
     $title: String
     $description: String
     $visibility: String
+    $genres: [String]     
+    $languages: [String]
   ) {
     updateScript(
       scriptId: $scriptId
       title: $title
       description: $description
       visibility: $visibility
+      genres: $genres    
+      languages: $languages
     ) {
       id
       title
       description
       visibility
+      genres
+      languages
+    }
+  }
+`;
+
+export const REMOVE_ALL_PARAGRAPHS = gql`
+  mutation RemoveAllParagraphs($scriptId: ID!) {
+    removeAllParagraphs(scriptId: $scriptId) {
+      id
+      paragraphs {
+        id
+      }
+    }
+  }
+`;
+
+export const REMOVE_ALL_COLLABORATORS = gql`
+  mutation RemoveAllCollaborators($scriptId: ID!) {
+    removeAllCollaborators(scriptId: $scriptId) {
+      id
+      collaborators {
+        user {
+          id
+          name
+        }
+        role
+      }
     }
   }
 `;

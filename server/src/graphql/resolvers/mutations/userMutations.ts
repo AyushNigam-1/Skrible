@@ -33,9 +33,6 @@ const enforceRateLimit = async (
 
 export const userMutations = {
 
-  // 🚨 register, login, refreshToken, and logout were DELETED! 🚨
-  // Better Auth handles them via /api/auth/* now.
-
   toggleBookmark: async (
     _: any,
     { scriptId }: { scriptId: string },
@@ -60,6 +57,11 @@ export const userMutations = {
       await User.findByIdAndUpdate(userId, { $pull: { favourites: targetId } });
     } else {
       await User.findByIdAndUpdate(userId, { $addToSet: { favourites: targetId } });
+    }
+
+    const cacheKey = `user:${userId}:favourites:v3`;
+    if (context.redis) {
+      await context.redis.del(cacheKey);
     }
 
     return { status: true };

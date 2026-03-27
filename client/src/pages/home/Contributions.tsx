@@ -176,6 +176,8 @@ const MyContributions = () => {
                         onChange={setSelectedFilter}
                         icon={ListFilter}
                         collapseOnMobile={true}
+                        className="w-auto shrink-0"
+
                       />
                     </div>
 

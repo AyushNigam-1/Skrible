@@ -282,7 +282,6 @@ const NotificationModal = () => {
                     </DialogPanel>
                 </div>
             </Dialog>
-            <Toaster theme="dark" position="bottom-right" />
 
         </Fragment>
     );

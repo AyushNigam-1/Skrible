@@ -157,15 +157,17 @@ const Contributors: React.FC = () => {
       {paragraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center space-y-4 relative overflow-hidden"
+          className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[78vh] px-4 sm:px-6 text-center space-y-4 sm:space-y-5 relative overflow-hidden"
         >
-          <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
-            <Users className="w-8 h-8 text-white" />
+          <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+            <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
+
+          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
             No contributors yet
           </h3>
-          <p className="text-gray-400 max-w-md relative z-10">
+
+          <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
             This draft doesn't have any approved contributions right now.
           </p>
         </motion.div>

@@ -227,32 +227,32 @@ const Requests: React.FC = () => {
               />
             </motion.div>
 
-            {/* Feed Area */}
             {filteredAndSortedParagraphs.length === 0 ? (
-              /* Search Empty State (Clean, no background) */
               <motion.div
                 key="empty-state-search"
                 variants={itemVariants}
-                className="flex flex-col items-center justify-center py-20 px-4 text-center relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono"
+                className="flex flex-col items-center justify-center py-12 sm:py-20 px-4 sm:px-6 text-center relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 sm:space-y-4 font-mono"
               >
-                <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10 mb-2">
-                  <SearchIcon className="w-8 h-8 text-white" />
+                <div className="bg-white/10 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10 mb-1 sm:mb-2">
+                  <SearchIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white relative z-10">
+
+                <h3 className="text-xl sm:text-2xl font-bold text-white relative z-10">
                   No results found
                 </h3>
-                <p className="text-gray-400 max-w-md relative z-10">
+
+                <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
                   We couldn't find any contributions matching "{searchQuery}".
                 </p>
+
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="mt-6 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-sm font-semibold transition-all active:scale-95 z-10"
+                  className="mt-4 sm:mt-6 px-4 py-2 sm:px-5 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all active:scale-95 z-10"
                 >
                   Clear Search
                 </button>
               </motion.div>
             ) : (
-              /* Feed Grid Container */
               <motion.div
                 layout
                 className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10"

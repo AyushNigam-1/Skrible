@@ -49,8 +49,6 @@ export const router = createBrowserRouter([
             { path: "/profile/:id", element: Loadable(Profile) },
             { path: "/contributions", element: Loadable(MyContributions) },
             { path: "/zen/:id", element: Loadable(ZenMode) },
-            { path: "/preview/:id/:paragraphId", element: Loadable(Contribution) },
-            { path: "/contributions/:draftId/:userId", element: Loadable(UserContributions) },
             {
                 path: "/",
                 element: <DraftLayout />,
@@ -60,6 +58,8 @@ export const router = createBrowserRouter([
                     { path: "/contributors/:id", element: Loadable(Contributors) },
                     { path: "/about/:id", element: Loadable(ScriptDetails) },
                     { path: "/settings/:id", element: Loadable(DraftSettings) },
+                    { path: "/preview/:id/:paragraphId", element: Loadable(Contribution) },
+                    { path: "/contributions/:id/:userId", element: Loadable(UserContributions) },
                 ],
             },
         ],

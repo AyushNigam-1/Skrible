@@ -229,11 +229,11 @@ const DraftSettings: React.FC = () => {
 
       {/* ACCESS & VISIBILITY */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-lg">
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 sm:p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Eye className="w-5 h-5" /> Access & Visibility</h2>
           <p className="text-sm text-gray-400 mt-1">Manage who can view and interact with this draft globally.</p>
         </div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           {VISIBILITY_OPTIONS.map((option) => {
             const Icon = option.icon;
             const isActive = visibility === option.id;
@@ -254,7 +254,7 @@ const DraftSettings: React.FC = () => {
       {/* COLLABORATORS & ROLES */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-visible shadow-lg">
         {/* 🚨 FIXED: Invite Button perfectly aligned on the right of the heading */}
-        <div className="p-4 border-b border-white/10 flex flex-col ">
+        <div className="p-4 sm:p-6 border-b border-white/10 flex flex-col ">
           {/* <div> */}
           <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Shield className="w-5 h-5" /> Members & Roles</h2>
           <p className="text-sm text-gray-400 mt-1">Invite users and manage what they are allowed to do.</p>
@@ -264,7 +264,7 @@ const DraftSettings: React.FC = () => {
           </div> */}
         </div>
 
-        <div className="p-4">
+        <div className="p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-6 w-full">
             <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search members..." />
             <Dropdown options={FILTER_OPTIONS} value={selectedFilter} onChange={setSelectedFilter} icon={ListFilter} collapseOnMobile={true} />
@@ -318,14 +318,14 @@ const DraftSettings: React.FC = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-red-900/5 pointer-events-none" />
 
         {/* 🚨 FIXED: Strictly Left Aligned Text */}
-        <div className="p-4 border-b border-red-900/30 relative z-10 text-left">
+        <div className="p-4 sm:p-6 border-b border-red-900/30 relative z-10 text-left">
           <h2 className="text-lg font-bold text-red-500 flex items-center gap-2 font-sans tracking-tight justify-start"><AlertTriangle className="w-5 h-5" /> Danger Zone</h2>
           <p className="text-sm text-red-500/70 mt-1">Actions here cannot be undone. Please be certain.</p>
         </div>
 
         <div className="flex flex-col relative z-10 text-left">
           {/* Action 1: Clear All Content */}
-          <div className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
+          <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
             <div className="w-full md:w-auto">
               <p className="font-bold text-white text-sm">Clear All Content</p>
               <p className="text-sm text-gray-400 mt-1 font-sans">Erase all paragraphs and contributions. This acts as a hard reset for the draft's text.</p>
@@ -348,7 +348,7 @@ const DraftSettings: React.FC = () => {
 
           {/* Action 2: Remove All Members */}
           {script?.collaborators && script.collaborators.length > 0 && (
-            <div className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
+            <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
               <div className="w-full md:w-auto">
                 <p className="font-bold text-white text-sm">Remove All Members</p>
                 <p className="text-sm text-gray-400 mt-1 font-sans">Kick all invited collaborators at once. The draft will remain but only you will have access.</p>
@@ -371,7 +371,7 @@ const DraftSettings: React.FC = () => {
           )}
 
           {/* Action 3: Delete Draft */}
-          <div className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="w-full md:w-auto">
               <p className="font-bold text-white text-sm">Delete this Draft</p>
               <p className="text-sm text-gray-400 mt-1 font-sans">Once deleted, there is no going back. All text and members will be erased forever.</p>

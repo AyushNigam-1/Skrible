@@ -7,12 +7,11 @@ import {
     ThumbsUp,
     ThumbsDown,
     MessageSquare,
-    Search as SearchIcon,
+    SearchX,
     XCircle,
     FileText,
     Clock,
     CheckCircle,
-    SearchX,
     ListFilter
 } from "lucide-react";
 import { GET_USER_CONTRIBUTIONS_BY_SCRIPT } from "../../graphql/query/scriptQueries";
@@ -20,7 +19,6 @@ import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 
-// Filter Options for the Dropdown
 const FILTER_OPTIONS = [
     { id: "all", name: "All Requests" },
     { id: "approved", name: "Approved" },
@@ -29,14 +27,14 @@ const FILTER_OPTIONS = [
 ];
 
 const UserContributions = () => {
-    const { draftId, userId } = useParams<{ draftId: string; userId: string }>();
+    const { id, userId } = useParams<{ id: string; userId: string }>();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
     const { data, loading, error } = useQuery(GET_USER_CONTRIBUTIONS_BY_SCRIPT, {
-        variables: { scriptId: draftId || "", userId: userId || "" },
-        skip: !draftId || !userId,
+        variables: { scriptId: id || "", userId: userId || "" },
+        skip: !id || !userId,
         fetchPolicy: "cache-and-network",
     });
 
@@ -45,14 +43,12 @@ const UserContributions = () => {
     const filteredContributions = useMemo(() => {
         let result = contributions;
 
-        // 1. Apply Search Query
         if (searchQuery) {
             result = result.filter((c: any) =>
                 c.text.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
-        // 2. Apply Dropdown Filter
         if (selectedFilter.id !== "all") {
             result = result.filter((c: any) =>
                 (c.status?.toLowerCase() || "pending") === selectedFilter.id
@@ -106,13 +102,11 @@ const UserContributions = () => {
         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: "easeOut" } },
     };
 
-    const scriptTitle = contributions[0]?.script?.title || "Manuscript";
-
-    // Determine if we are actively searching/filtering vs just having an empty view
+    const authorName = contributions[0]?.author?.name || "User";
     const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
     return (
-        <div className="w-full max-w-7xl mx-auto font-mono pb-12">
+        <div className="w-full mx-auto font-mono">
             <AnimatePresence mode="wait">
                 {loading ? (
                     <motion.div
@@ -120,7 +114,7 @@ const UserContributions = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex items-center justify-center w-full min-h-[80vh]"
+                        className="flex items-center justify-center w-full min-h-[40vh]"
                     >
                         <Loader />
                     </motion.div>
@@ -130,7 +124,7 @@ const UserContributions = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
+                        className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4"
                     >
                         <XCircle className="w-8 h-8 text-red-500 mb-3" />
                         <h2 className="text-base font-bold text-white mb-1">
@@ -145,54 +139,46 @@ const UserContributions = () => {
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="flex flex-col gap-6 w-full"
+                        className="flex flex-col gap-4 sm:gap-6 w-full"
                     >
-                        {/* --- HEADER --- */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full">
+
+                            {/* 🚨 THE FIX: Minimal Header, Centered on Mobile, No Back Button on Mobile */}
+                            <div className="flex items-center justify-center lg:justify-start gap-3 w-full lg:w-auto min-w-0">
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="flex items-center justify-center w-9 h-9 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-gray-300 hover:text-white transition-all active:scale-95 shrink-0"
+                                    className="hidden lg:flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-gray-400 hover:text-white transition-all active:scale-95 shrink-0"
                                 >
-                                    <ArrowLeft size={18} />
+                                    <ArrowLeft className="w-4 h-4" />
                                 </button>
-                                <h1 className="text-2xl sm:text-3xl font-extrabold font-sans text-white tracking-tight antialiased line-clamp-1">
-                                    {scriptTitle}
-                                </h1>
+                                <div className="flex items-center gap-1.5 sm:gap-2 text-center lg:text-left">
+                                    <span className="text-base sm:text-lg text-gray-400 font-mono">
+                                        Contributions by
+                                    </span>
+                                    <span className="text-base sm:text-lg font-bold text-white font-sans truncate">
+                                        {authorName}
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Search & Filter Controls */}
-                            {/* <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                                        <div className="w-full sm:w-64">
-                                            <Search setSearch={setSearchQuery} placeholder="Search your library..." />
-                                        </div>
-                                        <Dropdown
-                                            options={FILTER_OPTIONS}
-                                            value={selectedFilter}
-                                            onChange={setSelectedFilter}
-                                            icon={ListFilter}
-                                            collapseOnMobile={true}
-                                            className="w-full sm:w-auto shrink-0"
-                                        />
-                                    </div> */}
-                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                                <div className="w-full sm:w-64">
+                            <div className="flex flex-row items-center gap-2 sm:gap-3 w-full lg:w-auto shrink-0">
+                                <div className="flex-1 lg:flex-none lg:w-64">
                                     <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search requests..." />
                                 </div>
-                                <Dropdown
-                                    options={FILTER_OPTIONS}
-                                    value={selectedFilter}
-                                    onChange={setSelectedFilter}
-                                    icon={ListFilter}
-                                    collapseOnMobile={true}
-                                    className="w-full sm:w-auto shrink-0"
-                                />
+                                <div className="shrink-0">
+                                    <Dropdown
+                                        options={FILTER_OPTIONS}
+                                        value={selectedFilter}
+                                        onChange={setSelectedFilter}
+                                        icon={ListFilter}
+                                        collapseOnMobile={true}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <hr className="border border-white/5" />
+                        <hr className="border border-white/5 hidden sm:block" />
 
-                        {/* --- GRID OR EMPTY STATE --- */}
                         {filteredContributions.length > 0 ? (
                             <motion.div
                                 variants={containerVariants}
@@ -205,19 +191,19 @@ const UserContributions = () => {
                                     return (
                                         <motion.div key={contribution.id} variants={itemVariants} layout>
                                             <Link
-                                                to={`/preview/${draftId}/${contribution.id}`}
-                                                className="group flex flex-col h-full bg-white/5 hover:bg-white/5 border border-white/10 rounded-2xl p-5 md:p-5 transition-all duration-300 overflow-hidden relative"
+                                                to={`/preview/${id}/${contribution.id}`}
+                                                className="group flex flex-col h-full bg-white/5 hover:bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 transition-all duration-300 overflow-hidden relative"
                                             >
                                                 <div className="flex items-start justify-between mb-4 gap-4">
-                                                    <div className="flex items-center gap-3.5">
+                                                    <div className="flex items-center gap-3.5 min-w-0">
                                                         <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center font-bold text-white text-sm shrink-0 shadow-inner">
                                                             {contribution.author.name.charAt(0).toUpperCase()}
                                                         </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-white font-bold font-sans text-base leading-tight">
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-white font-bold font-sans text-base leading-tight truncate">
                                                                 {contribution.author.name}
                                                             </span>
-                                                            <span className="text-xs text-gray-500 font-mono mt-0.5">
+                                                            <span className="text-xs text-gray-500 font-mono mt-0.5 whitespace-nowrap">
                                                                 {formatDate(contribution.createdAt)}
                                                             </span>
                                                         </div>
@@ -259,27 +245,26 @@ const UserContributions = () => {
                                 })}
                             </motion.div>
                         ) : (
-                            /* --- EMPTY STATE (Animated & Matches Theme) --- */
                             <motion.div
                                 key="empty-state"
                                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="flex flex-col items-center justify-center  text-center min-h-[86vh]"
+                                className="flex flex-col items-center justify-center py-12 sm:py-20 text-center min-h-[40vh]"
                             >
-                                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-4 sm:mb-6 shadow-inner">
                                     {isFiltering ? (
-                                        <SearchX className="w-10 h-10 text-gray-400" />
+                                        <SearchX className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                                     ) : (
-                                        <FileText className="w-10 h-10 text-gray-400" />
+                                        <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                                     )}
                                 </div>
 
-                                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                                <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 tracking-tight font-sans">
                                     {isFiltering ? "No Requests Found" : "No Contributions Yet"}
                                 </h3>
 
-                                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                                <p className="text-gray-400 text-sm font-mono max-w-sm sm:max-w-lg mb-6 sm:mb-8 leading-relaxed px-4">
                                     {isFiltering
                                         ? "We couldn't find any requests matching your current search or status filters."
                                         : "This user hasn't submitted any contributions to this manuscript yet."}
@@ -288,7 +273,7 @@ const UserContributions = () => {
                                 {!isFiltering && (
                                     <button
                                         onClick={() => navigate(-1)}
-                                        className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                                        className="flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-sm sm:text-base transition-all font-bold font-sans active:scale-95"
                                     >
                                         <ArrowLeft className="w-4 h-4" />
                                         Go Back

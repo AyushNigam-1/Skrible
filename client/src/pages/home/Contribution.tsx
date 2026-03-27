@@ -14,6 +14,7 @@ import {
   Loader2,
   Trash2,
   MessageSquare,
+  Clock,
 } from "lucide-react";
 import {
   useGetParagraphByIdQuery,
@@ -82,6 +83,17 @@ const Contribution: React.FC = () => {
     (p) => p.id === paragraphId
   );
 
+  const statusUI = (() => {
+    if (isTargetApproved || paragraph?.status === "approved") {
+      return { label: "Approved", color: "text-green-400 bg-green-500/10 border-green-500/20", icon: CheckCircle };
+    }
+    if (paragraph?.status === "rejected") {
+      return { label: "Rejected", color: "text-red-400 bg-red-500/10 border-red-500/20", icon: XCircle };
+    }
+    return { label: "Pending", color: "text-amber-400 bg-amber-500/10 border-amber-500/20", icon: Clock };
+  })();
+  const StatusIcon = statusUI.icon;
+
   const [approveParagraph, { loading: isApproving }] = useApproveParagraphMutation({
     refetchQueries: ["GetPendingParagraphs", "GetScriptById", "GetScriptContributors"]
   });
@@ -110,7 +122,7 @@ const Contribution: React.FC = () => {
       const timer = setTimeout(() => {
         const el = document.getElementById("target-card");
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       }, 500);
       return () => clearTimeout(timer);
@@ -151,11 +163,10 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
-      toast.success("Contribution approved successfully!"); // 🚨 Sonner
+      toast.success("Contribution approved successfully!");
       await refetch();
-      navigate(`/requests/${scriptId}`);
     } catch (err) {
-      toast.error("Failed to approve contribution."); // 🚨 Sonner
+      toast.error("Failed to approve contribution.");
     }
   };
 
@@ -173,11 +184,10 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
-      toast.success("Contribution rejected."); // 🚨 Sonner
+      toast.success("Contribution rejected.");
       await refetch();
-      navigate(`/requests/${scriptId}`);
     } catch (err) {
-      toast.error("Failed to reject contribution."); // 🚨 Sonner
+      toast.error("Failed to reject contribution.");
     }
   };
 
@@ -193,16 +203,16 @@ const Contribution: React.FC = () => {
         script_id: scriptId,
       });
 
-      toast.success("Contribution deleted."); // 🚨 Sonner
+      toast.success("Contribution deleted.");
       setShowDeleteConfirm(false);
-      navigate(`/requests/${scriptId}`);
+      navigate(-1);
     } catch (err) {
-      toast.error("Failed to delete contribution."); // 🚨 Sonner
+      toast.error("Failed to delete contribution.");
     }
   };
 
   const handleLike = async () => {
-    if (!currentUserId) return toast.error("Please log in to like this."); // 🚨 Sonner
+    if (!currentUserId) return toast.error("Please log in to like this.");
     const isLiked = localLikes.includes(currentUserId);
     const prevLikes = [...localLikes];
     const prevDislikes = [...localDislikes];
@@ -223,12 +233,12 @@ const Contribution: React.FC = () => {
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
-      toast.error("Failed to update like status."); // 🚨 Sonner
+      toast.error("Failed to update like status.");
     }
   };
 
   const handleDislike = async () => {
-    if (!currentUserId) return toast.error("Please log in to dislike this."); // 🚨 Sonner
+    if (!currentUserId) return toast.error("Please log in to dislike this.");
     const isDisliked = localDislikes.includes(currentUserId);
     const prevLikes = [...localLikes];
     const prevDislikes = [...localDislikes];
@@ -249,13 +259,13 @@ const Contribution: React.FC = () => {
     } catch (err) {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
-      toast.error("Failed to update dislike status."); // 🚨 Sonner
+      toast.error("Failed to update dislike status.");
     }
   };
 
   const handleAddComment = async (submittedText: string) => {
     if (!currentUser) {
-      toast.error("Please log in to comment."); // 🚨 Sonner
+      toast.error("Please log in to comment.");
       return;
     }
     try {
@@ -270,98 +280,36 @@ const Contribution: React.FC = () => {
       await addComment({
         variables: { paragraphId: paragraphId || "", text: submittedText },
       });
-      // Optional: toast.success("Comment posted!");
     } catch (err) {
       console.error("Failed to add comment:", err);
-      toast.error("Failed to post comment."); // 🚨 Sonner
+      toast.error("Failed to post comment.");
       setLocalComments(paragraph?.comments || []);
     }
   };
 
-  // --- REUSABLE TARGET CARD UI ---
   const renderTargetCard = () => (
-    <div className="flex flex-col h-auto bg-white/5 border border-white/10 rounded-2xl relative shadow-2xl">
-      <div className="sticky top-0 z-50 flex items-center justify-between p-4 bg-[#161620]/95 rounded-t-2xl transition-all duration-300">
-        <div className="flex items-center">
-          <AnimatePresence>
-            {isTargetSticky && (
-              <motion.div
-                initial={{ opacity: 0, width: 0, marginRight: 0 }}
-                animate={{ opacity: 1, width: 36, marginRight: 12 }}
-                exit={{ opacity: 0, width: 0, marginRight: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="overflow-hidden shrink-0 flex items-center"
-              >
-                <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center justify-center text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors shrink-0 h-9 w-9"
-                >
-                  <ArrowLeft size={18} className="shrink-0" />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+    // 🚨 THE FIX: Target paragraph highlighted, but completely stripped of redundant header info
+    <div className="flex flex-col h-auto bg-white/[0.08] border border-white/20 rounded-2xl relative shadow-lg ring-1 ring-white/10 transition-all">
 
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-sm shrink-0 ">
-              {paragraph?.author.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="font-bold text-white text-base leading-tight">
-                {paragraph?.author.name}
-              </p>
-              <p className="text-xs text-gray-400 font-mono mt-0.5">
-                {formatDate(paragraph?.createdAt)}
-              </p>
-            </div>
-          </div>
-        </div>
-        {isOwner && paragraph?.status === "pending" && (
-          <div className="flex gap-2">
-            <button
-              onClick={handleReject}
-              disabled={isRejecting || isApproving}
-              className="flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-2 bg-white/5 border border-white/10 hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 text-gray-300 rounded-lg text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
-            >
-              <XCircle size={18} />
-              <span className="hidden sm:inline">Reject</span>
-            </button>
-
-            <button
-              onClick={handleApprove}
-              disabled={isApproving || isRejecting}
-              className="flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-2 bg-gray-100 text-gray-800 rounded-lg text-sm font-bold transition-all hover:bg-white active:scale-95 disabled:opacity-50"
-            >
-              {isApproving ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : (
-                <CheckCircle size={18} />
-              )}
-              <span className="hidden sm:inline">Approve</span>
-            </button>
-          </div>
-        )}
-      </div>
-
+      {/* Content Area - No redundant author info or approve/reject buttons here! */}
       <div className="p-4 h-auto">
-        <div className="grid w-full relative items-start">
-          <div className="col-start-1 row-start-1 text-white font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                ul: ({ children }) => (
-                  <ul className="list-disc ml-5 m-0 p-0">{children}</ul>
-                ),
-                p: ({ children }) => <p className="m-0 p-0">{children}</p>,
-              }}
-            >
-              {paragraph?.text}
-            </ReactMarkdown>
-          </div>
+        <div className="col-start-1 row-start-1 text-gray-200 font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              ul: ({ children }) => (
+                <ul className="list-disc ml-5 m-0 p-0">{children}</ul>
+              ),
+              p: ({ children }) => <p className="m-0 p-0">{children}</p>,
+            }}
+          >
+            {paragraph?.text}
+          </ReactMarkdown>
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-t border-white/5 z-30 p-4 bg-[#161620]/95 backdrop-blur-md rounded-b-2xl">
+      {/* Engagement Footer */}
+      <div className="border-t border-white/10 p-4 bg-[#161620]/95 backdrop-blur-md rounded-b-2xl">
         <div className="flex flex-row items-center justify-between gap-4 text-gray-400 text-sm font-mono flex-wrap">
           <div className="flex items-center gap-2">
             <button
@@ -443,7 +391,7 @@ const Contribution: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-center w-full min-h-[96vh]"
+          className="flex items-center justify-center w-full min-h-[50vh]"
         >
           <Loader />
         </motion.div>
@@ -454,7 +402,7 @@ const Contribution: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col items-center justify-center w-full min-h-[80vh] text-center text-red-500 font-mono gap-4"
+          className="flex flex-col items-center justify-center w-full min-h-[50vh] text-center text-red-500 font-mono gap-4"
         >
           <XCircle className="w-10 h-10" />
           <p>Failed to load contribution.</p>
@@ -462,34 +410,86 @@ const Contribution: React.FC = () => {
       ) : (
         <motion.div
           key="content"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="w-full max-w-7xl mx-auto flex font-mono relative"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="w-full mx-auto flex flex-col font-mono relative space-y-6 pb-12"
         >
-          <div
-            className={`w-full flex flex-col transition-all duration-300 ease-in-out space-y-5`}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
-              <div className="flex items-center gap-3">
+          {/* 🚨 THE FIX: Sticky Glass Header with bottom border acting as an <hr /> */}
+          <div className="sticky top-0 z-40 w-full backdrop-blur-xl">
+            {/* 🚨 THE FIX: Forced flex-row so it stays on one line, justify-between pushes status to the right */}
+            <div className="flex flex-row items-center justify-between w-full gap-2 px-1">
+
+              {/* Left Side: Author Info (Back button hidden on mobile) */}
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <button
                   onClick={() => navigate(-1)}
-                  className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 p-2 rounded-full"
+                  // 🚨 Added hidden sm:flex
+                  className="hidden sm:flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white transition-all active:scale-95 shrink-0"
                 >
-                  <ArrowLeft size={18} />
+                  <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="font-extrabold font-sans text-3xl text-gray-200">
-                  Contribution
+
+                <div className="w-px h-8 bg-white/10 hidden sm:block" />
+
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="size-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-white font-bold  shrink-0 shadow-inner">
+                    {paragraph?.author?.name?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <p className="font-bold text-white  truncate">
+                      {paragraph?.author?.name || "Unknown Author"}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-mono mt-0.5 truncate">
+                      {formatDate(paragraph?.createdAt)}
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0">
+                {isOwner && paragraph?.status === "pending" ? (
+                  <>
+                    <button
+                      onClick={handleReject}
+                      disabled={isRejecting || isApproving}
+                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-500/10 border border-red-500/20 hover:border-red-500/50 hover:bg-red-500/20 text-red-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      <XCircle size={16} className="shrink-0" />
+                      <span className="hidden sm:inline">Reject</span>
+                    </button>
+
+                    <button
+                      onClick={handleApprove}
+                      disabled={isApproving || isRejecting}
+                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500/10 border border-green-500/20 hover:border-green-500/50 hover:bg-green-500/20 text-green-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      {isApproving ? (
+                        <Loader2 size={16} className="animate-spin shrink-0" />
+                      ) : (
+                        <CheckCircle size={16} className="shrink-0" />
+                      )}
+                      <span className="hidden sm:inline">Approve</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border text-[12px] sm:text-sm font-bold uppercase tracking-widest shrink-0 ${statusUI.color}`}>
+                    <StatusIcon className="w-4 sm:h-4 shrink-0" />
+                    <span className="translate-y-[1px]">{statusUI.label}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <motion.hr className="border-white/10" />
+          </div>
+
+          {/* Main Document Content */}
+          <div className="w-full flex flex-col space-y-6">
             {approvedParagraphs.length > 0 ? (
               <>
                 {approvedParagraphs.reduce((acc: JSX.Element[], para, index, arr) => {
                   if (para.id === paragraphId) {
                     acc.push(
-                      <div key={para.id} id="target-card" className="not-prose">
+                      <div key={para.id} id="target-card" className="not-prose scroll-mt-[120px]">
                         {renderTargetCard()}
                       </div>
                     );
@@ -524,7 +524,7 @@ const Contribution: React.FC = () => {
             )}
 
             {!isTargetApproved && paragraph && (
-              <div id="target-card" className="">
+              <div id="target-card" className="scroll-mt-[120px]">
                 {renderTargetCard()}
               </div>
             )}

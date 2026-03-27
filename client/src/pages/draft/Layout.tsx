@@ -63,8 +63,6 @@ const DraftLayout = () => {
   const isLiked = currentUserId ? localLikes.includes(currentUserId) : false;
   const isDisliked = currentUserId ? localDislikes.includes(currentUserId) : false;
 
-  // 🚨 REMOVED THE EARLY RETURN FOR ERRORS HERE!
-
   const handleLike = async () => {
     if (!currentUserId) {
       toast.error("Please log in to like this draft.");
@@ -175,7 +173,6 @@ const DraftLayout = () => {
       animate="visible"
       className="relative flex flex-col w-full max-w-7xl mx-auto space-y-6 min-h-[50vh]"
     >
-      {/* 🚨 MOVED ERROR HANDLING INTO JSX */}
       {error ? (
         <div className="flex flex-col justify-center items-center h-full text-red-500 font-mono py-20">
           <AlertTriangle className="w-10 h-10 mb-4 opacity-50" />
@@ -189,69 +186,62 @@ const DraftLayout = () => {
               variants={contentVariants}
               className="flex flex-col space-y-4"
             >
-              {/* Header & Actions */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 px-4 md:px-0">
-                {/* Title */}
-                <div className="w-full md:w-auto text-center md:text-left">
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight break-words">
+              {/* 🚨 THE FIX: Forced horizontal alignment, zero vertical stacking */}
+              <div className="flex flex-row items-center justify-between gap-4  w-full">
+
+                {/* Title (Truncates if too long on mobile to protect the buttons) */}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
                     {script.title}
                   </h1>
                 </div>
 
-                {/* Action Toolbar */}
-                <div className="flex items-center justify-center space-x-1 sm:space-x-2 border border-white/10 md:border-transparent rounded-2xl p-1.5 md:p-0 w-[max-content] mx-auto md:mx-0">
+                {/* Action Toolbar (Locked to the right side) */}
+                <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
                   <button
                     onClick={handleLike}
                     disabled={isLiking}
-                    className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${isLiked
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isLiked
+                      ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent"
+                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
                       }`}
                   >
-                    <ThumbsUp
-                      className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`}
-                    />
+                    <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
                     <span>{localLikes.length}</span>
                   </button>
 
                   <button
                     onClick={handleDislike}
                     disabled={isDisliking}
-                    className={`flex items-center space-x-2 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${isDisliked
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked
+                      ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent"
+                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
                       }`}
                   >
-                    <ThumbsDown
-                      className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`}
-                    />
+                    <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
                     <span>{localDislikes.length}</span>
                   </button>
 
-                  <div className="w-[1px] h-5 bg-white/10" />
+                  <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
 
                   <button
                     onClick={handleBookmark}
                     disabled={isBookmarking}
-                    className={`p-2 rounded-xl transition-all ${isBookmarked
-                      ? "text-white bg-white/10 shadow-sm"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                    className={`p-1.5 sm:p-2 rounded-lg transition-all ${isBookmarked
+                      ? "text-white bg-white/10 shadow-sm border border-white/10 md:border-transparent"
+                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
                       }`}
                   >
                     {isBookmarking ? (
                       <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <Bookmark
-                        className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`}
-                      />
+                      <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />
                     )}
                   </button>
-
                 </div>
               </div>
               <motion.hr className="border-b-0.5 border-white/10" />
 
-              {/* GitHub-style Tabs Container */}
               <div className="w-full border-b border-white/10">
                 <Tabs
                   setTab={setTab}

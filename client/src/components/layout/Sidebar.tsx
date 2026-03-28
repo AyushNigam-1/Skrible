@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
   return (
     <aside
-      className={`sticky top-0 h-screen transition-all duration-300 ease-in-out shrink-0 z-40 ${isOpen
+      className={`sticky top-0 h-screen transition-all duration-300 ease-in-out shrink-0 ${isOpen
         ? "w-72 opacity-100 visible overflow-hidden"
         : "w-0 opacity-0 invisible overflow-hidden"
         }`}

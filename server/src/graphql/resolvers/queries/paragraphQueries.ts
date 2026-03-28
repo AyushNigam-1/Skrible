@@ -95,10 +95,10 @@ export const paragraphQueries = {
         updatedAt: toUnixString(c.updatedAt),
         author: c.author
           ? {
-              ...c.author,
-              createdAt: toUnixString(c.author.createdAt),
-              updatedAt: toUnixString(c.author.updatedAt),
-            }
+            ...c.author,
+            createdAt: toUnixString(c.author.createdAt),
+            updatedAt: toUnixString(c.author.updatedAt),
+          }
           : null,
       }));
     }
@@ -107,7 +107,78 @@ export const paragraphQueries = {
 
     return obj;
   },
+  getFilteredRequests: async (
+    _: any,
+    { scriptId, userId, status }: { scriptId: string; userId?: string; status?: string },
+    context: MyContext,
+  ) => {
+    const ip =
+      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    await enforceRateLimit(context.redis, ip, "get_filtered_requests", 60, 60);
 
+    // 🚨 Bumped to :v2 to automatically clear any broken cache!
+    const cacheKey = `script:${scriptId}:reqs:${userId || "all"}:${status || "all"}:v2`;
+
+    const cachedRequests = await context.redis.get(cacheKey);
+    if (cachedRequests) {
+      return JSON.parse(cachedRequests);
+    }
+
+    const query: any = { script: scriptId };
+
+    if (userId) {
+      query.author = userId;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const paragraphs = await Paragraph.find(query)
+      .populate("author")
+      .populate("comments.author") // 🚨 THE FIX 1: We must populate the comment authors!
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedParagraphs = paragraphs.map((p: any) => ({
+      ...p,
+      id: p._id?.toString(),
+      // 🚨 THE FIX 2: Convert MongoDB ObjectIds to Strings for GraphQL
+      likes: p.likes?.map((id: any) => id.toString()) || [],
+      dislikes: p.dislikes?.map((id: any) => id.toString()) || [],
+      createdAt: toUnixString(p.createdAt),
+      updatedAt: toUnixString(p.updatedAt),
+      author: p.author
+        ? {
+          ...p.author,
+          id: p.author._id?.toString(),
+          createdAt: toUnixString(p.author.createdAt),
+          updatedAt: toUnixString(p.author.updatedAt),
+        }
+        : null,
+      // 🚨 THE FIX 3: Properly map through comments to format dates and populate their authors
+      comments: p.comments ? p.comments.map((c: any) => ({
+        ...c,
+        id: c._id?.toString(),
+        createdAt: toUnixString(c.createdAt),
+        updatedAt: toUnixString(c.updatedAt),
+        author: c.author ? {
+          ...c.author,
+          id: c.author._id?.toString(),
+          createdAt: toUnixString(c.author.createdAt),
+          updatedAt: toUnixString(c.author.updatedAt),
+        } : null
+      })) : []
+    }));
+
+    await context.redis.setEx(
+      cacheKey,
+      300,
+      JSON.stringify(formattedParagraphs),
+    );
+
+    return formattedParagraphs;
+  },
   getCombinedText: async (
     _: any,
     { scriptId }: { scriptId: string },
@@ -165,11 +236,11 @@ export const paragraphQueries = {
       updatedAt: toUnixString(p.updatedAt),
       author: p.author
         ? {
-            ...p.author,
-            id: p.author._id?.toString(),
-            createdAt: toUnixString(p.author.createdAt),
-            updatedAt: toUnixString(p.author.updatedAt),
-          }
+          ...p.author,
+          id: p.author._id?.toString(),
+          createdAt: toUnixString(p.author.createdAt),
+          updatedAt: toUnixString(p.author.updatedAt),
+        }
         : null,
     }));
 

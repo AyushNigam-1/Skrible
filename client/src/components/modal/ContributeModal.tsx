@@ -25,10 +25,6 @@ import {
 import { posthog } from "../providers/PostHogProvider";
 
 const contributeSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Summary is required")
-    .max(150, "Summary is too long (max 150 characters)"),
   content: z.string().min(1, "Content cannot be empty"),
 });
 
@@ -40,7 +36,6 @@ interface ContributeModalProps {
   refetch: () => void;
   variant?: "header" | "empty" | "edit";
   mode?: "create" | "edit";
-  initialTitle?: string;
   initialContent?: string;
 }
 
@@ -50,7 +45,6 @@ const ContributeModal = ({
   refetch,
   variant = "header",
   mode = "create",
-  initialTitle = "",
   initialContent = "",
 }: ContributeModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +66,6 @@ const ContributeModal = ({
     resolver: zodResolver(contributeSchema),
     mode: "onChange",
     defaultValues: {
-      title: initialTitle,
       content: initialContent,
     },
   });
@@ -80,7 +73,7 @@ const ContributeModal = ({
   const currentContent = watch("content", "");
 
   const openModal = () => {
-    reset({ title: initialTitle, content: initialContent });
+    reset({ content: initialContent });
     setIsPreview(false);
     setIsOpen(true);
   };
@@ -91,7 +84,8 @@ const ContributeModal = ({
   };
 
   const onSubmit = async (data: ContributeFormValues) => {
-    const finalPayload = `### ${data.title.trim()}\n\n${data.content.trim()}`;
+    // 🚨 Payload is now just the pure content without injecting a markdown heading
+    const finalPayload = data.content.trim();
 
     try {
       if (mode === "create") {
@@ -106,7 +100,7 @@ const ContributeModal = ({
 
         const newParagraphId = response.data?.submitParagraph?.id;
         if (newParagraphId) {
-          navigate(`/preview/${scriptId}/${newParagraphId}`);
+          navigate(`/contribution/${scriptId}/${newParagraphId}`);
         } else {
           navigate(`/requests/${scriptId}`);
         }
@@ -120,7 +114,7 @@ const ContributeModal = ({
         closeModal();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       console.error(`Error ${mode === "create" ? "submitting" : "editing"} contribution:`, error);
       alert(`Failed to ${mode === "create" ? "submit" : "save"}. Please try again.`);
     }
@@ -168,11 +162,11 @@ const ContributeModal = ({
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden rounded-3xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-6 p-4 md:p-6"
+              className="relative transform overflow-hidden rounded-3xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-5 p-6"
             >
               <div className="flex justify-between items-center ">
                 <div>
-                  <h3 className="text-2xl font-extrabold text-white tracking-tight">
+                  <h3 className="text-white font-extrabold text-xl sm:text-2xl tracking-tight">
                     {mode === "create" ? "New Contribution" : "Edit Contribution"}
                   </h3>
                 </div>
@@ -185,28 +179,7 @@ const ContributeModal = ({
               </div>
               <hr className="border-b border-white/5 " />
 
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-                <div>
-                  <label className={`${labelClass} mb-2`}>Summary</label>
-                  <input
-                    type="text"
-                    {...register("title")}
-                    disabled={isSubmitting}
-                    className={clsx(
-                      inputClass,
-                      errors.title &&
-                      "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
-                    )}
-                    placeholder="e.g., Introduced a new plot twist..."
-                    autoFocus
-                  />
-                  {errors.title && (
-                    <p className="text-red-400 text-xs mt-1.5 ml-1 font-mono">
-                      {errors.title.message}
-                    </p>
-                  )}
-                </div>
-
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
                 <div className="flex flex-col">
                   <div className="flex items-center justify-between mb-2">
                     <label className={labelClass}>Content</label>
@@ -237,7 +210,6 @@ const ContributeModal = ({
                       {isPreview ? (
                         <motion.div
                           key="preview-pane"
-                          // 🚨 REMOVED: y coordinates. Pure opacity fade for stability.
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -260,7 +232,6 @@ const ContributeModal = ({
                       ) : (
                         <motion.textarea
                           key="editor-pane"
-                          // 🚨 REMOVED: y coordinates. Pure opacity fade for stability.
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -288,7 +259,7 @@ const ContributeModal = ({
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="group flex items-center mx-auto justify-center min-w-[140px] gap-2 px-6 py-3 mt-4 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
+                  className="group flex items-center mx-auto justify-center min-w-[140px] gap-2 px-6 py-3 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin text-black" />

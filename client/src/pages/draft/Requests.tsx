@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -9,15 +9,19 @@ import {
   ThumbsUp,
   ThumbsDown,
   MessageSquare,
-  Filter,
   Search as SearchIcon,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Activity,
+  AlertCircle
 } from "lucide-react";
 
 import Loader from "../../components/layout/Loader";
-import { GET_PENDING_PARAGRAPHS } from "../../graphql/query/paragraphQueries";
 import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import ContributeModal from "../../components/modal/ContributeModal";
+import { GET_FILTERED_REQUESTS } from "../../graphql/query/paragraphQueries";
 
 // --- Types ---
 type Paragraph = {
@@ -26,302 +30,235 @@ type Paragraph = {
 };
 
 type Author = {
-  name?: string;
+  id: string;
+  name: string;
 };
 
 type RequestType = {
-  id?: string;
+  id: string;
   text: string;
   createdAt?: string | number;
   author?: Author;
   likes?: string[];
   dislikes?: string[];
   comments?: any[];
+  status?: string;
 };
 
-type ScriptData = {
-  getScriptById?: {
-    id: string;
-    paragraphs: Paragraph[];
-  };
-};
-
-type PendingData = {
-  getPendingParagraphs: RequestType[];
+type FilteredRequestsData = {
+  getFilteredRequests: RequestType[];
 };
 
 type OutletContextType = {
   request: RequestType | null;
-  setRequest: (req: RequestType | null) => void;
-  data: ScriptData;
+  data: { getScriptById?: { id: string } };
   refetch: () => void;
-  setTab: (tab: string) => void;
 };
 
-// --- Filter Configuration ---
-const filterOptions: DropdownOption[] = [
-  { id: "newest", name: "Newest First" },
-  { id: "oldest", name: "Oldest First" },
-  { id: "most_liked", name: "Most Liked" },
-  { id: "most_commented", name: "Most Discussed" },
+const statusOptions: DropdownOption[] = [
+  { id: "all", name: "All Statuses" },
+  { id: "pending", name: "Pending" },
+  { id: "approved", name: "Approved" },
+  { id: "rejected", name: "Rejected" },
 ];
 
 const Requests: React.FC = () => {
   const navigate = useNavigate();
-  const { data } = useOutletContext<OutletContextType>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userId = searchParams.get("userId");
 
-  const scriptId = data?.getScriptById?.id;
+  const { data: scriptContextData } = useOutletContext<OutletContextType>();
+  const scriptId = scriptContextData?.getScriptById?.id;
 
-  const { data: pendingData, loading, refetch } = useQuery<PendingData>(
-    GET_PENDING_PARAGRAPHS,
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<DropdownOption>(
+    userId ? statusOptions[0] : statusOptions[1]
+  );
+
+  const queryVariables: any = { scriptId };
+  if (userId) queryVariables.userId = userId;
+  if (selectedStatus.id !== "all") queryVariables.status = selectedStatus.id.toLowerCase();
+
+  const { data, loading, error, refetch } = useQuery<FilteredRequestsData>(
+    GET_FILTERED_REQUESTS,
     {
-      variables: { scriptId },
+      variables: queryVariables,
       skip: !scriptId,
       fetchPolicy: "cache-and-network",
-    },
+    }
   );
 
-  const pendingParagraphs = pendingData?.getPendingParagraphs || [];
+  const rawParagraphs = data?.getFilteredRequests || [];
+  const authorName = userId && rawParagraphs.length > 0 ? rawParagraphs[0].author?.name : null;
 
-  // --- Local State for Search & Filter ---
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(
-    filterOptions[0],
-  );
+  useEffect(() => {
+    if (userId && authorName && searchQuery === "") {
+      setSearchQuery(`author:${authorName.toLowerCase().replace(/\s+/g, '-')}`);
+    }
+  }, [userId, authorName]);
 
-  // --- Search & Filter Logic ---
-  const filteredAndSortedParagraphs = useMemo(() => {
-    let result = [...pendingParagraphs];
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (value === "" && userId) {
+      searchParams.delete("userId");
+      setSearchParams(searchParams);
+      setSelectedStatus(statusOptions[1]);
+    }
+  };
 
+  const clearUserFilter = () => {
+    searchParams.delete("userId");
+    setSearchParams(searchParams);
+    setSearchQuery("");
+    setSelectedStatus(statusOptions[1]);
+  };
+
+  const filteredParagraphs = useMemo(() => {
+    let result = [...rawParagraphs];
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (req) =>
-          req.text?.toLowerCase().includes(query) ||
-          req.author?.name?.toLowerCase().includes(query),
-      );
-    }
-
-    result.sort((a, b) => {
-      switch (selectedFilter.id) {
-        case "newest":
-          return Number(b.createdAt || 0) - Number(a.createdAt || 0);
-        case "oldest":
-          return Number(a.createdAt || 0) - Number(b.createdAt || 0);
-        case "most_liked":
-          return (b.likes?.length || 0) - (a.likes?.length || 0);
-        case "most_commented":
-          return (b.comments?.length || 0) - (a.comments?.length || 0);
-        default:
-          return 0;
+      if (!query.startsWith('author:')) {
+        result = result.filter(
+          (req) =>
+            req.text?.toLowerCase().includes(query) ||
+            req.author?.name?.toLowerCase().includes(query),
+        );
       }
-    });
-
+    }
     return result;
-  }, [pendingParagraphs, searchQuery, selectedFilter]);
+  }, [rawParagraphs, searchQuery]);
 
-  // SAFE DATE PARSER
   const formatDate = (timestamp?: string | number): string => {
     if (!timestamp) return "";
-    const isNumeric = /^\d+$/.test(String(timestamp));
-    const date = isNumeric ? new Date(Number(timestamp)) : new Date(timestamp);
-
-    if (isNaN(date.getTime())) return "Unknown Date";
-
+    const date = new Date(Number(timestamp));
     return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
     }).format(date);
   };
 
-  // --- STAGGERED ANIMATION VARIANTS ---
+  const getStatusConfig = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case "approved":
+        return { color: "text-green-400 bg-green-500/10 border-green-500/20", icon: CheckCircle, label: "Approved" };
+      case "rejected":
+        return { color: "text-red-400 bg-red-500/10 border-red-500/20", icon: XCircle, label: "Rejected" };
+      default:
+        return { color: "text-amber-400 bg-amber-500/10 border-amber-500/20", icon: Clock, label: "Pending" };
+    }
+  };
+
+  // 🚨 THE FIX: Replaced simple variants with the synced stagger animation
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.4, ease: "easeOut", staggerChildren: 0.08 },
+      transition: { staggerChildren: 0.05 }
     },
-    exit: { opacity: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 15 },
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
+      scale: 1,
+      transition: { type: "tween", ease: "easeOut", duration: 0.4 }
     },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
 
+  const isFiltering = searchQuery !== "" || selectedStatus.id !== "all" || userId;
+
   return (
-    <div className="w-full flex-1 flex flex-col" id="requests">
+    <div className="w-full flex-1 flex flex-col">
       <AnimatePresence mode="wait">
-        {loading && !pendingData ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center justify-center w-full min-h-[81vh]"
-          >
-            <Loader />
-          </motion.div>
-        ) : pendingParagraphs.length === 0 ? (
-          /* Global Empty State */
-          <motion.div
-            key="empty-state-global"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="flex flex-col items-center justify-center py-20 px-4 text-center shadow-lg relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 font-mono min-h-[81vh]"
-          >
-            <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
-              <Inbox className="w-8 h-8 text-white" />
-            </div>
-            <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
-              No pending contributions
-            </h3>
-            <p className="text-gray-400 max-w-md relative z-10">
-              There are currently no open requests. Wait for collaborators to
-              propose new additions to this draft!
+        {loading && !data ? (
+          <div className="flex items-center justify-center w-full min-h-[50vh]"><Loader /></div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+            <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
+            <p className="text-red-400 font-mono text-sm max-w-md">
+              Error loading requests. Check if your backend resolver handles the "status" parameter correctly.
             </p>
-            <ContributeModal
-              scriptId={data?.getScriptById?.id}
-              refetch={refetch}
-              variant="empty"
-            />
+            <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-white/5 rounded-lg text-white border border-white/10 hover:bg-white/10 transition-all">Retry</button>
+          </div>
+        ) : rawParagraphs.length === 0 && !isFiltering ? (
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center justify-center py-20 text-center space-y-4 font-mono min-h-[60vh]">
+            <div className="bg-white/10 border border-white/20 p-4 rounded-full"><Inbox className="w-8 h-8 text-white" /></div>
+            <h3 className="text-2xl font-bold text-white tracking-tight font-sans">No requests yet</h3>
+            <ContributeModal scriptId={scriptId} refetch={refetch} variant="empty" />
           </motion.div>
         ) : (
-          /* Main Content Block */
-          <motion.div
-            key="main-content"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="w-full flex flex-col gap-6"
-          >
-            {/* Action Bar */}
-            <motion.div
-              variants={itemVariants}
-              className="flex items-center justify-between gap-3 relative z-20 w-full max-w-7xl mx-auto"
-            >
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col gap-6">
+
+            {/* 🚨 THE FIX: Applied itemVariants to the search bar so it animates in sequence */}
+            <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl mx-auto gap-4">
               <Search
                 value={searchQuery}
-                setSearch={setSearchQuery}
-                placeholder="Search requests..."
-                className="w-full sm:max-w-60"
+                setSearch={handleSearchChange}
+                placeholder={userId ? `Filtering by user...` : "Search requests..."}
+                className="flex-1 min-w-0 sm:max-w-60"
               />
-
               <Dropdown
-                options={filterOptions}
-                value={selectedFilter}
-                onChange={setSelectedFilter}
-                icon={Filter}
+                options={statusOptions}
+                value={selectedStatus}
+                onChange={setSelectedStatus}
+                icon={Activity}
                 className="w-auto shrink-0"
-                collapseOnMobile={true}
               />
             </motion.div>
 
-            {filteredAndSortedParagraphs.length === 0 ? (
-              <motion.div
-                key="empty-state-search"
-                variants={itemVariants}
-                className="flex flex-col items-center justify-center py-12 sm:py-20 px-4 sm:px-6 text-center relative overflow-hidden max-w-3xl mx-auto w-full space-y-3 sm:space-y-4 font-mono"
-              >
-                <div className="bg-white/10 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10 mb-1 sm:mb-2">
-                  <SearchIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                </div>
-
-                <h3 className="text-xl sm:text-2xl font-bold text-white relative z-10">
-                  No results found
-                </h3>
-
-                <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
-                  We couldn't find any contributions matching "{searchQuery}".
-                </p>
-
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="mt-4 sm:mt-6 px-4 py-2 sm:px-5 sm:py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all active:scale-95 z-10"
-                >
-                  Clear Search
-                </button>
+            {filteredParagraphs.length === 0 ? (
+              <motion.div variants={itemVariants} className="flex flex-col items-center justify-center py-20 text-gray-400 font-mono">
+                <SearchIcon className="mb-4 opacity-20" size={48} />
+                <p>No results found for this status.</p>
+                <button onClick={clearUserFilter} className="mt-4 text-xs text-indigo-400 hover:underline">Clear all filters</button>
               </motion.div>
             ) : (
-              <motion.div
-                layout
-                className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10"
-              >
-                {/* 🚨 FIX: Removed buggy popLayout */}
-                <AnimatePresence>
-                  {filteredAndSortedParagraphs.map((req) => (
-                    <motion.div
-                      layout
-                      key={req.id}
-                      variants={itemVariants}
-                      // 🚨 FIX: Explicitly enforce the animation states here
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      onClick={() => navigate(`/preview/${scriptId}/${req.id}`)}
-                      className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-lg flex flex-col gap-4 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white font-semibold shadow-inner border border-white/10">
-                          {req.author?.name?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-bold text-white font-mono">
-                            {req.author?.name || "Unknown"}
-                          </p>
-                          <p className="text-sm text-gray-400 font-mono">
-                            {formatDate(req.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="prose prose-sm dark:prose-invert max-w-none text-gray-400 line-clamp-4">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            ul: ({ children }) => (
-                              <ul className="list-disc ml-5 mb-2">
-                                {children}
-                              </ul>
-                            ),
-                            p: ({ children }) => (
-                              <p className="mb-0">{children}</p>
-                            ),
-                          }}
-                        >
-                          {req.text}
-                        </ReactMarkdown>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-6 text-gray-400 text-sm font-mono mt-auto">
-                        <div className="flex items-center gap-6 ">
-                          <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                            <ThumbsUp className="w-4 h-4" />
-                            <span>{req.likes?.length || 0}</span>
+              <motion.div variants={containerVariants} className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+                <AnimatePresence mode="popLayout">
+                  {filteredParagraphs.map((req) => {
+                    const statusInfo = getStatusConfig(req.status);
+                    const StatusIcon = statusInfo.icon;
+                    return (
+                      <motion.div
+                        layout
+                        key={req.id}
+                        variants={itemVariants} // 🚨 THE FIX: Replaced hardcoded animation with synced variants
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+                        onClick={() => navigate(`/contribution/${scriptId}/${req.id}`)}
+                        className="bg-white/5 border border-white/10 rounded-2xl p-5 cursor-pointer hover:bg-white/10 transition-colors flex flex-col gap-4 relative group"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center text-white font-bold shadow-inner">
+                              {req.author?.name?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                            <div>
+                              <p className="font-bold text-white font-mono">{req.author?.name || "Unknown"}</p>
+                              <p className="text-xs text-gray-500 font-mono">{formatDate(req.createdAt)}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                            <ThumbsDown className="w-4 h-4" />
-                            <span>{req.dislikes?.length || 0}</span>
+                          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-widest ${statusInfo.color}`}>
+                            <StatusIcon size={12} />
+                            <span>{statusInfo.label}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                          <MessageSquare className="w-4 h-4" />
-                          <span>{req.comments?.length || 0}</span>
+                        <div className="prose prose-sm dark:prose-invert text-gray-400 line-clamp-3">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{req.text}</ReactMarkdown>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                        <div className="flex items-center gap-6 text-gray-500 text-xs font-mono mt-auto pt-2">
+                          <span className="flex items-center gap-1.5"><ThumbsUp size={14} /> {req.likes?.length || 0}</span>
+                          <span className="flex items-center gap-1.5"><ThumbsDown size={14} /> {req.dislikes?.length || 0}</span>
+                          <span className="flex items-center gap-1.5 ml-auto"><MessageSquare size={14} /> {req.comments?.length || 0}</span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </motion.div>
             )}

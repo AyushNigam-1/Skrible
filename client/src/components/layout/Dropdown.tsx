@@ -9,7 +9,7 @@ import { ChevronDown, Check, LucideIcon } from "lucide-react";
 import clsx from "clsx";
 
 export interface DropdownOption {
-  id: string | number;
+  id: string;
   name: string;
   [key: string]: any;
 }

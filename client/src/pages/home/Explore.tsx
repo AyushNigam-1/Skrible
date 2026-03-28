@@ -32,16 +32,16 @@ const Explore = () => {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    show: {
+    visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.08 },
+      transition: { staggerChildren: 0.05 } // Added stagger to match Favourites
     },
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30, scale: 0.98 },
-    show: {
+    hidden: { opacity: 0, y: 15, scale: 0.98 },
+    visible: { // 🚨 THE FIX: Changed 'show' to 'visible' so the header can find it!
       opacity: 1,
       y: 0,
       scale: 1,
@@ -50,18 +50,7 @@ const Explore = () => {
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
 
-  const cardContainerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
-    exit: { opacity: 0, transition: { duration: 0.2 } },
-  };
-
-  // Check if we are actively searching or filtering by genre
   const isFiltering = search !== "" || genres.length > 0;
-  // Check if there are any scripts returned at all
   const hasAnyScripts = rawScripts.length > 0;
 
   return (
@@ -107,7 +96,7 @@ const Explore = () => {
               key="content"
               variants={containerVariants}
               initial="hidden"
-              animate="show"
+              animate="visible"
               exit="exit"
               className="flex flex-col gap-4 w-full"
             >
@@ -115,6 +104,8 @@ const Explore = () => {
                 <>
                   <motion.div
                     variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
                     className="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
                   >
                     <div className="flex items-center justify-between w-full md:w-auto">
@@ -135,9 +126,18 @@ const Explore = () => {
                     </div>
                   </motion.div>
 
-                  <motion.hr variants={itemVariants} className="border-white/10" />
+                  <motion.hr
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="border-white/10"
+                  />
 
-                  <motion.div variants={itemVariants}>
+                  <motion.div
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     <Genres
                       selectedGenres={genres}
                       onGenreChange={handleGenreChange}
@@ -149,11 +149,10 @@ const Explore = () => {
               {/* --- CONTENT AREA --- */}
               <div className="flex-1">
                 {!hasAnyScripts && !isFiltering ? (
-                  /* GLOBAL EMPTY STATE (Platform has 0 drafts) */
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
                     className="flex flex-col gap-4 items-center justify-center text-center relative overflow-hidden min-h-[96vh]"
                   >
                     <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
@@ -170,11 +169,11 @@ const Explore = () => {
                     </div>
                   </motion.div>
                 ) : !filteredScripts || filteredScripts.length === 0 ? (
-                  /* NOT FOUND STATE (Filtering yielded 0 results) */
                   <motion.div
                     key="not-found"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.4 } }}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
                     className="flex flex-col items-center justify-center text-center relative overflow-hidden pt-12"
                   >
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
@@ -190,18 +189,23 @@ const Explore = () => {
                     </p>
                   </motion.div>
                 ) : (
-                  /* GRID OF CARDS */
                   <motion.div
-                    variants={cardContainerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
                     layout
                     className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 font-sans"
                   >
                     <AnimatePresence mode="popLayout">
                       {filteredScripts.map((script) => (
-                        <DraftCard key={script!.id} script={script! as any} />
+                        <motion.div
+                          key={script!.id}
+                          layout
+                          variants={itemVariants}
+                          initial="hidden"
+                          animate="visible" // 🚨 THE FIX: Changed 'show' to 'visible' to match the variant
+                          exit="exit"
+                          className="h-full"
+                        >
+                          <DraftCard script={script! as any} />
+                        </motion.div>
                       ))}
                     </AnimatePresence>
                   </motion.div>

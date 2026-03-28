@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -27,11 +27,24 @@ const FILTER_OPTIONS = [
   { id: "horror", name: "Horror" },
 ];
 
-const Favourites = () => {
+const Bookmarks = () => {
   const { user } = useUserStore();
   const currentUserId = user?.id;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
+
+  // 🚨 THE FIX: Grace Period State
+  const [showAuthWarning, setShowAuthWarning] = useState(false);
+
+  useEffect(() => {
+    if (!currentUserId) {
+      // Give the auth store 800ms to hydrate before flashing the warning screen
+      const timer = setTimeout(() => setShowAuthWarning(true), 800);
+      return () => clearTimeout(timer);
+    } else {
+      setShowAuthWarning(false);
+    }
+  }, [currentUserId]);
 
   const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {
     variables: { userId: currentUserId },
@@ -63,7 +76,7 @@ const Favourites = () => {
   // --- Sleek Slide-Up Variants ---
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    show: {
+    visible: {
       opacity: 1,
       transition: { staggerChildren: 0.05 },
     },
@@ -72,7 +85,7 @@ const Favourites = () => {
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15, scale: 0.98 },
-    show: {
+    visible: {
       opacity: 1,
       y: 0,
       scale: 1,
@@ -81,43 +94,16 @@ const Favourites = () => {
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
 
-  // --- Authentication Check ---
-  if (!currentUserId) {
-    return (
-      <div className="w-full max-w-7xl mx-auto min-h-[80vh] flex flex-col items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col items-center justify-center text-center max-w-md w-full"
-        >
-          <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
-            <Lock className="w-8 h-8 text-gray-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2 font-sans tracking-tight">
-            Authentication Required
-          </h2>
-          <p className="text-gray-400 text-sm font-mono leading-relaxed mb-8 max-w-[280px]">
-            Please sign in to view and manage your bookmarked manuscripts.
-          </p>
-          <Link
-            to="/login"
-            className="flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
-          >
-            Sign In to Continue
-          </Link>
-        </motion.div>
-      </div>
-    );
-  }
-
-  const hasAnyFavorites = favourites.length > 0;
+  const hasAnyBookmark = favourites.length > 0;
   const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
+  // 🚨 THE FIX: No more early returns! Everything happens inside the single AnimatePresence tree.
   return (
     <div className="w-full max-w-7xl mx-auto h-full text-white pb-10">
       <AnimatePresence mode="wait">
-        {loading ? (
+
+        {/* State 1: Unified loading state (handles both auth hydrating AND data fetching) */}
+        {(!currentUserId && !showAuthWarning) || loading ? (
           <motion.div
             key="loader"
             initial={{ opacity: 0 }}
@@ -127,135 +113,168 @@ const Favourites = () => {
           >
             <Loader />
           </motion.div>
-        ) : error ? (
-          <motion.div
-            key="error"
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
-          >
-            <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
-            <h2 className="text-base font-bold text-white mb-1">
-              Failed to load favorites
-            </h2>
-            <p className="text-gray-400 max-w-sm text-sm font-mono">
-              {error.message}
-            </p>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="content"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="flex flex-col w-full gap-5"
-          >
-            {(hasAnyFavorites || isFiltering) && (
-              <>
-                {/* 🚨 THE FIX: CSS Grid for Mobile (Heading + Dropdown top, Search bottom) transitioning to Flex for Desktop */}
-                <div className="grid grid-cols-[1fr_auto] gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full">
-                  {/* Heading dynamically resizes */}
-                  <h1 className="text-2xl sm:text-3xl font-extrabold font-sans tracking-tight self-center">
-                    Favorites
-                  </h1>
+        ) :
 
-                  {/* display: contents allows Search and Dropdown to participate in the parent Grid on mobile */}
-                  <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
-
-                    {/* Search is forced to the bottom row on mobile (col-span-2, order-last) */}
-                    <div className="col-span-2 order-last sm:order-none w-full sm:w-64">
-                      <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search your library..." />
-                    </div>
-
-                    {/* Dropdown naturally sits in Col 2, Row 1 next to the heading on mobile */}
-                    <div className="shrink-0 sm:w-auto self-center">
-                      <Dropdown
-                        options={FILTER_OPTIONS}
-                        value={selectedFilter}
-                        onChange={setSelectedFilter}
-                        icon={ListFilter}
-                        collapseOnMobile={true}
-                      />
-                    </div>
-
-                  </div>
+          /* State 2: Auth Warning (Shows gracefully only if not logged in after 800ms) */
+          !currentUserId && showAuthWarning ? (
+            <motion.div
+              key="auth-warning"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="flex flex-col items-center justify-center w-full min-h-[80vh] px-4"
+            >
+              <div className="flex flex-col items-center justify-center text-center max-w-md w-full">
+                <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
+                  <Lock className="w-8 h-8 text-gray-500" />
                 </div>
-                <hr className="border border-white/5" />
-              </>
-            )}
-
-            {!hasAnyFavorites && !isFiltering ? (
-              <motion.div
-                key="empty-library"
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col items-center justify-center gap-4  text-center min-h-[96vh]"
-              >
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
-                  <BookmarkX className="w-10 h-10 text-gray-400" />
-                </div>
-                <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans">
-                  No Bookmarks Yet
-                </h3>
-                <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
-                  You haven't bookmarked any drafts yet. Start exploring to build your collection.
+                <h2 className="text-2xl font-bold text-white mb-2 font-sans tracking-tight">
+                  Authentication Required
+                </h2>
+                <p className="text-gray-400 text-sm font-mono leading-relaxed mb-8 max-w-[280px]">
+                  Please sign in to view and manage your bookmarked manuscripts.
                 </p>
                 <Link
-                  to="/explore"
-                  className="flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                  to="/login"
+                  className="flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
                 >
-                  <Globe2 className="w-4 h-4" />
-                  Explore
+                  Sign In to Continue
                 </Link>
-              </motion.div>
-            ) : filteredFavourites.length === 0 ? (
+              </div>
+            </motion.div>
+          ) :
+
+            /* State 3: Error */
+            error ? (
               <motion.div
-                key="not-found"
+                key="error"
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col items-center justify-center py-28 text-center min-h-[96vh]"
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4"
               >
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
-                  <SearchX className="w-10 h-10 text-gray-400" />
-                </div>
-                <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
-                  No Drafts Found
-                </h3>
-                <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
-                  We couldn't find any stories matching your current search or genre filters. Try adjusting them!
+                <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
+                <h2 className="text-base font-bold text-white mb-1">
+                  Failed to load Bookmark
+                </h2>
+                <p className="text-gray-400 max-w-sm text-sm font-mono">
+                  {error.message}
                 </p>
               </motion.div>
-            ) : (
-              <motion.div
-                variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"
-              >
-                <AnimatePresence mode="popLayout">
-                  {filteredFavourites.map((script: any) => (
+            ) :
+
+              /* State 4: Content */
+              (
+                <motion.div
+                  key="content"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="flex flex-col w-full gap-5"
+                >
+                  {(hasAnyBookmark || isFiltering) && (
+                    <>
+                      <motion.div
+                        variants={itemVariants}
+                        className="grid grid-cols-[1fr_auto] gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full"
+                      >
+                        <h1 className="text-2xl sm:text-3xl font-extrabold font-sans tracking-tight self-center">
+                          Bookmarks
+                        </h1>
+
+                        <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
+                          <div className="col-span-2 order-last sm:order-none w-full sm:w-64">
+                            <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search your library..." />
+                          </div>
+
+                          <div className="shrink-0 sm:w-auto self-center">
+                            <Dropdown
+                              options={FILTER_OPTIONS}
+                              value={selectedFilter}
+                              onChange={setSelectedFilter}
+                              icon={ListFilter}
+                              collapseOnMobile={true}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.hr variants={itemVariants} className="border border-white/5" />
+                    </>
+                  )}
+
+                  {!hasAnyBookmark && !isFiltering ? (
                     <motion.div
-                      layout
-                      variants={itemVariants}
-                      initial="hidden"
-                      animate="show"
-                      exit="exit"
-                      key={script.id}
-                      className="h-full"
+                      key="empty-library"
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="flex flex-col items-center justify-center gap-4  text-center min-h-[96vh]"
                     >
-                      <DraftCard script={script} />
+                      <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
+                        <BookmarkX className="w-10 h-10 text-gray-400" />
+                      </div>
+                      <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans">
+                        No Bookmarks Yet
+                      </h3>
+                      <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
+                        You haven't bookmarked any drafts yet. Start exploring to build your collection.
+                      </p>
+                      <Link
+                        to="/explore"
+                        className="flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold font-sans active:scale-95"
+                      >
+                        <Globe2 className="w-4 h-4" />
+                        Explore
+                      </Link>
                     </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
+                  ) : filteredFavourites.length === 0 ? (
+                    <motion.div
+                      key="not-found"
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="flex flex-col items-center justify-center py-28 text-center min-h-[96vh]"
+                    >
+                      <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
+                        <SearchX className="w-10 h-10 text-gray-400" />
+                      </div>
+                      <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight font-sans">
+                        No Drafts Found
+                      </h3>
+                      <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
+                        We couldn't find any stories matching your current search or genre filters. Try adjusting them!
+                      </p>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      variants={containerVariants}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {filteredFavourites.map((script: any) => (
+                          <motion.div
+                            layout
+                            variants={itemVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            key={script.id}
+                            className="h-full"
+                          >
+                            <DraftCard script={script} />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
       </AnimatePresence>
     </div>
   );
 };
 
-export default Favourites;
+export default Bookmarks;

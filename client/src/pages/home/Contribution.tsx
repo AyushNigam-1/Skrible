@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +29,7 @@ import {
 import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 import { posthog } from "../../components/providers/PostHogProvider";
-import DiscussionPanel from "../../components/panel/DiscussionPanel";
+import DiscussionPanel from "../../components/modal/DiscussionPanel";
 import ContributeModal from "../../components/modal/ContributeModal";
 import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 
@@ -288,10 +288,8 @@ const Contribution: React.FC = () => {
   };
 
   const renderTargetCard = () => (
-    // 🚨 THE FIX: Target paragraph highlighted, but completely stripped of redundant header info
     <div className="flex flex-col h-auto bg-white/[0.08] border border-white/20 rounded-2xl relative shadow-lg ring-1 ring-white/10 transition-all">
 
-      {/* Content Area - No redundant author info or approve/reject buttons here! */}
       <div className="p-4 h-auto">
         <div className="col-start-1 row-start-1 text-gray-200 font-medium w-full text-[0.875rem] md:text-base leading-[1.7142857] md:leading-[1.75] whitespace-pre-wrap">
           <ReactMarkdown
@@ -308,7 +306,6 @@ const Contribution: React.FC = () => {
         </div>
       </div>
 
-      {/* Engagement Footer */}
       <div className="border-t border-white/10 p-4 bg-[#161620]/95 backdrop-blur-md rounded-b-2xl">
         <div className="flex flex-row items-center justify-between gap-4 text-gray-400 text-sm font-mono flex-wrap">
           <div className="flex items-center gap-2">
@@ -359,12 +356,12 @@ const Contribution: React.FC = () => {
           <div className="flex items-center gap-2 justify-end">
             {(isAuthor || isOwner) && paragraph?.status === "pending" && (
               <div className="flex items-center gap-2">
+                {/* 🚨 THE FIX: Passing raw text directly to the edit modal */}
                 <ContributeModal
                   mode="edit"
                   variant="edit"
                   paragraphId={paragraph.id}
-                  initialTitle={paragraph?.text?.split('\n')[0]?.replace(/^#+\s*/, '') || ''}
-                  initialContent={paragraph?.text?.split('\n')?.slice(1)?.join('\n')?.trim() || ''}
+                  initialContent={paragraph?.text || ''}
                   refetch={refetch}
                 />
                 <button
@@ -413,18 +410,14 @@ const Contribution: React.FC = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="w-full mx-auto flex flex-col font-mono relative space-y-6 pb-12"
+          className="w-full mx-auto flex flex-col font-mono relative space-y-6"
         >
-          {/* 🚨 THE FIX: Sticky Glass Header with bottom border acting as an <hr /> */}
           <div className="sticky top-0 z-40 w-full backdrop-blur-xl">
-            {/* 🚨 THE FIX: Forced flex-row so it stays on one line, justify-between pushes status to the right */}
-            <div className="flex flex-row items-center justify-between w-full gap-2 px-1">
+            <div className="flex flex-row items-center justify-between w-full gap-2">
 
-              {/* Left Side: Author Info (Back button hidden on mobile) */}
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <button
                   onClick={() => navigate(-1)}
-                  // 🚨 Added hidden sm:flex
                   className="hidden sm:flex items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white transition-all active:scale-95 shrink-0"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -437,9 +430,9 @@ const Contribution: React.FC = () => {
                     {paragraph?.author?.name?.charAt(0).toUpperCase() || "?"}
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <p className="font-bold text-white  truncate">
+                    <Link to={`/profile/${paragraph.author.id}`} className="font-bold text-white  truncate">
                       {paragraph?.author?.name || "Unknown Author"}
-                    </p>
+                    </Link>
                     <p className="text-[10px] sm:text-xs text-gray-400 font-mono mt-0.5 truncate">
                       {formatDate(paragraph?.createdAt)}
                     </p>
@@ -453,19 +446,19 @@ const Contribution: React.FC = () => {
                     <button
                       onClick={handleReject}
                       disabled={isRejecting || isApproving}
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-500/10 border border-red-500/20 hover:border-red-500/50 hover:bg-red-500/20 text-red-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                      className="flex items-center justify-center gap-1.5 p-2.5 bg-red-500/10 border border-red-500/20 hover:border-red-500/50 hover:bg-red-500/20 text-red-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50 "
                     >
-                      <XCircle size={16} className="shrink-0" />
+                      <XCircle size={18} className="shrink-0" />
                       <span className="hidden sm:inline">Reject</span>
                     </button>
 
                     <button
                       onClick={handleApprove}
                       disabled={isApproving || isRejecting}
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500/10 border border-green-500/20 hover:border-green-500/50 hover:bg-green-500/20 text-green-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                      className="flex items-center justify-center gap-1.5 p-2.5 bg-green-500/10 border border-green-500/20 hover:border-green-500/50 hover:bg-green-500/20 text-green-400 rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
                     >
                       {isApproving ? (
-                        <Loader2 size={16} className="animate-spin shrink-0" />
+                        <Loader2 size={18} className="animate-spin shrink-0" />
                       ) : (
                         <CheckCircle size={16} className="shrink-0" />
                       )}

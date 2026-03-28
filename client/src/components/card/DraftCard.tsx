@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { motion, Variants } from "framer-motion";
 import { ThumbsUp, ThumbsDown, Globe2 } from "lucide-react";
 
 export interface DraftCardProps {
@@ -27,33 +26,12 @@ const DraftCard = ({ script }: DraftCardProps) => {
     }).format(new Date(Number(timestamp)));
   };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 15, scale: 0.98 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] },
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      transition: { duration: 0.2 },
-    },
-  };
-
   return (
-    <motion.div
-      layout
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="group relative bg-white/5 rounded-2xl p-4 border border-white/10 font-mono hover:border-white/20 hover:-translate-y-1.5 transition-all duration-500 flex flex-col overflow-hidden"
-    >
+    <div className="group relative bg-white/5 rounded-2xl p-4 border border-white/10 font-mono hover:border-white/20 hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full overflow-hidden">
       <Link
         to={`/timeline/${script.id}`}
-        className="flex flex-col h-full cursor-pointer outline-none space-y-5 relative z-10">
+        className="flex flex-col h-full cursor-pointer outline-none space-y-5 relative z-10"
+      >
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-extrabold text-white font-sans line-clamp-1 transition-colors tracking-tight">
             {script.title}
@@ -62,10 +40,12 @@ const DraftCard = ({ script }: DraftCardProps) => {
             ~ PUBLISHED ON: {formatDate(script.createdAt)}
           </div>
         </div>
+
         <p className="text-gray-300 line-clamp-4 leading-relaxed flex-grow">
           {script.description || "No description provided for this manuscript."}
         </p>
-        <div className="flex items-center justify-between">
+
+        <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center gap-4 text-gray-300 text-sm font-bold">
             <div className="flex items-center gap-2 hover:text-blue-400 transition-colors">
               <ThumbsUp size={18} />
@@ -86,7 +66,7 @@ const DraftCard = ({ script }: DraftCardProps) => {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 };
 

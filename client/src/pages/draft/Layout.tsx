@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Tabs from "../../components/layout/Tabs";
 import Loader from "../../components/layout/Loader";
 import { ThumbsUp, ThumbsDown, Bookmark, Loader2, AlertTriangle } from "lucide-react";
@@ -27,6 +27,7 @@ const DraftLayout = () => {
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
+  // Parent Query
   const { data, loading, error, refetch } = useGetScriptByIdQuery({
     variables: { id: id || "" },
     skip: !id,
@@ -84,7 +85,6 @@ const DraftLayout = () => {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
       toast.error("Failed to like script.");
-      console.error("Failed to like script:", err);
     }
   };
 
@@ -108,7 +108,6 @@ const DraftLayout = () => {
       setLocalLikes(prevLikes);
       setLocalDislikes(prevDislikes);
       toast.error("Failed to dislike script.");
-      console.error("Failed to dislike script:", err);
     }
   };
 
@@ -125,19 +124,14 @@ const DraftLayout = () => {
       .then(() => {
         if (setUser && currentUser) {
           const currentFavs = currentUser.favourites || [];
-
           const updatedFavs = !prevBookmark
             ? [...currentFavs, id]
             : currentFavs.filter((fav: any) => typeof fav === 'string' ? fav !== id : fav?.id !== id);
-
-          const updatedUser = { ...currentUser, favourites: updatedFavs };
-
-          setUser(updatedUser);
+          setUser({ ...currentUser, favourites: updatedFavs });
         }
       })
       .catch((err) => {
         setIsBookmarked(prevBookmark);
-        console.error("Failed to toggle bookmark:", err);
         throw err;
       });
 
@@ -148,31 +142,8 @@ const DraftLayout = () => {
     });
   };
 
-  const layoutVariants: Variants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut", staggerChildren: 0.1 },
-    },
-  };
-
-  const contentVariants: Variants = {
-    hidden: { opacity: 0, filter: "blur(4px)" },
-    visible: {
-      opacity: 1,
-      filter: "blur(0px)",
-      transition: { duration: 0.4 },
-    },
-  };
-
   return (
-    <motion.div
-      variants={layoutVariants}
-      initial="hidden"
-      animate="visible"
-      className="relative flex flex-col w-full max-w-7xl mx-auto space-y-6 min-h-[50vh]"
-    >
+    <div className="relative flex flex-col w-full max-w-7xl mx-auto min-h-[60vh]">
       {error ? (
         <div className="flex flex-col justify-center items-center h-full text-red-500 font-mono py-20">
           <AlertTriangle className="w-10 h-10 mb-4 opacity-50" />
@@ -181,91 +152,87 @@ const DraftLayout = () => {
         </div>
       ) : (
         <>
-          {script && (
-            <motion.div
-              variants={contentVariants}
-              className="flex flex-col space-y-4"
-            >
-              {/* 🚨 THE FIX: Forced horizontal alignment, zero vertical stacking */}
-              <div className="flex flex-row items-center justify-between gap-4  w-full">
-
-                {/* Title (Truncates if too long on mobile to protect the buttons) */}
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
-                    {script.title}
-                  </h1>
-                </div>
-
-                {/* Action Toolbar (Locked to the right side) */}
-                <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
-                  <button
-                    onClick={handleLike}
-                    disabled={isLiking}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isLiked
-                      ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent"
-                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                      }`}
-                  >
-                    <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-                    <span>{localLikes.length}</span>
-                  </button>
-
-                  <button
-                    onClick={handleDislike}
-                    disabled={isDisliking}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked
-                      ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent"
-                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                      }`}
-                  >
-                    <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
-                    <span>{localDislikes.length}</span>
-                  </button>
-
-                  <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
-
-                  <button
-                    onClick={handleBookmark}
-                    disabled={isBookmarking}
-                    className={`p-1.5 sm:p-2 rounded-lg transition-all ${isBookmarked
-                      ? "text-white bg-white/10 shadow-sm border border-white/10 md:border-transparent"
-                      : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                      }`}
-                  >
-                    {isBookmarking ? (
-                      <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
-                    ) : (
-                      <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <motion.hr className="border-b-0.5 border-white/10" />
-
-              <div className="w-full border-b border-white/10">
-                <Tabs
-                  setTab={setTab}
-                  tab={tab}
-                  scriptId={id}
-                  isEditorOrOwner={isEditorOrOwner}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Main Outlet Content */}
-          <div className="w-full relative z-10">
-            {loading && !data ? (
+          {/* 🚨 THE FIX 1: ONE Unified Central Loader */}
+          <AnimatePresence>
+            {loading && !script && (
               <motion.div
-                key="loader"
+                key="master-loader"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex items-center justify-center min-h-[50vh]"
+                className="absolute inset-0 z-50 flex items-center justify-center bg-transparent pointer-events-none"
               >
                 <Loader />
               </motion.div>
-            ) : (
+            )}
+          </AnimatePresence>
+
+          {/* 🚨 THE FIX 2: Hidden Content Container (Triggers Parallel Fetches!) */}
+          {/* Using display: none ("hidden") while loading forces the child <Outlet /> to mount silently in the background */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: loading && !script ? 0 : 1, y: loading && !script ? 15 : 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className={`flex flex-col w-full space-y-6 ${loading && !script ? "hidden" : "block"}`}
+          >
+            {script && (
+              <div className="flex flex-col space-y-4">
+                <div className="flex flex-row items-center justify-between gap-4 w-full">
+
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
+                      {script.title}
+                    </h1>
+                  </div>
+
+                  <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
+                    <button
+                      onClick={handleLike}
+                      disabled={isLiking}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isLiked ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+                      <span>{localLikes.length}</span>
+                    </button>
+
+                    <button
+                      onClick={handleDislike}
+                      disabled={isDisliking}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                    >
+                      <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
+                      <span>{localDislikes.length}</span>
+                    </button>
+
+                    <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
+
+                    <button
+                      onClick={handleBookmark}
+                      disabled={isBookmarking}
+                      className={`p-1.5 sm:p-2 rounded-lg transition-all ${isBookmarked ? "text-white bg-white/10 shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                    >
+                      {isBookmarking ? <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" /> : <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />}
+                    </button>
+                  </div>
+                </div>
+
+                <hr className="border-b border-white/10" />
+
+                <div className="w-full border-b border-white/10">
+                  <Tabs
+                    setTab={setTab}
+                    tab={tab}
+                    scriptId={id}
+                    isEditorOrOwner={isEditorOrOwner}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="w-full relative z-10">
               <Outlet
                 context={{
                   request,
@@ -277,11 +244,11 @@ const DraftLayout = () => {
                   loading,
                 }}
               />
-            )}
-          </div>
+            </div>
+          </motion.div>
         </>
       )}
-    </motion.div>
+    </div>
   );
 };
 

@@ -37,6 +37,30 @@ export const GET_PARAGRAPH_BY_ID = gql`
   }
 `;
 
+export const GET_FILTERED_REQUESTS = gql`
+  # 🚨 IMPORTANT: Notice the "$status: String" here!
+  query GetFilteredRequests($scriptId: ID!, $userId: ID, $status: String) {
+    getFilteredRequests(scriptId: $scriptId, userId: $userId, status: $status) {
+      id
+      text
+      status
+      createdAt
+      author {
+        id
+        name
+      }
+      likes
+      dislikes
+      comments {
+        text
+        createdAt
+        author {
+          name
+        }
+      }
+    }
+  }
+`;
 export const GET_PENDING_PARAGRAPHS = gql`
   query GetPendingParagraphs($scriptId: ID!) {
     getPendingParagraphs(scriptId: $scriptId) {

@@ -35,6 +35,7 @@ export const paragraphTypeDefs = gql`
     getCombinedText(scriptId: ID!): String!
     getPendingParagraphs(scriptId: ID!): [Paragraph!]!
     exportDocument(scriptId: ID!, format: String!): ExportedDocument!
+    getFilteredRequests(scriptId: ID!, userId: ID, status: String): [Paragraph]
   }
 
   type Mutation {

@@ -2,10 +2,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStore } from "../../store/useAuthStore";
-import Sidebar from "../../components/panel/Sidebar"
+import Sidebar from "../../components/layout/Sidebar";
+
 const HomeLayout = () => {
-  const { user } = useUserStore();
   const location = useLocation();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(
@@ -36,10 +35,11 @@ const HomeLayout = () => {
 
   return (
     <div
-      className={`min-h-screen w-full relative ${path === "zen" ? "" : user ? "flex" : ""
+      className={`min-h-screen w-full relative ${path === "zen" ? "" : "flex"
         }`}
     >
-      {user && path !== "zen" && !isSidebarOpen && (
+      {/* Sidebar Open Button (Mobile/Closed state) */}
+      {path !== "zen" && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="fixed top-1/2 left-0 -translate-y-1/2 z-50 py-6 px-1 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 border-l-0 text-gray-500 hover:text-white rounded-r-xl shadow-2xl transition-colors duration-200 group"
@@ -49,9 +49,9 @@ const HomeLayout = () => {
         </button>
       )}
 
-      {/* --- Mobile Overlay Backdrop --- */}
+      {/* Mobile Backdrop Overlay */}
       <AnimatePresence>
-        {user && path !== "zen" && isSidebarOpen && (
+        {path !== "zen" && isSidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -63,8 +63,8 @@ const HomeLayout = () => {
         )}
       </AnimatePresence>
 
-      {/* --- Sidebar Wrapper --- */}
-      {path !== "zen" && user && (
+      {/* Sidebar Component */}
+      {path !== "zen" && (
         <div
           className={`
             fixed inset-y-0 left-0 z-50 md:static md:z-auto
@@ -83,9 +83,7 @@ const HomeLayout = () => {
       <div
         className={`p-4 w-full ${path === "zen"
           ? "container mx-auto"
-          : user
-            ? "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
-            : "flex flex-col gap-3"
+          : "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
           }`}
       >
         <Outlet context={{ path }} />

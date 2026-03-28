@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Pin, PinOff, FileText } from "lucide-react";
+import { ArrowLeft, Download, Check, FileText } from "lucide-react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useGetScriptByIdQuery } from "../../graphql/generated/graphql";
 import Loader from "../../components/layout/Loader";
@@ -15,7 +15,7 @@ const smoothTransition: Transition = {
 const ZenMode = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [isPinned, setIsPinned] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
 
   const { data, loading } = useGetScriptByIdQuery({
     variables: { id: id || "" },
@@ -26,8 +26,34 @@ const ZenMode = () => {
   const script = data?.getScriptById;
   const paragraphs = script?.paragraphs || [];
 
-  const handlePinClick = () => {
-    setIsPinned(!isPinned);
+  const handleDownload = () => {
+    if (!script || paragraphs.length === 0) return;
+
+    // 1. Combine all paragraphs into a single text string
+    const combinedText = paragraphs.map((p: any) => p.text).join("\n\n");
+
+    // 2. Create a browser Blob with the markdown content
+    const blob = new Blob([combinedText], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    // 3. Create a temporary anchor tag to trigger the download
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Sanitize the title for the filename
+    const safeTitle = (script.title || "Untitled_Draft").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    link.download = `${safeTitle}.md`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    // 4. Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // 5. Show success animation for 2 seconds
+    setIsDownloaded(true);
+    setTimeout(() => setIsDownloaded(false), 2000);
   };
 
   return (
@@ -50,8 +76,7 @@ const ZenMode = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={smoothTransition}
-          className={`max-w-5xl mx-auto h-[calc(100vh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 ${isPinned ? "cursor-crosshair" : "cursor-default"
-            }`}
+          className="max-w-5xl mx-auto h-[calc(100vh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 cursor-default"
         >
           <div className="sticky top-0 z-50 flex justify-between items-center border-b border-white/5 pb-4 bg-[#0A0A14]">
             <button
@@ -72,18 +97,35 @@ const ZenMode = () => {
             </motion.h4>
 
             <button
-              onClick={handlePinClick}
-              className={`p-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white/30 ${isPinned
-                ? "bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              onClick={handleDownload}
+              disabled={paragraphs.length === 0}
+              className={`p-3 rounded-full transition-all outline-none focus:outline-none focus:ring-0 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${isDownloaded
+                ? "bg-green-500/20 text-green-400"
                 : "text-gray-500 hover:bg-white/5 hover:text-white"
                 }`}
-              title={isPinned ? "Unpin" : "Pin Content"}
+              title="Download as Markdown"
             >
-              {isPinned ? (
-                <PinOff className="w-5 h-5" />
-              ) : (
-                <Pin className="w-5 h-5" />
-              )}
+              <AnimatePresence mode="wait">
+                {isDownloaded ? (
+                  <motion.div
+                    key="check"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                  >
+                    <Check className="w-5 h-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="download"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                  >
+                    <Download className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           </div>
 

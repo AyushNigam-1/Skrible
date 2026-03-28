@@ -78,10 +78,9 @@ const Timeline = () => {
     },
   };
 
-  // 🚨 MOVED THE LOADING CHECK HERE
   if (loading && !data) {
     return (
-      <div className="flex justify-center items-center w-full min-h-[50vh]">
+      <div className="flex justify-center items-center w-full min-h-[96vh]">
         <Loader />
       </div>
     );
@@ -94,7 +93,6 @@ const Timeline = () => {
       variants={containerVariants}
       className="flex flex-col gap-6 w-full mx-auto font-mono scrollbar-none"
     >
-      {/* --- Empty State --- */}
       {rawParagraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
@@ -123,7 +121,6 @@ const Timeline = () => {
         </motion.div>
       )}
 
-      {/* --- Header with Search & Contribute Action Bar --- */}
       {rawParagraphs.length > 0 && (
         <motion.div
           variants={itemVariants}
@@ -146,7 +143,6 @@ const Timeline = () => {
         </motion.div>
       )}
 
-      {/* --- Timeline List (Sequential) --- */}
       <div className="flex flex-col gap-4">
         <AnimatePresence mode="popLayout">
           {processedParagraphs.length === 0 && rawParagraphs.length > 0 ? (
@@ -162,7 +158,7 @@ const Timeline = () => {
             processedParagraphs.map((p: any) => (
               <motion.div key={p.id} variants={itemVariants} layout>
                 <Link
-                  to={`/preview/${scriptId}/${p.id}`}
+                  to={`/contribution/${scriptId}/${p.id}`}
                   className="block bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-lg hover:bg-white/10 hover:border-white/30 hover:-translate-y-1 transition-all duration-300 group relative"
                 >
                   <div className="flex items-center justify-between mb-4">

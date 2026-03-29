@@ -7,7 +7,7 @@ import { GET_NOTIFICATIONS } from "../../graphql/query/notificationQueries";
 import { useUserStore } from "../../store/useAuthStore";
 import { MARK_ALL_READ } from "../../graphql/mutation/notificationMutations";
 import { io } from "socket.io-client";
-import { toast, Toaster } from "sonner"; // 🚨 Imported Toaster
+import { toast } from "sonner";
 
 const ENDPOINT = `http://${window.location.hostname}:3000`;
 
@@ -27,10 +27,43 @@ const DECLINE_INVITATION = gql`
   }
 `;
 
+// 🚨 THE FIX: Smart Parser to format the notification strings beautifully
+const parseNotificationMessage = (message: string, type: string) => {
+    let primaryText = message;
+    let secondaryText = "";
+
+    try {
+        if (type === "COMMENT") {
+            // Extracts name and draft, throws away the comment text
+            const match = message.match(/^(.*?)\s+commented(.*?)on\s+(?:your\s+)?(?:script|draft)?\s*(.*?)$/i);
+            if (match) {
+                primaryText = `${match[1].trim()} commented on your draft`;
+                secondaryText = match[3].trim().replace(/^['"]|['"]$/g, ''); // Removes quotes if any
+            }
+        } else if (type === "REQUEST") {
+            // Extracts first name and draft
+            const match = message.match(/^(.*?)\s+invited you.*?on\s+(?:your\s+)?(?:script|draft)?\s*(.*?)$/i);
+            if (match) {
+                const firstName = match[1].trim().split(" ")[0]; // Only First Name
+                primaryText = `${firstName} invited you to collaborate`;
+                secondaryText = match[2].trim().replace(/^['"]|['"]$/g, '');
+            }
+        } else if (type === "LIKE") {
+            const match = message.match(/^(.*?)\s+liked.*?(?:script|draft)?\s*(.*?)$/i);
+            if (match) {
+                primaryText = `${match[1].trim()} liked your draft`;
+                secondaryText = match[2].trim().replace(/^['"]|['"]$/g, '');
+            }
+        }
+    } catch (e) {
+        console.error("Error parsing notification", e);
+    }
+
+    return { primaryText, secondaryText };
+};
+
 const NotificationModal = () => {
     const [isOpen, setIsOpen] = useState(false);
-
-    // 🚨 Local state to track which requests we've just accepted/declined
     const [actionedNotifs, setActionedNotifs] = useState<Record<string, "ACCEPTED" | "DECLINED">>({});
 
     const { user } = useUserStore();
@@ -72,7 +105,6 @@ const NotificationModal = () => {
     const [acceptInvite, { loading: accepting }] = useMutation(ACCEPT_INVITATION);
     const [declineInvite, { loading: declining }] = useMutation(DECLINE_INVITATION);
 
-    // 🚨 Passed notifId so we can update the UI instantly
     const handleAccept = (e: React.MouseEvent, scriptId: string, notifId: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -165,8 +197,6 @@ const NotificationModal = () => {
 
     return (
         <Fragment>
-            {/* 🚨 Added Toaster here so notifications work */}
-
             <button
                 onClick={() => setIsOpen(true)}
                 className={`group flex items-center gap-3 py-1 transition-all duration-300 outline-none relative overflow-hidden w-full font-mono ${isOpen ? "font-bold text-white pl-3" : "text-gray-400 hover:text-white pl-0"}`}
@@ -218,71 +248,79 @@ const NotificationModal = () => {
                                     <h4 className="text-lg font-bold text-white opacity-40">All caught up!</h4>
                                 </div>
                             ) : (
-                                notifications.map((notif: any) => (
-                                    <Link
-                                        to={notif.link || "#"}
-                                        key={notif.id}
-                                        onClick={handleCloseModal}
-                                        className={`flex items-start gap-4 p-5 border-b border-white/5 hover:bg-white/5 transition-colors group ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
-                                    >
-                                        {/* 🚨 ICON perfectly aligned to first line of text */}
-                                        <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
-                                            {getIcon(notif.type)}
-                                        </div>
+                                notifications.map((notif: any) => {
+                                    // 🚨 THE FIX: Use our new parser to get clean text
+                                    const { primaryText, secondaryText } = parseNotificationMessage(notif.message, notif.type);
 
-                                        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                                            <p className={`text-sm leading-snug font-sans ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
-                                                {notif.message}
-                                            </p>
+                                    return (
+                                        <Link
+                                            to={notif.link || "#"}
+                                            key={notif.id}
+                                            onClick={handleCloseModal}
+                                            className={`flex items-start gap-4 p-5 border-b border-white/5 hover:bg-white/5 transition-colors group ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
+                                        >
+                                            <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
+                                                {getIcon(notif.type)}
+                                            </div>
 
-                                            {/* 🚨 DYNAMIC UX: Hide buttons and show badge once clicked */}
-                                            {notif.type === "REQUEST" && (
-                                                <div className="mt-1.5">
-                                                    {actionedNotifs[notif.id] === "ACCEPTED" ? (
-                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-[11px] font-bold uppercase tracking-wider border border-blue-500/20">
-                                                            Accepted ✓
-                                                        </span>
-                                                    ) : actionedNotifs[notif.id] === "DECLINED" ? (
-                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 text-gray-400 text-[11px] font-bold uppercase tracking-wider border border-white/10">
-                                                            Declined ✕
-                                                        </span>
-                                                    ) : (
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                disabled={accepting || declining}
-                                                                onClick={(e) => handleAccept(e, extractScriptId(notif.link), notif.id)}
-                                                                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
-                                                            >
-                                                                {accepting ? "..." : "Accept"}
-                                                            </button>
-                                                            <button
-                                                                disabled={accepting || declining}
-                                                                onClick={(e) => handleDecline(e, extractScriptId(notif.link), notif.id)}
-                                                                className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
-                                                            >
-                                                                {declining ? "..." : "Decline"}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
+                                            <div className="flex flex-col gap-1 flex-1 min-w-0">
+                                                <p className={`text-sm leading-snug font-sans ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
+                                                    {primaryText}
+                                                </p>
 
-                                        {/* 🚨 ALIGNMENT FIX: Timestamp and dot aligned nicely */}
-                                        <div className="flex flex-col items-end justify-start gap-1.5 shrink-0 pt-0.5">
-                                            {!notif.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-gray-400 transition-colors whitespace-nowrap">
-                                                {formatTimeAgo(notif.createdAt)}
-                                            </span>
-                                        </div>
-                                    </Link>
-                                ))
+                                                {/* 🚨 THE FIX: Renders the clean draft name below */}
+                                                {secondaryText && (
+                                                    <p className="text-xs text-gray-500 font-mono mt-0.5">
+                                                        Draft: <span className="text-gray-300 font-semibold">{secondaryText}</span>
+                                                    </p>
+                                                )}
+
+                                                {notif.type === "REQUEST" && (
+                                                    <div className="mt-2">
+                                                        {actionedNotifs[notif.id] === "ACCEPTED" ? (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-[11px] font-bold uppercase tracking-wider border border-blue-500/20">
+                                                                Accepted ✓
+                                                            </span>
+                                                        ) : actionedNotifs[notif.id] === "DECLINED" ? (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 text-gray-400 text-[11px] font-bold uppercase tracking-wider border border-white/10">
+                                                                Declined ✕
+                                                            </span>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2">
+                                                                <button
+                                                                    disabled={accepting || declining}
+                                                                    onClick={(e) => handleAccept(e, extractScriptId(notif.link), notif.id)}
+                                                                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
+                                                                >
+                                                                    {accepting ? "..." : "Accept"}
+                                                                </button>
+                                                                <button
+                                                                    disabled={accepting || declining}
+                                                                    onClick={(e) => handleDecline(e, extractScriptId(notif.link), notif.id)}
+                                                                    className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
+                                                                >
+                                                                    {declining ? "..." : "Decline"}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col items-end justify-start gap-1.5 shrink-0 pt-0.5">
+                                                {!notif.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-gray-400 transition-colors whitespace-nowrap">
+                                                    {formatTimeAgo(notif.createdAt)}
+                                                </span>
+                                            </div>
+                                        </Link>
+                                    );
+                                })
                             )}
                         </div>
                     </DialogPanel>
                 </div>
             </Dialog>
-
         </Fragment>
     );
 };

@@ -159,11 +159,9 @@ const Profile = () => {
 
   const hasScripts = scriptsData?.getUserScripts && scriptsData.getUserScripts.length > 0;
 
-  // 🚨 THE FIX: NO DOM MUTATION. Only cursor placement.
   useLayoutEffect(() => {
     if (!editingField || !editRef.current) return;
 
-    // Allow React to finish mounting the new contentEditable state, then place cursor
     requestAnimationFrame(() => {
       if (editRef.current) {
         editRef.current.focus();
@@ -241,8 +239,8 @@ const Profile = () => {
   return (
     <div className="w-full max-w-7xl mx-auto font-mono">
       <AnimatePresence mode="wait">
-        {isCompletelyLoading ? (
-          <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[90vh] gap-4">
+        {!isCompletelyLoading ? (
+          <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96vh] gap-4">
             <Loader />
           </motion.div>
         ) : profileError ? (
@@ -378,7 +376,7 @@ const Profile = () => {
                             )
                           ) : (
                             <div
-                              key={`field-${detail.id}-${isEditingThis}`} // 🚨 Forces fresh node on cancel so it reverts text cleanly
+                              key={`field-${detail.id}-${isEditingThis}`}
                               ref={isEditingThis ? editRef : undefined}
                               contentEditable={isEditingThis}
                               suppressContentEditableWarning
@@ -386,7 +384,8 @@ const Profile = () => {
                               data-placeholder={`Enter your ${detail.title.toLowerCase()}...`}
                               className={`text-gray-200 font-mono leading-relaxed outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-600 empty:before:pointer-events-none ${(detail.id === 'name' || detail.id === 'email') ? 'font-bold text-lg sm:text-xl' : 'font-medium text-sm sm:text-base'} ${!detail.value && !isEditingThis ? "text-gray-500 italic" : ""}`}
                             >
-                              {detail.value || (!isEditingThis && isOwnProfile ? `Click edit to add your ${detail.title.toLowerCase()}` : "")}
+                              {/* 🚨 THE FIX: Provide a solid fallback for guests so the div is never empty */}
+                              {detail.value || (!isEditingThis ? (isOwnProfile ? `Click edit to add your ${detail.title.toLowerCase()}` : "Not provided") : "")}
                             </div>
                           )}
                         </div>

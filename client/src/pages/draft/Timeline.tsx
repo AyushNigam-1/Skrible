@@ -80,7 +80,7 @@ const Timeline = () => {
 
   if (loading && !data) {
     return (
-      <div className="flex justify-center items-center w-full min-h-[96vh]">
+      <div className="flex justify-center items-center w-full min-h-[70vh]">
         <Loader />
       </div>
     );
@@ -167,7 +167,7 @@ const Timeline = () => {
                         {p.author.name.charAt(0).toUpperCase()}
                       </div>
                       <p className="font-mono text-sm font-bold text-white tracking-tight truncate">
-                        @{p.author.name}
+                        {p.author.name}
                       </p>
                     </div>
 

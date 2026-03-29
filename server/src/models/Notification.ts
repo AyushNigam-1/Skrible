@@ -3,7 +3,7 @@ import mongoose, { Document, Model, Schema, Types } from "mongoose";
 export interface INotification extends Document {
     recipient: Types.ObjectId;
     sender?: Types.ObjectId;
-    type: "LIKE" | "COMMENT" | "REQUEST" | "SYSTEM";
+    type: "LIKE" | "COMMENT" | "REQUEST" | "INFO";
     message: string;
     link?: string;
     isRead: boolean;

@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Trash2, AlertTriangle, Lock, Globe2, Archive,
   Shield, Loader2, ListFilter, Users, X, Eye, FileMinus, UserMinus,
-  MoreVertical, Check, Copy
+  MoreVertical, Check
 } from "lucide-react";
 
 import {
@@ -22,6 +22,7 @@ import Search from "../../components/layout/Search";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
 import { useUserStore } from "../../store/useAuthStore";
 import InviteCollaborator from "../../components/modal/InviteModal";
+import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 import { toast } from "sonner";
 
 interface Collaborator {
@@ -61,11 +62,11 @@ const FILTER_OPTIONS = [
 const MemberActionsDropdown = ({
   member,
   handleRoleChange,
-  setConfirmingRemoveId,
+  triggerRemoveMemberModal,
 }: {
   member: Collaborator;
   handleRoleChange: (id: string, role: any) => void;
-  setConfirmingRemoveId: (id: string) => void;
+  triggerRemoveMemberModal: (id: string, name: string) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -113,7 +114,7 @@ const MemberActionsDropdown = ({
             <div className="bg-white/10 w-full h-[1px]" />
 
             <button
-              onClick={() => { setConfirmingRemoveId(member.user.id); setIsOpen(false); }}
+              onClick={() => { triggerRemoveMemberModal(member.user.id, member.user.name); setIsOpen(false); }}
               className="w-full text-left px-3 py-2  text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
             >
               <Trash2 className="w-4 h-4" /> Remove Member
@@ -136,7 +137,8 @@ const DraftSettings: React.FC = () => {
   const [visibility, setVisibility] = useState<VisibilityType>("Public");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
-  const [confirmingRemoveId, setConfirmingRemoveId] = useState<string | null>(null);
+
+  const [memberToRemove, setMemberToRemove] = useState<{ id: string, name: string } | null>(null);
 
   // Danger Zone States
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -149,7 +151,7 @@ const DraftSettings: React.FC = () => {
 
   const [deleteScript, { loading: isDeleting }] = useMutation(DELETE_SCRIPT);
   const [updateScript] = useMutation(UPDATE_SCRIPT);
-  const [removeCollaborator] = useMutation(REMOVE_COLLABORATOR);
+  const [removeCollaborator, { loading: isRemovingCollab }] = useMutation(REMOVE_COLLABORATOR);
   const [updateRole] = useMutation(UPDATE_COLLABORATOR_ROLE);
   const [removeAllParagraphs, { loading: isClearing }] = useMutation(REMOVE_ALL_PARAGRAPHS);
   const [removeAllCollaborators, { loading: isKicking }] = useMutation(REMOVE_ALL_COLLABORATORS);
@@ -181,10 +183,15 @@ const DraftSettings: React.FC = () => {
     toast.promise(rolePromise, { loading: "Updating role...", success: `Role updated to ${newRole.name}`, error: "Failed to update role" });
   };
 
-  const handleRemoveCollab = (targetUserId: string) => {
-    if (!script) return;
-    const removePromise = removeCollaborator({ variables: { scriptId: script.id, targetUserId } });
-    toast.promise(removePromise, { loading: "Removing...", success: () => { setConfirmingRemoveId(null); return "Member removed."; }, error: "Failed to remove." });
+  const handleRemoveCollab = async () => {
+    if (!script || !memberToRemove) return;
+    try {
+      await removeCollaborator({ variables: { scriptId: script.id, targetUserId: memberToRemove.id } });
+      toast.success(`${memberToRemove.name} removed from draft.`);
+      setMemberToRemove(null);
+    } catch (err) {
+      toast.error("Failed to remove member.");
+    }
   };
 
   const handleClearContent = () => {
@@ -225,7 +232,16 @@ const DraftSettings: React.FC = () => {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4 w-full font-mono">
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4 w-full font-mono relative">
+
+      <DeleteConfirmModal
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        onConfirm={handleRemoveCollab}
+        isDeleting={isRemovingCollab}
+        title="Remove Member?"
+        description={`Are you sure you want to remove ${memberToRemove?.name} from this draft? They will lose all access.`}
+      />
 
       {/* ACCESS & VISIBILITY */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-lg">
@@ -253,22 +269,23 @@ const DraftSettings: React.FC = () => {
 
       {/* COLLABORATORS & ROLES */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-visible shadow-lg">
-        {/* 🚨 FIXED: Invite Button perfectly aligned on the right of the heading */}
         <div className="p-4 sm:p-6 border-b border-white/10 flex flex-col ">
-          {/* <div> */}
           <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Shield className="w-5 h-5" /> Members & Roles</h2>
           <p className="text-sm text-gray-400 mt-1">Invite users and manage what they are allowed to do.</p>
-          {/* </div> */}
-          {/* <div className="shrink-0 w-full sm:w-auto">
-            <InviteCollaborator scriptId={script!.id} />
-          </div> */}
         </div>
 
         <div className="p-4 sm:p-6">
+
+          {/* 🚨 THE FIX: Thinner search on the left, filter and invite grouped on the right */}
           <div className="flex items-center gap-2 mb-6 w-full">
-            <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search members..." />
-            <Dropdown options={FILTER_OPTIONS} value={selectedFilter} onChange={setSelectedFilter} icon={ListFilter} collapseOnMobile={true} />
-            <InviteCollaborator scriptId={script!.id} />
+            <div className="flex-1 sm:flex-none sm:w-48 md:w-56">
+              <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search members..." />
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
+              <Dropdown options={FILTER_OPTIONS} value={selectedFilter} onChange={setSelectedFilter} icon={ListFilter} collapseOnMobile={true} />
+              <InviteCollaborator scriptId={script!.id} />
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -290,19 +307,15 @@ const DraftSettings: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* 🚨 FIXED: Action Area (Badges & 3 Dots) */}
                     <div className="flex items-center shrink-0">
                       {member.role === "OWNER" ? (
                         <span className="px-2 py-1 sm:px-3 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold rounded uppercase tracking-widest">OWNER</span>
                       ) : (
-                        confirmingRemoveId === member.user.id ? (
-                          <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-1.5 sm:gap-2">
-                            <button onClick={() => setConfirmingRemoveId(null)} className="px-2 sm:px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-all"><X className="w-4 h-4 sm:hidden" /><span className="hidden sm:inline">Cancel</span></button>
-                            <button onClick={() => handleRemoveCollab(member.user.id)} className="px-2 sm:px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"><Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Confirm</span></button>
-                          </motion.div>
-                        ) : (
-                          <MemberActionsDropdown member={member} handleRoleChange={handleRoleChange} setConfirmingRemoveId={setConfirmingRemoveId} />
-                        )
+                        <MemberActionsDropdown
+                          member={member}
+                          handleRoleChange={handleRoleChange}
+                          triggerRemoveMemberModal={(id, name) => setMemberToRemove({ id, name })}
+                        />
                       )}
                     </div>
                   </motion.div>
@@ -317,7 +330,6 @@ const DraftSettings: React.FC = () => {
       <motion.div variants={itemVariants} className="bg-white/5 backdrop-blur-xl border border-red-900/30 rounded-2xl overflow-hidden shadow-lg relative">
         <div className="absolute top-0 left-0 w-full h-full bg-red-900/5 pointer-events-none" />
 
-        {/* 🚨 FIXED: Strictly Left Aligned Text */}
         <div className="p-4 sm:p-6 border-b border-red-900/30 relative z-10 text-left">
           <h2 className="text-lg font-bold text-red-500 flex items-center gap-2 font-sans tracking-tight justify-start"><AlertTriangle className="w-5 h-5" /> Danger Zone</h2>
           <p className="text-sm text-red-500/70 mt-1">Actions here cannot be undone. Please be certain.</p>

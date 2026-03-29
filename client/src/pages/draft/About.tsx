@@ -76,10 +76,10 @@ const EditingBadge = ({ isEditing }: { isEditing: boolean }) => (
 const ReadOnlyCard = ({ icon: Icon, label, value, isCapitalized = false }: { icon: any, label: string, value: string | number, isCapitalized?: boolean }) => (
   <motion.div variants={itemVariants} className={cardClass}>
     <h3 className={headerClass}>
-      <Icon className={iconClass} />
+      {/* <Icon className={iconClass} /> */}
       {label}
     </h3>
-    <p className={`text-gray-200 font-semibold font-sans text-lg sm:text-xl ${isCapitalized ? "capitalize" : ""}`}>
+    <p className={`text-gray-200 font-bold font-sans text-lg sm:text-xl ${isCapitalized ? "capitalize" : ""}`}>
       {value}
     </p>
   </motion.div>
@@ -122,7 +122,7 @@ const EditableCard = ({
     <motion.div variants={itemVariants} className={`${cardClass} ${colSpan ? "md:col-span-2" : ""}`}>
       <div className="flex justify-between items-center w-full">
         <h3 className={headerClass}>
-          <Icon className={iconClass} />
+          {/* <Icon className={iconClass} /> */}
           {label}
           {isArray && <span className="ml-1 px-1.5 py-0.5 rounded-md bg-black/20 text-[10px] text-gray-500 normal-case tracking-normal">max {MAX_TAGS}</span>}
           <EditingBadge isEditing={isEditing} />
@@ -140,7 +140,7 @@ const EditableCard = ({
               contentEditable
               suppressContentEditableWarning
               onKeyDown={(e) => handleKeyDown(e, field)}
-              className="text-gray-200 text-sm sm:text-base font-sans outline-none whitespace-pre-wrap break-words w-full"
+              className="text-sm sm:text-base font-sans outline-none whitespace-pre-wrap break-words w-full"
             >
               {arrayValue?.join(", ") || ""}
             </motion.div>
@@ -165,7 +165,7 @@ const EditableCard = ({
           contentEditable={isEditing}
           suppressContentEditableWarning
           onKeyDown={(e) => handleKeyDown(e, field)}
-          className={`text-gray-200 font-semibold font-sans outline-none whitespace-pre-wrap break-words w-full transition-all duration-300 ${textClassName || ""}`}
+          className={`text-gray-200 font-sans outline-none whitespace-pre-wrap break-words w-full transition-all duration-300 ${textClassName || "font-semibold"}`}
         >
           {value || placeholder}
         </div>
@@ -254,7 +254,7 @@ const ScriptDetails = () => {
 
   if (loading && !script) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[96vh]">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[70vh]">
         <Loader />
       </motion.div>
     );
@@ -265,7 +265,6 @@ const ScriptDetails = () => {
     return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(new Date(Number(isoString)));
   };
 
-  // Bundle props to pass neatly to the EditableCard component
   const sharedEditProps = {
     isAuthor,
     editingField,
@@ -288,7 +287,7 @@ const ScriptDetails = () => {
         icon={Type}
         value={script?.title}
         placeholder="Untitled Draft"
-        textClassName="text-xl sm:text-2xl"
+        textClassName="text-xl sm:text-2xl font-bold"
         {...sharedEditProps}
       />
 
@@ -323,7 +322,7 @@ const ScriptDetails = () => {
         value={script?.description}
         placeholder="No synopsis provided for this draft."
         colSpan
-        textClassName="text-xl sm:text-xl font-base"
+        textClassName="text-lg font-normal text-gray-400"
         {...sharedEditProps}
       />
     </motion.div>

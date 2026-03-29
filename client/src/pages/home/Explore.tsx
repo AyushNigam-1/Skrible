@@ -63,7 +63,7 @@ const Explore = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center w-full min-h-[90vh] gap-4"
+              className="flex flex-col items-center justify-center w-full min-h-[98vh] gap-4"
             >
               <Loader />
             </motion.div>

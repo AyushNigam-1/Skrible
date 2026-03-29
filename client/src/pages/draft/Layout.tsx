@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Tabs from "../../components/layout/Tabs";
-import Loader from "../../components/layout/Loader";
 import { ThumbsUp, ThumbsDown, Bookmark, Loader2, AlertTriangle } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
 import { useParams, Outlet } from "react-router-dom";
@@ -151,34 +150,33 @@ const DraftLayout = () => {
           <p className="text-xs text-red-400/70 mt-2 max-w-md text-center">{error.message}</p>
         </div>
       ) : (
-        <>
-          {/* 🚨 THE FIX 1: ONE Unified Central Loader */}
-          <AnimatePresence>
-            {loading && !script && (
-              <motion.div
-                key="master-loader"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-50 flex items-center justify-center bg-transparent pointer-events-none"
-              >
-                <Loader />
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-col w-full space-y-6"
+        >
+          <div className="flex flex-col space-y-4">
 
-          {/* 🚨 THE FIX 2: Hidden Content Container (Triggers Parallel Fetches!) */}
-          {/* Using display: none ("hidden") while loading forces the child <Outlet /> to mount silently in the background */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: loading && !script ? 0 : 1, y: loading && !script ? 15 : 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className={`flex flex-col w-full space-y-6 ${loading && !script ? "hidden" : "block"}`}
-          >
-            {script && (
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-row items-center justify-between gap-4 w-full">
+            {/* Header Row (Perfectly sized to prevent layout shift) */}
+            <div className="flex flex-row items-center justify-between gap-4 w-full min-h-[40px] sm:min-h-[48px]">
 
+              {!script ? (
+                // 🚨 SKELETON STATE
+                <>
+                  <div className="flex-1 min-w-0">
+                    <div className="h-8 sm:h-10 w-2/3 max-w-[300px] bg-white/10 rounded-xl animate-pulse" />
+                  </div>
+                  <div className="flex items-center shrink-0 gap-1 sm:gap-2">
+                    <div className="h-8 sm:h-9 w-12 sm:w-16 bg-white/10 rounded-lg animate-pulse" />
+                    <div className="h-8 sm:h-9 w-12 sm:w-16 bg-white/10 rounded-lg animate-pulse" />
+                    <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
+                    <div className="h-8 sm:h-9 w-8 sm:w-10 bg-white/10 rounded-lg animate-pulse" />
+                  </div>
+                </>
+              ) : (
+                // 🚨 REAL LOADED DATA
+                <>
                   <div className="flex-1 min-w-0">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
                       {script.title}
@@ -199,7 +197,7 @@ const DraftLayout = () => {
                     <button
                       onClick={handleDislike}
                       disabled={isDisliking}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked ? "bg-white/5 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
                         }`}
                     >
                       <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
@@ -217,36 +215,37 @@ const DraftLayout = () => {
                       {isBookmarking ? <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" /> : <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />}
                     </button>
                   </div>
-                </div>
+                </>
+              )}
+            </div>
 
-                <hr className="border-b border-white/10" />
+            <hr className="border-b-0.5 border-white/10" />
 
-                <div className="w-full border-b border-white/10">
-                  <Tabs
-                    setTab={setTab}
-                    tab={tab}
-                    scriptId={id}
-                    isEditorOrOwner={isEditorOrOwner}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="w-full relative z-10">
-              <Outlet
-                context={{
-                  request,
-                  setRequest,
-                  data,
-                  refetch,
-                  setTab,
-                  tab,
-                  loading,
-                }}
+            {/* Tabs are instantly rendered. Child component fetches in parallel immediately. */}
+            <div className="w-full border-b border-white/10">
+              <Tabs
+                setTab={setTab}
+                tab={tab}
+                scriptId={id}
+                isEditorOrOwner={isEditorOrOwner}
               />
             </div>
-          </motion.div>
-        </>
+          </div>
+
+          <div className="w-full relative z-10">
+            <Outlet
+              context={{
+                request,
+                setRequest,
+                data,
+                refetch,
+                setTab,
+                tab,
+                loading,
+              }}
+            />
+          </div>
+        </motion.div>
       )}
     </div>
   );

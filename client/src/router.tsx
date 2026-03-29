@@ -9,7 +9,7 @@ const Bookmarks = lazy(() => import("./pages/home/Bookmarks"));
 const Profile = lazy(() => import("./pages/home/Profile"));
 const MyContributions = lazy(() => import("./pages/home/Contributions"));
 const ZenMode = lazy(() => import("./pages/draft/ZenMode"));
-const Contribution = lazy(() => import("./pages/home/Contribution"));
+const Contribution = lazy(() => import("./pages/draft/Contribution"));
 const Timeline = lazy(() => import("./pages/draft/Timeline"));
 const Requests = lazy(() => import("./pages/draft/Requests"));
 const Contributors = lazy(() => import("./pages/draft/Contributors"));

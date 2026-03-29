@@ -155,7 +155,7 @@ const MyContributions = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="flex flex-col items-center justify-center w-full min-h-[80vh] px-4"
+              className="flex flex-col items-center justify-center w-full min-h-[96vh] px-4"
             >
               <div className="flex flex-col items-center justify-center text-center max-w-md w-full">
                 <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">

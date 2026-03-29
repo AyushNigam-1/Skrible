@@ -127,13 +127,13 @@ export const paragraphMutations = {
     await Script.findByIdAndUpdate(paragraph.script, updateQuery);
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
-    // 🚨 NOTIFICATION
+    // 🚨 NOTIFICATION FIX: Changed type to "INFO" so it doesn't show Accept/Decline buttons, added draft title
     const userName = context.user?.name || "Someone";
     await dispatchNotification(
       paragraph.author,
       userId,
-      "REQUEST",
-      `${userName} approved and merged your contribution!`,
+      "INFO",
+      `${userName} approved and merged your contribution on draft "${script.title || "Untitled"}"`,
       `/script/${paragraph.script}`
     );
 
@@ -150,19 +150,20 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "reject_paragraph", 60, 60);
 
-    const paragraph = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" });
+    // 🚨 FIX: Populated script to get the title
+    const paragraph: any = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" }).populate("script", "title");
 
     if (paragraph) {
-      await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+      await invalidateParagraphCache(context.redis, paragraph.script._id.toString(), paragraphId);
 
-      // 🚨 NOTIFICATION
+      // 🚨 NOTIFICATION FIX: Added draft title
       const userName = context.user?.name || "Someone";
       await dispatchNotification(
         paragraph.author,
         userId,
         "INFO",
-        `${userName} declined your paragraph submission.`,
-        `/script/${paragraph.script}`
+        `${userName} declined your submission on draft "${paragraph.script?.title || "Untitled"}"`,
+        `/script/${paragraph.script._id}`
       );
     }
 
@@ -245,7 +246,8 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "like_paragraph", 60, 60);
 
-    const paragraph = await Paragraph.findById(paragraphId).select("script author likes dislikes");
+    // 🚨 FIX: Populated script to get the title
+    const paragraph: any = await Paragraph.findById(paragraphId).select("script author likes dislikes").populate("script", "title");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const hasLiked = paragraph.likes?.includes(userId) || false;
@@ -260,18 +262,18 @@ export const paragraphMutations = {
         $pull: { dislikes: userId },
       });
 
-      // 🚨 NOTIFICATION
+      // 🚨 NOTIFICATION FIX: Formatted for the UI regex parser
       const userName = context.user?.name || "Someone";
       await dispatchNotification(
         paragraph.author,
         userId,
         "LIKE",
-        `${userName} liked your contribution.`,
-        `/script/${paragraph.script}`
+        `${userName} liked your contribution on draft "${paragraph.script?.title || "Untitled"}"`,
+        `/script/${paragraph.script._id}`
       );
     }
 
-    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+    await invalidateParagraphCache(context.redis, paragraph.script._id.toString(), paragraphId);
     return { status: true };
   },
 
@@ -320,7 +322,8 @@ export const paragraphMutations = {
       throw new GraphQLError("Comment cannot be empty");
     }
 
-    const updatedParagraph = await Paragraph.findByIdAndUpdate(
+    // 🚨 FIX: Populated script to get the title
+    const updatedParagraph: any = await Paragraph.findByIdAndUpdate(
       paragraphId,
       {
         $push: {
@@ -331,20 +334,19 @@ export const paragraphMutations = {
         },
       },
       { new: true },
-    ).populate("comments.author");
+    ).populate("comments.author").populate("script", "title");
 
     if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
 
-    await invalidateParagraphCache(context.redis, updatedParagraph.script.toString(), paragraphId);
+    await invalidateParagraphCache(context.redis, updatedParagraph.script._id.toString(), paragraphId);
 
-    // 🚨 NOTIFICATION
     const userName = context.user?.name || "Someone";
     await dispatchNotification(
       updatedParagraph.author,
       userId,
       "COMMENT",
-      `${userName} commented: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
-      `/script/${updatedParagraph.script}`
+      `${userName} commented on your draft "${updatedParagraph.script?.title || "Untitled"}"`,
+      `/script/${updatedParagraph.script._id}`
     );
 
     return updatedParagraph;

@@ -388,7 +388,7 @@ const Contribution: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-center w-full min-h-[50vh]"
+          className="flex items-center justify-center w-full min-h-[70vh]"
         >
           <Loader />
         </motion.div>

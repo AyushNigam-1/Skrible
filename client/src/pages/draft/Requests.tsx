@@ -77,7 +77,7 @@ const Requests: React.FC = () => {
 
   const queryVariables: any = { scriptId };
   if (userId) queryVariables.userId = userId;
-  if (selectedStatus.id !== "all") queryVariables.status = selectedStatus.id.toLowerCase();
+  if (selectedStatus.id !== "all") queryVariables.status = (selectedStatus.id as string).toLowerCase();
 
   const { data, loading, error, refetch } = useQuery<FilteredRequestsData>(
     GET_FILTERED_REQUESTS,
@@ -147,7 +147,6 @@ const Requests: React.FC = () => {
     }
   };
 
-  // 🚨 THE FIX: Replaced simple variants with the synced stagger animation
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -174,7 +173,7 @@ const Requests: React.FC = () => {
     <div className="w-full flex-1 flex flex-col">
       <AnimatePresence mode="wait">
         {loading && !data ? (
-          <div className="flex items-center justify-center w-full min-h-[50vh]"><Loader /></div>
+          <div className="flex items-center justify-center w-full min-h-[70vh]"><Loader /></div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
             <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
@@ -192,8 +191,8 @@ const Requests: React.FC = () => {
         ) : (
           <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col gap-6">
 
-            {/* 🚨 THE FIX: Applied itemVariants to the search bar so it animates in sequence */}
-            <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl mx-auto gap-4">
+            {/* 🚨 THE FIX: flex-row ensures it stays side-by-side on mobile. Added collapseOnMobile={true} */}
+            <motion.div variants={itemVariants} className="flex flex-row items-center justify-between w-full max-w-7xl mx-auto gap-2 sm:gap-4">
               <Search
                 value={searchQuery}
                 setSearch={handleSearchChange}
@@ -205,7 +204,8 @@ const Requests: React.FC = () => {
                 value={selectedStatus}
                 onChange={setSelectedStatus}
                 icon={Activity}
-                className="w-auto shrink-0"
+                collapseOnMobile={true}
+                className="shrink-0 w-auto"
               />
             </motion.div>
 
@@ -225,7 +225,7 @@ const Requests: React.FC = () => {
                       <motion.div
                         layout
                         key={req.id}
-                        variants={itemVariants} // 🚨 THE FIX: Replaced hardcoded animation with synced variants
+                        variants={itemVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"

@@ -141,7 +141,7 @@ const Contributors: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full min-h-[50vh]">
+      <div className="flex items-center justify-center w-full min-h-[70vh]">
         <Loader />
       </div>
     );
@@ -211,7 +211,7 @@ const Contributors: React.FC = () => {
                 <motion.div variants={itemVariants} key={contributor.name}>
                   <Link
                     // --- UPDATED ROUTE ---
-                    to={`/contributions/${draftId}/${contributor.id}`}
+                    to={`/profile/${contributor.id}`}
                     className="group flex items-center justify-between bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-white/5 hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="flex items-center gap-4 min-w-0">
@@ -221,9 +221,9 @@ const Contributors: React.FC = () => {
 
                       <div className="flex flex-col min-w-0">
                         <h5 className="text-white font-bold text-lg truncate transition-colors font-sans">
-                          @{contributor.name}
+                          {contributor.name}
                         </h5>
-                        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-0.5">
                           {contributor.count}{" "}
                           {contributor.count === 1
                             ? "Contribution"

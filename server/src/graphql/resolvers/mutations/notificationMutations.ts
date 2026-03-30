@@ -10,5 +10,17 @@ export const notificationMutations = {
             { $set: { isRead: true } }
         );
         return true;
+    },
+
+    deleteNotification: async (_: any, { id }: { id: string }, context: any) => {
+        const userId = context.user?.id;
+        if (!userId) return false;
+
+        const result = await Notification.findOneAndDelete({
+            _id: id,
+            recipient: userId
+        });
+
+        return !!result;
     }
-}
+};

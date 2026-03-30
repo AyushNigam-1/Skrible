@@ -6,6 +6,7 @@ export const GET_NOTIFICATIONS = gql`
       id
       type
       message
+      draftTitle   
       link
       isRead
       createdAt
@@ -23,6 +24,7 @@ export const NOTIFICATION_SUBSCRIPTION = gql`
       id
       type
       message
+      draftTitle   
       link
       isRead
       createdAt

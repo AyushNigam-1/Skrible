@@ -2,9 +2,11 @@ import { useState, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { motion, Variants, AnimatePresence, Transition } from "framer-motion";
 import { toast } from "sonner";
+import { z } from "zod";
 import {
   AlignLeft, User, Globe, Lock, Calendar, FileText,
   Languages, Tags, Edit2, Loader2, X, Type, Check, Users,
+  Sparkles,
 } from "lucide-react";
 
 import Loader from "../../components/layout/Loader";
@@ -34,6 +36,14 @@ type EditField = "title" | "description" | "genres" | "languages" | null;
 
 const MAX_TAGS = 4;
 
+// 🚨 NEW: Zod schemas for secure frontend validation
+const editSchemas = {
+  title: z.string().min(1, "Title cannot be empty").max(120, "Title cannot exceed 120 characters"),
+  description: z.string().max(2500, "Description cannot exceed 2500 characters").optional().or(z.literal("")),
+  genres: z.array(z.string().min(1, "Genre cannot be empty").max(30, "Genre name too long")).max(MAX_TAGS, `Maximum of ${MAX_TAGS} genres allowed`),
+  languages: z.array(z.string().min(1, "Language cannot be empty").max(30, "Language name too long")).max(MAX_TAGS, `Maximum of ${MAX_TAGS} languages allowed`),
+};
+
 // --- STATIC VARIANTS & CLASSES ---
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -53,10 +63,8 @@ const fieldVariants = {
 };
 
 const cardClass = "bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col hover:border-white/20 transition-colors gap-2 sm:gap-3";
-const iconClass = "w-4 h-4 sm:w-[18px] sm:h-[18px] text-gray-400 shrink-0";
-const headerClass = "flex items-center gap-2 sm:gap-2.5 text-xs font-semibold text-gray-500 uppercase tracking-widest";
+const headerClass = "flex items-center gap-2 sm:gap-2.5  font-semibold text-gray-500 ";
 
-// --- REUSABLE MICRO-COMPONENTS ---
 const EditingBadge = ({ isEditing }: { isEditing: boolean }) => (
   <AnimatePresence>
     {isEditing && (
@@ -76,7 +84,7 @@ const EditingBadge = ({ isEditing }: { isEditing: boolean }) => (
 const ReadOnlyCard = ({ icon: Icon, label, value, isCapitalized = false }: { icon: any, label: string, value: string | number, isCapitalized?: boolean }) => (
   <motion.div variants={itemVariants} className={cardClass}>
     <h3 className={headerClass}>
-      {/* <Icon className={iconClass} /> */}
+      <Icon className="size-4" />
       {label}
     </h3>
     <p className={`text-gray-200 font-bold font-sans text-lg sm:text-xl ${isCapitalized ? "capitalize" : ""}`}>
@@ -111,7 +119,6 @@ const EditControls = ({ field, editingField, isUpdating, onEdit, onCancel, onSav
   </div>
 );
 
-// 🚨 NEW: The Master Editable Card Component that handles both Text AND Arrays
 const EditableCard = ({
   field, label, icon: Icon, value, arrayValue, isArray, colSpan, placeholder, textClassName,
   isAuthor, editingField, editControlProps, editRef, handleKeyDown
@@ -122,7 +129,7 @@ const EditableCard = ({
     <motion.div variants={itemVariants} className={`${cardClass} ${colSpan ? "md:col-span-2" : ""}`}>
       <div className="flex justify-between items-center w-full">
         <h3 className={headerClass}>
-          {/* <Icon className={iconClass} /> */}
+          <Icon className="size-4" />
           {label}
           {isArray && <span className="ml-1 px-1.5 py-0.5 rounded-md bg-black/20 text-[10px] text-gray-500 normal-case tracking-normal">max {MAX_TAGS}</span>}
           <EditingBadge isEditing={isEditing} />
@@ -208,14 +215,29 @@ const ScriptDetails = () => {
   const handleCancelEdit = () => setEditingField(null);
 
   const handleSave = (field: EditField) => {
-    if (!script || !editRef.current) return;
+    if (!script || !editRef.current || !field) return;
     const rawText = editRef.current.innerText.trim();
     let variables: any = { scriptId: script.id };
 
-    if (field === "title") variables.title = rawText;
-    if (field === "description") variables.description = rawText;
-    if (field === "genres") variables.genres = rawText.split(",").map((g) => g.trim()).filter(Boolean).slice(0, MAX_TAGS);
-    if (field === "languages") variables.languages = rawText.split(",").map((l) => l.trim()).filter(Boolean).slice(0, MAX_TAGS);
+    // 🚨 NEW: Zod Safe Parsing execution before hitting the backend
+    try {
+      if (field === "title") {
+        variables.title = editSchemas.title.parse(rawText);
+      } else if (field === "description") {
+        variables.description = editSchemas.description.parse(rawText);
+      } else if (field === "genres") {
+        const parsedArray = rawText.split(",").map((g) => g.trim()).filter(Boolean);
+        variables.genres = editSchemas.genres.parse(parsedArray);
+      } else if (field === "languages") {
+        const parsedArray = rawText.split(",").map((l) => l.trim()).filter(Boolean);
+        variables.languages = editSchemas.languages.parse(parsedArray);
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error((error as z.ZodError<any>).issues[0].message);
+        return;
+      }
+    }
 
     const promise = updateScript({
       variables,
@@ -235,7 +257,7 @@ const ScriptDetails = () => {
 
     toast.promise(promise, {
       loading: "Saving...",
-      success: `${field!.charAt(0).toUpperCase() + field!.slice(1)} updated!`,
+      success: `${field.charAt(0).toUpperCase() + field.slice(1)} updated!`,
       error: "Failed to save.",
     });
   };
@@ -275,6 +297,7 @@ const ScriptDetails = () => {
 
   return (
     <motion.div
+      key={script?.id || "details-container"}
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -284,7 +307,7 @@ const ScriptDetails = () => {
       <EditableCard
         field="title"
         label="Title"
-        icon={Type}
+        icon={Sparkles}
         value={script?.title}
         placeholder="Untitled Draft"
         textClassName="text-xl sm:text-2xl font-bold"

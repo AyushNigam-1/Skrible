@@ -9,10 +9,14 @@ export const GET_USER_PROFILE = gql`
       bio
       languages
       favourites
-      likes
+      likes {
+        id
+      }
       followers
       follows
-      views
+      views {
+        id
+      }
     }
   }
 `;
@@ -29,6 +33,7 @@ export const GET_USER_SCRIPTS = gql`
       createdAt
       updatedAt
       author {
+        id   # 🚨 FIX: Apollo NEEDS this to update the cache
         name
       }
     }
@@ -71,6 +76,7 @@ export const GET_USER_FAVOURITES = gql`
       createdAt
       updatedAt
       author {
+        id   
         name
       }
     }

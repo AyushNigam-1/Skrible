@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Tabs from "../../components/layout/Tabs";
 import { ThumbsUp, ThumbsDown, Bookmark, Loader2, AlertTriangle } from "lucide-react";
 import { useUserStore } from "../../store/useAuthStore";
@@ -39,11 +39,16 @@ const DraftLayout = () => {
 
   const script = data?.getScriptById;
 
+  // 🚨 THE FIX: Strictly check if they are the author OR specifically hold the "EDITOR" role
   const isEditorOrOwner = Boolean(
     currentUserId &&
     script &&
-    (script.author?.id === currentUserId ||
-      script.editors?.some((editor: any) => editor.id === currentUserId)),
+    (String(script.author?.id) === String(currentUserId) ||
+      script.collaborators?.some(
+        (collaborator: any) =>
+          String(collaborator.user?.id) === String(currentUserId) &&
+          collaborator.role?.toUpperCase() === "EDITOR"
+      )),
   );
 
   useEffect(() => {
@@ -53,12 +58,15 @@ const DraftLayout = () => {
     }
 
     if (currentUser?.favourites && id) {
-      const isFav = currentUser.favourites.some(
-        (fav: any) => (typeof fav === 'string' ? fav === id : fav?.id === id)
-      );
+      const isFav = currentUser.favourites.some((fav: any) => {
+        const favId = typeof fav === 'string' ? fav : fav?.id || fav?._id;
+        return String(favId) === String(id);
+      });
       setIsBookmarked(isFav);
+    } else {
+      setIsBookmarked(false);
     }
-  }, [script, currentUser?.favourites, id]);
+  }, [script, currentUser, id]);
 
   const isLiked = currentUserId ? localLikes.includes(currentUserId) : false;
   const isDisliked = currentUserId ? localDislikes.includes(currentUserId) : false;
@@ -110,33 +118,57 @@ const DraftLayout = () => {
     }
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
     if (!currentUserId) {
       toast.error("Please log in to bookmark.");
       return;
     }
 
-    const prevBookmark = isBookmarked;
-    setIsBookmarked(!prevBookmark);
+    // 1. Capture the CURRENT state to know what we are doing
+    const wasBookmarked = isBookmarked;
 
-    const promise = toggleBookmark({ variables: { scriptId: id || "" } })
-      .then(() => {
-        if (setUser && currentUser) {
+    // 2. Optimistic UI Update
+    setIsBookmarked(!wasBookmarked);
+
+    const promise = toggleBookmark({
+      variables: { scriptId: id || "" },
+      refetchQueries: ["GetUserFavourites"],
+      awaitRefetchQueries: true,
+    })
+      .then((res) => {
+        // Use a functional update or verify the actual result from server
+        if (res.data && currentUser) {
           const currentFavs = currentUser.favourites || [];
-          const updatedFavs = !prevBookmark
-            ? [...currentFavs, id]
-            : currentFavs.filter((fav: any) => typeof fav === 'string' ? fav !== id : fav?.id !== id);
+          let updatedFavs;
+
+          if (wasBookmarked) {
+            // REMOVING: Filter out the ID strictly
+            updatedFavs = currentFavs.filter((fav: any) => {
+              const favId = typeof fav === 'string' ? fav : fav?.id || fav?._id;
+              return String(favId) !== String(id);
+            });
+          } else {
+            // ADDING: Ensure we don't add duplicates
+            const exists = currentFavs.some((fav: any) => {
+              const favId = typeof fav === 'string' ? fav : fav?.id || fav?._id;
+              return String(favId) === String(id);
+            });
+            updatedFavs = exists ? currentFavs : [...currentFavs, id];
+          }
+
+          // 3. Sync the Global Zustand Store
           setUser({ ...currentUser, favourites: updatedFavs });
         }
       })
       .catch((err) => {
-        setIsBookmarked(prevBookmark);
+        // Rollback on failure
+        setIsBookmarked(wasBookmarked);
         throw err;
       });
 
     toast.promise(promise, {
-      loading: !prevBookmark ? "Saving to bookmarks..." : "Removing from bookmarks...",
-      success: !prevBookmark ? "Saved to bookmarks!" : "Removed from bookmarks.",
+      loading: !wasBookmarked ? "Saving..." : "Removing...",
+      success: !wasBookmarked ? "Saved!" : "Removed.",
       error: "Failed to update bookmark.",
     });
   };
@@ -151,6 +183,7 @@ const DraftLayout = () => {
         </div>
       ) : (
         <motion.div
+          key={id} // Forces re-animation if user navigates between drafts
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -158,70 +191,87 @@ const DraftLayout = () => {
         >
           <div className="flex flex-col space-y-4">
 
-            {/* Header Row (Perfectly sized to prevent layout shift) */}
-            <div className="flex flex-row items-center justify-between gap-4 w-full min-h-[40px] sm:min-h-[48px]">
+            <div className="relative flex items-center justify-between w-full min-h-[40px] sm:min-h-[48px]">
 
-              {!script ? (
-                // 🚨 SKELETON STATE
-                <>
-                  <div className="flex-1 min-w-0">
-                    <div className="h-8 sm:h-10 w-2/3 max-w-[300px] bg-white/10 rounded-xl animate-pulse" />
-                  </div>
-                  <div className="flex items-center shrink-0 gap-1 sm:gap-2">
-                    <div className="h-8 sm:h-9 w-12 sm:w-16 bg-white/10 rounded-lg animate-pulse" />
-                    <div className="h-8 sm:h-9 w-12 sm:w-16 bg-white/10 rounded-lg animate-pulse" />
-                    <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
-                    <div className="h-8 sm:h-9 w-8 sm:w-10 bg-white/10 rounded-lg animate-pulse" />
-                  </div>
-                </>
-              ) : (
-                // 🚨 REAL LOADED DATA
-                <>
-                  <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
-                      {script.title}
-                    </h1>
-                  </div>
+              <AnimatePresence>
+                {!script && (
+                  <motion.div
+                    key="skeleton"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute inset-0 flex items-center justify-between gap-4 w-full pointer-events-none z-10"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="h-8 sm:h-10 w-2/3 max-w-[300px] bg-white/10 rounded-xl animate-pulse" />
+                    </div>
+                    <div className="flex items-center shrink-0 gap-1 sm:gap-2">
+                      <div className="h-8 sm:h-9 w-12 sm:w-16 bg-white/10 rounded-lg animate-pulse" />
+                      <div className="h-8 sm:h-9 w-8 sm:w-10 bg-white/10 rounded-lg animate-pulse" />
+                      <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
+                      <div className="h-8 sm:h-9 w-8 sm:w-10 bg-white/10 rounded-lg animate-pulse" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                  <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
-                    <button
-                      onClick={handleLike}
-                      disabled={isLiking}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isLiked ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                        }`}
-                    >
-                      <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-                      <span>{localLikes.length}</span>
-                    </button>
+              <AnimatePresence>
+                {script && (
+                  <motion.div
+                    key="real-data"
+                    initial={{ opacity: 0, scale: 1.02, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex items-center justify-between gap-4 w-full relative z-0"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
+                        {script.title}
+                      </h1>
+                    </div>
 
-                    <button
-                      onClick={handleDislike}
-                      disabled={isDisliking}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked ? "bg-white/5 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                        }`}
-                    >
-                      <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
-                      <span>{localDislikes.length}</span>
-                    </button>
+                    <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
 
-                    <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
+                      {/* Like Button */}
+                      <button
+                        onClick={handleLike}
+                        disabled={isLiking}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isLiked ? "bg-white/10 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                          }`}
+                      >
+                        <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+                        <span>{localLikes.length}</span>
+                      </button>
 
-                    <button
-                      onClick={handleBookmark}
-                      disabled={isBookmarking}
-                      className={`p-1.5 sm:p-2 rounded-lg transition-all ${isBookmarked ? "text-white bg-white/10 shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-                        }`}
-                    >
-                      {isBookmarking ? <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" /> : <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />}
-                    </button>
-                  </div>
-                </>
-              )}
+                      {/* Dislike Button (Icon Only) */}
+                      <button
+                        onClick={handleDislike}
+                        disabled={isDisliking}
+                        className={`flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${isDisliked ? "bg-white/5 text-white shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                          }`}
+                      >
+                        <ThumbsDown className={`w-4 h-4 ${isDisliked ? "fill-current" : ""}`} />
+                      </button>
+
+                      <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
+
+                      {/* Bookmark Button */}
+                      <button
+                        onClick={handleBookmark}
+                        disabled={isBookmarking}
+                        className={`p-1.5 sm:p-2 rounded-lg transition-all ${isBookmarked ? "text-white bg-white/10 shadow-sm border border-white/10 md:border-transparent" : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+                          }`}
+                      >
+                        {isBookmarking ? <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5" /> : <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? "fill-current" : ""}`} />}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             <hr className="border-b-0.5 border-white/10" />
 
-            {/* Tabs are instantly rendered. Child component fetches in parallel immediately. */}
             <div className="w-full border-b border-white/10">
               <Tabs
                 setTab={setTab}

@@ -33,12 +33,10 @@ const Bookmarks = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
-  // 🚨 THE FIX: Grace Period State
   const [showAuthWarning, setShowAuthWarning] = useState(false);
 
   useEffect(() => {
     if (!currentUserId) {
-      // Give the auth store 800ms to hydrate before flashing the warning screen
       const timer = setTimeout(() => setShowAuthWarning(true), 800);
       return () => clearTimeout(timer);
     } else {
@@ -46,34 +44,33 @@ const Bookmarks = () => {
     }
   }, [currentUserId]);
 
+  // 🚨 THE FIX: 'cache-and-network' instantly shows the locally updated cache from Layout.tsx
   const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {
     variables: { userId: currentUserId },
     skip: !currentUserId,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "no-cache", // 🚨 Nuclear option: Bypasses Apollo's local cache entirely
   });
 
   const favourites = data?.getUserFavourites || [];
 
-  // Filter Logic
   const filteredFavourites = useMemo(() => {
-    let result = favourites;
+    let result = favourites.filter(Boolean);
 
     if (searchQuery) {
       result = result.filter((script: any) =>
-        script.title.toLowerCase().includes(searchQuery.toLowerCase())
+        script?.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedFilter.id !== "all") {
       result = result.filter((script: any) =>
-        script.genres?.some((genre: string) => genre.toLowerCase() === selectedFilter.id)
+        script?.genres?.some((genre: string) => genre.toLowerCase() === selectedFilter.id)
       );
     }
 
     return result;
   }, [favourites, searchQuery, selectedFilter]);
 
-  // --- Sleek Slide-Up Variants ---
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -94,15 +91,13 @@ const Bookmarks = () => {
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
 
-  const hasAnyBookmark = favourites.length > 0;
+  const hasAnyBookmark = favourites.filter(Boolean).length > 0;
   const isFiltering = searchQuery !== "" || selectedFilter.id !== "all";
 
-  // 🚨 THE FIX: No more early returns! Everything happens inside the single AnimatePresence tree.
   return (
     <div className="w-full max-w-7xl mx-auto h-full text-white pb-10">
       <AnimatePresence mode="wait">
 
-        {/* State 1: Unified loading state (handles both auth hydrating AND data fetching) */}
         {(!currentUserId && !showAuthWarning) || loading ? (
           <motion.div
             key="loader"
@@ -115,7 +110,6 @@ const Bookmarks = () => {
           </motion.div>
         ) :
 
-          /* State 2: Auth Warning (Shows gracefully only if not logged in after 800ms) */
           !currentUserId && showAuthWarning ? (
             <motion.div
               key="auth-warning"
@@ -145,7 +139,6 @@ const Bookmarks = () => {
             </motion.div>
           ) :
 
-            /* State 3: Error */
             error ? (
               <motion.div
                 key="error"
@@ -164,7 +157,6 @@ const Bookmarks = () => {
               </motion.div>
             ) :
 
-              /* State 4: Content */
               (
                 <motion.div
                   key="content"
@@ -236,7 +228,7 @@ const Bookmarks = () => {
                       initial={{ opacity: 0, scale: 0.95, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="flex flex-col items-center justify-center py-28 text-center min-h-[96vh]"
+                      className="flex flex-col items-center justify-center py-28 text-center min-h-[70vh]"
                     >
                       <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
                         <SearchX className="w-10 h-10 text-gray-400" />

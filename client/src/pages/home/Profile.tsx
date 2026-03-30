@@ -2,9 +2,9 @@ import { useState, useMemo, useRef, useEffect, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
-  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin,
-  CalendarDays, SearchX, AlertCircle, Loader2, Edit2, Check, FileText, X,
+  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin, CalendarDays, SearchX, AlertCircle, Loader2, Edit2, Check, FileText, X
 } from "lucide-react";
+import { z } from "zod";
 
 import {
   useGetUserProfileQuery,
@@ -20,6 +20,13 @@ import { useUserStore } from "../../store/useAuthStore";
 import Add from "../../components/modal/AddDraft";
 import DraftCard from "../../components/card/DraftCard";
 import { toast } from "sonner";
+
+const profileSchemas = {
+  name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name cannot exceed 50 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  languages: z.string().max(100, "Languages list is too long"),
+  bio: z.string().max(500, "Bio cannot exceed 500 characters"),
+};
 
 const EditControls = ({
   field, editingField, isUpdating, onEdit, onCancel, onSave,
@@ -99,6 +106,7 @@ const Profile = () => {
   const { data: profileData, loading: profileLoading, error: profileError } = useGetUserProfileQuery({
     variables: { id: id || "" },
     skip: !id,
+    fetchPolicy: "cache-and-network"
   });
 
   const userProfile = profileData?.getUserProfile;
@@ -106,8 +114,20 @@ const Profile = () => {
 
   useEffect(() => {
     if (userProfile) {
-      setLocalProfileLikes((userProfile.likes as string[]) || []);
-      setLocalProfileViews((userProfile.views as string[]) || []);
+      const likesList = (userProfile.likes?.map((l: any) => {
+        if (!l) return null;
+        if (typeof l === "string") return l;
+        return String(l.id || l._id || "");
+      }).filter(Boolean) as string[]) || [];
+
+      const viewsList = (userProfile.views?.map((v: any) => {
+        if (!v) return null;
+        if (typeof v === "string") return v;
+        return String(v.id || v._id || "");
+      }).filter(Boolean) as string[]) || [];
+
+      setLocalProfileLikes(likesList);
+      setLocalProfileViews(viewsList);
     }
   }, [userProfile]);
 
@@ -116,19 +136,24 @@ const Profile = () => {
 
   useEffect(() => {
     if (id && currentUser?.id && !isOwnProfile) {
-      viewProfile({ variables: { profileId: id } }).catch((err) =>
-        console.error("View profile error ignored:", err),
-      );
+      viewProfile({ variables: { profileId: id } })
+        .then(() => {
+          setLocalProfileViews((prev) => (prev.includes(currentUser.id) ? prev : [...prev, currentUser.id]));
+        })
+        .catch((err) => console.error("View profile error ignored:", err));
     }
   }, [id, currentUser?.id, isOwnProfile, viewProfile]);
 
-  const handleLikeProfile = async () => {
+  const handleLikeProfile = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
     if (!currentUser?.id) return toast.error("Please log in to like profiles.");
     if (isOwnProfile) return;
 
     const prevLikes = [...localProfileLikes];
     const isLiked = localProfileLikes.includes(currentUser.id);
 
+    // Optimistic UI update instantly
     if (isLiked) {
       setLocalProfileLikes(prevLikes.filter((uid) => uid !== currentUser.id));
     } else {
@@ -149,7 +174,7 @@ const Profile = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const isCompletelyLoading = profileLoading || scriptsLoading || (!!profileData && !scriptsData && !scriptsError);
+  const isCompletelyLoading = (!profileData && profileLoading) || (!scriptsData && scriptsLoading);
 
   const filteredScripts = useMemo(() => {
     return scriptsData?.getUserScripts?.filter((script) =>
@@ -185,6 +210,17 @@ const Profile = () => {
   const handleSave = async (fieldId: string) => {
     if (!editRef.current) return;
     const rawText = editRef.current.innerText.trim();
+
+    let validation;
+    if (fieldId === "name") validation = profileSchemas.name.safeParse(rawText);
+    else if (fieldId === "email") validation = profileSchemas.email.safeParse(rawText);
+    else if (fieldId === "languages") validation = profileSchemas.languages.safeParse(rawText);
+    else if (fieldId === "bio") validation = profileSchemas.bio.safeParse(rawText);
+
+    if (validation && !validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
 
     setIsUpdating(true);
     const promise = updateProfileField({
@@ -239,7 +275,7 @@ const Profile = () => {
   return (
     <div className="w-full max-w-7xl mx-auto font-mono">
       <AnimatePresence mode="wait">
-        {!isCompletelyLoading ? (
+        {isCompletelyLoading ? (
           <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96vh] gap-4">
             <Loader />
           </motion.div>
@@ -317,7 +353,7 @@ const Profile = () => {
                       <div key={detail.id} className="flex flex-col gap-2">
 
                         <div className="flex items-center justify-between w-full">
-                          <h4 className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                          <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-500 uppercase tracking-widest">
                             <Icon className="w-4 h-4 text-gray-400" />
                             {detail.title}
                             <AnimatePresence>
@@ -357,7 +393,7 @@ const Profile = () => {
                                 suppressContentEditableWarning
                                 onKeyDown={(e) => handleKeyDown(e, detail.id)}
                                 data-placeholder="e.g. English, Spanish"
-                                className="text-gray-200 text-sm sm:text-base font-sans outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-600 empty:before:pointer-events-none"
+                                className="text-gray-200  font-sans outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 empty:before:italic empty:before:pointer-events-none"
                               >
                                 {detail.value}
                               </div>
@@ -365,10 +401,10 @@ const Profile = () => {
                               <div key={`view-${detail.id}`} className="flex gap-2 flex-wrap w-full">
                                 {detail.value ? (
                                   detail.value.split(", ").map((item: string, i: number) => (
-                                    <span key={i} className="px-2.5 sm:px-3 py-1 bg-white/5 text-gray-300 rounded-md text-xs sm:text-sm font-semibold border border-white/10 font-sans">{item}</span>
+                                    <span key={i} className="px-2.5 sm:px-3 py-1 bg-white/5 text-gray-300 rounded-md text-sm font-semibold border border-white/10 font-sans">{item}</span>
                                   ))
                                 ) : (
-                                  <span className="text-gray-500 italic text-sm sm:text-base font-sans">
+                                  <span className="text-gray-500 italic text-[15px] sm:text-base font-sans">
                                     {isOwnProfile ? `Click edit to add your ${detail.title.toLowerCase()}` : "Not provided"}
                                   </span>
                                 )}
@@ -382,9 +418,13 @@ const Profile = () => {
                               suppressContentEditableWarning
                               onKeyDown={(e) => handleKeyDown(e, detail.id)}
                               data-placeholder={`Enter your ${detail.title.toLowerCase()}...`}
-                              className={`text-gray-200 font-mono leading-relaxed outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-600 empty:before:pointer-events-none ${(detail.id === 'name' || detail.id === 'email') ? 'font-bold text-lg sm:text-xl' : 'font-medium text-sm sm:text-base'} ${!detail.value && !isEditingThis ? "text-gray-500 italic" : ""}`}
+                              className={`leading-relaxed outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 empty:before:italic empty:before:pointer-events-none [&:empty::before]:font-sans [&:empty::before]:font-normal ${!detail.value && !isEditingThis
+                                ? "text-gray-500 italic font-sans font-normal "
+                                : detail.id === 'name' || detail.id === 'email'
+                                  ? "font-bold  font-sans text-gray-200"
+                                  : "font-medium font-mono text-gray-200"
+                                }`}
                             >
-                              {/* 🚨 THE FIX: Provide a solid fallback for guests so the div is never empty */}
                               {detail.value || (!isEditingThis ? (isOwnProfile ? `Click edit to add your ${detail.title.toLowerCase()}` : "Not provided") : "")}
                             </div>
                           )}
@@ -400,21 +440,32 @@ const Profile = () => {
 
             <motion.div variants={itemVariants} className="flex flex-col gap-6">
               {hasScripts && (
-                <div className="grid grid-cols-[1fr_auto] gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full">
-                  <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight self-center">
-                    {isOwnProfile ? "Drafts" : "Published Drafts"}
-                  </h2>
-                  <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
-                    <div className="col-span-2 order-last sm:order-none w-full sm:w-64">
-                      <Search value={search} setSearch={setSearch} placeholder={`Search ${isOwnProfile ? "my" : "their"} scripts...`} />
-                    </div>
-                    {isOwnProfile && (
-                      <div className="shrink-0 sm:w-auto self-center">
-                        <Add />
+                <>
+                  {isOwnProfile ? (
+                    <div className="grid grid-cols-[1fr_auto] gap-4 sm:flex sm:flex-row sm:items-center sm:justify-between w-full">
+                      <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight self-center">
+                        Drafts
+                      </h2>
+                      <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
+                        <div className="col-span-2 order-last sm:order-none w-full sm:w-56">
+                          <Search value={search} setSearch={setSearch} placeholder="Search my scripts..." />
+                        </div>
+                        <div className="shrink-0 sm:w-auto self-center">
+                          <Add />
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-6 sm:gap-4 w-full">
+                      <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight text-center sm:text-left self-center">
+                        Published Drafts
+                      </h2>
+                      <div className="w-full sm:w-56 sm:flex-shrink-0">
+                        <Search value={search} setSearch={setSearch} placeholder="Search their scripts..." />
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="flex-1">

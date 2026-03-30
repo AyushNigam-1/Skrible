@@ -54,7 +54,8 @@ const dispatchNotification = (
   senderId: any,
   type: string,
   message: string,
-  link: string
+  link: string,
+  draftTitle?: string
 ) => {
   const recipientStr = recipientId.toString();
   if (recipientStr === senderId.toString()) return;
@@ -64,6 +65,7 @@ const dispatchNotification = (
     sender: senderId,
     type,
     message,
+    draftTitle,
     link,
   })
     .then(async (newNotif: any) => {
@@ -76,10 +78,24 @@ const dispatchNotification = (
         createdAt: newNotif.createdAt.getTime().toString(),
       };
 
-      console.log(`🚀 Sending Socket.io Ping to room: ${recipientStr}`);
       getIO().to(recipientStr).emit("new notification", payload);
     })
     .catch(console.error);
+};
+
+const getCleanTitle = (scriptDoc: any) => {
+  if (!scriptDoc) return "Untitled Draft";
+  try {
+    const obj = scriptDoc.toObject({ virtuals: true });
+    return obj.title || "Untitled Draft";
+  } catch (err) {
+    return scriptDoc.title || "Untitled Draft";
+  }
+};
+
+const getFirstName = (fullName: string | undefined) => {
+  if (!fullName) return "Someone";
+  return fullName.split(" ")[0];
 };
 
 export const paragraphMutations = {
@@ -127,14 +143,17 @@ export const paragraphMutations = {
     await Script.findByIdAndUpdate(paragraph.script, updateQuery);
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
 
-    // 🚨 NOTIFICATION FIX: Changed type to "INFO" so it doesn't show Accept/Decline buttons, added draft title
-    const userName = context.user?.name || "Someone";
+    const firstName = getFirstName(context.user?.name);
+    const draftTitle = getCleanTitle(script);
+
+    // 🚨 THE FIX: Changed link to point directly to the specific contribution
     await dispatchNotification(
       paragraph.author,
       userId,
       "INFO",
-      `${userName} approved and merged your contribution on draft "${script.title || "Untitled"}"`,
-      `/script/${paragraph.script}`
+      `${firstName} approved your contribution`,
+      `/contribution/${script._id}/${paragraph._id}`,
+      draftTitle
     );
 
     return { status: true };
@@ -150,20 +169,22 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "reject_paragraph", 60, 60);
 
-    // 🚨 FIX: Populated script to get the title
-    const paragraph: any = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" }).populate("script", "title");
+    const paragraph: any = await Paragraph.findByIdAndUpdate(paragraphId, { status: "rejected" }).populate("script");
 
     if (paragraph) {
       await invalidateParagraphCache(context.redis, paragraph.script._id.toString(), paragraphId);
 
-      // 🚨 NOTIFICATION FIX: Added draft title
-      const userName = context.user?.name || "Someone";
+      const firstName = getFirstName(context.user?.name);
+      const draftTitle = getCleanTitle(paragraph.script);
+
+      // 🚨 THE FIX: Direct contribution link
       await dispatchNotification(
         paragraph.author,
         userId,
         "INFO",
-        `${userName} declined your submission on draft "${paragraph.script?.title || "Untitled"}"`,
-        `/script/${paragraph.script._id}`
+        `${firstName} declined your submission`,
+        `/contribution/${paragraph.script._id}/${paragraph._id}`,
+        draftTitle
       );
     }
 
@@ -246,8 +267,7 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "like_paragraph", 60, 60);
 
-    // 🚨 FIX: Populated script to get the title
-    const paragraph: any = await Paragraph.findById(paragraphId).select("script author likes dislikes").populate("script", "title");
+    const paragraph: any = await Paragraph.findById(paragraphId).select("script author likes dislikes").populate("script");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
     const hasLiked = paragraph.likes?.includes(userId) || false;
@@ -262,14 +282,17 @@ export const paragraphMutations = {
         $pull: { dislikes: userId },
       });
 
-      // 🚨 NOTIFICATION FIX: Formatted for the UI regex parser
-      const userName = context.user?.name || "Someone";
+      const firstName = getFirstName(context.user?.name);
+      const draftTitle = getCleanTitle(paragraph.script);
+
+      // 🚨 THE FIX: Direct contribution link
       await dispatchNotification(
         paragraph.author,
         userId,
         "LIKE",
-        `${userName} liked your contribution on draft "${paragraph.script?.title || "Untitled"}"`,
-        `/script/${paragraph.script._id}`
+        `${firstName} liked your contribution`,
+        `/contribution/${paragraph.script._id}/${paragraph._id}`,
+        draftTitle
       );
     }
 
@@ -322,7 +345,6 @@ export const paragraphMutations = {
       throw new GraphQLError("Comment cannot be empty");
     }
 
-    // 🚨 FIX: Populated script to get the title
     const updatedParagraph: any = await Paragraph.findByIdAndUpdate(
       paragraphId,
       {
@@ -334,19 +356,23 @@ export const paragraphMutations = {
         },
       },
       { new: true },
-    ).populate("comments.author").populate("script", "title");
+    ).populate("comments.author").populate("script");
 
     if (!updatedParagraph) throw new GraphQLError("Paragraph not found");
 
     await invalidateParagraphCache(context.redis, updatedParagraph.script._id.toString(), paragraphId);
 
-    const userName = context.user?.name || "Someone";
+    const firstName = getFirstName(context.user?.name);
+    const draftTitle = getCleanTitle(updatedParagraph.script);
+
+    // 🚨 THE FIX: Direct contribution link
     await dispatchNotification(
       updatedParagraph.author,
       userId,
       "COMMENT",
-      `${userName} commented on your draft "${updatedParagraph.script?.title || "Untitled"}"`,
-      `/script/${updatedParagraph.script._id}`
+      `${firstName} commented on your contribution`,
+      `/contribution/${updatedParagraph.script._id}/${updatedParagraph._id}`,
+      draftTitle
     );
 
     return updatedParagraph;

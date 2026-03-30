@@ -211,16 +211,10 @@ export const userQueries = {
     { userId }: { userId: string },
     context: MyContext,
   ) => {
-    const ip =
-      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    const ip = context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
     await enforceRateLimit(context.redis, ip, "get_user_favourites", 100, 60);
 
-    const cacheKey = `user:${userId}:favourites:v3`;
-
-    const cachedFavs = await context.redis.get(cacheKey);
-    if (cachedFavs) {
-      return JSON.parse(cachedFavs);
-    }
+    // 🚨 Redis cache logic completely removed. Fetching directly from MongoDB every time.
 
     const user = await User.findById(userId).populate({
       path: "favourites",
@@ -230,26 +224,28 @@ export const userQueries = {
       },
     });
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new GraphQLError("User not found");
 
-    const formattedFavs = (user.favourites || []).map((fav: any) => {
-      const obj: any = fav.toObject ? fav.toObject({ virtuals: true }) : fav;
+    const formattedFavs = (user.favourites || [])
+      .filter((fav: any) => fav != null)
+      .map((fav: any) => {
+        const obj: any = fav.toObject ? fav.toObject({ virtuals: true }) : fav;
 
-      return {
-        ...obj,
-        createdAt: toUnixString(obj.createdAt),
-        updatedAt: toUnixString(obj.updatedAt),
-        author: obj.author
-          ? {
-            ...obj.author,
-            createdAt: toUnixString(obj.author.createdAt),
-            updatedAt: toUnixString(obj.author.updatedAt),
-          }
-          : null,
-      };
-    });
-
-    await context.redis.setEx(cacheKey, 3600, JSON.stringify(formattedFavs));
+        return {
+          ...obj,
+          id: obj._id?.toString() || obj.id?.toString(),
+          createdAt: toUnixString(obj.createdAt),
+          updatedAt: toUnixString(obj.updatedAt),
+          author: obj.author
+            ? {
+              ...obj.author,
+              id: obj.author._id?.toString() || obj.author.id?.toString(),
+              createdAt: toUnixString(obj.author.createdAt),
+              updatedAt: toUnixString(obj.author.updatedAt),
+            }
+            : null,
+        };
+      });
 
     return formattedFavs;
   },

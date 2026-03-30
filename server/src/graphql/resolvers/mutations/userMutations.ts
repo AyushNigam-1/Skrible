@@ -32,26 +32,27 @@ const enforceRateLimit = async (
 };
 
 export const userMutations = {
-
   toggleBookmark: async (
     _: any,
     { scriptId }: { scriptId: string },
     context: any,
   ) => {
     const userId = context.user?.id;
+
     if (!userId) {
       throw new GraphQLError("User not authenticated", {
         extensions: { code: "UNAUTHENTICATED" },
       });
     }
 
-    await enforceRateLimit(context.redis, userId, "bookmark", 30, 60);
+    const userIdStr = userId.toString();
+    await enforceRateLimit(context.redis, userIdStr, "bookmark", 30, 60);
 
     const user = await User.findById(userId);
     if (!user) throw new GraphQLError("User not found");
 
-    const targetId = new Types.ObjectId(scriptId);
-    const isBookmarked = user.favourites?.some((id) => id.equals(targetId));
+    const targetId = new Types.ObjectId(scriptId.trim());
+    const isBookmarked = user.favourites?.some((id: any) => id.toString() === targetId.toString());
 
     if (isBookmarked) {
       await User.findByIdAndUpdate(userId, { $pull: { favourites: targetId } });
@@ -59,9 +60,9 @@ export const userMutations = {
       await User.findByIdAndUpdate(userId, { $addToSet: { favourites: targetId } });
     }
 
-    const cacheKey = `user:${userId}:favourites:v3`;
     if (context.redis) {
-      await context.redis.del(cacheKey);
+      const profileCacheKey = `user:${userIdStr}:profile:v3`;
+      await context.redis.del(profileCacheKey);
     }
 
     return { status: true };
@@ -136,6 +137,10 @@ export const userMutations = {
       await User.findByIdAndUpdate(profileId, { $addToSet: { likes: userId } });
     }
 
+    // 🚨 THE FIX: Bust the stale Redis cache!
+    const cacheKey = `user:${profileId}:profile:v3`;
+    await context.redis.del(cacheKey);
+
     return { status: true };
   },
 
@@ -156,6 +161,9 @@ export const userMutations = {
       $addToSet: { views: userId },
     });
 
+    const cacheKey = `user:${profileId}:profile:v3`;
+    await context.redis.del(cacheKey);
+
     return { status: true };
-  },
-};
+  }
+}

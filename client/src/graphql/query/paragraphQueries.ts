@@ -38,7 +38,6 @@ export const GET_PARAGRAPH_BY_ID = gql`
 `;
 
 export const GET_FILTERED_REQUESTS = gql`
-  # 🚨 IMPORTANT: Notice the "$status: String" here!
   query GetFilteredRequests($scriptId: ID!, $userId: ID, $status: String) {
     getFilteredRequests(scriptId: $scriptId, userId: $userId, status: $status) {
       id

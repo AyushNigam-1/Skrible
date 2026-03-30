@@ -6,12 +6,28 @@ import Notification from "../../../models/Notification";
 import { getIO } from "../../../utils/socket";
 import { GraphQLError } from "graphql";
 
+const getCleanTitle = (scriptDoc: any) => {
+  if (!scriptDoc) return "Untitled Draft";
+  try {
+    const obj = scriptDoc.toObject({ virtuals: true });
+    return obj.title || "Untitled Draft";
+  } catch (err) {
+    return scriptDoc.title || "Untitled Draft";
+  }
+};
+
+const getFirstName = (fullName: string | undefined) => {
+  if (!fullName) return "Someone";
+  return fullName.split(" ")[0];
+};
+
 const dispatchNotification = (
   recipientId: any,
   senderId: any,
   type: string,
   message: string,
-  link: string
+  link: string,
+  draftTitle?: string
 ) => {
   const recipientStr = recipientId.toString();
   if (recipientStr === senderId.toString()) return;
@@ -21,6 +37,7 @@ const dispatchNotification = (
     sender: senderId,
     type,
     message,
+    draftTitle,
     link,
   })
     .then(async (newNotif: any) => {
@@ -33,7 +50,6 @@ const dispatchNotification = (
         createdAt: newNotif.createdAt.getTime().toString(),
       };
 
-      console.log(`🚀 Sending Socket.io Ping to room: ${recipientStr}`);
       getIO().to(recipientStr).emit("new notification", payload);
     })
     .catch(console.error);
@@ -171,13 +187,16 @@ export const scriptMutations = {
       status: "pending",
     });
 
-    // 🚨 NOTIFICATION: Someone submitted a paragraph to the script
+    const firstName = getFirstName(context.user?.name);
+    const draftTitle = getCleanTitle(script);
+
     await dispatchNotification(
       script.author,
       userId,
-      "REQUEST",
-      "{name} submitted a new paragraph to your script.",
-      `/script/${scriptId}`
+      "INFO",
+      `${firstName} submitted a contribution`,
+      `/contribution/${scriptId}/${paragraph._id}`,
+      draftTitle
     );
 
     await invalidateScriptCache(context.redis, scriptId);
@@ -437,13 +456,16 @@ export const scriptMutations = {
         $pull: { dislikes: userId },
       });
 
-      // 🚨 NOTIFICATION: Someone liked the script
+      const firstName = getFirstName(context.user?.name);
+      const draftTitle = getCleanTitle(script);
+
       await dispatchNotification(
         script.author,
         userId,
         "LIKE",
-        "{name} liked your script.",
-        `/script/${scriptId}`
+        `${firstName} liked your draft`,
+        `/script/${scriptId}`,
+        draftTitle
       );
     }
 

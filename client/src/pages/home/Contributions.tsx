@@ -20,9 +20,9 @@ import { useUserStore } from "../../store/useAuthStore";
 
 const FILTER_OPTIONS = [
   { id: "all", name: "All Drafts" },
-  { id: "approved", name: "Has Approved" },
-  { id: "pending", name: "Has Pending" },
-  { id: "rejected", name: "Has Rejected" },
+  { id: "core", name: "Core Contributor (3+ Submissions)" },
+  { id: "casual", name: "Casual Writer (1-2 Submissions)" },
+  { id: "perfect", name: "Perfect Acceptance (100% Approved)" },
 ];
 
 const MyContributions = () => {
@@ -104,9 +104,9 @@ const MyContributions = () => {
 
     if (selectedFilter.id !== "all") {
       result = result.filter((g) => {
-        if (selectedFilter.id === "approved") return g.approved > 0;
-        if (selectedFilter.id === "pending") return g.pending > 0;
-        if (selectedFilter.id === "rejected") return g.rejected > 0;
+        if (selectedFilter.id === "core") return g.total >= 3;
+        if (selectedFilter.id === "casual") return g.total > 0 && g.total < 3;
+        if (selectedFilter.id === "perfect") return g.approved === g.total && g.total > 0;
         return true;
       });
     }
@@ -300,7 +300,7 @@ const MyContributions = () => {
                       initial={{ opacity: 0, scale: 0.95, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[96vh]"
+                      className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[70vh]"
                     >
                       <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
                         {isFiltering ? (

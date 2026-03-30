@@ -1,70 +1,22 @@
 import { useState, Fragment, useEffect } from "react";
-import { useQuery, useMutation, useApolloClient, gql } from "@apollo/client";
+import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import { Link } from "react-router-dom";
-import { Bell, Heart, MessageSquare, Inbox, Info, X, Loader as LoaderIcon, UserPlus } from "lucide-react";
+import { Bell, Heart, MessageSquare, Info, X, Loader as LoaderIcon, UserPlus, Trash2 } from "lucide-react";
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
 import { GET_NOTIFICATIONS } from "../../graphql/query/notificationQueries";
 import { useUserStore } from "../../store/useAuthStore";
-import { MARK_ALL_READ } from "../../graphql/mutation/notificationMutations";
+import { MARK_ALL_READ, DELETE_NOTIFICATION } from "../../graphql/mutation/notificationMutations";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { ACCEPT_INVITATION, DECLINE_INVITATION } from "../../graphql/mutation/userMutations";
 
 const ENDPOINT = `http://${window.location.hostname}:3000`;
-
-const ACCEPT_INVITATION = gql`
-  mutation AcceptInvitation($scriptId: ID!) {
-    acceptInvitation(scriptId: $scriptId) {
-      id
-    }
-  }
-`;
-
-const DECLINE_INVITATION = gql`
-  mutation DeclineInvitation($scriptId: ID!) {
-    declineInvitation(scriptId: $scriptId) {
-      id
-    }
-  }
-`;
-
-// 🚨 THE FIX: Smart Parser to format the notification strings beautifully
-const parseNotificationMessage = (message: string, type: string) => {
-    let primaryText = message;
-    let secondaryText = "";
-
-    try {
-        if (type === "COMMENT") {
-            // Extracts name and draft, throws away the comment text
-            const match = message.match(/^(.*?)\s+commented(.*?)on\s+(?:your\s+)?(?:script|draft)?\s*(.*?)$/i);
-            if (match) {
-                primaryText = `${match[1].trim()} commented on your draft`;
-                secondaryText = match[3].trim().replace(/^['"]|['"]$/g, ''); // Removes quotes if any
-            }
-        } else if (type === "REQUEST") {
-            // Extracts first name and draft
-            const match = message.match(/^(.*?)\s+invited you.*?on\s+(?:your\s+)?(?:script|draft)?\s*(.*?)$/i);
-            if (match) {
-                const firstName = match[1].trim().split(" ")[0]; // Only First Name
-                primaryText = `${firstName} invited you to collaborate`;
-                secondaryText = match[2].trim().replace(/^['"]|['"]$/g, '');
-            }
-        } else if (type === "LIKE") {
-            const match = message.match(/^(.*?)\s+liked.*?(?:script|draft)?\s*(.*?)$/i);
-            if (match) {
-                primaryText = `${match[1].trim()} liked your draft`;
-                secondaryText = match[2].trim().replace(/^['"]|['"]$/g, '');
-            }
-        }
-    } catch (e) {
-        console.error("Error parsing notification", e);
-    }
-
-    return { primaryText, secondaryText };
-};
 
 const NotificationModal = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [actionedNotifs, setActionedNotifs] = useState<Record<string, "ACCEPTED" | "DECLINED">>({});
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const { user } = useUserStore();
     const client = useApolloClient();
@@ -102,6 +54,31 @@ const NotificationModal = () => {
         },
     });
 
+    const [deleteNotification] = useMutation(DELETE_NOTIFICATION, {
+        update(cache, { data: { deleteNotification } }, { variables }) {
+            if (deleteNotification) {
+                const existingData: any = cache.readQuery({
+                    query: GET_NOTIFICATIONS,
+                    variables: { userId: user?.id || "" },
+                });
+
+                if (existingData && existingData.getNotifications) {
+                    const newNotifications = existingData.getNotifications.filter(
+                        (notif: any) => notif.id !== variables?.id
+                    );
+
+                    cache.writeQuery({
+                        query: GET_NOTIFICATIONS,
+                        variables: { userId: user?.id || "" },
+                        data: {
+                            getNotifications: newNotifications,
+                        },
+                    });
+                }
+            }
+        }
+    });
+
     const [acceptInvite, { loading: accepting }] = useMutation(ACCEPT_INVITATION);
     const [declineInvite, { loading: declining }] = useMutation(DECLINE_INVITATION);
 
@@ -132,6 +109,22 @@ const NotificationModal = () => {
             loading: "Declining invitation...",
             success: "Invite Declined.",
             error: (err) => err.message || "Failed to decline invite.",
+        });
+    };
+
+    const handleDelete = (e: React.MouseEvent, notifId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setDeletingId(notifId);
+
+        const promise = deleteNotification({ variables: { id: notifId } })
+            .finally(() => setDeletingId(null));
+
+        toast.promise(promise, {
+            loading: "Deleting...",
+            success: "Notification deleted",
+            error: (err) => err.message || "Failed to delete notification"
         });
     };
 
@@ -186,13 +179,19 @@ const NotificationModal = () => {
     };
 
     const formatTimeAgo = (timestamp: string) => {
-        const seconds = Math.floor((new Date().getTime() - Number(timestamp)) / 1000);
+        const date = new Date(Number(timestamp));
+        const now = new Date();
+        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
         if (seconds < 60) return "Just now";
+
         const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes}m`;
+        if (minutes < 60) return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
+
         const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours}h`;
-        return `${Math.floor(hours / 24)}d`;
+        if (hours < 24) return `${hours} hr${hours > 1 ? 's' : ''} ago`;
+
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
     return (
@@ -222,17 +221,15 @@ const NotificationModal = () => {
                         transition
                         className="w-full max-w-xl h-[550px] transform overflow-hidden rounded-2xl bg-primary border border-white/10 text-left shadow-2xl transition-all duration-300 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 flex flex-col"
                     >
-                        {/* HEADER */}
                         <div className="flex items-center justify-between p-5 border-b border-white/5 bg-white/5 shrink-0">
                             <DialogTitle as="h3" className="text-xl font-bold text-white font-sans tracking-tight">
                                 Notifications
                             </DialogTitle>
-                            <button onClick={handleCloseModal} className="text-gray-500 hover:text-white">
+                            <button onClick={handleCloseModal} className="text-gray-500 hover:text-white transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
 
-                        {/* BODY */}
                         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
                             {loading && !notifications.length ? (
                                 <div className="flex justify-center items-center h-full">
@@ -248,74 +245,110 @@ const NotificationModal = () => {
                                     <h4 className="text-lg font-bold text-white opacity-40">All caught up!</h4>
                                 </div>
                             ) : (
-                                notifications.map((notif: any) => {
-                                    // 🚨 THE FIX: Use our new parser to get clean text
-                                    const { primaryText, secondaryText } = parseNotificationMessage(notif.message, notif.type);
+                                <AnimatePresence initial={false}>
+                                    {notifications.map((notif: any) => {
 
-                                    return (
-                                        <Link
-                                            to={notif.link || "#"}
-                                            key={notif.id}
-                                            onClick={handleCloseModal}
-                                            className={`flex items-start gap-4 p-5 border-b border-white/5 hover:bg-white/5 transition-colors group ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
-                                        >
-                                            <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
-                                                {getIcon(notif.type)}
-                                            </div>
+                                        const fallbackPrimaryText = notif.message.replace(/ on (your )?draft ".*?"/i, "").replace(/your draft/i, "your contribution");
+                                        const isDeleting = deletingId === notif.id; // 🚨 Check if this specific item is deleting
 
-                                            <div className="flex flex-col gap-1 flex-1 min-w-0">
-                                                <p className={`text-sm leading-snug font-sans ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
-                                                    {primaryText}
-                                                </p>
+                                        return (
+                                            <motion.div
+                                                key={notif.id}
+                                                layout
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                className="relative group/notif overflow-hidden border-b border-white/5 last:border-0"
+                                            >
+                                                <Link
+                                                    to={notif.link || "#"}
+                                                    onClick={handleCloseModal}
+                                                    className={`flex items-start gap-4 p-5 hover:bg-white/5 transition-colors ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
+                                                >
+                                                    {/* Left Icon */}
+                                                    <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
+                                                        {getIcon(notif.type)}
+                                                    </div>
 
-                                                {/* 🚨 THE FIX: Renders the clean draft name below */}
-                                                {secondaryText && (
-                                                    <p className="text-xs text-gray-500 font-mono mt-0.5">
-                                                        Draft: <span className="text-gray-300 font-semibold">{secondaryText}</span>
-                                                    </p>
-                                                )}
+                                                    <div className="flex flex-col gap-1 flex-1 min-w-0 pr-8">
 
-                                                {notif.type === "REQUEST" && (
-                                                    <div className="mt-2">
-                                                        {actionedNotifs[notif.id] === "ACCEPTED" ? (
-                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-[11px] font-bold uppercase tracking-wider border border-blue-500/20">
-                                                                Accepted ✓
+                                                        {/* Main Text & Unread Dot Row */}
+                                                        <div className="flex justify-between items-start gap-4">
+                                                            <p className={`text-sm leading-snug ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
+                                                                {notif.draftTitle ? notif.message : fallbackPrimaryText}
+                                                            </p>
+                                                            {!notif.isRead && (
+                                                                <div className="shrink-0 mt-1.5 w-2 h-2 rounded-full bg-blue-500" />
+                                                            )}
+                                                        </div>
+
+                                                        {/* Draft Title & Time Row */}
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            {notif.draftTitle && (
+                                                                <p className="text-xs text-gray-500 font-mono truncate">
+                                                                    <span className="text-gray-300 font-semibold">{notif.draftTitle}</span>
+                                                                </p>
+                                                            )}
+                                                            {notif.draftTitle && <span className="text-gray-600 text-[10px]">•</span>}
+                                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider shrink-0 mt-[1px]">
+                                                                {formatTimeAgo(notif.createdAt)}
                                                             </span>
-                                                        ) : actionedNotifs[notif.id] === "DECLINED" ? (
-                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 text-gray-400 text-[11px] font-bold uppercase tracking-wider border border-white/10">
-                                                                Declined ✕
-                                                            </span>
-                                                        ) : (
-                                                            <div className="flex items-center gap-2">
-                                                                <button
-                                                                    disabled={accepting || declining}
-                                                                    onClick={(e) => handleAccept(e, extractScriptId(notif.link), notif.id)}
-                                                                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
-                                                                >
-                                                                    {accepting ? "..." : "Accept"}
-                                                                </button>
-                                                                <button
-                                                                    disabled={accepting || declining}
-                                                                    onClick={(e) => handleDecline(e, extractScriptId(notif.link), notif.id)}
-                                                                    className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
-                                                                >
-                                                                    {declining ? "..." : "Decline"}
-                                                                </button>
+                                                        </div>
+
+                                                        {/* Request Buttons (Unchanged) */}
+                                                        {notif.type === "REQUEST" && (
+                                                            <div className="mt-2">
+                                                                {actionedNotifs[notif.id] === "ACCEPTED" ? (
+                                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-[11px] font-bold uppercase tracking-wider border border-blue-500/20">
+                                                                        Accepted ✓
+                                                                    </span>
+                                                                ) : actionedNotifs[notif.id] === "DECLINED" ? (
+                                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 text-gray-400 text-[11px] font-bold uppercase tracking-wider border border-white/10">
+                                                                        Declined ✕
+                                                                    </span>
+                                                                ) : (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <button
+                                                                            disabled={accepting || declining}
+                                                                            onClick={(e) => handleAccept(e, extractScriptId(notif.link), notif.id)}
+                                                                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
+                                                                        >
+                                                                            {accepting ? "..." : "Accept"}
+                                                                        </button>
+                                                                        <button
+                                                                            disabled={accepting || declining}
+                                                                            onClick={(e) => handleDecline(e, extractScriptId(notif.link), notif.id)}
+                                                                            className="px-4 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-[11px] font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50"
+                                                                        >
+                                                                            {declining ? "..." : "Decline"}
+                                                                        </button>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
-                                                )}
-                                            </div>
+                                                </Link>
 
-                                            <div className="flex flex-col items-end justify-start gap-1.5 shrink-0 pt-0.5">
-                                                {!notif.isRead && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-gray-400 transition-colors whitespace-nowrap">
-                                                    {formatTimeAgo(notif.createdAt)}
-                                                </span>
-                                            </div>
-                                        </Link>
-                                    );
-                                })
+                                                {/* 🚨 UPGRADED Delete Button */}
+                                                <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${isDeleting ? "opacity-100 pointer-events-auto" : "opacity-0 group-hover/notif:opacity-100 pointer-events-none group-hover/notif:pointer-events-auto"}`}>
+                                                    <button
+                                                        disabled={isDeleting}
+                                                        onClick={(e) => handleDelete(e, notif.id)}
+                                                        className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors outline-none disabled:opacity-50"
+                                                        title="Delete notification"
+                                                    >
+                                                        {isDeleting ? (
+                                                            <LoaderIcon className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Trash2 className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
                             )}
                         </div>
                     </DialogPanel>

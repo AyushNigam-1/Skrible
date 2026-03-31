@@ -12,8 +12,8 @@ import {
 import Loader from "../../components/layout/Loader";
 import { useMutation } from "@apollo/client";
 import { UPDATE_SCRIPT } from "../../graphql/mutation/scriptMutations";
-import { useUserStore } from "../../store/useAuthStore";
 
+// 🚨 UPDATED: Added isEditorOrOwner to the context interface
 interface ScriptDetailsContext {
   data: {
     getScriptById: {
@@ -30,13 +30,13 @@ interface ScriptDetailsContext {
   };
   loading: boolean;
   refetch: () => void;
+  isEditorOrOwner: boolean;
 }
 
 type EditField = "title" | "description" | "genres" | "languages" | null;
 
 const MAX_TAGS = 4;
 
-// 🚨 NEW: Zod schemas for secure frontend validation
 const editSchemas = {
   title: z.string().min(1, "Title cannot be empty").max(120, "Title cannot exceed 120 characters"),
   description: z.string().max(2500, "Description cannot exceed 2500 characters").optional().or(z.literal("")),
@@ -103,7 +103,7 @@ const EditControls = ({ field, editingField, isUpdating, onEdit, onCancel, onSav
           onClick={() => onEdit(field)}
           className="text-gray-500 hover:text-gray-200 transition-colors outline-none"
         >
-          <Edit2 className="w-4 h-4 shrink-0" />
+          <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
         </motion.button>
       ) : (
         <motion.div key="actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.1 }} className="flex items-center gap-3">
@@ -121,7 +121,7 @@ const EditControls = ({ field, editingField, isUpdating, onEdit, onCancel, onSav
 
 const EditableCard = ({
   field, label, icon: Icon, value, arrayValue, isArray, colSpan, placeholder, textClassName,
-  isAuthor, editingField, editControlProps, editRef, handleKeyDown
+  isAuthorized, editingField, editControlProps, editRef, handleKeyDown
 }: any) => {
   const isEditing = editingField === field;
 
@@ -134,7 +134,8 @@ const EditableCard = ({
           {isArray && <span className="ml-1 px-1.5 py-0.5 rounded-md bg-black/20 text-[10px] text-gray-500 normal-case tracking-normal">max {MAX_TAGS}</span>}
           <EditingBadge isEditing={isEditing} />
         </h3>
-        {isAuthor && <EditControls field={field} {...editControlProps} />}
+        {/* 🚨 UPDATED: Only show EditControls if the user is Author OR Editor */}
+        {isAuthorized && <EditControls field={field} {...editControlProps} />}
       </div>
 
       {isArray ? (
@@ -183,11 +184,9 @@ const EditableCard = ({
 
 // --- MAIN COMPONENT ---
 const ScriptDetails = () => {
-  const { data, loading } = useOutletContext<ScriptDetailsContext>();
+  // 🚨 UPDATED: Pull isEditorOrOwner from the Context provided by DraftLayout
+  const { data, loading, isEditorOrOwner } = useOutletContext<ScriptDetailsContext>();
   const script = data?.getScriptById;
-
-  const { user } = useUserStore();
-  const isAuthor = user?.id === script?.author?.id;
 
   const [updateScript, { loading: isUpdating }] = useMutation(UPDATE_SCRIPT);
   const [editingField, setEditingField] = useState<EditField>(null);
@@ -219,7 +218,6 @@ const ScriptDetails = () => {
     const rawText = editRef.current.innerText.trim();
     let variables: any = { scriptId: script.id };
 
-    // 🚨 NEW: Zod Safe Parsing execution before hitting the backend
     try {
       if (field === "title") {
         variables.title = editSchemas.title.parse(rawText);
@@ -287,8 +285,9 @@ const ScriptDetails = () => {
     return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(new Date(Number(isoString)));
   };
 
+  // 🚨 UPDATED: Passing the permission prop down
   const sharedEditProps = {
-    isAuthor,
+    isAuthorized: isEditorOrOwner,
     editingField,
     editControlProps: { editingField, isUpdating, onEdit: handleEditClick, onCancel: handleCancelEdit, onSave: handleSave },
     editRef,

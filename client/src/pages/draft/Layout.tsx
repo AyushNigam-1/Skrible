@@ -39,16 +39,24 @@ const DraftLayout = () => {
 
   const script = data?.getScriptById;
 
-  // 🚨 THE FIX: Strictly check if they are the author OR specifically hold the "EDITOR" role
+  // 🚨 NEW: Calculate exactly what role the current user has for child tabs to use
+  let currentUserRole = "VIEWER";
+  if (script && currentUserId) {
+    if (String(script.author?.id) === String(currentUserId)) {
+      currentUserRole = "AUTHOR";
+    } else {
+      const collaborator = script.collaborators?.find(
+        (c: any) => String(c.user?.id) === String(currentUserId)
+      );
+      if (collaborator) {
+        currentUserRole = collaborator.role?.toUpperCase() || "VIEWER";
+      }
+    }
+  }
+
+  // Strictly check if they are the author OR specifically hold the "EDITOR" role
   const isEditorOrOwner = Boolean(
-    currentUserId &&
-    script &&
-    (String(script.author?.id) === String(currentUserId) ||
-      script.collaborators?.some(
-        (collaborator: any) =>
-          String(collaborator.user?.id) === String(currentUserId) &&
-          collaborator.role?.toUpperCase() === "EDITOR"
-      )),
+    currentUserRole === "AUTHOR" || currentUserRole === "EDITOR"
   );
 
   useEffect(() => {
@@ -191,8 +199,8 @@ const DraftLayout = () => {
         >
           <div className="flex flex-col space-y-4">
 
-            <div className="relative flex items-center justify-between w-full min-h-[40px] sm:min-h-[48px]">
-
+            {/* 🚨 THE FIX: Changed from relative to a Grid layout so they overlap naturally without absolute positioning breaking the height */}
+            <div className="grid w-full items-center">
               <AnimatePresence>
                 {!script && (
                   <motion.div
@@ -200,7 +208,7 @@ const DraftLayout = () => {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="absolute inset-0 flex items-center justify-between gap-4 w-full pointer-events-none z-10"
+                    className="col-start-1 row-start-1 flex items-center justify-between gap-4 w-full pointer-events-none z-10"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="h-8 sm:h-10 w-2/3 max-w-[300px] bg-white/10 rounded-xl animate-pulse" />
@@ -213,16 +221,14 @@ const DraftLayout = () => {
                     </div>
                   </motion.div>
                 )}
-              </AnimatePresence>
 
-              <AnimatePresence>
                 {script && (
                   <motion.div
                     key="real-data"
                     initial={{ opacity: 0, scale: 1.02, filter: "blur(4px)" }}
                     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="flex items-center justify-between gap-4 w-full relative z-0"
+                    className="col-start-1 row-start-1 flex items-center justify-between gap-4 w-full z-0"
                   >
                     <div className="flex-1 min-w-0">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight truncate">
@@ -230,7 +236,7 @@ const DraftLayout = () => {
                       </h1>
                     </div>
 
-                    <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl p-1 md:p-0">
+                    <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl md:p-0">
 
                       {/* Like Button */}
                       <button
@@ -292,6 +298,8 @@ const DraftLayout = () => {
                 setTab,
                 tab,
                 loading,
+                isEditorOrOwner,
+                currentUserRole
               }}
             />
           </div>

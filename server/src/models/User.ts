@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import mongooseFieldEncryption from "mongoose-field-encryption";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,7 +9,7 @@ interface IUser extends Document {
   location: string;
   bio: string;
   email: string;
-  username: string,
+  username: string;
   scripts: Types.ObjectId[];
   likes: Types.ObjectId[];
   follows: number;
@@ -28,7 +27,7 @@ const UserSchema: Schema = new Schema(
     languages: { type: [String] },
     location: { type: String },
     bio: { type: String },
-    email: { type: String },
+    email: { type: String, required: true, index: true },
     username: { type: String, unique: true },
     scripts: { type: [Schema.Types.ObjectId], ref: "Script", default: [] },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
@@ -43,13 +42,8 @@ const UserSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-    collection: "user"
-  },
+    collection: "user",
+  }
 );
-
-UserSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
-  fields: ["email"],
-  secret: process.env.FIELD_ENCRYPTION_KEY,
-});
 
 export default mongoose.model<IUser>("User", UserSchema);

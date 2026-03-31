@@ -164,7 +164,7 @@ const Bookmarks = () => {
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  className="flex flex-col w-full gap-5"
+                  className="w-full space-y-4"
                 >
                   {(hasAnyBookmark || isFiltering) && (
                     <>
@@ -193,7 +193,7 @@ const Bookmarks = () => {
                         </div>
                       </motion.div>
 
-                      <motion.hr variants={itemVariants} className="border border-white/5" />
+                      <motion.hr variants={itemVariants} className="border-b-0.5 border-white/5" />
                     </>
                   )}
 
@@ -228,7 +228,7 @@ const Bookmarks = () => {
                       initial={{ opacity: 0, scale: 0.95, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="flex flex-col items-center justify-center py-28 text-center min-h-[70vh]"
+                      className="flex flex-col items-center justify-center py-28 text-center min-h-[80vh]"
                     >
                       <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 shadow-inner">
                         <SearchX className="w-10 h-10 text-gray-400" />
@@ -237,7 +237,7 @@ const Bookmarks = () => {
                         No Drafts Found
                       </h3>
                       <p className="text-gray-400 text-sm font-mono max-w-lg mb-8 leading-relaxed px-4">
-                        We couldn't find any stories matching your current search or genre filters. Try adjusting them!
+                        We couldn't find any drafts matching your current search or genre filters. Try adjusting them!
                       </p>
                     </motion.div>
                   ) : (

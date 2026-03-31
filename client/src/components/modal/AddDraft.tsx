@@ -16,7 +16,7 @@ import {
 import clsx from "clsx";
 import { X, ChevronDown, Check, Loader2, Plus } from "lucide-react";
 import { ADD_SCRIPT } from "../../graphql/mutation/scriptMutations";
-import { posthog } from "../providers/PostHogProvider";
+import { posthog } from "../../providers/PostHogProvider";
 
 // --- Types & Hardcoded Data ---
 interface VisibilityOption {
@@ -347,7 +347,7 @@ const Add = () => {
                     />
                     {errors.language?.message && (
                       <p className="text-red-400 text-xs mt-1.5 ml-1 font-mono">
-                        {errors.language.message}
+                        {errors.language.message.toString()}
                       </p>
                     )}
                   </div>

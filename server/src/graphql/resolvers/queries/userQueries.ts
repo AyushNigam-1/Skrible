@@ -146,8 +146,10 @@ export const userQueries = {
     { userId }: { userId: string },
     context: MyContext,
   ) => {
-    const ip =
-      context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+    const ip = context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
+
+    const viewerId = context.user?.id ? String(context.user.id) : "guest";
+
     await enforceRateLimit(
       context.redis,
       ip,
@@ -156,7 +158,7 @@ export const userQueries = {
       60,
     );
 
-    const cacheKey = `user:${userId}:contributions:v3`;
+    const cacheKey = `user:${userId}:viewer:${viewerId}:contributions:v4`;
 
     const cachedContributions = await context.redis.get(cacheKey);
     if (cachedContributions) {
@@ -168,7 +170,23 @@ export const userQueries = {
       .populate("comments.author")
       .sort({ createdAt: -1 });
 
-    const result = paragraphs.map((p: any) => {
+    const filteredParagraphs = paragraphs.filter((p: any) => {
+      const script = p.script;
+      if (!script) return false;
+
+      if (!script.visibility || script.visibility.toLowerCase() === "public") return true;
+
+      if (viewerId === "guest") return false;
+
+      const isOwner = String(script.author) === viewerId;
+      const isAcceptedCollaborator = script.collaborators?.some(
+        (c: any) => String(c.user) === viewerId && c.status === "ACCEPTED"
+      );
+
+      return isOwner || isAcceptedCollaborator;
+    });
+
+    const result = filteredParagraphs.map((p: any) => {
       const obj: any = p.toObject({ virtuals: true });
 
       return {
@@ -214,8 +232,6 @@ export const userQueries = {
     const ip = context.req?.ip || context.req?.socket?.remoteAddress || "unknown_ip";
     await enforceRateLimit(context.redis, ip, "get_user_favourites", 100, 60);
 
-    // 🚨 Redis cache logic completely removed. Fetching directly from MongoDB every time.
-
     const user = await User.findById(userId).populate({
       path: "favourites",
       populate: {
@@ -227,7 +243,14 @@ export const userQueries = {
     if (!user) throw new GraphQLError("User not found");
 
     const formattedFavs = (user.favourites || [])
-      .filter((fav: any) => fav != null)
+      .filter((fav: any) => {
+        if (!fav) return false;
+
+        const isPublic = !fav.visibility || fav.visibility.toLowerCase() === "public";
+        const isArchived = fav.status?.toLowerCase() === "archived";
+
+        return isPublic && !isArchived;
+      })
       .map((fav: any) => {
         const obj: any = fav.toObject ? fav.toObject({ virtuals: true }) : fav;
 

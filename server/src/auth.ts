@@ -1,9 +1,12 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
+import { Resend } from "resend";
 
 const client = new MongoClient(process.env.MONGO_URI as string);
 const db = client.db();
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
     database: mongodbAdapter(db),
@@ -43,7 +46,7 @@ export const auth = betterAuth({
                             isUnique = true;
                         } else {
                             counter++;
-                            finalUsername = `${baseUsername}${counter}`; // e.g., "john.smith1"
+                            finalUsername = `${baseUsername}${counter}`;
                         }
                     }
                     return {
@@ -60,16 +63,33 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         sendResetPassword: async ({ user, url, token }) => {
-            // For testing, just log it so you can click it in your terminal
             console.log(`[TESTING] Password reset link for ${user.email}: ${url}`);
 
-            // In production, you will use an email service here like Resend or Nodemailer:
-            // await resend.emails.send({
-            //     from: "noreply@skrible.com",
-            //     to: user.email,
-            //     subject: "Reset your password",
-            //     html: `<a href="${url}">Click here to reset your password</a>`
-            // });
+            try {
+                await resend.emails.send({
+                    from: "Skrible <onboarding@resend.dev>",
+                    to: user.email,
+                    subject: "Reset your Skrible password",
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #111;">Reset Your Password</h2>
+                            <p style="color: #444; line-height: 1.5;">Hi ${user.name || 'there'},</p>
+                            <p style="color: #444; line-height: 1.5;">Someone recently requested a password change for your Skrible account. If this was you, you can set a new password here:</p>
+                            
+                            <div style="margin: 30px 0;">
+                                <a href="${url}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                                    Reset Password
+                                </a>
+                            </div>
+
+                            <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email. Your password will remain unchanged.</p>
+                        </div>
+                    `
+                });
+                console.log(`[SUCCESS] Reset email sent to ${user.email}`);
+            } catch (error) {
+                console.error("[ERROR] Failed to send password reset email:", error);
+            }
         },
     },
     socialProviders: {

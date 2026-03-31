@@ -5,7 +5,6 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileText } from "lucide-react";
-
 import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
 import ContributeModal from "../../components/modal/ContributeModal";
@@ -17,17 +16,56 @@ interface TimelineContext {
   loading: boolean;
 }
 
+// 🚨 ADDED: Recursive function to safely highlight text inside any React Node (including Markdown elements)
+const highlightContent = (nodes: React.ReactNode, query: string): React.ReactNode => {
+  if (!query.trim()) return nodes;
+
+  return React.Children.map(nodes, (child) => {
+    // If it's a raw string/number, we do the regex split and highlight
+    if (typeof child === "string" || typeof child === "number") {
+      const text = String(child);
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`(${escapedQuery})`, "gi");
+      const parts = text.split(regex);
+
+      return (
+        <>
+          {parts.map((part, i) =>
+            regex.test(part) ? (
+              <mark
+                key={i}
+                className="bg-amber-500/40 text-amber-50 rounded-[3px] px-1 font-semibold"
+              >
+                {part}
+              </mark>
+            ) : (
+              part
+            )
+          )}
+        </>
+      );
+    }
+    // If it's a React element (like a <strong> or <em> tag inside the markdown), process its children
+    if (React.isValidElement(child)) {
+      if (child.props && (child.props as any).children) {
+        return React.cloneElement(child as React.ReactElement<any>, {
+          children: highlightContent((child.props as any).children, query),
+        });
+      }
+    }
+    return child;
+  });
+};
+
 const Timeline = () => {
   const { data, refetch, loading } = useOutletContext<TimelineContext>();
   const [searchQuery, setSearchQuery] = useState("");
   const [fetchDocument] = useLazyQuery(EXPORT_DOCUMENT_QUERY);
 
-  // 🚨 REMOVED: if (loading) return <Loader />;
-
-  // --- Filtering & Sorting Logic ---
-  // Default to empty arrays if data is still loading
   const scriptId = data?.getScriptById?.id;
   const rawParagraphs = data?.getScriptById?.paragraphs || [];
+
+  const isArchived = data?.getScriptById?.status?.toLowerCase() === "archived";
 
   const processedParagraphs = useMemo(() => {
     let filtered = [...rawParagraphs];
@@ -41,11 +79,25 @@ const Timeline = () => {
       );
     }
 
-    // Sort Newest to Oldest sequentially
     return filtered.sort(
       (a: any, b: any) => Number(b.createdAt) - Number(a.createdAt),
     );
   }, [rawParagraphs, searchQuery]);
+
+  // 🚨 ADDED: Memoized custom components for ReactMarkdown so they process the highlights
+  const markdownComponents = useMemo(() => ({
+    p: ({ node, ...props }: any) => <p {...props} className="m-0 p-0">{highlightContent(props.children, searchQuery)}</p>,
+    li: ({ node, ...props }: any) => <li {...props}>{highlightContent(props.children, searchQuery)}</li>,
+    h1: ({ node, ...props }: any) => <h1 {...props}>{highlightContent(props.children, searchQuery)}</h1>,
+    h2: ({ node, ...props }: any) => <h2 {...props}>{highlightContent(props.children, searchQuery)}</h2>,
+    h3: ({ node, ...props }: any) => <h3 {...props}>{highlightContent(props.children, searchQuery)}</h3>,
+    h4: ({ node, ...props }: any) => <h4 {...props}>{highlightContent(props.children, searchQuery)}</h4>,
+    h5: ({ node, ...props }: any) => <h5 {...props}>{highlightContent(props.children, searchQuery)}</h5>,
+    h6: ({ node, ...props }: any) => <h6 {...props}>{highlightContent(props.children, searchQuery)}</h6>,
+    blockquote: ({ node, ...props }: any) => <blockquote {...props}>{highlightContent(props.children, searchQuery)}</blockquote>,
+    th: ({ node, ...props }: any) => <th {...props}>{highlightContent(props.children, searchQuery)}</th>,
+    td: ({ node, ...props }: any) => <td {...props}>{highlightContent(props.children, searchQuery)}</td>,
+  }), [searchQuery]);
 
   const formatDate = (timestamp?: string | number): string => {
     if (!timestamp) return "";
@@ -63,19 +115,12 @@ const Timeline = () => {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
   if (loading && !data) {
@@ -111,21 +156,16 @@ const Timeline = () => {
             the draft!
           </p>
 
-          <div className="pt-2 sm:pt-4 relative z-10">
-            <ContributeModal
-              scriptId={scriptId}
-              refetch={refetch}
-              variant="empty"
-            />
-          </div>
+          {!isArchived && (
+            <div className="pt-2 sm:pt-4 relative z-10">
+              <ContributeModal scriptId={scriptId} refetch={refetch} variant="empty" />
+            </div>
+          )}
         </motion.div>
       )}
 
       {rawParagraphs.length > 0 && (
-        <motion.div
-          variants={itemVariants}
-          className="flex items-center justify-between gap-3 w-full"
-        >
+        <motion.div variants={itemVariants} className="flex items-center justify-between gap-3 w-full">
           <Search
             value={searchQuery}
             setSearch={setSearchQuery}
@@ -133,13 +173,11 @@ const Timeline = () => {
             className="w-full sm:max-w-60"
           />
 
-          <div className="shrink-0">
-            <ContributeModal
-              scriptId={scriptId}
-              refetch={refetch}
-              variant="header"
-            />
-          </div>
+          {!isArchived && (
+            <div className="shrink-0">
+              <ContributeModal scriptId={scriptId} refetch={refetch} variant="header" />
+            </div>
+          )}
         </motion.div>
       )}
 
@@ -167,7 +205,8 @@ const Timeline = () => {
                         {p.author.name.charAt(0).toUpperCase()}
                       </div>
                       <p className="font-mono text-sm font-bold text-white tracking-tight truncate">
-                        {p.author.name}
+                        {/* 🚨 THE FIX: Applied highlightContent to the author's name */}
+                        {highlightContent(p.author.name, searchQuery)}
                       </p>
                     </div>
 
@@ -176,8 +215,9 @@ const Timeline = () => {
                     </span>
                   </div>
 
-                  <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300 leading-relaxed ">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300 leading-relaxed w-full overflow-hidden break-words">
+                    {/* 🚨 THE FIX: Applied our custom markdownComponents */}
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                       {p.text}
                     </ReactMarkdown>
                   </div>

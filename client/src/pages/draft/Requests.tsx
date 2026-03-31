@@ -72,7 +72,7 @@ const Requests: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<DropdownOption>(
-    userId ? statusOptions[0] : statusOptions[1]
+    statusOptions[0]
   );
 
   const queryVariables: any = { scriptId };
@@ -102,7 +102,7 @@ const Requests: React.FC = () => {
     if (value === "" && userId) {
       searchParams.delete("userId");
       setSearchParams(searchParams);
-      setSelectedStatus(statusOptions[1]);
+      setSelectedStatus(statusOptions[0]);
     }
   };
 
@@ -110,7 +110,7 @@ const Requests: React.FC = () => {
     searchParams.delete("userId");
     setSearchParams(searchParams);
     setSearchQuery("");
-    setSelectedStatus(statusOptions[1]);
+    setSelectedStatus(statusOptions[0]);
   };
 
   const filteredParagraphs = useMemo(() => {
@@ -183,15 +183,36 @@ const Requests: React.FC = () => {
             <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-white/5 rounded-lg text-white border border-white/10 hover:bg-white/10 transition-all">Retry</button>
           </div>
         ) : rawParagraphs.length === 0 && !isFiltering ? (
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center justify-center py-20 text-center space-y-4 font-mono min-h-[60vh]">
-            <div className="bg-white/10 border border-white/20 p-4 rounded-full"><Inbox className="w-8 h-8 text-white" /></div>
-            <h3 className="text-2xl font-bold text-white tracking-tight font-sans">No requests yet</h3>
-            <ContributeModal scriptId={scriptId} refetch={refetch} variant="empty" />
+          // 🚨 UPDATED: Exact replica of your Timeline empty state
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] md:min-h-[78vh] space-y-4 sm:space-y-5 relative overflow-hidden font-mono"
+          >
+            <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+              <Inbox className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            </div>
+
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
+              No requests yet
+            </h3>
+
+            <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
+              There are no requests right now. Be the first to submit a contribution!
+            </p>
+
+            <div className="relative z-10">
+              <ContributeModal
+                scriptId={scriptId}
+                refetch={refetch}
+                variant="empty"
+              />
+            </div>
           </motion.div>
         ) : (
           <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col gap-6">
 
-            {/* 🚨 THE FIX: flex-row ensures it stays side-by-side on mobile. Added collapseOnMobile={true} */}
             <motion.div variants={itemVariants} className="flex flex-row items-center justify-between w-full max-w-7xl mx-auto gap-2 sm:gap-4">
               <Search
                 value={searchQuery}

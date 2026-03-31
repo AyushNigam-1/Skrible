@@ -9,14 +9,10 @@ export const GET_USER_PROFILE = gql`
       bio
       languages
       favourites
-      likes {
-        id
-      }
+      likes 
       followers
       follows
-      views {
-        id
-      }
+      views 
     }
   }
 `;

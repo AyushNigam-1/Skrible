@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Trash2, AlertTriangle, Lock, Globe2, Archive,
   Shield, Loader2, ListFilter, Users, X, Eye, FileMinus, UserMinus,
-  MoreVertical, Check
+  MoreVertical, Check, LogOut
 } from "lucide-react";
 
 import {
@@ -42,6 +42,10 @@ interface ScriptContext {
       paragraphs?: any[];
     };
   };
+  isEditorOrOwner: boolean;
+  currentUserRole: string;
+  loading: boolean;
+  setTab: (tab: string) => void;
 }
 
 type VisibilityType = "Public" | "Private" | "Archived";
@@ -58,18 +62,22 @@ const FILTER_OPTIONS = [
   ...ROLE_OPTIONS,
 ];
 
-// --- Custom Kebab Menu for Member Actions ---
-const MemberActionsDropdown = ({
+const MemberActions = ({
   member,
+  isSelf,
   handleRoleChange,
   triggerRemoveMemberModal,
 }: {
   member: Collaborator;
+  isSelf: boolean;
   handleRoleChange: (id: string, role: any) => void;
-  triggerRemoveMemberModal: (id: string, name: string) => void;
+  triggerRemoveMemberModal: (id: string, name: string, isSelf: boolean) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Find the current role object to pass to the Dropdown
+  const currentRoleOption = ROLE_OPTIONS.find(r => r.id === member.role) || ROLE_OPTIONS[2];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -80,70 +88,113 @@ const MemberActionsDropdown = ({
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 bg-transparent hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
-      >
-        <MoreVertical className="w-5 h-5" />
-      </button>
+    <div className="flex items-center gap-2">
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 p-1.5 flex flex-col gap-2 top-full mt-2 w-48 bg-primary border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
-          >
-            <div className="flex flex-col gap-0.5">
-              <p className="px-3 py-1.5 text-xs font-bold text-gray-500 uppercase tracking-widest">Role</p>
-              {ROLE_OPTIONS.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => { handleRoleChange(member.user.id, role); setIsOpen(false); }}
-                  className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white/10 flex items-center justify-between transition-colors ${member.role === role.id ? 'text-white font-bold bg-white/5' : 'text-gray-400'}`}
-                >
-                  {role.name}
-                  {member.role === role.id && <Check className="w-4 h-4 text-white" />}
-                </button>
-              ))}
-            </div>
+      {/* --- DESKTOP VIEW (Visible on sm and up) --- */}
+      <div className="hidden sm:flex items-center gap-3">
+        <div className="">
+          <Dropdown
+            options={ROLE_OPTIONS}
+            value={currentRoleOption}
+            onChange={(newRole) => handleRoleChange(member.user.id, newRole)}
+            className="w-full"
+          />
+        </div>
 
-            <div className="bg-white/10 w-full h-[1px]" />
+        <button
+          onClick={() => triggerRemoveMemberModal(member.user.id, member.user.name, isSelf)}
+          className="p-2.5 text-xs font-bold uppercase tracking-widest bg-white/5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-white/10 hover:border-red-500/20 rounded-xl flex items-center gap-2 transition-all active:scale-95 shrink-0"
+        >
+          {isSelf ? <LogOut className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+          {/* <span className="hidden lg:block">{isSelf ? "Leave Draft" : "Remove"}</span> */}
+        </button>
+      </div>
 
-            <button
-              onClick={() => { triggerRemoveMemberModal(member.user.id, member.user.name); setIsOpen(false); }}
-              className="w-full text-left px-3 py-2  text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
+      {/* --- MOBILE VIEW (3-dot menu) --- */}
+      <div className="relative sm:hidden" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 bg-transparent hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="absolute right-0 p-1.5 flex flex-col gap-2 top-full mt-2 w-48 bg-primary border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
             >
-              <Trash2 className="w-4 h-4" /> Remove Member
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex flex-col gap-0.5">
+                <p className="px-3 py-1.5 text-xs font-bold text-gray-500 uppercase tracking-widest">Role</p>
+                {ROLE_OPTIONS.map((role) => (
+                  <button
+                    key={role.id}
+                    onClick={() => { handleRoleChange(member.user.id, role); setIsOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white/10 flex items-center justify-between transition-colors ${member.role === role.id ? 'text-white font-bold bg-white/5' : 'text-gray-400'}`}
+                  >
+                    {role.name}
+                    {member.role === role.id && <Check className="w-4 h-4 text-white" />}
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-white/10 w-full h-[1px]" />
+
+              <button
+                onClick={() => { triggerRemoveMemberModal(member.user.id, member.user.name, isSelf); setIsOpen(false); }}
+                className="w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                {isSelf ? <LogOut className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+                {isSelf ? "Leave Draft" : "Remove Member"}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
     </div>
   );
 };
 
 const DraftSettings: React.FC = () => {
   const navigate = useNavigate();
-  const { data } = useOutletContext<ScriptContext>();
+  const { data, isEditorOrOwner, currentUserRole, loading, setTab } = useOutletContext<ScriptContext>();
   const script = data?.getScriptById;
 
   const { user } = useUserStore();
-  const isAuthor = user?.id === script?.author?.id;
 
   const [visibility, setVisibility] = useState<VisibilityType>("Public");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(FILTER_OPTIONS[0]);
 
-  const [memberToRemove, setMemberToRemove] = useState<{ id: string, name: string } | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<{ id: string, name: string, isSelf: boolean } | null>(null);
 
-  // Danger Zone States
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isConfirmingClearContent, setIsConfirmingClearContent] = useState(false);
   const [isConfirmingKickAll, setIsConfirmingKickAll] = useState(false);
+
+  const wasAuthorized = useRef<boolean | null>(null);
+
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsHydrated(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && script && isHydrated) {
+      if (wasAuthorized.current === true && !isEditorOrOwner) {
+        setTab("Timeline");
+        navigate(`/timeline/${script.id}`, { replace: true });
+      }
+      wasAuthorized.current = isEditorOrOwner;
+    }
+  }, [isEditorOrOwner, loading, script, navigate, setTab, isHydrated]);
 
   useEffect(() => {
     if (script?.visibility) setVisibility(script.visibility as VisibilityType);
@@ -187,8 +238,13 @@ const DraftSettings: React.FC = () => {
     if (!script || !memberToRemove) return;
     try {
       await removeCollaborator({ variables: { scriptId: script.id, targetUserId: memberToRemove.id } });
-      toast.success(`${memberToRemove.name} removed from draft.`);
-      setMemberToRemove(null);
+      toast.success(memberToRemove.isSelf ? "You have left the draft." : `${memberToRemove.name} removed from draft.`);
+
+      if (memberToRemove.isSelf) {
+        navigate("/explore");
+      } else {
+        setMemberToRemove(null);
+      }
     } catch (err) {
       toast.error("Failed to remove member.");
     }
@@ -221,33 +277,51 @@ const DraftSettings: React.FC = () => {
     { id: "Archived", icon: Archive, title: "Archived", description: "Frozen and read-only for everyone.", activeClasses: { container: "border-white/40 bg-white/10", textIcon: "text-white", description: "text-gray-300" } },
   ];
 
-  if (!isAuthor) {
+  if (loading || !script || !isHydrated) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (wasAuthorized.current === true && !isEditorOrOwner) {
+    return null;
+  }
+
+  if (!isEditorOrOwner) {
     return (
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }} className="flex flex-col items-center justify-center py-20 px-4 text-center border border-white/10 rounded-2xl bg-white/5 backdrop-blur-xl shadow-lg font-mono">
         <Lock className="w-8 h-8 text-gray-500 mb-4" />
         <h3 className="text-lg font-bold text-white mb-2">Access Denied</h3>
-        <p className="text-gray-400 text-sm">Only the original author can modify these settings.</p>
+        <p className="text-gray-400 text-sm max-w-sm">Only the author and designated editors can modify these settings.</p>
       </motion.div>
     );
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4 w-full font-mono relative">
-
+    <motion.div
+      key="settings-main-container"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-4 w-full font-mono relative"
+    >
       <DeleteConfirmModal
         isOpen={!!memberToRemove}
         onClose={() => setMemberToRemove(null)}
         onConfirm={handleRemoveCollab}
         isDeleting={isRemovingCollab}
-        title="Remove Member?"
-        description={`Are you sure you want to remove ${memberToRemove?.name} from this draft? They will lose all access.`}
+        title={memberToRemove?.isSelf ? "Leave Draft?" : "Remove Member?"}
+        description={memberToRemove?.isSelf
+          ? "Are you sure you want to leave this draft? You will lose access to it."
+          : `Are you sure you want to remove ${memberToRemove?.name} from this draft? They will lose all access.`}
       />
 
-      {/* ACCESS & VISIBILITY */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-lg">
         <div className="p-4 sm:p-6 border-b border-white/10">
-          <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Eye className="w-5 h-5" /> Access & Visibility</h2>
-          <p className="text-sm text-gray-400 mt-1">Manage who can view and interact with this draft globally.</p>
+          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Eye className="w-5 h-5" /> Access & Visibility</h2>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">Manage who can view and interact with this draft globally.</p>
         </div>
         <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           {VISIBILITY_OPTIONS.map((option) => {
@@ -267,16 +341,14 @@ const DraftSettings: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* COLLABORATORS & ROLES */}
       <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-2xl overflow-visible shadow-lg">
         <div className="p-4 sm:p-6 border-b border-white/10 flex flex-col ">
-          <h2 className="text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Shield className="w-5 h-5" /> Members & Roles</h2>
-          <p className="text-sm text-gray-400 mt-1">Invite users and manage what they are allowed to do.</p>
+          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight font-sans flex items-center gap-2"><Users className="w-5 h-5" /> Members & Roles</h2>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">Invite users and manage what they are allowed to do.</p>
         </div>
 
         <div className="p-4 sm:p-6">
 
-          {/* 🚨 THE FIX: Thinner search on the left, filter and invite grouped on the right */}
           <div className="flex items-center gap-2 mb-6 w-full">
             <div className="flex-1 sm:flex-none sm:w-48 md:w-56">
               <Search value={searchQuery} setSearch={setSearchQuery} placeholder="Search members..." />
@@ -311,10 +383,11 @@ const DraftSettings: React.FC = () => {
                       {member.role === "OWNER" ? (
                         <span className="px-2 py-1 sm:px-3 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold rounded uppercase tracking-widest">OWNER</span>
                       ) : (
-                        <MemberActionsDropdown
+                        <MemberActions
                           member={member}
+                          isSelf={member.user.id === user?.id}
                           handleRoleChange={handleRoleChange}
-                          triggerRemoveMemberModal={(id, name) => setMemberToRemove({ id, name })}
+                          triggerRemoveMemberModal={(id, name, isSelf) => setMemberToRemove({ id, name, isSelf })}
                         />
                       )}
                     </div>
@@ -326,86 +399,84 @@ const DraftSettings: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* DANGER ZONE (Stacked List) */}
-      <motion.div variants={itemVariants} className="bg-white/5 backdrop-blur-xl border border-red-900/30 rounded-2xl overflow-hidden shadow-lg relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-red-900/5 pointer-events-none" />
+      {currentUserRole === "AUTHOR" && (
+        <motion.div variants={itemVariants} className="bg-white/5 backdrop-blur-xl border border-red-900/30 rounded-2xl overflow-hidden shadow-lg relative">
+          <div className="absolute top-0 left-0 w-full h-full bg-red-900/5 pointer-events-none" />
 
-        <div className="p-4 sm:p-6 border-b border-red-900/30 relative z-10 text-left">
-          <h2 className="text-lg font-bold text-red-500 flex items-center gap-2 font-sans tracking-tight justify-start"><AlertTriangle className="w-5 h-5" /> Danger Zone</h2>
-          <p className="text-sm text-red-500/70 mt-1">Actions here cannot be undone. Please be certain.</p>
-        </div>
-
-        <div className="flex flex-col relative z-10 text-left">
-          {/* Action 1: Clear All Content */}
-          <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
-            <div className="w-full md:w-auto">
-              <p className="font-bold text-white text-sm">Clear All Content</p>
-              <p className="text-sm text-gray-400 mt-1 font-sans">Erase all paragraphs and contributions. This acts as a hard reset for the draft's text.</p>
-            </div>
-            <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
-              <AnimatePresence mode="wait">
-                {!isConfirmingClearContent ? (
-                  <motion.button key="clear-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingClearContent(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
-                    Clear Content
-                  </motion.button>
-                ) : (
-                  <motion.div key="confirm-clear" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                    <button onClick={() => setIsConfirmingClearContent(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                    <button onClick={handleClearContent} disabled={isClearing} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><FileMinus className="w-4 h-4" /> {isClearing ? "Clearing..." : "Yes, Clear It"}</button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          <div className="p-4 sm:p-6 border-b border-red-900/30 relative z-10 text-left">
+            <h2 className="text-lg font-bold text-red-500 flex items-center gap-2 font-sans tracking-tight justify-start"><AlertTriangle className="w-5 h-5" /> Danger Zone</h2>
+            <p className="text-sm text-red-500/70 mt-1">Actions here cannot be undone. Only you (the Author) can perform these actions.</p>
           </div>
 
-          {/* Action 2: Remove All Members */}
-          {script?.collaborators && script.collaborators.length > 0 && (
+          <div className="flex flex-col relative z-10 text-left">
             <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
               <div className="w-full md:w-auto">
-                <p className="font-bold text-white text-sm">Remove All Members</p>
-                <p className="text-sm text-gray-400 mt-1 font-sans">Kick all invited collaborators at once. The draft will remain but only you will have access.</p>
+                <p className="font-bold text-white text-sm">Clear All Content</p>
+                <p className="text-sm text-gray-400 mt-1 font-sans">Erase all paragraphs and contributions. This acts as a hard reset for the draft's text.</p>
               </div>
               <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
                 <AnimatePresence mode="wait">
-                  {!isConfirmingKickAll ? (
-                    <motion.button key="kick-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingKickAll(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
-                      Remove Members
+                  {!isConfirmingClearContent ? (
+                    <motion.button key="clear-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingClearContent(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                      Clear Content
                     </motion.button>
                   ) : (
-                    <motion.div key="confirm-kick" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                      <button onClick={() => setIsConfirmingKickAll(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                      <button onClick={handleKickAll} disabled={isKicking} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><UserMinus className="w-4 h-4" /> {isKicking ? "Removing..." : "Yes, Kick All"}</button>
+                    <motion.div key="confirm-clear" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
+                      <button onClick={() => setIsConfirmingClearContent(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
+                      <button onClick={handleClearContent} disabled={isClearing} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><FileMinus className="w-4 h-4" /> {isClearing ? "Clearing..." : "Yes, Clear It"}</button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </div>
-          )}
 
-          {/* Action 3: Delete Draft */}
-          <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="w-full md:w-auto">
-              <p className="font-bold text-white text-sm">Delete this Draft</p>
-              <p className="text-sm text-gray-400 mt-1 font-sans">Once deleted, there is no going back. All text and members will be erased forever.</p>
+            {script?.collaborators && script.collaborators.length > 0 && (
+              <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
+                <div className="w-full md:w-auto">
+                  <p className="font-bold text-white text-sm">Remove All Members</p>
+                  <p className="text-sm text-gray-400 mt-1 font-sans">Kick all invited collaborators at once. The draft will remain but only you will have access.</p>
+                </div>
+                <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
+                  <AnimatePresence mode="wait">
+                    {!isConfirmingKickAll ? (
+                      <motion.button key="kick-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingKickAll(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                        Remove Members
+                      </motion.button>
+                    ) : (
+                      <motion.div key="confirm-kick" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
+                        <button onClick={() => setIsConfirmingKickAll(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
+                        <button onClick={handleKickAll} disabled={isKicking} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><UserMinus className="w-4 h-4" /> {isKicking ? "Removing..." : "Yes, Kick All"}</button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
+
+            <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="w-full md:w-auto">
+                <p className="font-bold text-white text-sm">Delete this Draft</p>
+                <p className="text-sm text-gray-400 mt-1 font-sans">Once deleted, there is no going back. All text and members will be erased forever.</p>
+              </div>
+              <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
+                <AnimatePresence mode="wait">
+                  {!isConfirmingDelete ? (
+                    <motion.button key="delete-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingDelete(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                      Delete Draft
+                    </motion.button>
+                  ) : (
+                    <motion.div key="confirm-delete" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
+                      <button onClick={() => setIsConfirmingDelete(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
+                      <button onClick={handleDelete} disabled={isDeleting} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Yes, Delete It"}</button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
-              <AnimatePresence mode="wait">
-                {!isConfirmingDelete ? (
-                  <motion.button key="delete-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingDelete(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
-                    Delete Draft
-                  </motion.button>
-                ) : (
-                  <motion.div key="confirm-delete" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                    <button onClick={() => setIsConfirmingDelete(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                    <button onClick={handleDelete} disabled={isDeleting} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Yes, Delete It"}</button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+
           </div>
-
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

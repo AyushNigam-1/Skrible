@@ -17,7 +17,8 @@ const ScriptDetails = lazy(() => import("./pages/draft/About"));
 const DraftSettings = lazy(() => import("./pages/draft/Settings"));
 const Login = lazy(() => import("./pages/auth/Signin"));
 const CreateAccount = lazy(() => import("./pages/auth/Signup"));
-
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"))
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"))
 
 const PageLoader = () => (
     <div className="min-h-[50vh] w-full bg-transparent" />
@@ -72,6 +73,9 @@ export const router = createBrowserRouter([
         children: [
             { path: "/login", element: Loadable(Login) },
             { path: "/create-account", element: Loadable(CreateAccount) },
+            { path: "/forgot-password", element: Loadable(ForgotPassword) },
+            { path: "/reset-password", element: Loadable(ResetPassword) }
+
         ],
     },
 ]);

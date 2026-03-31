@@ -27,7 +27,7 @@ const DraftCard = ({ script }: DraftCardProps) => {
   };
 
   return (
-    <div className="group relative bg-white/5 rounded-2xl p-4 border border-white/10 font-mono hover:border-white/20 hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full overflow-hidden">
+    <div className="group relative bg-white/5 rounded-2xl p-4 border border-white/10 font-mono hover:border-white/20 transition-all duration-500 flex flex-col h-full overflow-hidden">
       <Link
         to={`/timeline/${script.id}`}
         className="flex flex-col h-full cursor-pointer outline-none space-y-5 relative z-10"

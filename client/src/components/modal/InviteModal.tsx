@@ -1,5 +1,5 @@
 import { useState, Fragment, useEffect } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import {
   Dialog,
   DialogPanel,
@@ -10,7 +10,9 @@ import {
   ListboxOption,
   ListboxOptions
 } from "@headlessui/react";
-import { X, Plus, Loader2, ChevronDown, Check, UserPlus, SendHorizonal } from "lucide-react";
+import { X, Loader2, ChevronDown, Check, UserPlus, SendHorizonal } from "lucide-react";
+import { ADD_COLLABORATOR } from "../../graphql/mutation/scriptMutations";
+import { SEARCH_USERS } from "../../graphql/query/userQueries";
 
 const ROLE_OPTIONS = [
   { value: "CONTRIBUTOR", label: "Contributor" },
@@ -18,24 +20,17 @@ const ROLE_OPTIONS = [
   { value: "VIEWER", label: "Viewer" },
 ];
 
-const SEARCH_USERS = gql`
-  query SearchUsers($query: String!) {
-    searchUsers(query: $query) {
-      id
-      name
-      username
-      image
-    }
-  }
-`;
+// const SEARCH_USERS = gql`
+//   query SearchUsers($query: String!) {
+//     searchUsers(query: $query) {
+//       id
+//       name
+//       username
+//       image
+//     }
+//   }
+// `;
 
-const ADD_COLLABORATOR = gql`
-  mutation AddCollaborator($scriptId: ID!, $identifier: String!, $role: String!) {
-    addCollaborator(scriptId: $scriptId, identifier: $identifier, role: $role) {
-      id
-    }
-  }
-`;
 
 // 🚨 Extracted your custom classes
 const inputClass =
@@ -105,9 +100,16 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
 
   const handleSelectUser = (user: any) => {
     setSelectedUser(user);
-    setSearchTerm(`@${user.username}`);
-    setEmailTerm("");
-    setFocusedInput("username");
+
+    if (focusedInput === "email") {
+      setEmailTerm(user.email || user.username);
+      setSearchTerm("");
+      setFocusedInput("email");
+    } else {
+      setSearchTerm(`@${user.username}`);
+      setEmailTerm("");
+      setFocusedInput("username");
+    }
   };
 
   const handleInvite = () => {
@@ -183,7 +185,6 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
         <span className="hidden sm:inline">Invite</span>
       </button>
 
-      {/* 🚨 REPLACED FRAMER MOTION WITH HEADLESS UI TRANSITIONS */}
       <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
         <DialogBackdrop
           transition

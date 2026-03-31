@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Lock, Loader2, AlertCircle, CheckCircle2, Feather } from "lucide-react";
+import { Lock, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,8 +20,18 @@ type ResetFormValues = z.infer<typeof resetSchema>;
 
 const ResetPassword: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get("token");
+
     const [loading, setLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+    useEffect(() => {
+        if (!token) {
+            toast.error("Missing reset token. Please request a new link.");
+            navigate("/forgot-password");
+        }
+    }, [token, navigate]);
 
     const {
         register,
@@ -33,17 +43,17 @@ const ResetPassword: React.FC = () => {
     });
 
     const onSubmit = async (data: ResetFormValues) => {
-        setLoading(true);
+        if (!token) return;
 
-        // 🚨 Better Auth automatically extracts the "?token=" from the URL!
+        setLoading(true);
         const { error } = await authClient.resetPassword({
             newPassword: data.password,
+            token: token,
         });
-
         setLoading(false);
 
         if (error) {
-            toast.error(error.message || "Failed to reset password. The link might be expired.");
+            toast.error(error.message || "Invalid or expired token.");
             return;
         }
 
@@ -55,82 +65,112 @@ const ResetPassword: React.FC = () => {
         }, 2000);
     };
 
-    const inputWrapperClass = "relative flex flex-col w-full group";
-    const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors z-10";
-    const floatingLabelClass = "absolute left-12 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm transition-all peer-focus:-top-2 peer-focus:translate-y-0 peer-focus:left-4 peer-focus:text-xs peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:bg-white dark:peer-focus:bg-[#11131A] peer-focus:px-2 peer-focus:rounded-full peer-valid:-top-2 peer-valid:translate-y-0 peer-valid:left-4 peer-valid:text-xs peer-valid:bg-white dark:peer-valid:bg-[#11131A] peer-valid:px-2 peer-valid:rounded-full pointer-events-none";
-
-    const getInputClass = (hasError: boolean) =>
-        `w-full pl-12 pr-4 py-3.5 rounded-2xl border ${hasError
-            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/40"
-            : "border-gray-200 dark:border-white/10 focus:border-blue-500 focus:ring-blue-500/40"
-        } bg-gray-50 dark:bg-black/20 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-black/40 focus:ring-2 transition-all outline-none placeholder:text-transparent peer shadow-sm dark:shadow-inner font-['Inter'] relative`;
-
     const containerVariants: Variants = {
-        hidden: { opacity: 0, scale: 0.97, y: 30 },
-        visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1.0, staggerChildren: 0.15 } },
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, staggerChildren: 0.1, ease: "easeOut" } },
     };
 
     const itemVariants: Variants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
     };
 
     return (
-        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full max-w-md mx-auto flex flex-col gap-8 p-6 sm:p-10 bg-white dark:bg-[#11131A]/80 dark:backdrop-blur-2xl rounded-[2.5rem] shadow-2xl dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-white/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none hidden dark:block" />
-
-            <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-3 relative z-10 mt-6">
-                <div className="bg-blue-50 dark:bg-white/5 border border-blue-100 dark:border-white/10 rounded-full p-4 shadow-sm mb-2">
+        <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="w-full max-w-[420px] mx-auto flex flex-col gap-8 p-8 sm:p-10 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl relative"
+        >
+            {/* Header */}
+            <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-4">
+                <AnimatePresence mode="wait">
                     {isSuccess ? (
-                        <CheckCircle2 className="w-8 h-8 text-green-500 dark:text-green-400" strokeWidth={1.5} />
+                        <motion.div
+                            key="success-icon"
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner"
+                        >
+                            <CheckCircle2 className="w-6 h-6 text-green-400" strokeWidth={1.5} />
+                        </motion.div>
                     ) : (
-                        <Feather className="w-8 h-8 text-blue-600 dark:text-amber-100/80" strokeWidth={1.5} />
+                        /* 🚨 Leaf Icon Excluded as requested */
+                        <div className="h-2" />
                     )}
+                </AnimatePresence>
+
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
+                        {isSuccess ? "All Set!" : "New Password"}
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1.5 font-sans px-2">
+                        {isSuccess
+                            ? "Your password has been reset successfully. Redirecting you to login..."
+                            : "Please enter your new credentials to regain access."}
+                    </p>
                 </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white font-['Playfair_Display'] tracking-tight">
-                    {isSuccess ? "All Set!" : "New Password"}
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 font-['Literata'] text-sm sm:text-base px-4">
-                    {isSuccess
-                        ? "Your password has been reset successfully. Redirecting to login..."
-                        : "Please enter your new password below."}
-                </p>
             </motion.div>
 
             {!isSuccess && (
-                <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 relative z-10 mt-4">
-                    <div className={inputWrapperClass}>
-                        <div className="relative w-full">
-                            <Lock className={iconClass} />
-                            <input type="password" id="password" required {...register("password")} className={getInputClass(!!errors.password)} />
-                            <label htmlFor="password" className={floatingLabelClass}>New Password</label>
+                <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+                    {/* New Password Field */}
+                    <div className="flex flex-col gap-1.5 w-full">
+                        <label htmlFor="password" className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase tracking-widest ml-1">
+                            New Password
+                        </label>
+                        <div className="relative">
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <input
+                                type="password"
+                                id="password"
+                                required
+                                placeholder="••••••••"
+                                {...register("password")}
+                                className={`w-full bg-white/5 border ${errors.password ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-white/30"} rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:bg-white/10 outline-none transition-all text-sm font-sans`}
+                            />
                         </div>
                         <AnimatePresence>
                             {errors.password && (
-                                <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-red-500 text-xs mt-1.5 ml-2 flex items-center gap-1 font-semibold">
+                                <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-400 text-xs ml-1 mt-0.5 flex items-center gap-1">
                                     <AlertCircle className="w-3 h-3" /> {errors.password.message}
                                 </motion.p>
                             )}
                         </AnimatePresence>
                     </div>
 
-                    <div className={inputWrapperClass}>
-                        <div className="relative w-full">
-                            <Lock className={iconClass} />
-                            <input type="password" id="confirmPassword" required {...register("confirmPassword")} className={getInputClass(!!errors.confirmPassword)} />
-                            <label htmlFor="confirmPassword" className={floatingLabelClass}>Confirm Password</label>
+                    {/* Confirm Password Field */}
+                    <div className="flex flex-col gap-1.5 w-full">
+                        <label htmlFor="confirmPassword" className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase tracking-widest ml-1">
+                            Confirm Password
+                        </label>
+                        <div className="relative">
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                required
+                                placeholder="••••••••"
+                                {...register("confirmPassword")}
+                                className={`w-full bg-white/5 border ${errors.confirmPassword ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-white/30"} rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:bg-white/10 outline-none transition-all text-sm font-sans`}
+                            />
                         </div>
                         <AnimatePresence>
                             {errors.confirmPassword && (
-                                <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-red-500 text-xs mt-1.5 ml-2 flex items-center gap-1 font-semibold">
+                                <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-400 text-xs ml-1 mt-0.5 flex items-center gap-1">
                                     <AlertCircle className="w-3 h-3" /> {errors.confirmPassword.message}
                                 </motion.p>
                             )}
                         </AnimatePresence>
                     </div>
 
-                    <button type="submit" disabled={loading || !isValid} className="w-full flex justify-center items-center gap-2 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black py-4 rounded-2xl transition-all duration-300 font-bold text-base shadow-lg shadow-gray-900/20 dark:shadow-white/10 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 font-['Inter']">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Reset Password"}
+                    <button
+                        type="submit"
+                        disabled={loading || !isValid}
+                        className="w-full flex justify-center items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                    >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reset Password"}
                     </button>
                 </motion.form>
             )}

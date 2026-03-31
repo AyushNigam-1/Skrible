@@ -62,7 +62,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             </button>
           </div>
         </div>
-        <motion.hr className="border-b border-white/5" />
+        <motion.hr className="border-b-0.5 border-white/5" />
         <nav className="flex flex-col gap-5 flex-1 overflow-y-auto scrollbar-none pb-4 mt-2">
           {menuItems.map((item, index) => {
             const Icon = item.icon;

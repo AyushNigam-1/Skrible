@@ -65,11 +65,12 @@ export type ExportedDocument = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptInvitation: Script;
-  addCollaborator: Script;
+  addCollaborator?: Maybe<Script>;
   addComment: Paragraph;
   approveParagraph: MutationResponse;
   createScript: Script;
   declineInvitation: Script;
+  deleteNotification?: Maybe<Scalars['Boolean']['output']>;
   deleteParagraph: MutationResponse;
   deleteScript: MutationResponse;
   dislikeParagraph: MutationResponse;
@@ -80,12 +81,15 @@ export type Mutation = {
   likeScript: MutationResponse;
   login?: Maybe<User>;
   logout: Scalars['Boolean']['output'];
+  markAllNotificationsRead?: Maybe<Scalars['Boolean']['output']>;
   markAsFavourite: MutationResponse;
   markAsInterested: MutationResponse;
   markAsNotInterested: MutationResponse;
   refreshToken: RefreshTokenResponse;
   register?: Maybe<User>;
   rejectParagraph: MutationResponse;
+  removeAllCollaborators?: Maybe<Script>;
+  removeAllParagraphs?: Maybe<Script>;
   removeCollaborator: Script;
   submitParagraph: Paragraph;
   toggleBookmark: MutationResponse;
@@ -102,8 +106,8 @@ export type MutationAcceptInvitationArgs = {
 
 
 export type MutationAddCollaboratorArgs = {
-  name: Scalars['String']['input'];
-  role: Role;
+  identifier: Scalars['String']['input'];
+  role: Scalars['String']['input'];
   scriptId: Scalars['ID']['input'];
 };
 
@@ -130,6 +134,11 @@ export type MutationCreateScriptArgs = {
 
 export type MutationDeclineInvitationArgs = {
   scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNotificationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -207,6 +216,16 @@ export type MutationRejectParagraphArgs = {
 };
 
 
+export type MutationRemoveAllCollaboratorsArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveAllParagraphsArgs = {
+  scriptId: Scalars['ID']['input'];
+};
+
+
 export type MutationRemoveCollaboratorArgs = {
   scriptId: Scalars['ID']['input'];
   targetUserId: Scalars['ID']['input'];
@@ -233,6 +252,8 @@ export type MutationUpdateCollaboratorRoleArgs = {
 
 export type MutationUpdateScriptArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
+  genres?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  languages?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   scriptId: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
   visibility?: InputMaybe<Scalars['String']['input']>;
@@ -257,6 +278,7 @@ export type MutationResponse = {
 export type Notification = {
   __typename?: 'Notification';
   createdAt: Scalars['String']['output'];
+  draftTitle?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isRead: Scalars['Boolean']['output'];
   link?: Maybe<Scalars['String']['output']>;
@@ -284,6 +306,7 @@ export type Query = {
   exportDocument: ExportedDocument;
   getAllScripts: Array<Script>;
   getCombinedText: Scalars['String']['output'];
+  getFilteredRequests?: Maybe<Array<Maybe<Paragraph>>>;
   getNotifications: Array<Notification>;
   getParagraphById?: Maybe<Paragraph>;
   getPendingParagraphs: Array<Paragraph>;
@@ -295,6 +318,7 @@ export type Query = {
   getUserFavourites: Array<Script>;
   getUserProfile: User;
   getUserScripts: Array<Script>;
+  searchUsers?: Maybe<Array<Maybe<User>>>;
 };
 
 
@@ -306,6 +330,18 @@ export type QueryExportDocumentArgs = {
 
 export type QueryGetCombinedTextArgs = {
   scriptId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetFilteredRequestsArgs = {
+  scriptId: Scalars['ID']['input'];
+  status?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryGetNotificationsArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -359,6 +395,11 @@ export type QueryGetUserScriptsArgs = {
   userId: Scalars['ID']['input'];
 };
 
+
+export type QuerySearchUsersArgs = {
+  query: Scalars['String']['input'];
+};
+
 export type RefreshTokenResponse = {
   __typename?: 'RefreshTokenResponse';
   token: Scalars['String']['output'];
@@ -394,6 +435,16 @@ export type ScriptContributors = {
   contributors: Array<Contributor>;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  notificationAdded: Notification;
+};
+
+
+export type SubscriptionNotificationAddedArgs = {
+  userId: Scalars['ID']['input'];
+};
+
 export type User = {
   __typename?: 'User';
   bio?: Maybe<Scalars['String']['output']>;
@@ -403,12 +454,14 @@ export type User = {
   followers?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
   follows?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
   id?: Maybe<Scalars['ID']['output']>;
+  image?: Maybe<Scalars['String']['output']>;
   interests?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   languages?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   likes?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
   name: Scalars['String']['output'];
   scripts?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
   token: Scalars['String']['output'];
+  username?: Maybe<Scalars['String']['output']>;
   views?: Maybe<Array<Maybe<Scalars['ID']['output']>>>;
 };
 
@@ -423,6 +476,18 @@ export type UserContribution = {
   status: Scalars['String']['output'];
   text: Scalars['String']['output'];
 };
+
+export type MarkAllNotificationsReadMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarkAllNotificationsReadMutation = { __typename?: 'Mutation', markAllNotificationsRead?: boolean | null };
+
+export type DeleteNotificationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteNotificationMutation = { __typename?: 'Mutation', deleteNotification?: boolean | null };
 
 export type EditParagraphMutationVariables = Exact<{
   paragraphId: Scalars['ID']['input'];
@@ -524,12 +589,12 @@ export type DislikeScriptMutation = { __typename?: 'Mutation', dislikeScript: { 
 
 export type AddCollaboratorMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
-  name: Scalars['String']['input'];
-  role: Role;
+  identifier: Scalars['String']['input'];
+  role: Scalars['String']['input'];
 }>;
 
 
-export type AddCollaboratorMutation = { __typename?: 'Mutation', addCollaborator: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } };
+export type AddCollaboratorMutation = { __typename?: 'Mutation', addCollaborator?: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } | null };
 
 export type RemoveCollaboratorMutationVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -553,10 +618,26 @@ export type UpdateScriptMutationVariables = Exact<{
   title?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   visibility?: InputMaybe<Scalars['String']['input']>;
+  genres?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>>;
+  languages?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>>;
 }>;
 
 
-export type UpdateScriptMutation = { __typename?: 'Mutation', updateScript: { __typename?: 'Script', id: string, title: string, description: string, visibility: string } };
+export type UpdateScriptMutation = { __typename?: 'Mutation', updateScript: { __typename?: 'Script', id: string, title: string, description: string, visibility: string, genres: Array<string>, languages: Array<string> } };
+
+export type RemoveAllParagraphsMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveAllParagraphsMutation = { __typename?: 'Mutation', removeAllParagraphs?: { __typename?: 'Script', id: string, paragraphs: Array<{ __typename?: 'Paragraph', id: string }> } | null };
+
+export type RemoveAllCollaboratorsMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveAllCollaboratorsMutation = { __typename?: 'Mutation', removeAllCollaborators?: { __typename?: 'Script', id: string, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null, name: string } }> | null } | null };
 
 export type RegisterMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -602,10 +683,33 @@ export type ViewProfileMutationVariables = Exact<{
 
 export type ViewProfileMutation = { __typename?: 'Mutation', viewProfile: { __typename?: 'MutationResponse', status: boolean } };
 
-export type GetNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AcceptInvitationMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
 
 
-export type GetNotificationsQuery = { __typename?: 'Query', getNotifications: Array<{ __typename?: 'Notification', id: string, type: string, message: string, link?: string | null, isRead: boolean, createdAt: string, sender?: { __typename?: 'User', id?: string | null, name: string } | null }> };
+export type AcceptInvitationMutation = { __typename?: 'Mutation', acceptInvitation: { __typename?: 'Script', id: string } };
+
+export type DeclineInvitationMutationVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+}>;
+
+
+export type DeclineInvitationMutation = { __typename?: 'Mutation', declineInvitation: { __typename?: 'Script', id: string } };
+
+export type GetNotificationsQueryVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type GetNotificationsQuery = { __typename?: 'Query', getNotifications: Array<{ __typename?: 'Notification', id: string, type: string, message: string, draftTitle?: string | null, link?: string | null, isRead: boolean, createdAt: string, sender?: { __typename?: 'User', id?: string | null, name: string } | null }> };
+
+export type OnNotificationAddedSubscriptionVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type OnNotificationAddedSubscription = { __typename?: 'Subscription', notificationAdded: { __typename?: 'Notification', id: string, type: string, message: string, draftTitle?: string | null, link?: string | null, isRead: boolean, createdAt: string, sender?: { __typename?: 'User', id?: string | null, name: string } | null } };
 
 export type GetParagraphByIdQueryVariables = Exact<{
   paragraphId: Scalars['ID']['input'];
@@ -613,6 +717,15 @@ export type GetParagraphByIdQueryVariables = Exact<{
 
 
 export type GetParagraphByIdQuery = { __typename?: 'Query', getParagraphById?: { __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, script: { __typename?: 'Script', id: string, author: { __typename?: 'Author', id: string }, collaborators?: Array<{ __typename?: 'Collaborator', role: string, user: { __typename?: 'User', id?: string | null } }> | null }, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', id: string, name: string } }> } | null };
+
+export type GetFilteredRequestsQueryVariables = Exact<{
+  scriptId: Scalars['ID']['input'];
+  userId?: InputMaybe<Scalars['ID']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetFilteredRequestsQuery = { __typename?: 'Query', getFilteredRequests?: Array<{ __typename?: 'Paragraph', id: string, text: string, status: string, createdAt: string, likes: Array<string>, dislikes: Array<string>, author: { __typename?: 'Author', id: string, name: string }, comments: Array<{ __typename?: 'Comment', text: string, createdAt: string, author: { __typename?: 'Author', name: string } }> } | null> | null };
 
 export type GetPendingParagraphsQueryVariables = Exact<{
   scriptId: Scalars['ID']['input'];
@@ -670,7 +783,7 @@ export type GetUserScriptsQueryVariables = Exact<{
 }>;
 
 
-export type GetUserScriptsQuery = { __typename?: 'Query', getUserScripts: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', name: string } }> };
+export type GetUserScriptsQuery = { __typename?: 'Query', getUserScripts: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', id: string, name: string } }> };
 
 export type GetUserContributionsQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -684,9 +797,77 @@ export type GetUserFavouritesQueryVariables = Exact<{
 }>;
 
 
-export type GetUserFavouritesQuery = { __typename?: 'Query', getUserFavourites: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', name: string } }> };
+export type GetUserFavouritesQuery = { __typename?: 'Query', getUserFavourites: Array<{ __typename?: 'Script', id: string, title: string, visibility: string, description: string, languages: Array<string>, genres: Array<string>, createdAt: string, updatedAt: string, author: { __typename?: 'Author', id: string, name: string } }> };
+
+export type SearchUsersQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+}>;
 
 
+export type SearchUsersQuery = { __typename?: 'Query', searchUsers?: Array<{ __typename?: 'User', id?: string | null, name: string, username?: string | null } | null> | null };
+
+
+export const MarkAllNotificationsReadDocument = gql`
+    mutation MarkAllNotificationsRead {
+  markAllNotificationsRead
+}
+    `;
+export type MarkAllNotificationsReadMutationFn = Apollo.MutationFunction<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>;
+
+/**
+ * __useMarkAllNotificationsReadMutation__
+ *
+ * To run a mutation, you first call `useMarkAllNotificationsReadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkAllNotificationsReadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markAllNotificationsReadMutation, { data, loading, error }] = useMarkAllNotificationsReadMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarkAllNotificationsReadMutation(baseOptions?: Apollo.MutationHookOptions<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>(MarkAllNotificationsReadDocument, options);
+      }
+export type MarkAllNotificationsReadMutationHookResult = ReturnType<typeof useMarkAllNotificationsReadMutation>;
+export type MarkAllNotificationsReadMutationResult = Apollo.MutationResult<MarkAllNotificationsReadMutation>;
+export type MarkAllNotificationsReadMutationOptions = Apollo.BaseMutationOptions<MarkAllNotificationsReadMutation, MarkAllNotificationsReadMutationVariables>;
+export const DeleteNotificationDocument = gql`
+    mutation DeleteNotification($id: ID!) {
+  deleteNotification(id: $id)
+}
+    `;
+export type DeleteNotificationMutationFn = Apollo.MutationFunction<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
+
+/**
+ * __useDeleteNotificationMutation__
+ *
+ * To run a mutation, you first call `useDeleteNotificationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNotificationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNotificationMutation, { data, loading, error }] = useDeleteNotificationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteNotificationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteNotificationMutation, DeleteNotificationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteNotificationMutation, DeleteNotificationMutationVariables>(DeleteNotificationDocument, options);
+      }
+export type DeleteNotificationMutationHookResult = ReturnType<typeof useDeleteNotificationMutation>;
+export type DeleteNotificationMutationResult = Apollo.MutationResult<DeleteNotificationMutation>;
+export type DeleteNotificationMutationOptions = Apollo.BaseMutationOptions<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
 export const EditParagraphDocument = gql`
     mutation EditParagraph($paragraphId: ID!, $text: String!) {
   editParagraph(paragraphId: $paragraphId, text: $text) {
@@ -1155,8 +1336,8 @@ export type DislikeScriptMutationHookResult = ReturnType<typeof useDislikeScript
 export type DislikeScriptMutationResult = Apollo.MutationResult<DislikeScriptMutation>;
 export type DislikeScriptMutationOptions = Apollo.BaseMutationOptions<DislikeScriptMutation, DislikeScriptMutationVariables>;
 export const AddCollaboratorDocument = gql`
-    mutation AddCollaborator($scriptId: ID!, $name: String!, $role: Role!) {
-  addCollaborator(scriptId: $scriptId, name: $name, role: $role) {
+    mutation AddCollaborator($scriptId: ID!, $identifier: String!, $role: String!) {
+  addCollaborator(scriptId: $scriptId, identifier: $identifier, role: $role) {
     id
     collaborators {
       user {
@@ -1184,7 +1365,7 @@ export type AddCollaboratorMutationFn = Apollo.MutationFunction<AddCollaboratorM
  * const [addCollaboratorMutation, { data, loading, error }] = useAddCollaboratorMutation({
  *   variables: {
  *      scriptId: // value for 'scriptId'
- *      name: // value for 'name'
+ *      identifier: // value for 'identifier'
  *      role: // value for 'role'
  *   },
  * });
@@ -1284,17 +1465,21 @@ export type UpdateCollaboratorRoleMutationHookResult = ReturnType<typeof useUpda
 export type UpdateCollaboratorRoleMutationResult = Apollo.MutationResult<UpdateCollaboratorRoleMutation>;
 export type UpdateCollaboratorRoleMutationOptions = Apollo.BaseMutationOptions<UpdateCollaboratorRoleMutation, UpdateCollaboratorRoleMutationVariables>;
 export const UpdateScriptDocument = gql`
-    mutation UpdateScript($scriptId: ID!, $title: String, $description: String, $visibility: String) {
+    mutation UpdateScript($scriptId: ID!, $title: String, $description: String, $visibility: String, $genres: [String], $languages: [String]) {
   updateScript(
     scriptId: $scriptId
     title: $title
     description: $description
     visibility: $visibility
+    genres: $genres
+    languages: $languages
   ) {
     id
     title
     description
     visibility
+    genres
+    languages
   }
 }
     `;
@@ -1317,6 +1502,8 @@ export type UpdateScriptMutationFn = Apollo.MutationFunction<UpdateScriptMutatio
  *      title: // value for 'title'
  *      description: // value for 'description'
  *      visibility: // value for 'visibility'
+ *      genres: // value for 'genres'
+ *      languages: // value for 'languages'
  *   },
  * });
  */
@@ -1327,6 +1514,82 @@ export function useUpdateScriptMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateScriptMutationHookResult = ReturnType<typeof useUpdateScriptMutation>;
 export type UpdateScriptMutationResult = Apollo.MutationResult<UpdateScriptMutation>;
 export type UpdateScriptMutationOptions = Apollo.BaseMutationOptions<UpdateScriptMutation, UpdateScriptMutationVariables>;
+export const RemoveAllParagraphsDocument = gql`
+    mutation RemoveAllParagraphs($scriptId: ID!) {
+  removeAllParagraphs(scriptId: $scriptId) {
+    id
+    paragraphs {
+      id
+    }
+  }
+}
+    `;
+export type RemoveAllParagraphsMutationFn = Apollo.MutationFunction<RemoveAllParagraphsMutation, RemoveAllParagraphsMutationVariables>;
+
+/**
+ * __useRemoveAllParagraphsMutation__
+ *
+ * To run a mutation, you first call `useRemoveAllParagraphsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAllParagraphsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAllParagraphsMutation, { data, loading, error }] = useRemoveAllParagraphsMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useRemoveAllParagraphsMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAllParagraphsMutation, RemoveAllParagraphsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAllParagraphsMutation, RemoveAllParagraphsMutationVariables>(RemoveAllParagraphsDocument, options);
+      }
+export type RemoveAllParagraphsMutationHookResult = ReturnType<typeof useRemoveAllParagraphsMutation>;
+export type RemoveAllParagraphsMutationResult = Apollo.MutationResult<RemoveAllParagraphsMutation>;
+export type RemoveAllParagraphsMutationOptions = Apollo.BaseMutationOptions<RemoveAllParagraphsMutation, RemoveAllParagraphsMutationVariables>;
+export const RemoveAllCollaboratorsDocument = gql`
+    mutation RemoveAllCollaborators($scriptId: ID!) {
+  removeAllCollaborators(scriptId: $scriptId) {
+    id
+    collaborators {
+      user {
+        id
+        name
+      }
+      role
+    }
+  }
+}
+    `;
+export type RemoveAllCollaboratorsMutationFn = Apollo.MutationFunction<RemoveAllCollaboratorsMutation, RemoveAllCollaboratorsMutationVariables>;
+
+/**
+ * __useRemoveAllCollaboratorsMutation__
+ *
+ * To run a mutation, you first call `useRemoveAllCollaboratorsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAllCollaboratorsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAllCollaboratorsMutation, { data, loading, error }] = useRemoveAllCollaboratorsMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useRemoveAllCollaboratorsMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAllCollaboratorsMutation, RemoveAllCollaboratorsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAllCollaboratorsMutation, RemoveAllCollaboratorsMutationVariables>(RemoveAllCollaboratorsDocument, options);
+      }
+export type RemoveAllCollaboratorsMutationHookResult = ReturnType<typeof useRemoveAllCollaboratorsMutation>;
+export type RemoveAllCollaboratorsMutationResult = Apollo.MutationResult<RemoveAllCollaboratorsMutation>;
+export type RemoveAllCollaboratorsMutationOptions = Apollo.BaseMutationOptions<RemoveAllCollaboratorsMutation, RemoveAllCollaboratorsMutationVariables>;
 export const RegisterDocument = gql`
     mutation Register($name: String!, $email: String!, $password: String!) {
   register(name: $name, email: $email, password: $password) {
@@ -1536,12 +1799,79 @@ export function useViewProfileMutation(baseOptions?: Apollo.MutationHookOptions<
 export type ViewProfileMutationHookResult = ReturnType<typeof useViewProfileMutation>;
 export type ViewProfileMutationResult = Apollo.MutationResult<ViewProfileMutation>;
 export type ViewProfileMutationOptions = Apollo.BaseMutationOptions<ViewProfileMutation, ViewProfileMutationVariables>;
+export const AcceptInvitationDocument = gql`
+    mutation AcceptInvitation($scriptId: ID!) {
+  acceptInvitation(scriptId: $scriptId) {
+    id
+  }
+}
+    `;
+export type AcceptInvitationMutationFn = Apollo.MutationFunction<AcceptInvitationMutation, AcceptInvitationMutationVariables>;
+
+/**
+ * __useAcceptInvitationMutation__
+ *
+ * To run a mutation, you first call `useAcceptInvitationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptInvitationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptInvitationMutation, { data, loading, error }] = useAcceptInvitationMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useAcceptInvitationMutation(baseOptions?: Apollo.MutationHookOptions<AcceptInvitationMutation, AcceptInvitationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptInvitationMutation, AcceptInvitationMutationVariables>(AcceptInvitationDocument, options);
+      }
+export type AcceptInvitationMutationHookResult = ReturnType<typeof useAcceptInvitationMutation>;
+export type AcceptInvitationMutationResult = Apollo.MutationResult<AcceptInvitationMutation>;
+export type AcceptInvitationMutationOptions = Apollo.BaseMutationOptions<AcceptInvitationMutation, AcceptInvitationMutationVariables>;
+export const DeclineInvitationDocument = gql`
+    mutation DeclineInvitation($scriptId: ID!) {
+  declineInvitation(scriptId: $scriptId) {
+    id
+  }
+}
+    `;
+export type DeclineInvitationMutationFn = Apollo.MutationFunction<DeclineInvitationMutation, DeclineInvitationMutationVariables>;
+
+/**
+ * __useDeclineInvitationMutation__
+ *
+ * To run a mutation, you first call `useDeclineInvitationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeclineInvitationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [declineInvitationMutation, { data, loading, error }] = useDeclineInvitationMutation({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *   },
+ * });
+ */
+export function useDeclineInvitationMutation(baseOptions?: Apollo.MutationHookOptions<DeclineInvitationMutation, DeclineInvitationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeclineInvitationMutation, DeclineInvitationMutationVariables>(DeclineInvitationDocument, options);
+      }
+export type DeclineInvitationMutationHookResult = ReturnType<typeof useDeclineInvitationMutation>;
+export type DeclineInvitationMutationResult = Apollo.MutationResult<DeclineInvitationMutation>;
+export type DeclineInvitationMutationOptions = Apollo.BaseMutationOptions<DeclineInvitationMutation, DeclineInvitationMutationVariables>;
 export const GetNotificationsDocument = gql`
-    query GetNotifications {
-  getNotifications {
+    query GetNotifications($userId: ID!) {
+  getNotifications(userId: $userId) {
     id
     type
     message
+    draftTitle
     link
     isRead
     createdAt
@@ -1565,10 +1895,11 @@ export const GetNotificationsDocument = gql`
  * @example
  * const { data, loading, error } = useGetNotificationsQuery({
  *   variables: {
+ *      userId: // value for 'userId'
  *   },
  * });
  */
-export function useGetNotificationsQuery(baseOptions?: Apollo.QueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+export function useGetNotificationsQuery(baseOptions: Apollo.QueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables> & ({ variables: GetNotificationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, options);
       }
@@ -1587,6 +1918,46 @@ export type GetNotificationsQueryHookResult = ReturnType<typeof useGetNotificati
 export type GetNotificationsLazyQueryHookResult = ReturnType<typeof useGetNotificationsLazyQuery>;
 export type GetNotificationsSuspenseQueryHookResult = ReturnType<typeof useGetNotificationsSuspenseQuery>;
 export type GetNotificationsQueryResult = Apollo.QueryResult<GetNotificationsQuery, GetNotificationsQueryVariables>;
+export const OnNotificationAddedDocument = gql`
+    subscription OnNotificationAdded($userId: ID!) {
+  notificationAdded(userId: $userId) {
+    id
+    type
+    message
+    draftTitle
+    link
+    isRead
+    createdAt
+    sender {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnNotificationAddedSubscription__
+ *
+ * To run a query within a React component, call `useOnNotificationAddedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNotificationAddedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnNotificationAddedSubscription({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useOnNotificationAddedSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnNotificationAddedSubscription, OnNotificationAddedSubscriptionVariables> & ({ variables: OnNotificationAddedSubscriptionVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnNotificationAddedSubscription, OnNotificationAddedSubscriptionVariables>(OnNotificationAddedDocument, options);
+      }
+export type OnNotificationAddedSubscriptionHookResult = ReturnType<typeof useOnNotificationAddedSubscription>;
+export type OnNotificationAddedSubscriptionResult = Apollo.SubscriptionResult<OnNotificationAddedSubscription>;
 export const GetParagraphByIdDocument = gql`
     query GetParagraphById($paragraphId: ID!) {
   getParagraphById(paragraphId: $paragraphId) {
@@ -1659,6 +2030,67 @@ export type GetParagraphByIdQueryHookResult = ReturnType<typeof useGetParagraphB
 export type GetParagraphByIdLazyQueryHookResult = ReturnType<typeof useGetParagraphByIdLazyQuery>;
 export type GetParagraphByIdSuspenseQueryHookResult = ReturnType<typeof useGetParagraphByIdSuspenseQuery>;
 export type GetParagraphByIdQueryResult = Apollo.QueryResult<GetParagraphByIdQuery, GetParagraphByIdQueryVariables>;
+export const GetFilteredRequestsDocument = gql`
+    query GetFilteredRequests($scriptId: ID!, $userId: ID, $status: String) {
+  getFilteredRequests(scriptId: $scriptId, userId: $userId, status: $status) {
+    id
+    text
+    status
+    createdAt
+    author {
+      id
+      name
+    }
+    likes
+    dislikes
+    comments {
+      text
+      createdAt
+      author {
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetFilteredRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetFilteredRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFilteredRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFilteredRequestsQuery({
+ *   variables: {
+ *      scriptId: // value for 'scriptId'
+ *      userId: // value for 'userId'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useGetFilteredRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables> & ({ variables: GetFilteredRequestsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>(GetFilteredRequestsDocument, options);
+      }
+export function useGetFilteredRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>(GetFilteredRequestsDocument, options);
+        }
+// @ts-ignore
+export function useGetFilteredRequestsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>;
+export function useGetFilteredRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>): Apollo.UseSuspenseQueryResult<GetFilteredRequestsQuery | undefined, GetFilteredRequestsQueryVariables>;
+export function useGetFilteredRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>(GetFilteredRequestsDocument, options);
+        }
+export type GetFilteredRequestsQueryHookResult = ReturnType<typeof useGetFilteredRequestsQuery>;
+export type GetFilteredRequestsLazyQueryHookResult = ReturnType<typeof useGetFilteredRequestsLazyQuery>;
+export type GetFilteredRequestsSuspenseQueryHookResult = ReturnType<typeof useGetFilteredRequestsSuspenseQuery>;
+export type GetFilteredRequestsQueryResult = Apollo.QueryResult<GetFilteredRequestsQuery, GetFilteredRequestsQueryVariables>;
 export const GetPendingParagraphsDocument = gql`
     query GetPendingParagraphs($scriptId: ID!) {
   getPendingParagraphs(scriptId: $scriptId) {
@@ -2084,6 +2516,7 @@ export const GetUserScriptsDocument = gql`
     createdAt
     updatedAt
     author {
+      id
       name
     }
   }
@@ -2196,6 +2629,7 @@ export const GetUserFavouritesDocument = gql`
     createdAt
     updatedAt
     author {
+      id
       name
     }
   }
@@ -2237,3 +2671,48 @@ export type GetUserFavouritesQueryHookResult = ReturnType<typeof useGetUserFavou
 export type GetUserFavouritesLazyQueryHookResult = ReturnType<typeof useGetUserFavouritesLazyQuery>;
 export type GetUserFavouritesSuspenseQueryHookResult = ReturnType<typeof useGetUserFavouritesSuspenseQuery>;
 export type GetUserFavouritesQueryResult = Apollo.QueryResult<GetUserFavouritesQuery, GetUserFavouritesQueryVariables>;
+export const SearchUsersDocument = gql`
+    query SearchUsers($query: String!) {
+  searchUsers(query: $query) {
+    id
+    name
+    username
+  }
+}
+    `;
+
+/**
+ * __useSearchUsersQuery__
+ *
+ * To run a query within a React component, call `useSearchUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchUsersQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *   },
+ * });
+ */
+export function useSearchUsersQuery(baseOptions: Apollo.QueryHookOptions<SearchUsersQuery, SearchUsersQueryVariables> & ({ variables: SearchUsersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchUsersQuery, SearchUsersQueryVariables>(SearchUsersDocument, options);
+      }
+export function useSearchUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchUsersQuery, SearchUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchUsersQuery, SearchUsersQueryVariables>(SearchUsersDocument, options);
+        }
+// @ts-ignore
+export function useSearchUsersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SearchUsersQuery, SearchUsersQueryVariables>): Apollo.UseSuspenseQueryResult<SearchUsersQuery, SearchUsersQueryVariables>;
+export function useSearchUsersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchUsersQuery, SearchUsersQueryVariables>): Apollo.UseSuspenseQueryResult<SearchUsersQuery | undefined, SearchUsersQueryVariables>;
+export function useSearchUsersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SearchUsersQuery, SearchUsersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SearchUsersQuery, SearchUsersQueryVariables>(SearchUsersDocument, options);
+        }
+export type SearchUsersQueryHookResult = ReturnType<typeof useSearchUsersQuery>;
+export type SearchUsersLazyQueryHookResult = ReturnType<typeof useSearchUsersLazyQuery>;
+export type SearchUsersSuspenseQueryHookResult = ReturnType<typeof useSearchUsersSuspenseQuery>;
+export type SearchUsersQueryResult = Apollo.QueryResult<SearchUsersQuery, SearchUsersQueryVariables>;

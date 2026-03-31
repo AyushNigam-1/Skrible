@@ -93,7 +93,7 @@ const invalidateScriptCache = async (redis: any, scriptId: string) => {
   }
 };
 
-const verifyOwner = async (scriptId: string, currentUserId: string) => {
+const verifyEditorOrOwner = async (scriptId: string, currentUserId: string) => {
   const script = await Script.findById(scriptId);
   if (!script) throw new GraphQLError("Script not found");
 
@@ -104,9 +104,9 @@ const verifyOwner = async (scriptId: string, currentUserId: string) => {
     (c: any) => c.user.toString() === currentUserId,
   );
 
-  if (collab && collab.role === "OWNER" && collab.status === "ACCEPTED") return script;
+  if (collab && (collab.role === "EDITOR" || collab.role === "OWNER")) return script;
 
-  throw new GraphQLError("Access Denied: Only Owners can manage roles.");
+  throw new GraphQLError("Access Denied: Only Authors and Editors can perform this action.");
 };
 
 export const scriptMutations = {
@@ -504,7 +504,6 @@ export const scriptMutations = {
 
     return { status: true };
   },
-
   addCollaborator: async (
     _: any,
     {
@@ -519,9 +518,9 @@ export const scriptMutations = {
 
     await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
 
-    const script = await verifyOwner(scriptId, userId);
+    // 🚨 UPDATED: Uses the new helper so Editors can invite people
+    const script = await verifyEditorOrOwner(scriptId, userId);
 
-    // 🚨 Search by Username OR Email seamlessly
     const targetUser = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }]
     });
@@ -557,7 +556,7 @@ export const scriptMutations = {
       userId,
       "REQUEST",
       `${userName} invited you to collaborate on a draft.`,
-      `/timeline/${scriptId}` // Adjust this link to wherever they can accept invites!
+      `/timeline/${scriptId}`
     );
 
     await invalidateScriptCache(context.redis, scriptId);
@@ -575,7 +574,16 @@ export const scriptMutations = {
 
     await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
 
-    const script = await verifyOwner(scriptId, userId);
+    let script;
+
+    // 🚨 THE FIX: If they are removing themselves (Self-Removal), bypass the Editor check!
+    if (userId === targetUserId) {
+      script = await Script.findById(scriptId);
+      if (!script) throw new GraphQLError("Script not found");
+    } else {
+      // If removing someone else, they MUST be an Author or Editor
+      script = await verifyEditorOrOwner(scriptId, userId);
+    }
 
     if (script.author.toString() === targetUserId) {
       throw new GraphQLError(
@@ -614,7 +622,8 @@ export const scriptMutations = {
 
     await enforceRateLimit(context.redis, userId, "manage_collab", 30, 60);
 
-    const script = await verifyOwner(scriptId, userId);
+    // 🚨 UPDATED: Uses the new helper so Editors can change roles
+    const script = await verifyEditorOrOwner(scriptId, userId);
 
     if (script.author.toString() === targetUserId) {
       throw new GraphQLError("Cannot change the role of the original author.");

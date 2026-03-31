@@ -3,15 +3,16 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { registerSW } from "virtual:pwa-register";
-import { UserProvider } from "./components/providers/UserProvider";
-import { CustomApolloProvider } from "./components/providers/CustomApolloProvider";
-import { PostHogProvider } from "./components/providers/PostHogProvider";
+import { UserProvider } from "./providers/UserProvider";
+import { CustomApolloProvider } from "./providers/CustomApolloProvider";
+import { PostHogProvider } from "./providers/PostHogProvider";
 import { router } from "./router";
 import { Toaster } from "sonner";
 
 Sentry.init({
-  dsn: "https://2805ef33995874e631b94ef2244ed00d@o4511026054561792.ingest.de.sentry.io/4511029947334736",
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   sendDefaultPii: true,
+  enabled: !!import.meta.env.VITE_SENTRY_DSN,
 });
 
 const rootElement = document.getElementById("root");

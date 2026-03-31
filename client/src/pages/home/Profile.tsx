@@ -114,17 +114,8 @@ const Profile = () => {
 
   useEffect(() => {
     if (userProfile) {
-      const likesList = (userProfile.likes?.map((l: any) => {
-        if (!l) return null;
-        if (typeof l === "string") return l;
-        return String(l.id || l._id || "");
-      }).filter(Boolean) as string[]) || [];
-
-      const viewsList = (userProfile.views?.map((v: any) => {
-        if (!v) return null;
-        if (typeof v === "string") return v;
-        return String(v.id || v._id || "");
-      }).filter(Boolean) as string[]) || [];
+      const likesList = (userProfile.likes?.filter(Boolean).map(String)) || [];
+      const viewsList = (userProfile.views?.filter(Boolean).map(String)) || [];
 
       setLocalProfileLikes(likesList);
       setLocalProfileViews(viewsList);
@@ -153,7 +144,6 @@ const Profile = () => {
     const prevLikes = [...localProfileLikes];
     const isLiked = localProfileLikes.includes(currentUser.id);
 
-    // Optimistic UI update instantly
     if (isLiked) {
       setLocalProfileLikes(prevLikes.filter((uid) => uid !== currentUser.id));
     } else {

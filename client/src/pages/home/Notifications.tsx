@@ -266,7 +266,6 @@ const NotificationModal = () => {
                                                     onClick={handleCloseModal}
                                                     className={`flex items-start gap-4 p-5 hover:bg-white/5 transition-colors ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
                                                 >
-                                                    {/* Left Icon */}
                                                     <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
                                                         {getIcon(notif.type)}
                                                     </div>

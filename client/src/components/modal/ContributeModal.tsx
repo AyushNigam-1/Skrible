@@ -22,7 +22,7 @@ import {
   useSubmitParagraphMutation,
   useEditParagraphMutation
 } from "../../graphql/generated/graphql";
-import { posthog } from "../providers/PostHogProvider";
+import { posthog } from "../../providers/PostHogProvider";
 
 const contributeSchema = z.object({
   content: z.string().min(1, "Content cannot be empty"),

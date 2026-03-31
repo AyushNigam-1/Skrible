@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { Feather, Loader2, Mail, Lock, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Feather, Loader2, Mail, Lock, AlertCircle, Github } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { posthog } from "../../components/providers/PostHogProvider";
+import { posthog } from "../../providers/PostHogProvider";
 import { authClient } from "../../lib/authClient";
 
 const loginSchema = z.object({
@@ -52,7 +52,6 @@ const Login: React.FC = () => {
     }
   };
 
-  // 🚨 ADDED: Social Login Handler
   const handleSocialLogin = async (provider: "google" | "github") => {
     setLoading(true);
     await authClient.signIn.social({
@@ -62,106 +61,147 @@ const Login: React.FC = () => {
     setLoading(false);
   };
 
-  const inputWrapperClass = "relative flex flex-col w-full group";
-  const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors z-10";
-  const floatingLabelClass = "absolute left-12 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm transition-all peer-focus:-top-2 peer-focus:translate-y-0 peer-focus:left-4 peer-focus:text-xs peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:bg-white dark:peer-focus:bg-[#11131A] peer-focus:px-2 peer-focus:rounded-full peer-valid:-top-2 peer-valid:translate-y-0 peer-valid:left-4 peer-valid:text-xs peer-valid:bg-white dark:peer-valid:bg-[#11131A] peer-valid:px-2 peer-valid:rounded-full pointer-events-none";
-
-  const getInputClass = (hasError: boolean) =>
-    `w-full pl-12 pr-4 py-3.5 rounded-2xl border ${hasError
-      ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/40"
-      : "border-gray-200 dark:border-white/10 focus:border-blue-500 focus:ring-blue-500/40"
-    } bg-gray-50 dark:bg-black/20 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-black/40 focus:ring-2 transition-all outline-none placeholder:text-transparent peer shadow-sm dark:shadow-inner font-['Inter'] relative`;
-
   const containerVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.97, y: 30 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1.0, staggerChildren: 0.15 } },
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, staggerChildren: 0.1, ease: "easeOut" } },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full max-w-md mx-auto flex flex-col gap-8 p-6 sm:p-10 bg-white dark:bg-[#11131A]/80 dark:backdrop-blur-2xl rounded-[2.5rem] shadow-2xl dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-white/10 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none hidden dark:block" />
-
-      <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-3 relative z-10">
-        <div className="bg-blue-50 dark:bg-white/5 border border-blue-100 dark:border-white/10 rounded-full p-4 shadow-sm mb-2">
-          <Feather className="w-8 h-8 text-blue-600 dark:text-amber-100/80" strokeWidth={1.5} />
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full max-w-[420px] mx-auto flex flex-col gap-8 p-8 sm:p-10 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl relative"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
+            Welcome Back
+          </h1>
+          <p className="text-gray-400 text-sm mt-1.5 font-sans">
+            Enter your credentials to access your manuscripts.
+          </p>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white font-['Playfair_Display'] tracking-tight">Welcome Back</h1>
-        <p className="text-gray-500 dark:text-gray-400 font-['Literata'] text-sm sm:text-base">Enter your credentials to access your manuscripts.</p>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 relative z-10">
+      {/* Social Logins */}
+      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => handleSocialLogin("google")}
           disabled={loading}
-          className="flex justify-center items-center gap-3 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all duration-300 py-3.5 shadow-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
+          <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
           Google
         </button>
         <button
           type="button"
           onClick={() => handleSocialLogin("github")}
           disabled={loading}
-          className="flex justify-center items-center gap-3 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all duration-300 py-3.5 shadow-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
-          {/* <img src="/github.png" alt="Github" className="w-5 h-5 dark:invert" /> */}
+          <Github className="w-4 h-4" />
           Github
         </button>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="flex items-center gap-4 relative z-10">
-        <hr className="flex-grow border-gray-200 dark:border-white/10" />
-        <span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold font-['Inter']">OR EMAIL</span>
-        <hr className="flex-grow border-gray-200 dark:border-white/10" />
+      {/* Divider */}
+      <motion.div variants={itemVariants} className="flex items-center gap-4">
+        <hr className="flex-grow border-white/10" />
+        <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-bold font-mono">
+          OR EMAIL
+        </span>
+        <hr className="flex-grow border-white/10" />
       </motion.div>
 
-      <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 relative z-10">
-        <div className={inputWrapperClass}>
-          <div className="relative w-full">
-            <Mail className={iconClass} />
-            <input type="email" id="email" required {...register("email")} className={getInputClass(!!errors.email)} />
-            <label htmlFor="email" className={floatingLabelClass}>Email Address</label>
+      {/* Form */}
+      <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
+        {/* Email Field */}
+        <div className="flex flex-col gap-1.5 w-full">
+          <label htmlFor="email" className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase tracking-widest ml-1">
+            Email Address
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="email"
+              id="email"
+              required
+              placeholder="you@example.com"
+              {...register("email")}
+              className={`w-full bg-white/5 border ${errors.email ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-white/30"} rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:bg-white/10 outline-none transition-all text-sm font-sans`}
+            />
           </div>
           <AnimatePresence>
             {errors.email && (
-              <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-red-500 text-xs mt-1.5 ml-2 flex items-center gap-1 font-semibold">
+              <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-400 text-xs ml-1 mt-0.5 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> {errors.email.message}
               </motion.p>
             )}
           </AnimatePresence>
         </div>
 
-        <div className={inputWrapperClass}>
-          <div className="relative w-full">
-            <Lock className={iconClass} />
-            <input type="password" id="password" required {...register("password")} className={getInputClass(!!errors.password)} />
-            <label htmlFor="password" className={floatingLabelClass}>Password</label>
+        {/* Password Field */}
+        <div className="flex flex-col gap-1.5 w-full">
+          <div className="flex justify-between items-center ml-1">
+            <label htmlFor="password" className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase tracking-widest">
+              Password
+            </label>
+            <Link to="/forgot-password" className="text-[10px] sm:text-xs font-mono text-gray-500 hover:text-white transition-colors">
+              Forgot?
+            </Link>
+          </div>
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="password"
+              id="password"
+              required
+              placeholder="••••••••"
+              {...register("password")}
+              className={`w-full bg-white/5 border ${errors.password ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-white/30"} rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-gray-600 focus:bg-white/10 outline-none transition-all text-sm font-sans`}
+            />
           </div>
           <AnimatePresence>
             {errors.password && (
-              <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-red-500 text-xs mt-1.5 ml-2 flex items-center gap-1 font-semibold">
+              <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-400 text-xs ml-1 mt-0.5 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> {errors.password.message}
               </motion.p>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-end w-full">
-          <Link to="/forgot-password" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">Forgot password?</Link>
-        </div>
-
-        <button type="submit" disabled={loading || !isValid} className="w-full flex justify-center items-center gap-2 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black py-4 rounded-2xl transition-all duration-300 font-bold text-base shadow-lg shadow-gray-900/20 dark:shadow-white/10 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 font-['Inter']">
-          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading || !isValid}
+          className="w-full flex justify-center items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
         </button>
       </motion.form>
 
-      <motion.div variants={itemVariants} className="text-sm text-gray-500 dark:text-gray-400 text-center font-['Inter'] relative z-10 mt-2">
-        <p>Don't have an account? <Link to="/create-account" className="font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline decoration-transparent hover:decoration-current underline-offset-4">Start writing today</Link></p>
+      {/* Footer */}
+      <motion.div variants={itemVariants} className="text-sm text-gray-500 text-center font-sans mt-2">
+        <p>
+          Don't have an account?{" "}
+          <Link to="/create-account" className="font-bold text-gray-300 hover:text-white transition-colors">
+            Start writing today
+          </Link>
+        </p>
       </motion.div>
     </motion.div>
   );

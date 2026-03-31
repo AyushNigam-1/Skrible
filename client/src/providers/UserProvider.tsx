@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { useUserStore } from "../../store/useAuthStore";
-import { authClient } from "../../lib/authClient";
+import { useUserStore } from "../store/useAuthStore";
+import { authClient } from "../lib/authClient";
 
 const parseFavs = (favs: any[] = []) => favs.map(f => f?.buffer ? Object.values(f.buffer).map((b: any) => b.toString(16).padStart(2, "0")).join("") : f);
 

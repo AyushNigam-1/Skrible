@@ -123,30 +123,56 @@ export const paragraphMutations = {
     const paragraphAuthorId = paragraph.author.toString();
     const scriptOwnerId = script.author.toString();
 
-    const isAlreadyCollaborator = script.collaborators?.some(
+    const existingCollab = script.collaborators?.find(
       (c: any) => c.user.toString() === paragraphAuthorId,
     );
 
-    const updateQuery: any = {
-      $addToSet: { paragraphs: paragraph._id },
-    };
-
-    if (!isAlreadyCollaborator && paragraphAuthorId !== scriptOwnerId) {
-      updateQuery.$push = {
-        collaborators: {
-          user: paragraph.author,
-          role: "CONTRIBUTOR",
+    // 🚨 THE FIX: Explicitly handle ACCEPTED status and existing pending users
+    if (existingCollab) {
+      // If they are already in the array (e.g., as PENDING), force them to ACCEPTED
+      await Script.findOneAndUpdate(
+        { _id: paragraph.script, "collaborators.user": paragraph.author },
+        {
+          $addToSet: { paragraphs: paragraph._id },
+          $set: { "collaborators.$.status": "ACCEPTED" },
+        }
+      );
+    } else if (paragraphAuthorId !== scriptOwnerId) {
+      // If they are completely new, push them and EXPLICITLY set status to ACCEPTED
+      await Script.findByIdAndUpdate(paragraph.script, {
+        $addToSet: { paragraphs: paragraph._id },
+        $push: {
+          collaborators: {
+            user: paragraph.author,
+            role: "CONTRIBUTOR",
+            status: "ACCEPTED", // <-- Fixed default pending bug
+          },
         },
-      };
+      });
+    } else {
+      // It's the owner's own paragraph, just link the paragraph ID
+      await Script.findByIdAndUpdate(paragraph.script, {
+        $addToSet: { paragraphs: paragraph._id },
+      });
     }
 
-    await Script.findByIdAndUpdate(paragraph.script, updateQuery);
     await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+
+    // 🚨 CACHE FIX: Force clear the script-level cache so the frontend collaborator list updates instantly
+    if (context.redis) {
+      try {
+        const exactScriptKeys = await context.redis.keys(`*${paragraph.script.toString()}*`);
+        if (exactScriptKeys.length > 0) {
+          await context.redis.del(exactScriptKeys);
+        }
+      } catch (err) {
+        console.error("Script cache clear failed:", err);
+      }
+    }
 
     const firstName = getFirstName(context.user?.name);
     const draftTitle = getCleanTitle(script);
 
-    // 🚨 THE FIX: Changed link to point directly to the specific contribution
     await dispatchNotification(
       paragraph.author,
       userId,
@@ -201,10 +227,24 @@ export const paragraphMutations = {
 
     await enforceRateLimit(context.redis, userId, "edit_paragraph", 30, 60);
 
-    const paragraph = await Paragraph.findById(paragraphId);
+    // 🚨 THE FIX: Populate the script so we can check owner and editor permissions
+    const paragraph = await Paragraph.findById(paragraphId).populate("script");
     if (!paragraph) throw new GraphQLError("Paragraph not found");
 
-    if (paragraph.author.toString() !== userId) {
+    const script: any = paragraph.script;
+    const paragraphAuthorId = paragraph.author.toString();
+
+    // Permission Checks
+    const isParagraphAuthor = paragraphAuthorId === userId;
+    const isScriptOwner = script.author.toString() === userId;
+    const isEditor = script.collaborators?.some(
+      (c: any) =>
+        c.user.toString() === userId &&
+        (c.role === "EDITOR" || c.role === "OWNER")
+    );
+
+    // 🚨 THE FIX: Allow Author, Owner, OR Editor to make edits
+    if (!isParagraphAuthor && !isScriptOwner && !isEditor) {
       throw new GraphQLError("Not authorized to edit this paragraph");
     }
 
@@ -214,7 +254,9 @@ export const paragraphMutations = {
 
     paragraph.text = text;
     await paragraph.save();
-    await invalidateParagraphCache(context.redis, paragraph.script.toString(), paragraphId);
+
+    // Invalidate cache using the script ID
+    await invalidateParagraphCache(context.redis, script._id.toString(), paragraphId);
 
     return paragraph.populate("author");
   },
@@ -234,20 +276,24 @@ export const paragraphMutations = {
 
     const script: any = paragraph.script;
     const paragraphAuthorId = paragraph.author.toString();
-    const isParagraphAuthor = paragraphAuthorId === userId;
-    const isScriptOwner = script.author.toString() === userId;
 
-    const isCollaboratorAdmin = script.collaborators?.some(
+    // Permission Checks
+    const isParagraphAuthor = paragraphAuthorId === userId;
+    const isScriptOwner = script.author?.toString() === userId;
+
+    // 🚨 BULLETPROOF CHECK: Safely optional-chain the user ID to prevent server crashes
+    const isEditor = script.collaborators?.some(
       (c: any) =>
-        c.user.toString() === userId &&
-        (c.role === "OWNER" || c.role === "EDITOR"),
+        c.user?.toString() === userId &&
+        (c.role === "OWNER" || c.role === "EDITOR")
     );
 
-    if (!isParagraphAuthor && !isScriptOwner && !isCollaboratorAdmin) {
+    if (!isParagraphAuthor && !isScriptOwner && !isEditor) {
       throw new GraphQLError("Not authorized to delete this paragraph");
     }
 
     await Paragraph.findByIdAndDelete(paragraphId);
+
     await Script.findByIdAndUpdate(script._id, {
       $pull: { paragraphs: paragraphId },
     });

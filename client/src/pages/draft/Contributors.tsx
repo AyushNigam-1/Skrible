@@ -170,6 +170,7 @@ const Contributors: React.FC = () => {
           <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
             This draft doesn't have any approved contributions right now.
           </p>
+
         </motion.div>
       )}
 

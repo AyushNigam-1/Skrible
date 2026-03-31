@@ -86,8 +86,8 @@ export const DISLIKE_SCRIPT = gql`
   }
 `;
 export const ADD_COLLABORATOR = gql`
-  mutation AddCollaborator($scriptId: ID!, $name: String!, $role: Role!) {
-    addCollaborator(scriptId: $scriptId, name: $name, role: $role) {
+  mutation AddCollaborator($scriptId: ID!, $identifier: String!, $role: String!) {
+addCollaborator(scriptId: $scriptId, identifier: $identifier, role: $role) {
       id
       collaborators {
         user {

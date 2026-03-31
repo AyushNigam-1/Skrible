@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
 import { X, MessageSquare, Loader2, SendHorizontal } from "lucide-react";
 
 interface Comment {
@@ -19,7 +19,6 @@ interface DiscussionPanelProps {
   comments: Comment[];
   onAddComment: (text: string) => Promise<void>;
   isCommenting: boolean;
-  // We can ignore the old formatDate prop, we will use a custom WhatsApp-style one below
   formatDate: (timestamp?: string | number) => string;
   currentUserName?: string;
 }
@@ -34,17 +33,39 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
 }) => {
   const [commentText, setCommentText] = useState("");
   const [isMounted, setIsMounted] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 🚨 THE FIX 1: We target the container itself, not an empty div at the bottom
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  // 🚨 THE FIX 2: A bulletproof scroll function that NEVER scrolls the main page
+  const scrollToBottom = (behavior: "auto" | "smooth" = "smooth") => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: behavior,
+      });
     }
-  }, [comments, isOpen]);
+  };
+
+  // Jump to bottom instantly when opened
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => scrollToBottom("auto"), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  // Glide smoothly to bottom when a NEW comment is added
+  useEffect(() => {
+    if (isOpen && comments.length > 0) {
+      const timer = setTimeout(() => scrollToBottom("smooth"), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [comments.length, isOpen]);
 
   const handleSubmit = async () => {
     if (!commentText.trim() || isCommenting) return;
@@ -59,7 +80,6 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
     }
   };
 
-  // 🚨 NEW: Minimal WhatsApp-style Date Formatter (e.g. "thu, 2:30 pm")
   const formatMinimalTime = (timestamp?: string | number) => {
     if (!timestamp) return "";
     const date = new Date(Number(timestamp));
@@ -73,39 +93,26 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
 
   if (!isMounted) return null;
 
-  // Ultra-safe current user check
   const safeCurrentUserName = currentUserName?.trim().toLowerCase() || "";
 
-  return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ isolation: 'isolate' }}>
+  return (
+    <Dialog open={isOpen} onClose={onClose} className="relative z-[9999]">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300 ease-out data-[closed]:opacity-0"
+      />
 
-          {/* Background Blur Overlay */}
-          <motion.div
-            key="discussion-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md"
-          />
-
-          {/* Centered Modal */}
-          <motion.div
-            key="discussion-modal"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-            className="relative z-10 flex flex-col w-full max-w-2xl h-[75vh] min-h-[500px] max-h-[85vh] bg-[#161620] border border-white/10 rounded-3xl shadow-2xl overflow-hidden font-sans"
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+          <DialogPanel
+            transition
+            className="bg-primary relative z-10 flex flex-col w-full max-w-2xl h-[75vh] min-h-[500px] max-h-[85vh] border border-white/10 rounded-3xl shadow-2xl overflow-hidden font-sans transition duration-500 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 data-[closed]:translate-y-4"
           >
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 sm:p-5 border-b border-white/10 shrink-0 bg-white/5">
-              <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+              <DialogTitle className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
                 Discussion
-              </h3>
+              </DialogTitle>
               <button
                 onClick={onClose}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors active:scale-95 outline-none"
@@ -114,15 +121,18 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
               </button>
             </div>
 
-            {/* Modal Content Area (Scrollable) */}
+            {/* Modal Content Area */}
             <div className="flex-1 flex flex-col h-full w-full bg-transparent overflow-hidden">
-              <div className="flex-1 flex flex-col gap-5 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
+
+              {/* 🚨 THE FIX 3: Attached the ref exactly to the scrolling container */}
+              <div
+                ref={scrollContainerRef}
+                className="flex-1 flex flex-col gap-5 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20"
+              >
                 <AnimatePresence>
                   {comments.length > 0 ? (
                     comments.map((comment, i) => {
                       const authorName = comment.author?.name || comment.author?.username || "Unknown";
-
-                      // 🚨 Strict comparison to push current user to the right
                       const isCurrentUser = safeCurrentUserName !== "" && authorName.trim().toLowerCase() === safeCurrentUserName;
 
                       return (
@@ -131,13 +141,9 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: i * 0.05 }}
-                          // Force container to push right or left
                           className={`flex w-full ${isCurrentUser ? "justify-end" : "justify-start"}`}
                         >
-                          {/* 🚨 THE FIX: items-start aligns the avatar to the TOP of the bubble */}
                           <div className={`flex items-start gap-2.5 max-w-[85%] sm:max-w-[75%] ${isCurrentUser ? "flex-row-reverse" : "flex-row"}`}>
-
-                            {/* Avatar */}
                             <div className={`size-8 sm:size-9 shrink-0 rounded-full flex items-center justify-center font-bold text-xs shadow-inner mt-0.5 ${isCurrentUser
                               ? "bg-indigo-500/20 border border-indigo-500/30 text-indigo-200"
                               : "bg-white/10 border border-white/10 text-gray-300"
@@ -145,32 +151,24 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                               {authorName.charAt(0).toUpperCase()}
                             </div>
 
-                            {/* Chat Bubble - WhatsApp Style */}
                             <div className={`flex flex-col p-2.5 sm:p-3 pb-1.5 sm:pb-1.5 min-w-[100px] shadow-sm ${isCurrentUser
-                              ? "bg-indigo-600/20 border border-indigo-500/30 rounded-2xl rounded-tr-sm" // Top-Right Tail
-                              : "bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm" // Top-Left Tail
+                              ? "bg-indigo-600/20 border border-indigo-500/30 rounded-2xl rounded-tr-sm"
+                              : "bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm"
                               }`}>
-
-                              {/* Username (Only for others, inside the bubble) */}
                               {!isCurrentUser && (
                                 <span className="text-sm font-semibold text-gray-400 mb-0.5">
                                   {authorName}
                                 </span>
                               )}
-
-                              {/* Message Text */}
                               <p className={`text-sm sm:text-base leading-relaxed whitespace-pre-wrap ${isCurrentUser ? "text-indigo-50" : "text-gray-200"
                                 }`}>
                                 {comment.text}
                               </p>
-
-                              {/* Minimal Timestamp (Bottom Right) */}
                               <span className={`text-[10px] sm:text-[11px] font-mono font-medium self-end mt-1 opacity-70 ${isCurrentUser ? "text-indigo-200" : "text-gray-400"
                                 }`}>
                                 {formatMinimalTime(comment.createdAt)}
                               </span>
                             </div>
-
                           </div>
                         </motion.div>
                       );
@@ -189,10 +187,9 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                     </div>
                   )}
                 </AnimatePresence>
-                <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area (Sticky Bottom) */}
+              {/* Input Area */}
               <div className="p-4 sm:p-5 bg-white/[0.02] shrink-0 border-t border-white/10 backdrop-blur-md">
                 <div className="relative flex items-center w-full">
                   <input
@@ -218,11 +215,10 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </DialogPanel>
         </div>
-      )}
-    </AnimatePresence>,
-    document.body
+      </div>
+    </Dialog>
   );
 };
 

@@ -1,19 +1,6 @@
 import { Link } from "react-router-dom";
 import { ThumbsUp, ThumbsDown, Globe2 } from "lucide-react";
-
-export interface DraftCardProps {
-  script: {
-    id: string;
-    title: string;
-    createdAt?: string | null;
-    description?: string | null;
-    likes?: any[] | null;
-    dislikes?: any[] | null;
-    languages?: string[] | null;
-    genres?: string[] | null;
-    author?: { name: string } | null;
-  };
-}
+import { DraftCardProps } from "../../types";
 
 const DraftCard = ({ script }: DraftCardProps) => {
 

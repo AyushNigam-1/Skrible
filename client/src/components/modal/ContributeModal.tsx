@@ -23,21 +23,13 @@ import {
   useEditParagraphMutation
 } from "../../graphql/generated/graphql";
 import { posthog } from "../../providers/PostHogProvider";
+import { ContributeModalProps } from "../../types";
 
 const contributeSchema = z.object({
   content: z.string().min(1, "Content cannot be empty"),
 });
 
 type ContributeFormValues = z.infer<typeof contributeSchema>;
-
-interface ContributeModalProps {
-  scriptId?: string;
-  paragraphId?: string;
-  refetch: () => void;
-  variant?: "header" | "empty" | "edit";
-  mode?: "create" | "edit";
-  initialContent?: string;
-}
 
 const ContributeModal = ({
   scriptId,

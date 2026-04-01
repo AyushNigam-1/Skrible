@@ -1,15 +1,9 @@
 import React from "react";
 import { Dialog, DialogPanel, DialogBackdrop } from "@headlessui/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { DeleteConfirmModalProps } from "../../types";
 
-interface DeleteConfirmModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    isDeleting: boolean;
-    title?: string;
-    description?: string;
-}
+
 
 const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
     isOpen,

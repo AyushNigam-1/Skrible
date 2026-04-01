@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion"; // <-- Added Framer Motion
+import { motion } from "framer-motion";
 import {
   FileText,
   MessageSquare,
@@ -8,23 +8,9 @@ import {
   Info,
   Maximize,
   Settings,
-  LucideIcon,
 } from "lucide-react";
+import { TabItem, TabsProps } from "../../types";
 
-interface TabsProps {
-  setTab?: (tab: string) => void;
-  tab?: string;
-  scriptId?: string;
-  isEditorOrOwner?: boolean;
-}
-
-interface TabItem {
-  icon: LucideIcon;
-  name: string;
-  pathMatch: string;
-  route: string;
-  isRightStart?: boolean;
-}
 
 const Tabs = ({
   setTab,
@@ -100,27 +86,24 @@ const Tabs = ({
         return (
           <div
             key={t.name}
-            className={`shrink-0 snap-start flex items-center ${
-              t.isRightStart ? "md:ml-auto md:pl-2" : ""
-            }`}
+            className={`shrink-0 snap-start flex items-center ${t.isRightStart ? "md:ml-auto md:pl-2" : ""
+              }`}
           >
             <Link
               to={t.route}
               className={`
               relative group flex items-center uppercase font-bold gap-2 px-3 py-3 md:px-4 md:py-3.5 transition-colors duration-200 whitespace-nowrap
-              ${
-                isActive
+              ${isActive
                   ? "text-white font-semibold"
                   : "text-gray-400 hover:text-gray-200 rounded-lg"
-              }
+                }
               `}
             >
               <Icon
-                className={`w-4 h-4 transition-colors duration-200 ${
-                  isActive
-                    ? "text-white"
-                    : "text-gray-500 group-hover:text-gray-400"
-                }`}
+                className={`w-4 h-4 transition-colors duration-200 ${isActive
+                  ? "text-white"
+                  : "text-gray-500 group-hover:text-gray-400"
+                  }`}
               />
               <span>{t.name}</span>
 

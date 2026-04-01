@@ -1,8 +1,7 @@
 import { useState, useMemo } from "react";
-import { AlertCircle, SearchX, FileText, FileExclamationPoint } from "lucide-react";
+import { AlertCircle, SearchX, FileExclamationPoint, Loader2 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Search from "../../components/layout/Search";
-import Loader from "../../components/layout/Loader";
 import Add from "../../components/modal/AddDraft";
 import { useGetScriptsByGenresQuery } from "../../graphql/generated/graphql";
 import Genres from "../../components/layout/Genres";
@@ -34,14 +33,14 @@ const Explore = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.05 } // Added stagger to match Favourites
+      transition: { staggerChildren: 0.05 }
     },
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15, scale: 0.98 },
-    visible: { // 🚨 THE FIX: Changed 'show' to 'visible' so the header can find it!
+    visible: {
       opacity: 1,
       y: 0,
       scale: 1,
@@ -65,7 +64,7 @@ const Explore = () => {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center w-full min-h-[98vh] gap-4"
             >
-              <Loader />
+              <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
             </motion.div>
           ) : error ? (
             <motion.div

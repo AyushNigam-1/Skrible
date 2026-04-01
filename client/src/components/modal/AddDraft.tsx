@@ -17,18 +17,8 @@ import clsx from "clsx";
 import { X, ChevronDown, Check, Loader2, Plus } from "lucide-react";
 import { ADD_SCRIPT } from "../../graphql/mutation/scriptMutations";
 import { posthog } from "../../providers/PostHogProvider";
+import { Option, VisibilityOption } from "../../types";
 
-// --- Types & Hardcoded Data ---
-interface VisibilityOption {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface Option {
-  id: number;
-  name: string;
-}
 
 const visibilityOptions: VisibilityOption[] = [
   {

@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
@@ -10,13 +9,14 @@ import {
   SearchX,
   ListFilter,
   FileExclamationPoint,
-  Lock
+  Lock,
+  Loader2
 } from "lucide-react";
-import { GET_USER_CONTRIBUTIONS } from "../../graphql/query/userQueries";
+import { useGetUserContributionsQuery } from "../../graphql/generated/graphql";
 import Search from "../../components/layout/Search";
-import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
-import Loader from "../../components/layout/Loader";
+import Dropdown from "../../components/layout/Dropdown";
 import { useUserStore } from "../../store/useAuthStore";
+import { DropdownOption } from "../../types";
 
 const FILTER_OPTIONS = [
   { id: "all", name: "All Contributions" },
@@ -43,8 +43,8 @@ const MyContributions = () => {
     }
   }, [currentUserId]);
 
-  const { loading, error, data } = useQuery(GET_USER_CONTRIBUTIONS, {
-    variables: { userId: currentUserId },
+  const { loading, error, data } = useGetUserContributionsQuery({
+    variables: { userId: currentUserId || "" },
     skip: !currentUserId,
     fetchPolicy: "cache-and-network",
   });
@@ -65,9 +65,21 @@ const MyContributions = () => {
   const contributions = data?.getUserContributions || [];
   const hasAnyContributions = contributions.length > 0;
 
+  interface GroupedContribution {
+    script: NonNullable<NonNullable<typeof data>["getUserContributions"]>[0]["script"];
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    latestDate: string;
+  }
+
   const groupedDrafts = useMemo(() => {
-    const map = new Map();
-    contributions.forEach((c: any) => {
+    const map = new Map<string, GroupedContribution>();
+
+    const validContributions = contributions.filter(c => c !== null);
+
+    validContributions.forEach((c) => {
       if (!c.script) return;
       const scriptId = c.script.id;
 
@@ -78,19 +90,20 @@ const MyContributions = () => {
           approved: 0,
           pending: 0,
           rejected: 0,
-          latestDate: c.createdAt,
+          latestDate: c.createdAt || "0",
         });
       }
 
-      const group = map.get(scriptId);
+      const group = map.get(scriptId)!;
       group.total += 1;
       const status = c.status?.toLowerCase() || "pending";
+
       if (status === "approved") group.approved += 1;
       else if (status === "rejected") group.rejected += 1;
       else group.pending += 1;
 
       if (Number(c.createdAt) > Number(group.latestDate)) {
-        group.latestDate = c.createdAt;
+        group.latestDate = c.createdAt || "0";
       }
     });
 
@@ -98,7 +111,7 @@ const MyContributions = () => {
 
     if (searchQuery) {
       result = result.filter((g) =>
-        g.script.title.toLowerCase().includes(searchQuery.toLowerCase())
+        g.script?.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -138,7 +151,8 @@ const MyContributions = () => {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center w-full min-h-[96vh]"
           >
-            <Loader />
+            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+
           </motion.div>
         ) : !currentUserId && showAuthWarning ? (
           <motion.div

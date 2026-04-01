@@ -14,6 +14,7 @@ import { X, Loader2, ChevronDown, Check, UserPlus, SendHorizonal } from "lucide-
 import { ADD_COLLABORATOR } from "../../graphql/mutation/scriptMutations";
 import { SEARCH_USERS } from "../../graphql/query/userQueries";
 import { toast } from "sonner";
+import { InviteCollaboratorProps } from "../../types";
 
 const ROLE_OPTIONS = [
   { value: "CONTRIBUTOR", label: "Contributor" },
@@ -24,10 +25,6 @@ const inputClass =
   "w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-600 text-sm font-sans shadow-inner disabled:opacity-50 disabled:cursor-not-allowed";
 const labelClass =
   "flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest font-sans";
-
-interface InviteCollaboratorProps {
-  scriptId: string;
-}
 
 export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps) {
   const [isOpen, setIsOpen] = useState(false);

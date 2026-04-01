@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../../components/layout/Sidebar";
-import { useUserStore } from "../../store/useAuthStore"; // 🚨 ADDED: Import your auth store
+import { useUserStore } from "../../store/useAuthStore";
 
 const HomeLayout = () => {
   const location = useLocation();
-  const { user } = useUserStore(); // 🚨 ADDED: Get user state
+  const { user } = useUserStore();
   const isLoggedIn = !!user?.id;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(

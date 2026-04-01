@@ -1,9 +1,5 @@
 import { Tag, XCircle } from "lucide-react";
-
-interface GenresProps {
-  selectedGenres: string[];
-  onGenreChange: (genres: string[]) => void;
-}
+import { GenresProps } from "../../types";
 
 const Genres = ({ selectedGenres, onGenreChange }: GenresProps) => {
   const genres = [

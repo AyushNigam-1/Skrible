@@ -1,27 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { useLazyQuery } from "@apollo/client";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FileText, SearchX } from "lucide-react";
-import Loader from "../../components/layout/Loader";
+import { FileText, Loader2, SearchX } from "lucide-react";
 import Search from "../../components/layout/Search";
 import ContributeModal from "../../components/modal/ContributeModal";
-import { EXPORT_DOCUMENT_QUERY } from "../../graphql/query/paragraphQueries";
+import { GetScriptByIdQuery } from "../../graphql/generated/graphql";
 
-interface TimelineContext {
-  data: any;
-  refetch: () => void;
-  loading: boolean;
-}
-
-// 🚨 ADDED: Recursive function to safely highlight text inside any React Node (including Markdown elements)
 const highlightContent = (nodes: React.ReactNode, query: string): React.ReactNode => {
   if (!query.trim()) return nodes;
-
   return React.Children.map(nodes, (child) => {
-    // If it's a raw string/number, we do the regex split and highlight
     if (typeof child === "string" || typeof child === "number") {
       const text = String(child);
       const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -45,7 +34,6 @@ const highlightContent = (nodes: React.ReactNode, query: string): React.ReactNod
         </>
       );
     }
-    // If it's a React element (like a <strong> or <em> tag inside the markdown), process its children
     if (React.isValidElement(child)) {
       if (child.props && (child.props as any).children) {
         return React.cloneElement(child as React.ReactElement<any>, {
@@ -58,14 +46,16 @@ const highlightContent = (nodes: React.ReactNode, query: string): React.ReactNod
 };
 
 const Timeline = () => {
-  const { data, refetch, loading } = useOutletContext<TimelineContext>();
   const [searchQuery, setSearchQuery] = useState("");
-  const [fetchDocument] = useLazyQuery(EXPORT_DOCUMENT_QUERY);
-
+  const { data, refetch, loading } = useOutletContext<{
+    data?: GetScriptByIdQuery;
+    refetch: () => void;
+    loading: boolean;
+  }>();
   const scriptId = data?.getScriptById?.id;
   const rawParagraphs = data?.getScriptById?.paragraphs || [];
 
-  const isArchived = data?.getScriptById?.status?.toLowerCase() === "archived";
+  const isArchived = data?.getScriptById?.visibility?.toLowerCase() === "archived";
 
   const processedParagraphs = useMemo(() => {
     let filtered = [...rawParagraphs];
@@ -84,7 +74,6 @@ const Timeline = () => {
     );
   }, [rawParagraphs, searchQuery]);
 
-  // 🚨 ADDED: Memoized custom components for ReactMarkdown so they process the highlights
   const markdownComponents = useMemo(() => ({
     p: ({ node, ...props }: any) => <p {...props} className="m-0 p-0">{highlightContent(props.children, searchQuery)}</p>,
     li: ({ node, ...props }: any) => <li {...props}>{highlightContent(props.children, searchQuery)}</li>,
@@ -126,7 +115,7 @@ const Timeline = () => {
   if (loading && !data) {
     return (
       <div className="flex justify-center items-center w-full min-h-[70vh]">
-        <Loader />
+        <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
       </div>
     );
   }
@@ -217,7 +206,6 @@ const Timeline = () => {
                         {p.author.name.charAt(0).toUpperCase()}
                       </div>
                       <p className="font-mono text-sm font-bold text-white tracking-tight truncate">
-                        {/* 🚨 THE FIX: Applied highlightContent to the author's name */}
                         {highlightContent(p.author.name, searchQuery)}
                       </p>
                     </div>
@@ -228,7 +216,6 @@ const Timeline = () => {
                   </div>
 
                   <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-300 leading-relaxed w-full overflow-hidden break-words">
-                    {/* 🚨 THE FIX: Applied our custom markdownComponents */}
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                       {p.text}
                     </ReactMarkdown>

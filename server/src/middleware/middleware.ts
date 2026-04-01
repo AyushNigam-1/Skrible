@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { auth } from "../auth"; // <-- Point this to your new auth.ts file
+import { auth } from "../utils/auth"; // <-- Point this to your new auth.ts file
 import { fromNodeHeaders } from "better-auth/node";
 
 declare global {

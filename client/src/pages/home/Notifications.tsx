@@ -1,15 +1,21 @@
 import { useState, Fragment, useEffect } from "react";
-import { useQuery, useMutation, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { Bell, Heart, MessageSquare, Info, X, Loader as LoaderIcon, UserPlus, Trash2 } from "lucide-react";
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
-import { GET_NOTIFICATIONS } from "../../graphql/query/notificationQueries";
 import { useUserStore } from "../../store/useAuthStore";
-import { MARK_ALL_READ, DELETE_NOTIFICATION } from "../../graphql/mutation/notificationMutations";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { ACCEPT_INVITATION, DECLINE_INVITATION } from "../../graphql/mutation/userMutations";
+
+import {
+    useGetNotificationsQuery,
+    useMarkAllNotificationsReadMutation,
+    useDeleteNotificationMutation,
+    useAcceptInvitationMutation,
+    useDeclineInvitationMutation,
+    GetNotificationsDocument
+} from "../../graphql/generated/graphql";
 
 const ENDPOINT = `http://${window.location.hostname}:3000`;
 
@@ -21,19 +27,19 @@ const NotificationModal = () => {
     const { user } = useUserStore();
     const client = useApolloClient();
 
-    const { data, loading, error } = useQuery(GET_NOTIFICATIONS, {
+    const { data, loading, error } = useGetNotificationsQuery({
         variables: { userId: user?.id || "" },
         skip: !user?.id,
         fetchPolicy: "cache-and-network",
     });
 
     const notifications = data?.getNotifications || [];
-    const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+    const unreadCount = notifications.filter((n) => !n?.isRead).length;
 
-    const [markAllRead] = useMutation(MARK_ALL_READ, {
+    const [markAllRead] = useMarkAllNotificationsReadMutation({
         update(cache) {
             const existingData: any = cache.readQuery({
-                query: GET_NOTIFICATIONS,
+                query: GetNotificationsDocument, // Used generated Document
                 variables: { userId: user?.id || "" },
             });
 
@@ -44,7 +50,7 @@ const NotificationModal = () => {
                 }));
 
                 cache.writeQuery({
-                    query: GET_NOTIFICATIONS,
+                    query: GetNotificationsDocument,
                     variables: { userId: user?.id || "" },
                     data: {
                         getNotifications: updatedNotifications,
@@ -54,11 +60,12 @@ const NotificationModal = () => {
         },
     });
 
-    const [deleteNotification] = useMutation(DELETE_NOTIFICATION, {
-        update(cache, { data: { deleteNotification } }, { variables }) {
-            if (deleteNotification) {
+    // 🚨 REPLACED: useMutation with generated hook & safely unwrapped `data`
+    const [deleteNotification] = useDeleteNotificationMutation({
+        update(cache, { data }, { variables }) {
+            if (data?.deleteNotification) {
                 const existingData: any = cache.readQuery({
-                    query: GET_NOTIFICATIONS,
+                    query: GetNotificationsDocument,
                     variables: { userId: user?.id || "" },
                 });
 
@@ -68,7 +75,7 @@ const NotificationModal = () => {
                     );
 
                     cache.writeQuery({
-                        query: GET_NOTIFICATIONS,
+                        query: GetNotificationsDocument,
                         variables: { userId: user?.id || "" },
                         data: {
                             getNotifications: newNotifications,
@@ -79,8 +86,9 @@ const NotificationModal = () => {
         }
     });
 
-    const [acceptInvite, { loading: accepting }] = useMutation(ACCEPT_INVITATION);
-    const [declineInvite, { loading: declining }] = useMutation(DECLINE_INVITATION);
+    // 🚨 REPLACED: useMutation with generated hooks
+    const [acceptInvite, { loading: accepting }] = useAcceptInvitationMutation();
+    const [declineInvite, { loading: declining }] = useDeclineInvitationMutation();
 
     const handleAccept = (e: React.MouseEvent, scriptId: string, notifId: string) => {
         e.preventDefault();
@@ -139,7 +147,7 @@ const NotificationModal = () => {
         });
     };
 
-    const extractScriptId = (link: string) => {
+    const extractScriptId = (link: string | null | undefined) => {
         if (!link) return "";
         const parts = link.split("/");
         return parts[parts.length - 1];
@@ -163,8 +171,8 @@ const NotificationModal = () => {
 
         socket.on("new notification", (newNotif) => {
             client.cache.updateQuery(
-                { query: GET_NOTIFICATIONS, variables: { userId: user.id } },
-                (prev) => {
+                { query: GetNotificationsDocument, variables: { userId: user.id } },
+                (prev: any) => {
                     if (!prev || !prev.getNotifications) return prev;
                     if (prev.getNotifications.some((n: any) => n.id === newNotif.id)) return prev;
 
@@ -180,7 +188,7 @@ const NotificationModal = () => {
         };
     }, [user?.id, client]);
 
-    const getIcon = (type: string) => {
+    const getIcon = (type: string | null | undefined) => {
         switch (type) {
             case "LIKE": return <Heart className="w-4 h-4 text-gray-400" />;
             case "COMMENT": return <MessageSquare className="w-4 h-4 text-gray-400" />;
@@ -189,7 +197,8 @@ const NotificationModal = () => {
         }
     };
 
-    const formatTimeAgo = (timestamp: string) => {
+    const formatTimeAgo = (timestamp: string | null | undefined) => {
+        if (!timestamp) return "";
         const date = new Date(Number(timestamp));
         const now = new Date();
         const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -257,10 +266,12 @@ const NotificationModal = () => {
                                 </div>
                             ) : (
                                 <AnimatePresence initial={false}>
-                                    {notifications.map((notif: any) => {
+                                    {notifications.map((notif) => {
+                                        // Auto-inferred typing skips null checks on map automatically
+                                        if (!notif) return null;
 
-                                        const fallbackPrimaryText = notif.message.replace(/ on (your )?draft ".*?"/i, "").replace(/your draft/i, "your contribution");
-                                        const isDeleting = deletingId === notif.id; // 🚨 Check if this specific item is deleting
+                                        const fallbackPrimaryText = notif.message?.replace(/ on (your )?draft ".*?"/i, "").replace(/your draft/i, "your contribution") || "";
+                                        const isDeleting = deletingId === notif.id;
 
                                         return (
                                             <motion.div
@@ -306,7 +317,7 @@ const NotificationModal = () => {
                                                             </span>
                                                         </div>
 
-                                                        {/* Request Buttons (Unchanged) */}
+                                                        {/* Request Buttons */}
                                                         {notif.type === "REQUEST" && (
                                                             <div className="mt-2">
                                                                 {actionedNotifs[notif.id] === "ACCEPTED" ? (
@@ -340,7 +351,7 @@ const NotificationModal = () => {
                                                     </div>
                                                 </Link>
 
-                                                {/* 🚨 UPGRADED Delete Button */}
+                                                {/* UPGRADED Delete Button */}
                                                 <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${isDeleting ? "opacity-100 pointer-events-auto" : "opacity-0 group-hover/notif:opacity-100 pointer-events-none group-hover/notif:pointer-events-auto"}`}>
                                                     <button
                                                         disabled={isDeleting}

@@ -5,23 +5,9 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/react";
-import { ChevronDown, Check, LucideIcon } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import clsx from "clsx";
-
-export interface DropdownOption {
-  id: string | number;
-  name: string;
-  [key: string]: any;
-}
-
-interface DropdownProps {
-  options: DropdownOption[];
-  value: DropdownOption;
-  onChange: (value: DropdownOption) => void;
-  className?: string;
-  icon?: LucideIcon;
-  collapseOnMobile?: boolean;
-}
+import { DropdownProps } from "../../types";
 
 const Dropdown: React.FC<DropdownProps> = ({
   options,

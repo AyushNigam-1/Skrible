@@ -14,7 +14,6 @@ import {
   useViewProfileMutation,
 } from "../../graphql/generated/graphql";
 
-import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
 import { useUserStore } from "../../store/useAuthStore";
 import Add from "../../components/modal/AddDraft";
@@ -267,7 +266,7 @@ const Profile = () => {
       <AnimatePresence mode="wait">
         {isCompletelyLoading ? (
           <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96vh] gap-4">
-            <Loader />
+            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
           </motion.div>
         ) : profileError ? (
           <motion.div key="profile-error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[70vh] gap-4">
@@ -408,11 +407,11 @@ const Profile = () => {
                               suppressContentEditableWarning
                               onKeyDown={(e) => handleKeyDown(e, detail.id)}
                               data-placeholder={`Enter your ${detail.title.toLowerCase()}...`}
-                              className={`leading-relaxed outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 empty:before:italic empty:before:pointer-events-none [&:empty::before]:font-sans [&:empty::before]:font-normal ${!detail.value && !isEditingThis
-                                ? "text-gray-500 italic font-sans font-normal "
+                              className={`leading-relaxed outline-none whitespace-pre-wrap break-words w-full empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 empty:before:italic empty:before:pointer-events-none [&:empty::before]:font-sans [&:empty::before]:font-normal mt-1 ${!detail.value && !isEditingThis
+                                ? "text-gray-500 italic font-sans font-normal text-lg"
                                 : detail.id === 'name' || detail.id === 'email'
-                                  ? "font-bold  font-sans text-gray-200"
-                                  : "font-medium font-mono text-gray-200"
+                                  ? "font-bold font-sans text-gray-200 text-lg sm:text-xl"
+                                  : "font-medium font-mono text-gray-200 text-lg sm:text-xl"
                                 }`}
                             >
                               {detail.value || (!isEditingThis ? (isOwnProfile ? `Click edit to add your ${detail.title.toLowerCase()}` : "Not provided") : "")}

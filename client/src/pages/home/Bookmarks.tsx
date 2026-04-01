@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
@@ -8,14 +7,15 @@ import {
   Lock,
   SearchX,
   ListFilter,
-  BookmarkX
+  BookmarkX,
+  Loader2
 } from "lucide-react";
-import { GET_USER_FAVOURITES } from "../../graphql/query/userQueries";
+import { useGetUserFavouritesQuery } from "../../graphql/generated/graphql";
 import Search from "../../components/layout/Search";
-import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
-import Loader from "../../components/layout/Loader";
+import Dropdown from "../../components/layout/Dropdown";
 import DraftCard from "../../components/card/DraftCard";
 import { useUserStore } from "../../store/useAuthStore";
+import { DropdownOption } from "../../types";
 
 const FILTER_OPTIONS = [
   { id: "all", name: "All Genres" },
@@ -44,11 +44,10 @@ const Bookmarks = () => {
     }
   }, [currentUserId]);
 
-  // 🚨 THE FIX: 'cache-and-network' instantly shows the locally updated cache from Layout.tsx
-  const { data, loading, error } = useQuery(GET_USER_FAVOURITES, {
-    variables: { userId: currentUserId },
+  const { data, loading, error } = useGetUserFavouritesQuery({
+    variables: { userId: currentUserId || "" },
     skip: !currentUserId,
-    fetchPolicy: "no-cache", // 🚨 Nuclear option: Bypasses Apollo's local cache entirely
+    fetchPolicy: "no-cache",
   });
 
   const favourites = data?.getUserFavourites || [];
@@ -57,13 +56,13 @@ const Bookmarks = () => {
     let result = favourites.filter(Boolean);
 
     if (searchQuery) {
-      result = result.filter((script: any) =>
+      result = result.filter((script) =>
         script?.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedFilter.id !== "all") {
-      result = result.filter((script: any) =>
+      result = result.filter((script) =>
         script?.genres?.some((genre: string) => genre.toLowerCase() === selectedFilter.id)
       );
     }
@@ -106,7 +105,7 @@ const Bookmarks = () => {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center w-full min-h-[96vh]"
           >
-            <Loader />
+            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
           </motion.div>
         ) :
 
@@ -246,7 +245,7 @@ const Bookmarks = () => {
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2"
                     >
                       <AnimatePresence mode="popLayout">
-                        {filteredFavourites.map((script: any) => (
+                        {filteredFavourites.map((script) => (
                           <motion.div
                             layout
                             variants={itemVariants}

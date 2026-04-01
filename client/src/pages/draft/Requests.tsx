@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@apollo/client";
 import { useOutletContext, useNavigate, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -15,46 +14,15 @@ import {
   Clock,
   Activity,
   AlertCircle,
-  SearchX
+  SearchX,
+  Loader2
 } from "lucide-react";
 
-import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
-import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
+import Dropdown from "../../components/layout/Dropdown";
 import ContributeModal from "../../components/modal/ContributeModal";
-import { GET_FILTERED_REQUESTS } from "../../graphql/query/paragraphQueries";
-
-// --- Types ---
-type Paragraph = {
-  id: string;
-  text: string;
-};
-
-type Author = {
-  id: string;
-  name: string;
-};
-
-type RequestType = {
-  id: string;
-  text: string;
-  createdAt?: string | number;
-  author?: Author;
-  likes?: string[];
-  dislikes?: string[];
-  comments?: any[];
-  status?: string;
-};
-
-type FilteredRequestsData = {
-  getFilteredRequests: RequestType[];
-};
-
-type OutletContextType = {
-  request: RequestType | null;
-  data: { getScriptById?: { id: string } };
-  refetch: () => void;
-};
+import { useGetFilteredRequestsQuery } from "../../graphql/generated/graphql";
+import { DropdownOption, ScriptDetailsContext } from "../../types";
 
 const statusOptions: DropdownOption[] = [
   { id: "all", name: "All Statuses" },
@@ -68,7 +36,7 @@ const Requests: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get("userId");
 
-  const { data: scriptContextData } = useOutletContext<OutletContextType>();
+  const { data: scriptContextData } = useOutletContext<ScriptDetailsContext>();
   const scriptId = scriptContextData?.getScriptById?.id;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -80,17 +48,14 @@ const Requests: React.FC = () => {
   if (userId) queryVariables.userId = userId;
   if (selectedStatus.id !== "all") queryVariables.status = (selectedStatus.id as string).toLowerCase();
 
-  const { data, loading, error, refetch } = useQuery<FilteredRequestsData>(
-    GET_FILTERED_REQUESTS,
-    {
-      variables: queryVariables,
-      skip: !scriptId,
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const { data, loading, error, refetch } = useGetFilteredRequestsQuery({
+    variables: queryVariables,
+    skip: !scriptId,
+    fetchPolicy: "cache-and-network",
+  });
 
   const rawParagraphs = data?.getFilteredRequests || [];
-  const authorName = userId && rawParagraphs.length > 0 ? rawParagraphs[0].author?.name : null;
+  const authorName = userId && rawParagraphs.length > 0 ? rawParagraphs[0]?.author?.name : null;
 
   useEffect(() => {
     if (userId && authorName && searchQuery === "") {
@@ -120,9 +85,9 @@ const Requests: React.FC = () => {
       const query = searchQuery.toLowerCase();
       if (!query.startsWith('author:')) {
         result = result.filter(
-          (req) =>
-            req.text?.toLowerCase().includes(query) ||
-            req.author?.name?.toLowerCase().includes(query),
+          (req?) =>
+            req?.text?.toLowerCase().includes(query) ||
+            req?.author?.name?.toLowerCase().includes(query),
         );
       }
     }
@@ -174,12 +139,14 @@ const Requests: React.FC = () => {
     <div className="w-full flex-1 flex flex-col">
       <AnimatePresence mode="wait">
         {loading && !data ? (
-          <div className="flex items-center justify-center w-full min-h-[70vh]"><Loader /></div>
+          <div className="flex items-center justify-center w-full min-h-[70vh]">
+            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+          </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
             <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
             <p className="text-red-400 font-mono text-sm max-w-md">
-              Error loading requests. Check if your backend resolver handles the "status" parameter correctly.
+              Error loading req?uests. Check if your backend resolver handles the "status" parameter correctly.
             </p>
             <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-white/5 rounded-lg text-white border border-white/10 hover:bg-white/10 transition-all">Retry</button>
           </div>
@@ -196,11 +163,11 @@ const Requests: React.FC = () => {
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
-              No requests yet
+              No req?uests yet
             </h3>
 
             <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
-              There are no requests right now. Be the first to submit a contribution!
+              There are no req?uests right now. Be the first to submit a contribution!
             </p>
 
             <div className="relative z-10">
@@ -245,7 +212,7 @@ const Requests: React.FC = () => {
                 </div>
 
                 <h3 className="text-2xl font-bold text-white relative z-10">
-                  No requests found
+                  No req?uests found
                 </h3>
 
                 <p className="text-gray-400 max-w-md relative z-10 text-sm">
@@ -256,29 +223,29 @@ const Requests: React.FC = () => {
             ) : (
               <motion.div variants={containerVariants} className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
                 <AnimatePresence mode="popLayout">
-                  {filteredParagraphs.map((req) => {
-                    const statusInfo = getStatusConfig(req.status);
+                  {filteredParagraphs.map((req?) => {
+                    const statusInfo = getStatusConfig(req?.status);
                     const StatusIcon = statusInfo.icon;
                     return (
                       <motion.div
                         layout
-                        key={req.id}
+                        key={req?.id}
                         variants={itemVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"
                         whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-                        onClick={() => navigate(`/contribution/${scriptId}/${req.id}`)}
+                        onClick={() => navigate(`/contribution/${scriptId}/${req?.id}`)}
                         className="bg-white/5 border border-white/10 rounded-2xl p-5 cursor-pointer hover:bg-white/10 transition-colors flex flex-col gap-4 relative group"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center text-white font-bold shadow-inner">
-                              {req.author?.name?.charAt(0).toUpperCase() || "?"}
+                              {req?.author?.name?.charAt(0).toUpperCase() || "?"}
                             </div>
                             <div>
-                              <p className="font-bold text-white font-mono">{req.author?.name || "Unknown"}</p>
-                              <p className="text-xs text-gray-500 font-mono">{formatDate(req.createdAt)}</p>
+                              <p className="font-bold text-white font-mono">{req?.author?.name || "Unknown"}</p>
+                              <p className="text-xs text-gray-500 font-mono">{formatDate(req?.createdAt)}</p>
                             </div>
                           </div>
                           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-widest ${statusInfo.color}`}>
@@ -287,12 +254,12 @@ const Requests: React.FC = () => {
                           </div>
                         </div>
                         <div className="prose prose-sm dark:prose-invert text-gray-400 line-clamp-3">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{req.text}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{req?.text}</ReactMarkdown>
                         </div>
                         <div className="flex items-center gap-6 text-gray-500 text-xs font-mono mt-auto pt-2">
-                          <span className="flex items-center gap-1.5"><ThumbsUp size={14} /> {req.likes?.length || 0}</span>
-                          <span className="flex items-center gap-1.5"><ThumbsDown size={14} /> {req.dislikes?.length || 0}</span>
-                          <span className="flex items-center gap-1.5 ml-auto"><MessageSquare size={14} /> {req.comments?.length || 0}</span>
+                          <span className="flex items-center gap-1.5"><ThumbsUp size={14} /> {req?.likes?.length || 0}</span>
+                          <span className="flex items-center gap-1.5"><ThumbsDown size={14} /> {req?.dislikes?.length || 0}</span>
+                          <span className="flex items-center gap-1.5 ml-auto"><MessageSquare size={14} /> {req?.comments?.length || 0}</span>
                         </div>
                       </motion.div>
                     );

@@ -2,26 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
 import { X, MessageSquare, Loader2, SendHorizontal } from "lucide-react";
-
-interface Comment {
-  text: string;
-  createdAt: string | number;
-  author: {
-    name?: string;
-    username?: string;
-  };
-}
-
-interface DiscussionPanelProps {
-  isOpen: boolean;
-  onClose: () => void;
-  isDesktop: boolean;
-  comments: Comment[];
-  onAddComment: (text: string) => Promise<void>;
-  isCommenting: boolean;
-  formatDate: (timestamp?: string | number) => string;
-  currentUserName?: string;
-}
+import { DiscussionPanelProps } from "../../types";
 
 const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
   isOpen,

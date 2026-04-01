@@ -9,29 +9,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import Loader from "../../components/layout/Loader";
-import { useMutation } from "@apollo/client";
-import { UPDATE_SCRIPT } from "../../graphql/mutation/scriptMutations";
-
-// 🚨 UPDATED: Added isEditorOrOwner to the context interface
-interface ScriptDetailsContext {
-  data: {
-    getScriptById: {
-      id: string;
-      title?: string;
-      description?: string;
-      visibility?: string;
-      createdAt?: string;
-      author?: { id: string; name: string };
-      genres?: string[];
-      languages?: string[];
-      paragraphs?: any[];
-    };
-  };
-  loading: boolean;
-  refetch: () => void;
-  isEditorOrOwner: boolean;
-}
+import { useUpdateScriptMutation } from "../../graphql/generated/graphql";
+import { ScriptDetailsContext } from "../../types";
 
 type EditField = "title" | "description" | "genres" | "languages" | null;
 
@@ -44,7 +23,6 @@ const editSchemas = {
   languages: z.array(z.string().min(1, "Language cannot be empty").max(30, "Language name too long")).max(MAX_TAGS, `Maximum of ${MAX_TAGS} languages allowed`),
 };
 
-// --- STATIC VARIANTS & CLASSES ---
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
@@ -187,7 +165,7 @@ const ScriptDetails = () => {
   const { data, loading, isEditorOrOwner } = useOutletContext<ScriptDetailsContext>();
   const script = data?.getScriptById;
 
-  const [updateScript, { loading: isUpdating }] = useMutation(UPDATE_SCRIPT);
+  const [updateScript, { loading: isUpdating }] = useUpdateScriptMutation();
   const [editingField, setEditingField] = useState<EditField>(null);
   const editRef = useRef<HTMLDivElement>(null);
 
@@ -238,15 +216,16 @@ const ScriptDetails = () => {
 
     const promise = updateScript({
       variables,
-      update(cache, { data: { updateScript } }) {
+      update(cache, { data }) {
+
         if (!updateScript) return;
         cache.modify({
-          id: cache.identify(updateScript),
+          id: cache.identify(data!.updateScript),
           fields: {
-            title: (e) => updateScript.title ?? e,
-            description: (e) => updateScript.description ?? e,
-            genres: (e) => updateScript.genres ?? e,
-            languages: (e) => updateScript.languages ?? e,
+            title: (e) => data!.updateScript.title ?? e,
+            description: (e) => data!.updateScript.description ?? e,
+            genres: (e) => data!.updateScript.genres ?? e,
+            languages: (e) => data!.updateScript.languages ?? e,
           },
         });
       },
@@ -274,7 +253,7 @@ const ScriptDetails = () => {
   if (loading && !script) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[70vh]">
-        <Loader />
+        <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
       </motion.div>
     );
   }

@@ -26,19 +26,19 @@ import {
   useDeleteParagraphMutation,
   useAddCommentMutation,
 } from "../../graphql/generated/graphql";
-import Loader from "../../components/layout/Loader";
 import { useUserStore } from "../../store/useAuthStore";
 import { posthog } from "../../providers/PostHogProvider";
 import DiscussionPanel from "../../components/modal/DiscussionPanel";
 import ContributeModal from "../../components/modal/ContributeModal";
 import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
+import { ScriptDetailsContext } from "../../types";
 
 const Contribution: React.FC = () => {
-  const { id, paragraphId } = useParams<{ id: string; paragraphId: string }>();
+  const { paragraphId } = useParams<{ id: string; paragraphId: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useUserStore();
 
-  const outletContext = useOutletContext<any>() || {};
+  const outletContext = useOutletContext<ScriptDetailsContext>() || {};
 
   const [localLikes, setLocalLikes] = useState<string[]>([]);
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
@@ -329,7 +329,7 @@ const Contribution: React.FC = () => {
     <AnimatePresence mode="wait">
       {paragraphLoading || scriptLoading ? (
         <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="flex items-center justify-center w-full min-h-[70vh]">
-          <Loader />
+          <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
         </motion.div>
       ) : paragraphError || !paragraph ? (
         <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="flex flex-col items-center justify-center w-full min-h-[50vh] text-center text-red-500 font-mono gap-4">

@@ -1,52 +1,33 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import { useMutation } from "@apollo/client";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Trash2, AlertTriangle, Lock, Globe2, Archive,
-  Shield, Loader2, ListFilter, Users, X, Eye, FileMinus, UserMinus,
+  Loader2, ListFilter, Users, Eye, FileMinus, UserMinus,
   MoreVertical, Check, LogOut
 } from "lucide-react";
 
 import {
-  DELETE_SCRIPT,
-  UPDATE_SCRIPT,
-  ADD_COLLABORATOR,
-  REMOVE_COLLABORATOR,
-  UPDATE_COLLABORATOR_ROLE,
-  REMOVE_ALL_PARAGRAPHS,
-  REMOVE_ALL_COLLABORATORS
-} from "../../graphql/mutation/scriptMutations";
-
+  useDeleteScriptMutation,
+  useUpdateScriptMutation,
+  useRemoveCollaboratorMutation,
+  useUpdateCollaboratorRoleMutation,
+  useRemoveAllParagraphsMutation,
+  useRemoveAllCollaboratorsMutation
+} from "../../graphql/generated/graphql";
 import Search from "../../components/layout/Search";
-import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
+import Dropdown from "../../components/layout/Dropdown";
 import { useUserStore } from "../../store/useAuthStore";
 import InviteCollaborator from "../../components/modal/InviteModal";
 import DeleteConfirmModal from "../../components/modal/DeleteConfirmModal";
 import { toast } from "sonner";
+import { DropdownOption, ScriptDetailsContext } from "../../types";
 
 interface Collaborator {
   user: { id: string; name: string; };
   role: string;
 }
 
-interface ScriptContext {
-  data?: {
-    getScriptById?: {
-      id: string;
-      title?: string;
-      description?: string;
-      visibility?: string;
-      author?: { id: string; name: string; };
-      collaborators?: Collaborator[];
-      paragraphs?: any[];
-    };
-  };
-  isEditorOrOwner: boolean;
-  currentUserRole: string;
-  loading: boolean;
-  setTab: (tab: string) => void;
-}
 
 type VisibilityType = "Public" | "Private" | "Archived";
 
@@ -75,7 +56,6 @@ const MemberActions = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Find the current role object to pass to the Dropdown
   const currentRoleOption = ROLE_OPTIONS.find(r => r.id === member.role) || ROLE_OPTIONS[2];
 
   useEffect(() => {
@@ -89,7 +69,6 @@ const MemberActions = ({
   return (
     <div className="flex items-center gap-2">
 
-      {/* --- DESKTOP VIEW (Visible on sm and up) --- */}
       <div className="hidden sm:flex items-center gap-3">
         <div className="">
           <Dropdown
@@ -105,11 +84,9 @@ const MemberActions = ({
           className="p-2.5 text-xs font-bold uppercase tracking-widest bg-white/5 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-white/10 hover:border-red-500/20 rounded-xl flex items-center gap-2 transition-all active:scale-95 shrink-0"
         >
           {isSelf ? <LogOut className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
-          {/* <span className="hidden lg:block">{isSelf ? "Leave Draft" : "Remove"}</span> */}
         </button>
       </div>
 
-      {/* --- MOBILE VIEW (3-dot menu) --- */}
       <div className="relative sm:hidden" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -161,7 +138,7 @@ const MemberActions = ({
 
 const DraftSettings: React.FC = () => {
   const navigate = useNavigate();
-  const { data, isEditorOrOwner, currentUserRole, loading, setTab } = useOutletContext<ScriptContext>();
+  const { data, isEditorOrOwner, currentUserRole, loading, setTab } = useOutletContext<ScriptDetailsContext>();
   const script = data?.getScriptById;
 
   const { user } = useUserStore();
@@ -199,17 +176,35 @@ const DraftSettings: React.FC = () => {
     if (script?.visibility) setVisibility(script.visibility as VisibilityType);
   }, [script]);
 
-  const [deleteScript, { loading: isDeleting }] = useMutation(DELETE_SCRIPT);
-  const [updateScript] = useMutation(UPDATE_SCRIPT);
-  const [removeCollaborator, { loading: isRemovingCollab }] = useMutation(REMOVE_COLLABORATOR);
-  const [updateRole] = useMutation(UPDATE_COLLABORATOR_ROLE);
-  const [removeAllParagraphs, { loading: isClearing }] = useMutation(REMOVE_ALL_PARAGRAPHS);
-  const [removeAllCollaborators, { loading: isKicking }] = useMutation(REMOVE_ALL_COLLABORATORS);
+  const [deleteScript, { loading: isDeleting }] = useDeleteScriptMutation();
+  const [updateScript] = useUpdateScriptMutation();
+  const [removeCollaborator, { loading: isRemovingCollab }] = useRemoveCollaboratorMutation();
+  const [updateRole] = useUpdateCollaboratorRoleMutation();
+  const [removeAllParagraphs, { loading: isClearing }] = useRemoveAllParagraphsMutation();
+  const [removeAllCollaborators, { loading: isKicking }] = useRemoveAllCollaboratorsMutation();
 
   const allMembers = useMemo(() => {
     if (!script) return [];
-    const owner: Collaborator = { user: { id: script.author?.id || "", name: script.author?.name || "Unknown" }, role: "OWNER" };
-    const members = [owner, ...(script.collaborators || [])];
+
+    const owner: Collaborator = {
+      user: {
+        id: script.author?.id || "",
+        name: script.author?.name || "Unknown"
+      },
+      role: "OWNER"
+    };
+
+    const existingCollaborators: Collaborator[] = (script.collaborators || [])
+      .filter((c): c is NonNullable<typeof c> => c !== null && c.user != null)
+      .map((c) => ({
+        role: c.role,
+        user: {
+          id: c.user.id || "",
+          name: c.user.name
+        }
+      }));
+
+    const members = [owner, ...existingCollaborators];
 
     return members.filter((member) => {
       const matchesSearch = member.user.name.toLowerCase().includes(searchQuery.toLowerCase());

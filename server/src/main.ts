@@ -10,7 +10,7 @@ import { redisClient } from "./database/redis";
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
-import { auth } from "./auth";
+import { auth } from "./utils/auth";
 import pino from "pino";
 import pinoHttp from "pino-http";
 import helmet from "helmet";
@@ -78,7 +78,7 @@ const startServer = async () => {
     })
   );
 
-  // app.use(pinoHttp({ logger }));
+  app.use(pinoHttp({ logger }));
   app.use(cookieParser());
   app.use(express.json());
 

@@ -1,27 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Users, Trophy, Medal, Filter, SearchX } from "lucide-react";
+import { Users, Trophy, Medal, Filter, SearchX, Loader2 } from "lucide-react";
 import Search from "../../components/layout/Search";
-import Loader from "../../components/layout/Loader";
-import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
-
-// --- Types ---
-interface Paragraph {
-  author?: {
-    id: string;
-    name: string;
-  };
-}
-
-interface ScriptContext {
-  data: {
-    getScriptById?: {
-      paragraphs: Paragraph[];
-    };
-  };
-  loading: boolean;
-}
+import Dropdown from "../../components/layout/Dropdown";
+import { DropdownOption } from "../../types";
+import { GetScriptByIdQuery } from "../../graphql/generated/graphql";
 
 interface Contributor {
   id: string;
@@ -36,20 +20,21 @@ const filterOptions: DropdownOption[] = [
 ];
 
 const Contributors: React.FC = () => {
-  const { id: draftId } = useParams<{ id: string }>();
 
-  const { data, loading } = useOutletContext<ScriptContext>();
+  const { data, loading } = useOutletContext<{
+    data?: GetScriptByIdQuery;
+    loading: boolean;
+  }>();
+
   const paragraphs = data?.getScriptById?.paragraphs || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<DropdownOption>(
     filterOptions[0],
   );
 
-  // useMemo efficiently groups, counts, SORTS, and FILTERS the contributors
   const contributorsLeaderboard = useMemo(() => {
     const grouped: Record<string, Contributor> = {};
 
-    // 1. Group and Count
     paragraphs.forEach((item) => {
       const name = item.author?.name;
       const id = item.author?.id;
@@ -142,7 +127,7 @@ const Contributors: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full min-h-[70vh]">
-        <Loader />
+        <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
       </div>
     );
   }

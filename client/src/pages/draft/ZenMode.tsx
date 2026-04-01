@@ -2,10 +2,9 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Download, Check, FileText } from "lucide-react";
+import { ArrowLeft, Download, Check, FileText, Loader2 } from "lucide-react";
 import { motion, AnimatePresence, Transition } from "framer-motion";
 import { useGetScriptByIdQuery } from "../../graphql/generated/graphql";
-import Loader from "../../components/layout/Loader";
 
 const smoothTransition: Transition = {
   duration: 0.7,
@@ -67,7 +66,7 @@ const ZenMode = () => {
           transition={{ duration: 0.3 }}
           className="w-full min-h-[96vh] flex-1 flex items-center justify-center"
         >
-          <Loader />
+          <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
         </motion.div>
       ) : (
         <motion.div

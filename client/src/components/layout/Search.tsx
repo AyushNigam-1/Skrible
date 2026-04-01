@@ -2,13 +2,8 @@ import React from "react";
 import { Search as SearchIcon, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
+import { SearchProps } from "../../types";
 
-interface SearchProps {
-  value: string; // 🚨 FIX: Changed from initialValue to standard value
-  setSearch: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}
 
 const Search: React.FC<SearchProps> = ({
   value,

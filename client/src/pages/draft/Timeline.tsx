@@ -4,7 +4,7 @@ import { useLazyQuery } from "@apollo/client";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FileText } from "lucide-react";
+import { FileText, SearchX } from "lucide-react";
 import Loader from "../../components/layout/Loader";
 import Search from "../../components/layout/Search";
 import ContributeModal from "../../components/modal/ContributeModal";
@@ -136,12 +136,12 @@ const Timeline = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col gap-6 w-full mx-auto font-mono scrollbar-none"
+      className="space-y-4 w-full font-mono scrollbar-none"
     >
       {rawParagraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] md:min-h-[78vh] space-y-4 sm:space-y-5 relative overflow-hidden"
+          className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] md:min-h-[78vh] space-y-4 relative overflow-hidden"
         >
           <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
             <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -165,7 +165,7 @@ const Timeline = () => {
       )}
 
       {rawParagraphs.length > 0 && (
-        <motion.div variants={itemVariants} className="flex items-center justify-between gap-3 w-full">
+        <motion.div variants={itemVariants} className="flex items-center py-2 justify-between gap-3 w-full">
           <Search
             value={searchQuery}
             setSearch={setSearchQuery}
@@ -185,12 +185,24 @@ const Timeline = () => {
         <AnimatePresence mode="popLayout">
           {processedParagraphs.length === 0 && rawParagraphs.length > 0 ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-center text-gray-500 py-10"
+              key="contributions-empty"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4 relative overflow-hidden font-sans w-full min-h-[70vh]"
             >
-              No contributions match your search.
+              <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
+                <SearchX className="w-8 h-8 text-white" />
+              </div>
+
+              <h3 className="text-2xl font-bold text-white relative z-10">
+                No contributions found
+              </h3>
+
+              <p className="text-gray-400 max-w-md relative z-10 text-sm">
+                We couldn't find any results. Try adjusting your filters.
+              </p>
             </motion.div>
           ) : (
             processedParagraphs.map((p: any) => (

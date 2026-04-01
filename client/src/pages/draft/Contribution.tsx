@@ -128,24 +128,18 @@ const Contribution: React.FC = () => {
     }
   }, [paragraph]);
 
-  // ==========================================
-  // 🚨 THE FIX: Bulletproof Auto-Scroll Logic 
-  // ==========================================
+
   useEffect(() => {
-    // Only fire when loading is completely done and we actually have the data
     if (!paragraphLoading && !scriptLoading && paragraph) {
 
-      // Give Framer Motion 400ms to finish its enter/exit transition so the DOM is fully stable
       const timer = setTimeout(() => {
         const targetEl = document.getElementById("target-card");
         const headerEl = document.getElementById("sticky-header");
 
         if (targetEl) {
-          // Calculate the EXACT height of your sticky header (fallback to 70px if not found)
           const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 70;
-          const padding = 16; // Add a tiny bit of breathing room
+          const padding = 16;
 
-          // Calculate absolute exact Y coordinate on the page minus the header
           const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
           const finalScrollPosition = elementPosition - headerHeight - padding;
 
@@ -271,7 +265,10 @@ const Contribution: React.FC = () => {
   };
 
   const handleAddComment = async (submittedText: string) => {
-    if (!currentUser) return toast.error("Please log in to comment.");
+    if (!currentUser) {
+      toast.error("Please log in to comment.")
+      return
+    };
     try {
       const newComment = { text: submittedText, createdAt: Date.now().toString(), author: { username: currentUser.name } };
       setLocalComments((prev) => [...prev, newComment]);
@@ -340,7 +337,7 @@ const Contribution: React.FC = () => {
           <p>Failed to load contribution.</p>
         </motion.div>
       ) : (
-        <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full mx-auto flex flex-col font-mono relative space-y-6">
+        <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full mx-auto flex flex-col font-mono relative space-y-4">
 
           <div id="sticky-header" className="sticky top-0 z-40 w-full bg-primary backdrop-blur-xl py-2">
             <div className="flex flex-row items-center justify-between w-full gap-2">
@@ -357,7 +354,7 @@ const Contribution: React.FC = () => {
                     <Link to={`/profile/${paragraph.author.id}`} className="font-bold text-white truncate">
                       {paragraph?.author?.name || "Unknown Author"}
                     </Link>
-                    <p className="text-[10px] sm:text-xs text-gray-400 font-mono mt-0.5 truncate">
+                    <p className="text-xs text-gray-400 font-mono mt-0.5 truncate">
                       {formatDate(paragraph?.createdAt)}
                     </p>
                   </div>

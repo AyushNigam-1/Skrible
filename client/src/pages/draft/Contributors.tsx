@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Users, Trophy, Medal, Filter } from "lucide-react";
+import { Users, Trophy, Medal, Filter, SearchX } from "lucide-react";
 import Search from "../../components/layout/Search";
 import Loader from "../../components/layout/Loader";
 import Dropdown, { DropdownOption } from "../../components/layout/Dropdown";
@@ -152,7 +152,7 @@ const Contributors: React.FC = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col gap-6 w-full mx-auto font-mono"
+      className="space-y-4 w-full mx-auto font-mono"
     >
       {paragraphs.length === 0 && (
         <motion.div
@@ -177,7 +177,7 @@ const Contributors: React.FC = () => {
       {paragraphs.length > 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex items-center justify-between gap-3 relative z-20 w-full"
+          className="flex items-center justify-between gap-3 py-2 relative z-20 w-full"
         >
           <Search
             value={searchQuery}
@@ -248,16 +248,18 @@ const Contributors: React.FC = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-4 relative overflow-hidden"
+              className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4 relative overflow-hidden font-sans w-full min-h-[70vh]"
             >
               <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
-                <Users className="w-8 h-8 text-white" />
+                <SearchX className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white relative z-10 font-sans">
-                No matching contributors
+
+              <h3 className="text-2xl font-bold text-white relative z-10">
+                No contributors found
               </h3>
+
               <p className="text-gray-400 max-w-md relative z-10 text-sm">
-                Try adjusting your search term to find who you're looking for.
+                We couldn't find any results. Try adjusting your filters.
               </p>
             </motion.div>
           )}

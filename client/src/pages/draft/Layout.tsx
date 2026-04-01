@@ -195,7 +195,7 @@ const DraftLayout = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="flex flex-col w-full space-y-6"
+          className="flex flex-col w-full space-y-4"
         >
           <div className="flex flex-col space-y-4">
 
@@ -236,7 +236,7 @@ const DraftLayout = () => {
                       </h1>
                     </div>
 
-                    <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-xl md:p-0">
+                    <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-lg md:p-0">
 
                       {/* Like Button */}
                       <button

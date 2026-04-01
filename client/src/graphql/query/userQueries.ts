@@ -5,6 +5,7 @@ export const GET_USER_PROFILE = gql`
     getUserProfile(id: $id) {
       id
       name
+      username
       email
       bio
       languages

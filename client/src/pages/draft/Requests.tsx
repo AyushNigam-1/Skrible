@@ -14,7 +14,8 @@ import {
   XCircle,
   Clock,
   Activity,
-  AlertCircle
+  AlertCircle,
+  SearchX
 } from "lucide-react";
 
 import Loader from "../../components/layout/Loader";
@@ -211,9 +212,9 @@ const Requests: React.FC = () => {
             </div>
           </motion.div>
         ) : (
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full flex flex-col gap-6">
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="w-full space-y-4">
 
-            <motion.div variants={itemVariants} className="flex flex-row items-center justify-between w-full max-w-7xl mx-auto gap-2 sm:gap-4">
+            <motion.div variants={itemVariants} className="flex flex-row items-center py-2 justify-between w-full max-w-7xl mx-auto gap-2 sm:gap-4">
               <Search
                 value={searchQuery}
                 setSearch={handleSearchChange}
@@ -231,10 +232,26 @@ const Requests: React.FC = () => {
             </motion.div>
 
             {filteredParagraphs.length === 0 ? (
-              <motion.div variants={itemVariants} className="flex flex-col items-center justify-center py-20 text-gray-400 font-mono">
-                <SearchIcon className="mb-4 opacity-20" size={48} />
-                <p>No results found for this status.</p>
-                <button onClick={clearUserFilter} className="mt-4 text-xs text-indigo-400 hover:underline">Clear all filters</button>
+              <motion.div
+                key="filter-empty"
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-4 relative overflow-hidden font-sans min-h-[70vh]"
+              >
+                <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
+                  <SearchX className="w-8 h-8 text-white" />
+                </div>
+
+                <h3 className="text-2xl font-bold text-white relative z-10">
+                  No requests found
+                </h3>
+
+                <p className="text-gray-400 max-w-md relative z-10 text-sm">
+                  We couldn't find any results. Try adjusting your filters.
+                </p>
+
               </motion.div>
             ) : (
               <motion.div variants={containerVariants} className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">

@@ -87,7 +87,14 @@ const NotificationModal = () => {
         e.stopPropagation();
 
         const promise = acceptInvite({ variables: { scriptId } }).then(() => {
+            // 1. Show the satisfying "Accepted ✓" badge instantly
             setActionedNotifs(prev => ({ ...prev, [notifId]: "ACCEPTED" }));
+
+            // 2. Quietly delete the notification from the database 2 seconds later
+            // This ensures it NEVER comes back when you refresh the page!
+            setTimeout(() => {
+                deleteNotification({ variables: { id: notifId } }).catch(console.error);
+            }, 2000);
         });
 
         toast.promise(promise, {
@@ -103,6 +110,10 @@ const NotificationModal = () => {
 
         const promise = declineInvite({ variables: { scriptId } }).then(() => {
             setActionedNotifs(prev => ({ ...prev, [notifId]: "DECLINED" }));
+
+            setTimeout(() => {
+                deleteNotification({ variables: { id: notifId } }).catch(console.error);
+            }, 2000);
         });
 
         toast.promise(promise, {

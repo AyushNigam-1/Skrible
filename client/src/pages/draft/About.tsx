@@ -182,9 +182,8 @@ const EditableCard = ({
   );
 };
 
-// --- MAIN COMPONENT ---
+
 const ScriptDetails = () => {
-  // 🚨 UPDATED: Pull isEditorOrOwner from the Context provided by DraftLayout
   const { data, loading, isEditorOrOwner } = useOutletContext<ScriptDetailsContext>();
   const script = data?.getScriptById;
 
@@ -301,7 +300,7 @@ const ScriptDetails = () => {
       initial="hidden"
       animate="visible"
       id="details"
-      className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5 w-full mx-auto font-mono"
+      className="grid grid-cols-1 md:grid-cols-2 gap-3 py-2 sm:gap-4 md:gap-5 w-full mx-auto font-mono"
     >
       <EditableCard
         field="title"

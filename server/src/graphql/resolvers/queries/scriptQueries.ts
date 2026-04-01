@@ -92,6 +92,13 @@ export const scriptQueries = {
 
     const obj: any = script.toObject({ virtuals: true });
 
+    // 🚨 THE FIX: Filter out any pending or declined collaborators before sending to the frontend
+    if (obj.collaborators) {
+      obj.collaborators = obj.collaborators.filter(
+        (c: any) => c.status === "ACCEPTED"
+      );
+    }
+
     obj.createdAt = toUnixString(obj.createdAt);
     obj.updatedAt = toUnixString(obj.updatedAt);
 

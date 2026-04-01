@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../../components/layout/Sidebar";
+import { useUserStore } from "../../store/useAuthStore"; // 🚨 ADDED: Import your auth store
 
 const HomeLayout = () => {
   const location = useLocation();
+  const { user } = useUserStore(); // 🚨 ADDED: Get user state
+  const isLoggedIn = !!user?.id;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : true,
@@ -33,13 +36,16 @@ const HomeLayout = () => {
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const path = pathSegments[0];
 
+  // 🚨 THE FIX: Only show sidebar if they are logged in AND not in zen mode
+  const shouldShowSidebar = path !== "zen" && isLoggedIn;
+
   return (
     <div
-      className={`min-h-screen w-full relative ${path === "zen" ? "" : "flex"
+      className={`min-h-screen w-full relative ${!shouldShowSidebar ? "" : "flex"
         }`}
     >
       {/* Sidebar Open Button (Mobile/Closed state) */}
-      {path !== "zen" && !isSidebarOpen && (
+      {shouldShowSidebar && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="fixed top-1/2 left-0 -translate-y-1/2 z-50 py-6 px-1 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 border-l-0 text-gray-500 hover:text-white rounded-r-xl shadow-2xl transition-colors duration-200 group"
@@ -51,7 +57,7 @@ const HomeLayout = () => {
 
       {/* Mobile Backdrop Overlay */}
       <AnimatePresence>
-        {path !== "zen" && isSidebarOpen && (
+        {shouldShowSidebar && isSidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -64,7 +70,7 @@ const HomeLayout = () => {
       </AnimatePresence>
 
       {/* Sidebar Component */}
-      {path !== "zen" && (
+      {shouldShowSidebar && (
         <div
           className={`
             fixed inset-y-0 left-0 z-50 md:static md:z-auto
@@ -79,11 +85,8 @@ const HomeLayout = () => {
         </div>
       )}
 
-      {/* --- Main Content Area --- */}
       <div
-        className={`p-4 w-full ${path === "zen"
-          ? "container mx-auto"
-          : "flex-1 min-w-0" // min-w-0 prevents layout blowout on small screens
+        className={`p-4 w-full ${!shouldShowSidebar ? "container mx-auto" : "flex-1 min-w-0"
           }`}
       >
         <Outlet context={{ path }} />

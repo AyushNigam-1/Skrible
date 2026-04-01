@@ -23,7 +23,7 @@ import { toast } from "sonner";
 
 const profileSchemas = {
   name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name cannot exceed 50 characters"),
-  email: z.string().email("Please enter a valid email address"),
+  email: z.email("Please enter a valid email address"),
   languages: z.string().max(100, "Languages list is too long"),
   bio: z.string().max(500, "Bio cannot exceed 500 characters"),
 };
@@ -288,7 +288,7 @@ const Profile = () => {
                   </div>
                   <div className="relative z-10">
                     <h2 className="text-2xl font-bold text-white tracking-wide">{userProfile?.name}</h2>
-                    <p className="text-sm text-gray-400 font-medium mt-1">@{userProfile?.name?.toLowerCase()}</p>
+                    <p className="text-sm text-gray-400 font-medium mt-1">@{userProfile?.username}</p>
                   </div>
                   <div className="flex flex-col gap-2 w-full text-sm text-gray-400 font-medium relative z-10">
                     <div className="flex items-center justify-center gap-2 py-2 px-4 bg-white/5 rounded-xl border border-white/5">

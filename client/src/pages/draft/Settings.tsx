@@ -53,7 +53,6 @@ type VisibilityType = "Public" | "Private" | "Archived";
 const ROLE_OPTIONS = [
   { id: "EDITOR", name: "Editor" },
   { id: "CONTRIBUTOR", name: "Contributor" },
-  { id: "VIEWER", name: "Viewer" },
 ];
 
 const FILTER_OPTIONS = [

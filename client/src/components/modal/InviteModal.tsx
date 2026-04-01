@@ -13,26 +13,13 @@ import {
 import { X, Loader2, ChevronDown, Check, UserPlus, SendHorizonal } from "lucide-react";
 import { ADD_COLLABORATOR } from "../../graphql/mutation/scriptMutations";
 import { SEARCH_USERS } from "../../graphql/query/userQueries";
+import { toast } from "sonner";
 
 const ROLE_OPTIONS = [
   { value: "CONTRIBUTOR", label: "Contributor" },
   { value: "EDITOR", label: "Editor" },
-  { value: "VIEWER", label: "Viewer" },
 ];
 
-// const SEARCH_USERS = gql`
-//   query SearchUsers($query: String!) {
-//     searchUsers(query: $query) {
-//       id
-//       name
-//       username
-//       image
-//     }
-//   }
-// `;
-
-
-// 🚨 Extracted your custom classes
 const inputClass =
   "w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-gray-200 focus:bg-white/10 focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all outline-none placeholder:text-gray-600 text-sm font-sans shadow-inner disabled:opacity-50 disabled:cursor-not-allowed";
 const labelClass =
@@ -45,25 +32,22 @@ interface InviteCollaboratorProps {
 export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [emailTerm, setEmailTerm] = useState("");
-  const [focusedInput, setFocusedInput] = useState<"username" | "email" | null>(null);
-  const [debouncedTerm, setDebouncedTerm] = useState("");
+  // 🚨 THE FIX: Unified state for a single input field
+  const [inputValue, setInputValue] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [inviteRole, setInviteRole] = useState(ROLE_OPTIONS[0].value);
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTerm);
-
-  const activeTerm = focusedInput === "email" ? emailTerm : searchTerm;
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputValue);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedTerm(activeTerm), 300);
+    const timer = setTimeout(() => setDebouncedValue(inputValue), 300);
     return () => clearTimeout(timer);
-  }, [activeTerm]);
+  }, [inputValue]);
 
   const { data: searchData, loading: searchLoading, error: searchError } = useQuery(SEARCH_USERS, {
-    variables: { query: debouncedTerm },
-    skip: debouncedTerm.length < 2,
+    variables: { query: debouncedValue },
+    skip: debouncedValue.length < 2,
     fetchPolicy: "network-only",
   });
 
@@ -75,45 +59,37 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
 
   const [addCollaborator, { loading: isAddingCollab }] = useMutation(ADD_COLLABORATOR, {
     onCompleted: () => {
-      console.log("Invite sent successfully!");
+      toast.success("Invite sent successfully!");
       handleClose();
     },
     onError: (err) => {
-      console.error("Failed to send invite:", err.message);
-      alert(err.message);
+      toast.error(err.message || "Failed to send invite.");
     }
   });
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setFocusedInput("username");
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
     setSelectedUser(null);
-    if (emailTerm) setEmailTerm("");
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmailTerm(e.target.value);
-    setFocusedInput("email");
-    setSelectedUser(null);
-    if (searchTerm) setSearchTerm("");
   };
 
   const handleSelectUser = (user: any) => {
     setSelectedUser(user);
-
-    if (focusedInput === "email") {
-      setEmailTerm(user.email || user.username);
-      setSearchTerm("");
-      setFocusedInput("email");
-    } else {
-      setSearchTerm(`@${user.username}`);
-      setEmailTerm("");
-      setFocusedInput("username");
-    }
+    // Visual feedback that a specific user was selected
+    setInputValue(`@${user.username}`);
   };
 
   const handleInvite = () => {
-    const identifierToSend = selectedUser ? selectedUser.username : emailTerm;
+    // If they selected a user, send the username. Otherwise, send whatever raw text is in the input (like an email)
+    let identifierToSend = inputValue.trim();
+
+    // Clean up the '@' symbol if they typed it manually or if we added it during selection
+    if (identifierToSend.startsWith('@')) {
+      identifierToSend = identifierToSend.slice(1);
+    }
+
+    if (selectedUser) {
+      identifierToSend = selectedUser.username;
+    }
 
     if (!identifierToSend) return;
 
@@ -128,9 +104,7 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
 
   const handleClose = () => {
     setIsOpen(false);
-    setSearchTerm("");
-    setEmailTerm("");
-    setFocusedInput(null);
+    setInputValue("");
     setSelectedUser(null);
     setInviteRole(ROLE_OPTIONS[0].value);
   };
@@ -151,7 +125,7 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
         </div>
       ) : searchResults.length === 0 ? (
         <div className="p-4 text-center text-gray-500 text-sm">
-          {focusedInput === "email" && isValidEmail
+          {isValidEmail
             ? "Valid email. Press Invite to send."
             : "No users found."}
         </div>
@@ -210,40 +184,19 @@ export default function InviteCollaborator({ scriptId }: InviteCollaboratorProps
 
             <div className="p-6 flex flex-col gap-6">
 
+              {/* 🚨 THE FIX: Single Unified Input Field */}
               <div className="flex flex-col gap-2 relative z-30">
                 <label className={labelClass}>
-                  Username
+                  Username or Email
                 </label>
                 <input
                   type="text"
-                  placeholder="Search name or username..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  onFocus={() => setFocusedInput("username")}
+                  placeholder="Search username or enter email..."
+                  value={inputValue}
+                  onChange={handleInputChange}
                   className={inputClass}
                 />
-                {focusedInput === "username" && searchTerm.length >= 2 && !selectedUser && renderDropdown()}
-              </div>
-
-              <div className="flex items-center gap-4">
-                <hr className="flex-1 border-white/5" />
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OR</span>
-                <hr className="flex-1 border-white/5" />
-              </div>
-
-              <div className="flex flex-col gap-2 relative z-20">
-                <label className={labelClass}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="colleague@example.com"
-                  value={emailTerm}
-                  onChange={handleEmailChange}
-                  onFocus={() => setFocusedInput("email")}
-                  className={inputClass}
-                />
-                {focusedInput === "email" && emailTerm.length >= 2 && !selectedUser && renderDropdown()}
+                {inputValue.length >= 2 && !selectedUser && renderDropdown()}
               </div>
 
               <div className="flex flex-col gap-2 relative z-10 mt-1">

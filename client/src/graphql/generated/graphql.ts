@@ -776,7 +776,7 @@ export type GetUserProfileQueryVariables = Exact<{
 }>;
 
 
-export type GetUserProfileQuery = { __typename?: 'Query', getUserProfile: { __typename?: 'User', id?: string | null, name: string, email: string, bio?: string | null, languages?: Array<string | null> | null, favourites?: Array<string | null> | null, likes?: Array<string | null> | null, followers?: Array<string | null> | null, follows?: Array<string | null> | null, views?: Array<string | null> | null } };
+export type GetUserProfileQuery = { __typename?: 'Query', getUserProfile: { __typename?: 'User', id?: string | null, name: string, username?: string | null, email: string, bio?: string | null, languages?: Array<string | null> | null, favourites?: Array<string | null> | null, likes?: Array<string | null> | null, followers?: Array<string | null> | null, follows?: Array<string | null> | null, views?: Array<string | null> | null } };
 
 export type GetUserScriptsQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -2457,6 +2457,7 @@ export const GetUserProfileDocument = gql`
   getUserProfile(id: $id) {
     id
     name
+    username
     email
     bio
     languages

@@ -341,8 +341,12 @@ export const scriptMutations = {
       throw new GraphQLError("Only the author can clear the script");
     }
 
-    // Wipe all paragraphs
+    await Paragraph.deleteMany({ script: scriptId });
+
     script.paragraphs = [];
+
+    script.combinedText = "";
+
     await script.save();
 
     await invalidateScriptCache(context.redis, scriptId);
@@ -556,7 +560,8 @@ export const scriptMutations = {
       userId,
       "REQUEST",
       `${userName} invited you to collaborate on a draft.`,
-      `/timeline/${scriptId}`
+      `/timeline/${scriptId}`,
+      scriptDoc.title
     );
 
     await invalidateScriptCache(context.redis, scriptId);
@@ -667,13 +672,16 @@ export const scriptMutations = {
       throw new GraphQLError("Invitation not found or already accepted.");
     }
 
-    // 🚨 NOTIFICATION: Let the script owner know they accepted!
+    const firstName = getFirstName(context.user?.name);
+    const draftTitle = getCleanTitle(updatedScript);
+
     await dispatchNotification(
       updatedScript.author,
       userId,
       "INFO",
-      `{name} accepted your invitation to collaborate.`,
-      `/script/${scriptId}`
+      `${firstName} accepted your invitation to collaborate.`,
+      `/timeline/${scriptId}`,
+      draftTitle
     );
 
     await invalidateScriptCache(context.redis, scriptId);

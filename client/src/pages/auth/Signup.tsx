@@ -58,7 +58,7 @@ const CreateAccount: React.FC = () => {
     setLoading(true);
     await authClient.signIn.social({
       provider: provider,
-      callbackURL: "http://localhost:5173/explore",
+      callbackURL: `${import.meta.env.VITE_CLIENT_URL}/explore`,
     });
     setLoading(false);
   };

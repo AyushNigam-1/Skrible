@@ -14,7 +14,8 @@ export const auth = betterAuth({
     baseURL: process.env.BASE_URL || "http://localhost:3000",
     trustedOrigins: [
         "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "https://skribe-workspace.vercel.app"
     ],
     plugins: [
         bearer()
@@ -65,7 +66,7 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        sendResetPassword: async ({ user, url, token }) => {
+        sendResetPassword: async ({ user, url }) => {
             console.log(`[TESTING] Password reset link for ${user.email}: ${url}`);
 
             try {
@@ -105,4 +106,10 @@ export const auth = betterAuth({
             clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
         },
     },
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV === "production",
+        }
+    }
 });

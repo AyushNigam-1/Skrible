@@ -7,12 +7,29 @@ import {
   from,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import { setContext } from "@apollo/client/link/context";
+import { authClient } from "../lib/authClient";
 
-const uri = `http://${window.location.hostname}:3000/graphql`;
+const uri = import.meta.env.VITE_GRAPHQL_URL;
 
 const httpLink = new HttpLink({
-  uri,
-  credentials: "include",
+  uri: `${uri}/graphql`,
+});
+
+const authLink = setContext(async (_, { headers }) => {
+  try {
+    const { data } = await authClient.getSession();
+    const token = data?.session?.token;
+
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : "",
+      },
+    };
+  } catch (error) {
+    return { headers };
+  }
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -48,7 +65,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const client = new ApolloClient({
-  link: from([errorLink, httpLink]),
+  link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache({}),
 });
 

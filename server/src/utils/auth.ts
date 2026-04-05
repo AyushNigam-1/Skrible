@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 import { Resend } from "resend";
+import { bearer } from "better-auth/plugins";
 
 const client = new MongoClient(process.env.MONGO_URI as string);
 const db = client.db();
@@ -15,7 +16,9 @@ export const auth = betterAuth({
         "http://localhost:5173",
         "http://127.0.0.1:5173"
     ],
-
+    plugins: [
+        bearer()
+    ],
     user: {
         additionalFields: {
             username: {

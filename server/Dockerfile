@@ -1,13 +1,23 @@
 FROM node:20-alpine
 
+ENV NODE_ENV=production
+
+ENV PORT=7860
+EXPOSE 7860
+
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --include=dev
 
 COPY . .
 
-EXPOSE 3000
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+RUN npm prune --production
+
+RUN chown -R node:node /app
+USER node
+
+CMD ["npm", "start"]

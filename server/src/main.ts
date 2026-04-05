@@ -20,8 +20,11 @@ import { initSocket } from "./utils/socket";
 dotenv.config();
 
 const envSchema = z.object({
-  PORT: z.string().default("4000"),
+  PORT: z.string().default("7860"),
   MONGO_URI: z.url(),
+  FRONTEND_URL: z.url().default("http://localhost:5173"),
+  BETTER_AUTH_URL: z.url().optional(),
+  BETTER_AUTH_SECRET: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   LOG_LEVEL: z.string().default("info"),
 });
@@ -36,19 +39,18 @@ const env = envParsed.data;
 const isDev = env.NODE_ENV !== "production";
 
 export const logger = pino({
-  level: process.env.NODE_ENV === "development" ? "debug" : "info",
-  transport:
-    process.env.NODE_ENV === "development"
-      ? {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "SYS:HH:MM:ss",
-          ignore: "pid,hostname,req,res,responseTime",
-          messageFormat: "{msg}",
-        },
-      }
-      : undefined,
+  level: env.LOG_LEVEL,
+  transport: isDev
+    ? {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "SYS:HH:MM:ss",
+        ignore: "pid,hostname,req,res,responseTime",
+        messageFormat: "{msg}",
+      },
+    }
+    : undefined,
 });
 
 const startServer = async () => {
@@ -64,8 +66,10 @@ const startServer = async () => {
   }
 
   const app = express();
-  const httpServer = createServer(app);
 
+  app.set("trust proxy", 1);
+
+  const httpServer = createServer(app);
   initSocket(httpServer);
 
   const server = graphqlServer();
@@ -84,7 +88,7 @@ const startServer = async () => {
 
   app.use(
     cors({
-      origin: ["http://localhost:5173", "http://10.98.145.43:5173/"],
+      origin: [env.FRONTEND_URL, "http://localhost:5173"],
       methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
     }),
@@ -131,8 +135,9 @@ const startServer = async () => {
   );
 
   httpServer.listen(port, "0.0.0.0", () => {
-    logger.info(`🚀 HTTP & Socket.io Server started on port ${port}`);
+    logger.info(`🚀 HTTP & Socket.io Server started on port ${port} in ${env.NODE_ENV} mode`);
   });
 };
 
 startServer();
+

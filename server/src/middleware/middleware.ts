@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { auth } from "../utils/auth"; // <-- Point this to your new auth.ts file
+import { auth } from "../utils/auth";
 import { fromNodeHeaders } from "better-auth/node";
 
 declare global {
@@ -20,12 +20,10 @@ export const authenticate = async (
   next: NextFunction,
 ) => {
   try {
-    // 1. Let Better Auth securely verify the cookies/headers
     const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
+      headers: fromNodeHeaders(req.headers) as Headers,
     });
 
-    // 2. Attach the user if the session is valid
     if (session?.user) {
       req.user = {
         id: session.user.id,
@@ -41,7 +39,6 @@ export const authenticate = async (
     const operationName = req.body?.operationName;
     const query = req.body?.query || "";
 
-    // Removed "RefreshToken" and "Logout" as Better Auth handles those automatically via REST!
     const allowedOperations = [
       "Register",
       "Login",
@@ -60,7 +57,6 @@ export const authenticate = async (
       isIntrospection;
 
     if (!req.user && !isAllowed) {
-      // 3. Return the exact same Apollo error format your frontend expects
       return res.status(401).json({
         errors: [
           {

@@ -21,7 +21,7 @@ export default defineConfig({
 
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "logo.png"],
       workbox: {
-        navigateFallbackDenylist: [/^\/graphql/],
+        navigateFallbackDenylist: [/^\/graphql/, /^\/api\/auth\/.*$/],
         cleanupOutdatedCaches: true,
       },
       manifest: {

@@ -13,7 +13,7 @@ import { authClient } from "../lib/authClient";
 const uri = import.meta.env.VITE_GRAPHQL_URL;
 
 const httpLink = new HttpLink({
-  uri: `${uri}/graphql`,
+  uri: `/graphql`,
 });
 
 const authLink = setContext(async (_, { headers }) => {

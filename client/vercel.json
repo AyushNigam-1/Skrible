@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:match*",
+            "destination": "https://ayush456-skrible.hf.space/api/:match*"
+        },
+        {
+            "source": "/graphql",
+            "destination": "https://ayush456-skrible.hf.space/graphql"
+        }
+    ]
+}

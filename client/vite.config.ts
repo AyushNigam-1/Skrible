@@ -18,7 +18,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "logo.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/graphql/, /^\/api\/auth\/.*$/],

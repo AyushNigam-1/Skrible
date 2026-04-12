@@ -88,6 +88,7 @@ export interface Comment {
     text: string;
     createdAt: string | number;
     author: {
+        id: string
         name?: string;
         username?: string;
     };

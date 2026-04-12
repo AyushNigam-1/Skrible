@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Feather, Loader2, Mail, Lock, User, AlertCircle, Github } from "lucide-react";
+import { Loader2, Mail, Lock, User, AlertCircle, Github } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,7 +58,7 @@ const CreateAccount: React.FC = () => {
     setLoading(true);
     await authClient.signIn.social({
       provider: provider,
-      callbackURL: `${import.meta.env.VITE_CLIENT_URL}/explore`,
+      callbackURL: `${window.location.origin}/explore`,
     });
     setLoading(false);
   };
@@ -80,25 +80,23 @@ const CreateAccount: React.FC = () => {
       animate="visible"
       className="w-full max-w-[420px] mx-auto flex flex-col gap-8 p-8 sm:p-10 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl relative"
     >
-      {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
+          <h1 className="text-2xl font-mono sm:text-3xl font-bold text-white tracking-tight">
             Join Skribe
           </h1>
-          <p className="text-gray-400 text-sm mt-1.5 font-sans">
+          <p className="text-gray-400 font-mono text-sm mt-1.5">
             Start your journey and collaborate with writers worldwide.
           </p>
         </div>
       </motion.div>
 
-      {/* Social Logins */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => handleSocialLogin("google")}
           disabled={loading}
-          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center font-mono items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -112,14 +110,13 @@ const CreateAccount: React.FC = () => {
           type="button"
           onClick={() => handleSocialLogin("github")}
           disabled={loading}
-          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center font-mono items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
           <Github className="w-4 h-4" />
           Github
         </button>
       </motion.div>
 
-      {/* Divider */}
       <motion.div variants={itemVariants} className="flex items-center gap-4">
         <hr className="flex-grow border-white/10" />
         <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-bold font-mono">
@@ -128,10 +125,8 @@ const CreateAccount: React.FC = () => {
         <hr className="flex-grow border-white/10" />
       </motion.div>
 
-      {/* Form */}
       <motion.form variants={itemVariants} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
-        {/* Name Field */}
         <div className="flex flex-col gap-1.5 w-full">
           <label htmlFor="name" className="text-[10px] sm:text-xs font-mono text-gray-400 uppercase tracking-widest ml-1">
             Display Name
@@ -210,14 +205,14 @@ const CreateAccount: React.FC = () => {
         <button
           type="submit"
           disabled={loading || !isValid}
-          className="w-full flex justify-center items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+          className="w-full flex justify-center font-mono items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
+          {loading ? <Loader2 className="size-8 animate-spin" /> : "Create Account"}
         </button>
       </motion.form>
 
       {/* Footer */}
-      <motion.div variants={itemVariants} className="text-sm text-gray-500 text-center font-sans mt-2">
+      <motion.div variants={itemVariants} className="text-sm text-gray-500 text-center font-mono mt-2">
         <p>
           Already have an account?{" "}
           <Link to="/login" className="font-bold text-gray-300 hover:text-white transition-colors">

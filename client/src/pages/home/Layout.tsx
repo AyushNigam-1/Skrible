@@ -3,12 +3,9 @@ import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../../components/layout/Sidebar";
-import { useUserStore } from "../../store/useAuthStore";
 
 const HomeLayout = () => {
   const location = useLocation();
-  const { user } = useUserStore();
-  const isLoggedIn = !!user?.id;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : true,
@@ -36,22 +33,21 @@ const HomeLayout = () => {
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const path = pathSegments[0];
 
-  // 🚨 THE FIX: Only show sidebar if they are logged in AND not in zen mode
-  const shouldShowSidebar = path !== "zen" && isLoggedIn;
+  // 🚨 THE FIX: Show sidebar permanently, except in zen mode
+  const shouldShowSidebar = path !== "zen";
 
   return (
     <div
       className={`min-h-screen w-full relative ${!shouldShowSidebar ? "" : "flex"
         }`}
     >
-      {/* Sidebar Open Button (Mobile/Closed state) */}
       {shouldShowSidebar && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="fixed top-1/2 left-0 -translate-y-1/2 z-50 py-6 px-1 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 border-l-0 text-gray-500 hover:text-white rounded-r-xl shadow-2xl transition-colors duration-200 group"
           title="Open Sidebar"
         >
-          <ChevronRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
+          <ChevronRight className="size-4 md:size-5 opacity-50 group-hover:opacity-100 transition-opacity" />
         </button>
       )}
 

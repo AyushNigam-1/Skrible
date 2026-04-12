@@ -96,7 +96,6 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             await authClient.signOut({
               fetchOptions: {
                 onSuccess: () => {
-                  localStorage.removeItem("user");
                   window.location.href = "/login";
                 },
               },

@@ -273,7 +273,7 @@ const DraftSettings: React.FC = () => {
 
   if (loading || !script || !isHydrated) {
     return (
-      <div className="flex items-center justify-center w-full min-h-[50vh]">
+      <div className="flex items-center justify-center w-full min-h-[70vh]">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );
@@ -403,43 +403,101 @@ const DraftSettings: React.FC = () => {
           </div>
 
           <div className="flex flex-col relative z-10 text-left">
+            {/* CLEAR CONTENT SECTION */}
             <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
               <div className="w-full md:w-auto">
                 <p className="font-bold text-white text-sm">Clear All Content</p>
-                <p className="text-sm text-gray-400 mt-1 font-sans">Erase all paragraphs and contributions. This acts as a hard reset for the draft's text.</p>
+                <p className="text-sm text-gray-400 mt-1 font-sans">
+                  Erase all paragraphs and contributions. This acts as a hard reset for the draft's text.
+                </p>
               </div>
               <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
                 <AnimatePresence mode="wait">
                   {!isConfirmingClearContent ? (
-                    <motion.button key="clear-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingClearContent(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                    <motion.button
+                      key="clear-btn"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={() => setIsConfirmingClearContent(true)}
+                      className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto"
+                    >
                       Clear Content
                     </motion.button>
                   ) : (
-                    <motion.div key="confirm-clear" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                      <button onClick={() => setIsConfirmingClearContent(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                      <button onClick={handleClearContent} disabled={isClearing} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><FileMinus className="w-4 h-4" /> {isClearing ? "Clearing..." : "Yes, Clear It"}</button>
+                    <motion.div
+                      key="confirm-clear"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ type: "tween", ease: "easeOut", duration: 0.2 }}
+                      className="flex items-center gap-2.5 w-full md:w-auto"
+                    >
+                      <button
+                        onClick={() => setIsConfirmingClearContent(false)}
+                        className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95 shrink-0"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleClearContent}
+                        disabled={isClearing}
+                        className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95 whitespace-nowrap"
+                      >
+                        <FileMinus className="w-4 h-4" /> {isClearing ? "Clearing..." : "Yes, Clear It"}
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </div>
 
+            {/* REMOVE MEMBERS SECTION */}
             {script?.collaborators && script.collaborators.length > 0 && (
               <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-red-900/30">
                 <div className="w-full md:w-auto">
                   <p className="font-bold text-white text-sm">Remove All Members</p>
-                  <p className="text-sm text-gray-400 mt-1 font-sans">Kick all invited collaborators at once. The draft will remain but only you will have access.</p>
+                  <p className="text-sm text-gray-400 mt-1 font-sans">
+                    Kick all invited collaborators at once. The draft will remain but only you will have access.
+                  </p>
                 </div>
                 <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
                   <AnimatePresence mode="wait">
                     {!isConfirmingKickAll ? (
-                      <motion.button key="kick-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingKickAll(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                      <motion.button
+                        key="kick-btn"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        onClick={() => setIsConfirmingKickAll(true)}
+                        className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto"
+                      >
                         Remove Members
                       </motion.button>
                     ) : (
-                      <motion.div key="confirm-kick" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                        <button onClick={() => setIsConfirmingKickAll(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                        <button onClick={handleKickAll} disabled={isKicking} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><UserMinus className="w-4 h-4" /> {isKicking ? "Removing..." : "Yes, Kick All"}</button>
+                      <motion.div
+                        key="confirm-kick"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ type: "tween", ease: "easeOut", duration: 0.2 }}
+                        className="flex items-center gap-2.5 w-full md:w-auto"
+                      >
+                        <button
+                          onClick={() => setIsConfirmingKickAll(false)}
+                          className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95 shrink-0"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleKickAll}
+                          disabled={isKicking}
+                          className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95 whitespace-nowrap"
+                        >
+                          <UserMinus className="w-4 h-4" /> {isKicking ? "Removing..." : "Yes, Kick All"}
+                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -447,27 +505,55 @@ const DraftSettings: React.FC = () => {
               </div>
             )}
 
+            {/* DELETE DRAFT SECTION */}
             <div className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="w-full md:w-auto">
                 <p className="font-bold text-white text-sm">Delete this Draft</p>
-                <p className="text-sm text-gray-400 mt-1 font-sans">Once deleted, there is no going back. All text and members will be erased forever.</p>
+                <p className="text-sm text-gray-400 mt-1 font-sans">
+                  Once deleted, there is no going back. All text and members will be erased forever.
+                </p>
               </div>
               <div className="w-full md:w-auto mt-2 md:mt-0 flex justify-start md:justify-end">
                 <AnimatePresence mode="wait">
                   {!isConfirmingDelete ? (
-                    <motion.button key="delete-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsConfirmingDelete(true)} className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto">
+                    <motion.button
+                      key="delete-btn"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={() => setIsConfirmingDelete(true)}
+                      className="px-6 py-2.5 border border-red-900/50 text-red-500 hover:bg-red-950/40 hover:border-red-500/50 rounded-xl font-bold transition-all text-sm shadow-sm active:scale-95 w-full md:w-auto"
+                    >
                       Delete Draft
                     </motion.button>
                   ) : (
-                    <motion.div key="confirm-delete" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex items-center gap-3 w-full md:w-auto">
-                      <button onClick={() => setIsConfirmingDelete(false)} className="flex-1 md:flex-none px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95">Cancel</button>
-                      <button onClick={handleDelete} disabled={isDeleting} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95"><Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Yes, Delete It"}</button>
+                    <motion.div
+                      key="confirm-delete"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ type: "tween", ease: "easeOut", duration: 0.2 }}
+                      className="flex items-center gap-2.5 w-full md:w-auto"
+                    >
+                      <button
+                        onClick={() => setIsConfirmingDelete(false)}
+                        className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 rounded-xl font-bold transition-colors text-sm active:scale-95 shrink-0"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className="flex-1 md:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg text-sm active:scale-95 whitespace-nowrap"
+                      >
+                        <Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Yes, Delete It"}
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </div>
-
           </div>
         </motion.div>
       )}

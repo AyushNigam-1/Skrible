@@ -60,7 +60,6 @@ const NotificationModal = () => {
         },
     });
 
-    // 🚨 REPLACED: useMutation with generated hook & safely unwrapped `data`
     const [deleteNotification] = useDeleteNotificationMutation({
         update(cache, { data }, { variables }) {
             if (data?.deleteNotification) {
@@ -86,7 +85,6 @@ const NotificationModal = () => {
         }
     });
 
-    // 🚨 REPLACED: useMutation with generated hooks
     const [acceptInvite, { loading: accepting }] = useAcceptInvitationMutation();
     const [declineInvite, { loading: declining }] = useDeclineInvitationMutation();
 
@@ -95,11 +93,8 @@ const NotificationModal = () => {
         e.stopPropagation();
 
         const promise = acceptInvite({ variables: { scriptId } }).then(() => {
-            // 1. Show the satisfying "Accepted ✓" badge instantly
             setActionedNotifs(prev => ({ ...prev, [notifId]: "ACCEPTED" }));
 
-            // 2. Quietly delete the notification from the database 2 seconds later
-            // This ensures it NEVER comes back when you refresh the page!
             setTimeout(() => {
                 deleteNotification({ variables: { id: notifId } }).catch(console.error);
             }, 2000);
@@ -267,7 +262,6 @@ const NotificationModal = () => {
                             ) : (
                                 <AnimatePresence initial={false}>
                                     {notifications.map((notif) => {
-                                        // Auto-inferred typing skips null checks on map automatically
                                         if (!notif) return null;
 
                                         const fallbackPrimaryText = notif.message?.replace(/ on (your )?draft ".*?"/i, "").replace(/your draft/i, "your contribution") || "";
@@ -286,17 +280,14 @@ const NotificationModal = () => {
                                                 <Link
                                                     to={notif.link || "#"}
                                                     onClick={handleCloseModal}
-                                                    className={`flex items-start gap-4 p-5 hover:bg-white/5 transition-colors ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
+                                                    className={`flex items-start gap-4 px-3 py-5 md:p-5 hover:bg-white/5 transition-colors ${!notif.isRead ? "bg-blue-500/[0.03]" : ""}`}
                                                 >
                                                     <div className={`shrink-0 mt-0.5 size-10 rounded-full border flex items-center justify-center transition-colors bg-white/5 border-white/10`}>
                                                         {getIcon(notif.type)}
                                                     </div>
-
                                                     <div className="flex flex-col gap-1 flex-1 min-w-0 pr-8">
-
-                                                        {/* Main Text & Unread Dot Row */}
                                                         <div className="flex justify-between items-start gap-4">
-                                                            <p className={`text-sm leading-snug ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
+                                                            <p className={`font-semibold text-sm md:text-base leading-snug ${!notif.isRead ? "text-white font-semibold" : "text-gray-300"}`}>
                                                                 {notif.draftTitle ? notif.message : fallbackPrimaryText}
                                                             </p>
                                                             {!notif.isRead && (
@@ -304,11 +295,10 @@ const NotificationModal = () => {
                                                             )}
                                                         </div>
 
-                                                        {/* Draft Title & Time Row */}
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             {notif.draftTitle && (
                                                                 <p className="text-xs text-gray-500 font-mono truncate">
-                                                                    <span className="text-gray-300 font-semibold">{notif.draftTitle}</span>
+                                                                    <span className="text-gray-300">- {notif.draftTitle}</span>
                                                                 </p>
                                                             )}
                                                             {notif.draftTitle && <span className="text-gray-600 text-[10px]">•</span>}
@@ -317,7 +307,6 @@ const NotificationModal = () => {
                                                             </span>
                                                         </div>
 
-                                                        {/* Request Buttons */}
                                                         {notif.type === "REQUEST" && (
                                                             <div className="mt-2">
                                                                 {actionedNotifs[notif.id] === "ACCEPTED" ? (
@@ -351,8 +340,12 @@ const NotificationModal = () => {
                                                     </div>
                                                 </Link>
 
-                                                {/* UPGRADED Delete Button */}
-                                                <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${isDeleting ? "opacity-100 pointer-events-auto" : "opacity-0 group-hover/notif:opacity-100 pointer-events-none group-hover/notif:pointer-events-auto"}`}>
+                                                <div
+                                                    className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${isDeleting
+                                                        ? "opacity-100 pointer-events-auto"
+                                                        : "opacity-100 pointer-events-auto md:opacity-0 md:pointer-events-none md:group-hover/notif:opacity-100 md:group-hover/notif:pointer-events-auto"
+                                                        }`}
+                                                >
                                                     <button
                                                         disabled={isDeleting}
                                                         onClick={(e) => handleDelete(e, notif.id)}

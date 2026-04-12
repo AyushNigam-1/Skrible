@@ -56,7 +56,7 @@ const Login: React.FC = () => {
     setLoading(true);
     await authClient.signIn.social({
       provider: provider,
-      callbackURL: `${import.meta.env.VITE_CLIENT_URL}/explore`,
+      callbackURL: `${window.location.origin}/explore`,
     });
     setLoading(false);
   };
@@ -81,11 +81,11 @@ const Login: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-mono">
             Welcome Back
           </h1>
-          <p className="text-gray-400 text-sm mt-1.5 font-sans">
-            Enter your credentials to access your manuscripts.
+          <p className="text-gray-400 text-sm mt-1.5 font-mono">
+            Enter your credentials to access your drafts.
           </p>
         </div>
       </motion.div>
@@ -96,7 +96,7 @@ const Login: React.FC = () => {
           type="button"
           onClick={() => handleSocialLogin("google")}
           disabled={loading}
-          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center items-center font-mono gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -110,7 +110,7 @@ const Login: React.FC = () => {
           type="button"
           onClick={() => handleSocialLogin("github")}
           disabled={loading}
-          className="flex justify-center items-center gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
+          className="flex justify-center items-center font-mono gap-2.5 bg-white/5 text-gray-300 font-semibold rounded-xl hover:bg-white/10 hover:text-white border border-white/10 transition-all duration-200 py-3 text-sm active:scale-[0.98] disabled:opacity-50"
         >
           <Github className="w-4 h-4" />
           Github
@@ -188,18 +188,18 @@ const Login: React.FC = () => {
         <button
           type="submit"
           disabled={loading || !isValid}
-          className="w-full flex justify-center items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+          className="w-full flex justify-center font-mono items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+          {loading ? <Loader2 className="size-5 animate-spin" /> : "Sign In"}
         </button>
       </motion.form>
 
       {/* Footer */}
-      <motion.div variants={itemVariants} className="text-sm text-gray-500 text-center font-sans mt-2">
+      <motion.div variants={itemVariants} className="text-sm font-mono text-gray-500 text-center mt-2">
         <p>
           Don't have an account?{" "}
           <Link to="/create-account" className="font-bold text-gray-300 hover:text-white transition-colors">
-            Start writing today
+            Create Account
           </Link>
         </p>
       </motion.div>

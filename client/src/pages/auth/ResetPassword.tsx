@@ -84,27 +84,13 @@ const ResetPassword: React.FC = () => {
         >
             {/* Header */}
             <motion.div variants={itemVariants} className="flex flex-col items-center text-center gap-4">
-                <AnimatePresence mode="wait">
-                    {isSuccess ? (
-                        <motion.div
-                            key="success-icon"
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner"
-                        >
-                            <CheckCircle2 className="w-6 h-6 text-green-400" strokeWidth={1.5} />
-                        </motion.div>
-                    ) : (
-                        /* 🚨 Leaf Icon Excluded as requested */
-                        <div className="h-2" />
-                    )}
-                </AnimatePresence>
+
 
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-mono">
                         {isSuccess ? "All Set!" : "New Password"}
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1.5 font-sans px-2">
+                    <p className="text-gray-400 text-sm mt-1.5 font-mono px-2">
                         {isSuccess
                             ? "Your password has been reset successfully. Redirecting you to login..."
                             : "Please enter your new credentials to regain access."}
@@ -168,9 +154,9 @@ const ResetPassword: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading || !isValid}
-                        className="w-full flex justify-center items-center gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                        className="w-full flex justify-center items-center font-mono gap-2 bg-white hover:bg-gray-200 text-black py-3.5 rounded-xl transition-all duration-200 font-bold text-sm active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reset Password"}
+                        {loading ? <Loader2 className="size-5 animate-spin" /> : "Reset Password"}
                     </button>
                 </motion.form>
             )}

@@ -66,7 +66,7 @@ const ZenMode = () => {
           transition={{ duration: 0.3 }}
           className="w-full min-h-[96vh] flex-1 flex items-center justify-center"
         >
-          <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+          <Loader2 className="size-8 shrink-0 animate-spin" />
         </motion.div>
       ) : (
         <motion.div

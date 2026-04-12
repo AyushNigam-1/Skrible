@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from "@headlessui/react";
 import { X, MessageSquare, Loader2, SendHorizontal } from "lucide-react";
 import { DiscussionPanelProps } from "../../types";
+import { authClient } from "../../lib/authClient";
 
 const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
   isOpen,
@@ -10,19 +11,19 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
   comments,
   onAddComment,
   isCommenting,
-  currentUserName,
 }) => {
   const [commentText, setCommentText] = useState("");
   const [isMounted, setIsMounted] = useState(false);
 
-  // 🚨 THE FIX 1: We target the container itself, not an empty div at the bottom
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user?.id;
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // 🚨 THE FIX 2: A bulletproof scroll function that NEVER scrolls the main page
   const scrollToBottom = (behavior: "auto" | "smooth" = "smooth") => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({
@@ -32,7 +33,6 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
     }
   };
 
-  // Jump to bottom instantly when opened
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => scrollToBottom("auto"), 100);
@@ -40,7 +40,6 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
     }
   }, [isOpen]);
 
-  // Glide smoothly to bottom when a NEW comment is added
   useEffect(() => {
     if (isOpen && comments.length > 0) {
       const timer = setTimeout(() => scrollToBottom("smooth"), 100);
@@ -74,8 +73,6 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
 
   if (!isMounted) return null;
 
-  const safeCurrentUserName = currentUserName?.trim().toLowerCase() || "";
-
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-[9999]">
       <DialogBackdrop
@@ -89,7 +86,6 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
             transition
             className="bg-primary relative z-10 flex flex-col w-full max-w-2xl h-[75vh] min-h-[500px] max-h-[85vh] border border-white/10 rounded-3xl shadow-2xl overflow-hidden font-sans transition duration-500 ease-out data-[closed]:scale-95 data-[closed]:opacity-0 data-[closed]:translate-y-4"
           >
-            {/* Modal Header */}
             <div className="flex justify-between items-center p-4 sm:p-5 border-b border-white/10 shrink-0 bg-white/5">
               <DialogTitle className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
                 Discussion
@@ -98,14 +94,13 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                 onClick={onClose}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors active:scale-95 outline-none"
               >
-                <X size={20} />
+                <X className="size-5" />
               </button>
             </div>
 
             {/* Modal Content Area */}
             <div className="flex-1 flex flex-col h-full w-full bg-transparent overflow-hidden">
 
-              {/* 🚨 THE FIX 3: Attached the ref exactly to the scrolling container */}
               <div
                 ref={scrollContainerRef}
                 className="flex-1 flex flex-col gap-5 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20"
@@ -114,7 +109,8 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                   {comments.length > 0 ? (
                     comments.map((comment, i) => {
                       const authorName = comment.author?.name || comment.author?.username || "Unknown";
-                      const isCurrentUser = safeCurrentUserName !== "" && authorName.trim().toLowerCase() === safeCurrentUserName;
+                      // Exact ID match using Better Auth
+                      const isCurrentUser = currentUserId && comment.author?.id === currentUserId;
 
                       return (
                         <motion.div
@@ -126,14 +122,14 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                         >
                           <div className={`flex items-start gap-2.5 max-w-[85%] sm:max-w-[75%] ${isCurrentUser ? "flex-row-reverse" : "flex-row"}`}>
                             <div className={`size-8 sm:size-9 shrink-0 rounded-full flex items-center justify-center font-bold text-xs shadow-inner mt-0.5 ${isCurrentUser
-                              ? "bg-indigo-500/20 border border-indigo-500/30 text-indigo-200"
-                              : "bg-white/10 border border-white/10 text-gray-300"
+                              ? "bg-white/5 border border-white/10 text-gray-200"
+                              : "bg-white/5 border border-white/10 text-gray-300"
                               }`}>
                               {authorName.charAt(0).toUpperCase()}
                             </div>
 
                             <div className={`flex flex-col p-2.5 sm:p-3 pb-1.5 sm:pb-1.5 min-w-[100px] shadow-sm ${isCurrentUser
-                              ? "bg-indigo-600/20 border border-indigo-500/30 rounded-2xl rounded-tr-sm"
+                              ? "bg-white/5 border border-white/10 rounded-2xl rounded-tr-sm"
                               : "bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm"
                               }`}>
                               {!isCurrentUser && (
@@ -171,7 +167,7 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
               </div>
 
               {/* Input Area */}
-              <div className="p-4 sm:p-5 bg-white/[0.02] shrink-0 border-t border-white/10 backdrop-blur-md">
+              <div className="p-4 sm:p-5 bg-white/5 flex gap-2 shrink-0 border-t border-white/10 backdrop-blur-md">
                 <div className="relative flex items-center w-full">
                   <input
                     value={commentText}
@@ -179,21 +175,21 @@ const DiscussionPanel: React.FC<DiscussionPanelProps> = ({
                     onKeyDown={handleKeyDown}
                     disabled={isCommenting}
                     autoFocus
-                    className="w-full bg-white/5 border border-white/10 focus:border-white/30 text-white rounded-xl py-3.5 pl-4 pr-14 outline-none transition-all placeholder:text-gray-500 shadow-inner text-sm sm:text-base"
+                    className="w-full bg-white/5 border border-white/10 focus:border-white/30 text-white rounded-full py-3.5 pl-4 pr-14 outline-none transition-all placeholder:text-gray-500 shadow-inner text-sm sm:text-base"
                     placeholder="Write a comment..."
                   />
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isCommenting || !commentText.trim()}
-                    className="absolute right-2.5 p-2 bg-white hover:bg-gray-300 text-black rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white"
-                  >
-                    {isCommenting ? (
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-black" />
-                    ) : (
-                      <SendHorizontal className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
-                    )}
-                  </button>
                 </div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isCommenting || !commentText.trim()}
+                  className="p-4 bg-white hover:bg-gray-300 text-black rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white"
+                >
+                  {isCommenting ? (
+                    <Loader2 className="size-8 sm:w-5 sm:h-5 animate-spin text-black" />
+                  ) : (
+                    <SendHorizontal className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
+                  )}
+                </button>
               </div>
             </div>
           </DialogPanel>

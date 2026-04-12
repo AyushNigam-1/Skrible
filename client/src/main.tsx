@@ -8,6 +8,7 @@ import { CustomApolloProvider } from "./providers/CustomApolloProvider";
 import { PostHogProvider } from "./providers/PostHogProvider";
 import { router } from "./router";
 import { Toaster } from "sonner";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -17,6 +18,7 @@ Sentry.init({
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
+const queryClient = new QueryClient();
 
 registerSW({ immediate: true });
 
@@ -24,9 +26,11 @@ createRoot(rootElement).render(
   <CustomApolloProvider>
     <PostHogProvider>
       <UserProvider>
-        <div className="relative z-0 flex flex-col min-h-screen bg-primary">
-          <RouterProvider router={router} />
-        </div>
+        <QueryClientProvider client={queryClient}>
+          <div className="relative z-0 flex flex-col min-h-screen bg-primary">
+            <RouterProvider router={router} />
+          </div>
+        </QueryClientProvider>
         <Toaster />
       </UserProvider>
     </PostHogProvider>

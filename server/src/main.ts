@@ -94,7 +94,7 @@ const startServer = async () => {
     }),
   );
 
-  app.all("/api/auth/*", toNodeHandler(auth));
+  app.use("/api/auth/", toNodeHandler(auth));
 
   const graphqlLimiter = rateLimit({
     store: new RedisStore({

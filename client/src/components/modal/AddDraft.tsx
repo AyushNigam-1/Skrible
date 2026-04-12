@@ -19,7 +19,6 @@ import { ADD_SCRIPT } from "../../graphql/mutation/scriptMutations";
 import { posthog } from "../../providers/PostHogProvider";
 import { Option, VisibilityOption } from "../../types";
 
-
 const visibilityOptions: VisibilityOption[] = [
   {
     id: 1,
@@ -74,10 +73,6 @@ const Add = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  // UI Search States (Not part of form submission data)
-  const [genreSearch, setGenreSearch] = useState("");
-  const [languageSearch, setLanguageSearch] = useState("");
-
   const [addScript, { loading }] = useMutation(ADD_SCRIPT);
 
   // --- React Hook Form Setup ---
@@ -99,21 +94,11 @@ const Add = () => {
     },
   });
 
-  const filteredGenres = genreOptions.filter((g) =>
-    g.name.toLowerCase().includes(genreSearch.toLowerCase()),
-  );
-
-  const filteredLanguages = languageOptions.filter((l) =>
-    l.name.toLowerCase().includes(languageSearch.toLowerCase()),
-  );
-
   const handleClose = () => {
     setOpen(false);
     // Add a slight delay to reset so the form doesn't empty out while animating closed
     setTimeout(() => {
       reset();
-      setGenreSearch("");
-      setLanguageSearch("");
     }, 300);
   };
 
@@ -181,26 +166,23 @@ const Add = () => {
           <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
             <DialogPanel
               transition
-              className="relative transform rounded-2xl md:rounded-3xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 w-full max-w-2xl border border-white/10 p-5 md:p-6 space-y-4 md:space-y-6"
+              className="relative transform rounded-2xl md:rounded-3xl overflow-hidden bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 w-full max-w-2xl border border-white/10"
             >
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl md:text-2xl font-extrabold text-white tracking-tight font-sans">
+              <div className="flex justify-between p-5 md:p-6 items-center border-b border-white/5 bg-white/5">
+                <h3 className="text-lg md:text-xl font-extrabold text-white tracking-tight font-sans">
                   New Draft
                 </h3>
                 <button
                   onClick={handleClose}
-                  className="text-gray-500 hover:text-white  transition-colors outline-none"
+                  className="text-gray-500 hover:text-white transition-colors outline-none"
                 >
-                  <X className="w-5 h-5 md:w-6 md:h-6" />
+                  <X className="size-5 md:size-6" />
                 </button>
               </div>
-              <hr className="border-b border-white/5" />
-
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="flex flex-col gap-5 md:gap-6"
+                className="flex flex-col gap-5 md:gap-6 p-5 md:p-6"
               >
-                {/* Title */}
                 <div>
                   <label className={labelClass}>Title</label>
                   <input
@@ -221,7 +203,6 @@ const Add = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
-                  {/* Genres (Controller for Headless UI) */}
                   <div>
                     <label className={labelClass}>Genres</label>
                     <Controller
@@ -245,17 +226,11 @@ const Add = () => {
                               <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                             </ListboxButton>
 
-                            <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                              <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
-                                <input
-                                  placeholder="Search..."
-                                  value={genreSearch}
-                                  onChange={(e) => setGenreSearch(e.target.value)}
-                                  className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-xs md:text-sm outline-none border border-transparent focus:border-white/20"
-                                />
-                              </div>
-
-                              {filteredGenres.map((genre) => (
+                            <ListboxOptions
+                              transition
+                              className="absolute z-20 mt-2 w-full bg-primary border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent origin-top transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+                            >
+                              {genreOptions.map((genre) => (
                                 <ListboxOption
                                   key={genre.id}
                                   value={genre}
@@ -304,17 +279,11 @@ const Add = () => {
                               <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                             </ListboxButton>
 
-                            <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                              <div className="p-2 sticky top-0 bg-[#13131a] z-10 border-b border-white/5">
-                                <input
-                                  placeholder="Search..."
-                                  value={languageSearch}
-                                  onChange={(e) => setLanguageSearch(e.target.value)}
-                                  className="w-full px-3 py-2 rounded-lg bg-white/5 text-white text-xs md:text-sm outline-none border border-transparent focus:border-white/20"
-                                />
-                              </div>
-
-                              {filteredLanguages.map((language) => (
+                            <ListboxOptions
+                              transition
+                              className="absolute z-20 mt-2 w-full bg-primary border border-white/10 rounded-xl shadow-2xl max-h-48 md:max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent origin-top transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+                            >
+                              {languageOptions.map((language) => (
                                 <ListboxOption
                                   key={language.id}
                                   value={language}
@@ -362,7 +331,10 @@ const Add = () => {
                             <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
                           </ListboxButton>
 
-                          <ListboxOptions className="absolute z-20 mt-2 w-full bg-[#13131a] border border-white/10 rounded-xl shadow-2xl overflow-y-auto max-h-60 py-1">
+                          <ListboxOptions
+                            transition
+                            className="absolute z-20 mt-2 w-full bg-primary border border-white/10 rounded-xl shadow-2xl overflow-y-auto max-h-60 py-1 origin-top transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+                          >
                             {visibilityOptions.map((v) => (
                               <ListboxOption
                                 key={v.id}

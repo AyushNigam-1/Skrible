@@ -1,8 +1,8 @@
-import { useState, useMemo, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
-  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin, CalendarDays, SearchX, AlertCircle, Loader2, Edit2, Check, FileText, X
+  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin, CalendarDays, AlertCircle, Loader2, Edit2, Check, FileText, X
 } from "lucide-react";
 import { z } from "zod";
 
@@ -14,7 +14,6 @@ import {
   useViewProfileMutation,
 } from "../../graphql/generated/graphql";
 
-import Search from "../../components/layout/Search";
 import { useUserStore } from "../../store/useAuthStore";
 import Add from "../../components/modal/AddDraft";
 import DraftCard from "../../components/card/DraftCard";
@@ -76,7 +75,7 @@ const EditControls = ({
             title="Save changes"
           >
             {isUpdating ? (
-              <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+              <Loader2 className="size-8 shrink-0 animate-spin" />
             ) : (
               <Check className="w-4 h-4 shrink-0 stroke-[3]" />
             )}
@@ -89,7 +88,6 @@ const EditControls = ({
 
 const Profile = () => {
   const { id } = useParams<{ id: string }>();
-  const [search, setSearch] = useState("");
 
   const { user: currentUser } = useUserStore();
   const isOwnProfile = currentUser?.id === id;
@@ -165,13 +163,8 @@ const Profile = () => {
 
   const isCompletelyLoading = (!profileData && profileLoading) || (!scriptsData && scriptsLoading);
 
-  const filteredScripts = useMemo(() => {
-    return scriptsData?.getUserScripts?.filter((script) =>
-      script?.title?.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [scriptsData, search]);
-
-  const hasScripts = scriptsData?.getUserScripts && scriptsData.getUserScripts.length > 0;
+  const scripts = scriptsData?.getUserScripts;
+  const hasScripts = scripts && scripts.length > 0;
 
   useLayoutEffect(() => {
     if (!editingField || !editRef.current) return;
@@ -259,22 +252,25 @@ const Profile = () => {
   ];
 
   const initial = userProfile?.name?.charAt(0).toUpperCase() || "?";
-  const EmptyIcon = search ? SearchX : FileText;
 
   return (
     <div className="w-full max-w-7xl mx-auto font-mono">
       <AnimatePresence mode="wait">
         {isCompletelyLoading ? (
           <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96vh] gap-4">
-            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+            <Loader2 className="size-8 shrink-0 animate-spin" />
           </motion.div>
         ) : profileError ? (
-          <motion.div key="profile-error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[70vh] gap-4">
-            <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-full text-red-500 shadow-lg backdrop-blur-md">
-              <User className="w-10 h-10" />
+          <motion.div key="profile-error" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] space-y-4 sm:space-y-5 relative overflow-hidden">
+            <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+              <User className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
             </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Profile not found</h2>
-            <p className="text-gray-400 max-w-sm text-center text-sm">{profileError.message}</p>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
+              Profile not found
+            </h3>
+            <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
+              {profileError.message}
+            </p>
           </motion.div>
         ) : (
           <motion.div key="profile-content" variants={pageVariants} initial="fadeInit" animate="fadeShow" exit="fadeExit" className="flex flex-col gap-6 w-full">
@@ -431,27 +427,19 @@ const Profile = () => {
               {hasScripts && (
                 <>
                   {isOwnProfile ? (
-                    <div className="grid grid-cols-[1fr_auto] gap-4 sm:flex sm:flex-row sm:items-center sm:justify-between w-full">
-                      <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight self-center">
+                    <div className="flex items-center justify-between w-full">
+                      <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight">
                         Drafts
                       </h2>
-                      <div className="contents sm:flex sm:flex-row sm:items-center sm:gap-3">
-                        <div className="col-span-2 order-last sm:order-none w-full sm:w-56">
-                          <Search value={search} setSearch={setSearch} placeholder="Search my scripts..." />
-                        </div>
-                        <div className="shrink-0 sm:w-auto self-center">
-                          <Add />
-                        </div>
+                      <div className="shrink-0 self-center">
+                        <Add />
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-6 sm:gap-4 w-full">
+                    <div className="flex items-center w-full">
                       <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-white tracking-tight text-center sm:text-left self-center">
                         Published Drafts
                       </h2>
-                      <div className="w-full sm:w-56 sm:flex-shrink-0">
-                        <Search value={search} setSearch={setSearch} placeholder="Search their scripts..." />
-                      </div>
                     </div>
                   )}
                 </>
@@ -460,28 +448,38 @@ const Profile = () => {
               <div className="flex-1">
                 <AnimatePresence mode="wait">
                   {scriptsError ? (
-                    <motion.div key="scripts-error" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-start gap-4 p-6 bg-red-500/10 text-red-400 rounded-3xl border border-red-500/20 shadow-lg backdrop-blur-md">
-                      <AlertCircle className="w-8 h-8 shrink-0 text-red-500" />
-                      <div>
-                        <h3 className="font-bold text-xl mb-1 text-white">Failed to load scripts</h3>
-                        <p className="text-sm text-red-300">{scriptsError.message}</p>
+                    <motion.div key="scripts-error" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[40vh] space-y-4 sm:space-y-5 relative overflow-hidden">
+                      <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+                        <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
                       </div>
-                    </motion.div>
-                  ) : !filteredScripts || filteredScripts.length === 0 ? (
-                    <motion.div key="scripts-empty" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex flex-col items-center justify-center text-center py-20 px-4 relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-lg space-y-4">
-                      <div className="bg-white/10 p-5 rounded-full border border-white/20 relative z-10 shadow-sm">
-                        <EmptyIcon className="w-8 h-8 text-gray-300" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white relative z-10">{search ? "No results found" : "No drafts available"}</h3>
-                      <p className="text-gray-400 max-w-md text-sm relative z-10">
-                        {search ? `We couldn't find any drafts matching "${search}".` : isOwnProfile ? "You haven't created any drafts yet. Click the button below to start your creative journey." : "This user hasn't published any drafts yet."}
+                      <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
+                        Failed to load drafts
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
+                        {scriptsError.message}
                       </p>
-                      {isOwnProfile && !search && <div className="relative z-10"><Add /></div>}
+                    </motion.div>
+                  ) : !hasScripts ? (
+                    <motion.div key="scripts-empty" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[40vh] space-y-4 sm:space-y-5 relative overflow-hidden font-mono">
+                      <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+                        <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
+                        No drafts yet
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
+                        {isOwnProfile ? "You haven't created any drafts yet. Start your creative journey!" : "This user hasn't published any drafts yet."}
+                      </p>
+                      {isOwnProfile && (
+                        <div className="relative z-10 pt-2">
+                          <Add />
+                        </div>
+                      )}
                     </motion.div>
                   ) : (
                     <motion.div key="scripts-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 font-sans">
                       <AnimatePresence mode="popLayout">
-                        {filteredScripts.map((script) => (
+                        {scripts.map((script) => (
                           <DraftCard key={script!.id} script={script! as any} />
                         ))}
                       </AnimatePresence>

@@ -329,7 +329,7 @@ const Contribution: React.FC = () => {
     <AnimatePresence mode="wait">
       {paragraphLoading || scriptLoading ? (
         <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="flex items-center justify-center w-full min-h-[70vh]">
-          <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+          <Loader2 className="size-8 shrink-0 animate-spin" />
         </motion.div>
       ) : paragraphError || !paragraph ? (
         <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="flex flex-col items-center justify-center w-full min-h-[50vh] text-center text-red-500 font-mono gap-4">

@@ -7,30 +7,10 @@ import {
   from,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
-import { setContext } from "@apollo/client/link/context";
-import { authClient } from "../lib/authClient";
-
-const uri = import.meta.env.VITE_GRAPHQL_URL;
 
 const httpLink = new HttpLink({
-  uri: `/graphql`,
-});
-
-const authLink = setContext(async (_, { headers }) => {
-  try {
-    const { data } = await authClient.getSession();
-    const token = data?.session?.token;
-
-    return {
-      headers: {
-        ...headers,
-        authorization: token ? `Bearer ${token}` : "",
-      },
-    };
-  } catch (error) {
-    return { headers };
-  }
-});
+  uri: `${import.meta.env.VITE_CLIENT_URL}/graphql`,
+})
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   let isUnauthenticated = false;
@@ -59,13 +39,12 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
   if (isUnauthenticated) {
     console.error("⚠️ Session expired or invalid. Logging out.");
-    localStorage.removeItem("user");
     window.location.href = "/login";
   }
 });
 
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, httpLink]),
   cache: new InMemoryCache({}),
 });
 

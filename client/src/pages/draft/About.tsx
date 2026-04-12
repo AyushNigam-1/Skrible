@@ -4,8 +4,8 @@ import { motion, Variants, AnimatePresence, Transition } from "framer-motion";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
-  AlignLeft, User, Globe, Lock, Calendar, FileText,
-  Languages, Tags, Edit2, Loader2, X, Type, Check, Users,
+  AlignLeft, User, Globe, Calendar, FileText,
+  Languages, Tags, Edit2, Loader2, X, Check, Users,
   Sparkles,
 } from "lucide-react";
 
@@ -65,7 +65,7 @@ const ReadOnlyCard = ({ icon: Icon, label, value, isCapitalized = false }: { ico
       <Icon className="size-4" />
       {label}
     </h3>
-    <p className={`text-gray-200 font-bold font-sans text-lg sm:text-xl ${isCapitalized ? "capitalize" : ""}`}>
+    <p className={`text-gray-300 font-bold font-sans text-xl ${isCapitalized ? "capitalize" : ""}`}>
       {value}
     </p>
   </motion.div>
@@ -89,7 +89,7 @@ const EditControls = ({ field, editingField, isUpdating, onEdit, onCancel, onSav
             <X className="w-4 h-4 shrink-0" />
           </button>
           <button onClick={() => onSave(field)} disabled={isUpdating} className="text-green-500 hover:text-green-400 transition-colors disabled:opacity-50 outline-none" title="Save changes">
-            {isUpdating ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Check className="w-4 h-4 shrink-0 stroke-[3]" />}
+            {isUpdating ? <Loader2 className="size-8 shrink-0 animate-spin" /> : <Check className="w-4 h-4 shrink-0 stroke-[3]" />}
           </button>
         </motion.div>
       )}
@@ -151,7 +151,7 @@ const EditableCard = ({
           contentEditable={isEditing}
           suppressContentEditableWarning
           onKeyDown={(e) => handleKeyDown(e, field)}
-          className={`text-gray-200 font-sans outline-none whitespace-pre-wrap break-words w-full transition-all duration-300 ${textClassName || "font-semibold"}`}
+          className={`text-gray-300 font-bold font-sans text-xl outline-none whitespace-pre-wrap break-words w-full transition-all duration-300 ${textClassName || "font-semibold"}`}
         >
           {value || placeholder}
         </div>
@@ -253,7 +253,7 @@ const ScriptDetails = () => {
   if (loading && !script) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[70vh]">
-        <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+        <Loader2 className="size-8 shrink-0 animate-spin" />
       </motion.div>
     );
   }
@@ -263,7 +263,6 @@ const ScriptDetails = () => {
     return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(new Date(Number(isoString)));
   };
 
-  // 🚨 UPDATED: Passing the permission prop down
   const sharedEditProps = {
     isAuthorized: isEditorOrOwner,
     editingField,
@@ -287,7 +286,7 @@ const ScriptDetails = () => {
         icon={Sparkles}
         value={script?.title}
         placeholder="Untitled Draft"
-        textClassName="text-xl sm:text-2xl font-bold"
+        textClassName=" font-bold"
         {...sharedEditProps}
       />
 

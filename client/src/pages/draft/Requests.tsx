@@ -15,7 +15,8 @@ import {
   Activity,
   AlertCircle,
   SearchX,
-  Loader2
+  Loader2,
+  ListFilter
 } from "lucide-react";
 
 import Search from "../../components/layout/Search";
@@ -122,15 +123,15 @@ const Requests: React.FC = () => {
     exit: { opacity: 0, transition: { duration: 0.2 } },
   };
 
+  // 🚨 FIXED: Pure, smooth slide-up animation without scale weirdness
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 15, scale: 0.98 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
-      transition: { type: "tween", ease: "easeOut", duration: 0.4 }
+      transition: { duration: 0.4, ease: "easeOut" }
     },
-    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } },
   };
 
   const isFiltering = searchQuery !== "" || selectedStatus.id !== "all" || userId;
@@ -138,20 +139,26 @@ const Requests: React.FC = () => {
   return (
     <div className="w-full flex-1 flex flex-col">
       <AnimatePresence mode="wait">
-        {loading && !data ? (
-          <div className="flex items-center justify-center w-full min-h-[70vh]">
-            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
-          </div>
+        {/* 🚨 FIXED: Check for !scriptId to prevent the empty state flash on mount */}
+        {!scriptId || (loading && !data) ? (
+          <motion.div
+            key="loader"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center w-full min-h-[70vh]"
+          >
+            <Loader2 className="size-8 shrink-0 animate-spin" />
+          </motion.div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
             <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
             <p className="text-red-400 font-mono text-sm max-w-md">
-              Error loading req?uests. Check if your backend resolver handles the "status" parameter correctly.
+              Error loading requests. Check if your backend resolver handles the "status" parameter correctly.
             </p>
             <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-white/5 rounded-lg text-white border border-white/10 hover:bg-white/10 transition-all">Retry</button>
           </div>
         ) : rawParagraphs.length === 0 && !isFiltering ? (
-          // 🚨 UPDATED: Exact replica of your Timeline empty state
           <motion.div
             variants={itemVariants}
             initial="hidden"
@@ -163,11 +170,11 @@ const Requests: React.FC = () => {
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
-              No req?uests yet
+              No requests yet
             </h3>
 
             <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
-              There are no req?uests right now. Be the first to submit a contribution!
+              There are no requests right now. Be the first to submit a contribution!
             </p>
 
             <div className="relative z-10">
@@ -192,7 +199,7 @@ const Requests: React.FC = () => {
                 options={statusOptions}
                 value={selectedStatus}
                 onChange={setSelectedStatus}
-                icon={Activity}
+                icon={ListFilter}
                 collapseOnMobile={true}
                 className="shrink-0 w-auto"
               />
@@ -200,25 +207,24 @@ const Requests: React.FC = () => {
 
             {filteredParagraphs.length === 0 ? (
               <motion.div
-                key="filter-empty"
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-4 relative overflow-hidden font-sans min-h-[70vh]"
+                key="contributions-empty"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60vh]"
               >
-                <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
+                <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
                   <SearchX className="w-8 h-8 text-white" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-white relative z-10">
-                  No req?uests found
+                  No results found
                 </h3>
 
                 <p className="text-gray-400 max-w-md relative z-10 text-sm">
                   We couldn't find any results. Try adjusting your filters.
                 </p>
-
               </motion.div>
             ) : (
               <motion.div variants={containerVariants} className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">

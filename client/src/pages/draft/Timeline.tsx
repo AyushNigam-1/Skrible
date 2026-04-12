@@ -115,7 +115,7 @@ const Timeline = () => {
   if (loading && !data) {
     return (
       <div className="flex justify-center items-center w-full min-h-[70vh]">
-        <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+        <Loader2 className="size-8 shrink-0 animate-spin" />
       </div>
     );
   }
@@ -179,14 +179,14 @@ const Timeline = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-4 relative overflow-hidden font-sans w-full min-h-[70vh]"
+              className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60vh]"
             >
-              <div className="bg-white/10 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
+              <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
                 <SearchX className="w-8 h-8 text-white" />
               </div>
 
               <h3 className="text-2xl font-bold text-white relative z-10">
-                No contributions found
+                No results found
               </h3>
 
               <p className="text-gray-400 max-w-md relative z-10 text-sm">

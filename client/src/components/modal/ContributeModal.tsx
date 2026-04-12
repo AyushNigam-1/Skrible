@@ -154,9 +154,9 @@ const ContributeModal = ({
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <DialogPanel
               transition
-              className="relative transform overflow-hidden rounded-3xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 space-y-5 p-6"
+              className="relative transform overflow-hidden rounded-2xl bg-primary text-left shadow-2xl transition duration-300 ease-out data-[closed]:opacity-0 data-[closed]:translate-y-4 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 sm:my-8 w-full max-w-5xl border border-white/10 "
             >
-              <div className="flex justify-between items-center ">
+              <div className="flex justify-between items-center p-5 border-b border-white/10 shrink-0 bg-white/5">
                 <div>
                   <h3 className="text-white font-extrabold text-xl sm:text-2xl tracking-tight">
                     {mode === "create" ? "New Contribution" : "Edit Contribution"}
@@ -166,19 +166,18 @@ const ContributeModal = ({
                   onClick={closeModal}
                   className=" text-gray-500 hover:text-white transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="size-5 md:size-6" />
                 </button>
               </div>
-              <hr className="border-b border-white/5 " />
 
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-5">
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between">
                     <label className={labelClass}>Content</label>
                     <button
                       type="button"
                       onClick={() => setIsPreview(!isPreview)}
-                      className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border border-white/10 transition-colors active:scale-95 hover:text-white hover:bg-white/5"
+                      className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors active:scale-95 hover:text-white hover:bg-white/5"
                       style={{
                         color: isPreview ? "#f59e0b" : "#9ca3af",
                         borderColor: isPreview ? "rgba(245, 158, 11, 0.2)" : "",
@@ -251,7 +250,7 @@ const ContributeModal = ({
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="group flex items-center mx-auto justify-center min-w-[140px] gap-2 px-6 py-3 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
+                  className="group flex items-center mx-auto justify-center w-full md:w-[140px] gap-2 px-6 py-3 rounded-xl bg-white text-black hover:bg-gray-200 text-sm font-bold disabled:opacity-50 font-mono disabled:shadow-none disabled:hover:bg-white transition-all tracking-wide active:scale-95"
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin text-black" />

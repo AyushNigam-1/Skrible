@@ -53,7 +53,7 @@ const Explore = () => {
   const hasAnyScripts = rawScripts.length > 0;
 
   return (
-    <div className="w-full transition-colors font-mono duration-300 pb-12">
+    <div className="w-full transition-colors font-mono duration-300">
       <div className="max-w-7xl mx-auto space-y-4">
         <AnimatePresence mode="wait">
           {loading ? (
@@ -62,33 +62,36 @@ const Explore = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center w-full min-h-[98vh] gap-4"
+              className="flex flex-col items-center justify-center w-full min-h-[96vh]"
             >
-              <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+              <Loader2 className="size-8 shrink-0 animate-spin" />
+
             </motion.div>
           ) : error ? (
             <motion.div
               key="error"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 text-center px-4 bg-[#13151a]/80 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden mt-10 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[96vh] space-y-4 sm:space-y-5 relative overflow-hidden"
             >
-              <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-full mb-6 shadow-inner relative z-10">
-                <AlertCircle className="w-10 h-10 text-red-500" />
+              <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
+                <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
               </div>
-              <h2 className="text-xl font-bold text-white font-mono uppercase tracking-widest relative z-10 mb-2">
-                Failed to Load Scripts
-              </h2>
-              <p className="text-gray-400 max-w-sm text-sm relative z-10 mb-6">
-                {error.message}
+              <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans relative z-10">
+                Failed to load drafts
+              </h3>
+              <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
+                We couldn't load this data right now. Please check your connection and try again.
               </p>
-              <button
-                onClick={() => refetch()}
-                className="relative z-10 px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all active:scale-95"
-              >
-                Try Again
-              </button>
+              <div className="relative z-10 pt-2">
+                <button
+                  onClick={() => refetch()}
+                  className="px-6 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold transition-all duration-200 active:scale-95 text-sm sm:text-base"
+                >
+                  Try Again
+                </button>
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -144,8 +147,6 @@ const Explore = () => {
                   </motion.div>
                 </>
               )}
-
-              {/* --- CONTENT AREA --- */}
               <div className="flex-1">
                 {!hasAnyScripts && !isFiltering ? (
                   <motion.div
@@ -169,22 +170,20 @@ const Explore = () => {
                   </motion.div>
                 ) : !filteredScripts || filteredScripts.length === 0 ? (
                   <motion.div
-                    key="not-found"
-                    variants={itemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="flex flex-col items-center justify-center text-center relative overflow-hidden pt-12"
+                    key="no-search-results"
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[70vh]"
                   >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
-                    <div className="bg-white/5 border border-white/10 p-6 rounded-full mb-6 shadow-inner relative z-10">
+                    <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
                       <SearchX className="w-10 h-10 text-gray-400" />
                     </div>
-                    <h3 className="text-3xl font-bold text-white mb-3 tracking-tight font-sans relative z-10">
-                      No Drafts Found
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight font-sans">
+                      No Results Found
                     </h3>
                     <p className="text-gray-400 max-w-md text-base leading-relaxed relative z-10 font-mono">
-                      We couldn't find any stories matching your current search
-                      or genre filters. Try adjusting them!
+                      We couldn't find any result matching your current search filters. Try adjusting them!
                     </p>
                   </motion.div>
                 ) : (
@@ -199,7 +198,7 @@ const Explore = () => {
                           layout
                           variants={itemVariants}
                           initial="hidden"
-                          animate="visible" // 🚨 THE FIX: Changed 'show' to 'visible' to match the variant
+                          animate="visible"
                           exit="exit"
                           className="h-full"
                         >

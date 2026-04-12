@@ -26,7 +26,6 @@ const DraftLayout = () => {
   const [localDislikes, setLocalDislikes] = useState<string[]>([]);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  // Parent Query
   const { data, loading, error, refetch } = useGetScriptByIdQuery({
     variables: { id: id || "" },
     skip: !id,
@@ -39,7 +38,6 @@ const DraftLayout = () => {
 
   const script = data?.getScriptById;
 
-  // 🚨 NEW: Calculate exactly what role the current user has for child tabs to use
   let currentUserRole = "VIEWER";
   if (script && currentUserId) {
     if (String(script.author?.id) === String(currentUserId)) {
@@ -54,7 +52,6 @@ const DraftLayout = () => {
     }
   }
 
-  // Strictly check if they are the author OR specifically hold the "EDITOR" role
   const isEditorOrOwner = Boolean(
     currentUserRole === "AUTHOR" || currentUserRole === "EDITOR"
   );
@@ -132,10 +129,8 @@ const DraftLayout = () => {
       return;
     }
 
-    // 1. Capture the CURRENT state to know what we are doing
     const wasBookmarked = isBookmarked;
 
-    // 2. Optimistic UI Update
     setIsBookmarked(!wasBookmarked);
 
     const promise = toggleBookmark({
@@ -144,19 +139,16 @@ const DraftLayout = () => {
       awaitRefetchQueries: true,
     })
       .then((res) => {
-        // Use a functional update or verify the actual result from server
         if (res.data && currentUser) {
           const currentFavs = currentUser.favourites || [];
           let updatedFavs;
 
           if (wasBookmarked) {
-            // REMOVING: Filter out the ID strictly
             updatedFavs = currentFavs.filter((fav: any) => {
               const favId = typeof fav === 'string' ? fav : fav?.id || fav?._id;
               return String(favId) !== String(id);
             });
           } else {
-            // ADDING: Ensure we don't add duplicates
             const exists = currentFavs.some((fav: any) => {
               const favId = typeof fav === 'string' ? fav : fav?.id || fav?._id;
               return String(favId) === String(id);
@@ -164,12 +156,10 @@ const DraftLayout = () => {
             updatedFavs = exists ? currentFavs : [...currentFavs, id];
           }
 
-          // 3. Sync the Global Zustand Store
           setUser({ ...currentUser, favourites: updatedFavs });
         }
       })
       .catch((err) => {
-        // Rollback on failure
         setIsBookmarked(wasBookmarked);
         throw err;
       });
@@ -191,15 +181,13 @@ const DraftLayout = () => {
         </div>
       ) : (
         <motion.div
-          key={id} // Forces re-animation if user navigates between drafts
+          key={id}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="flex flex-col w-full space-y-4"
         >
           <div className="flex flex-col space-y-4">
-
-            {/* 🚨 THE FIX: Changed from relative to a Grid layout so they overlap naturally without absolute positioning breaking the height */}
             <div className="grid w-full items-center">
               <AnimatePresence>
                 {!script && (
@@ -237,8 +225,6 @@ const DraftLayout = () => {
                     </div>
 
                     <div className="flex items-center shrink-0 gap-1 sm:gap-2 bg-white/5 md:bg-transparent border border-white/10 md:border-transparent rounded-lg md:p-0">
-
-                      {/* Like Button */}
                       <button
                         onClick={handleLike}
                         disabled={isLiking}
@@ -249,7 +235,6 @@ const DraftLayout = () => {
                         <span>{localLikes.length}</span>
                       </button>
 
-                      {/* Dislike Button (Icon Only) */}
                       <button
                         onClick={handleDislike}
                         disabled={isDisliking}
@@ -261,7 +246,6 @@ const DraftLayout = () => {
 
                       <div className="w-[1px] h-5 bg-white/10 mx-1 md:mx-0" />
 
-                      {/* Bookmark Button */}
                       <button
                         onClick={handleBookmark}
                         disabled={isBookmarking}

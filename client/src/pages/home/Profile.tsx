@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
-  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin, CalendarDays, AlertCircle, Loader2, Edit2, Check, FileText, X
+  User, Languages, AlignLeft, Mail, Heart, Eye, MapPin, CalendarDays, AlertCircle, Loader2, Edit2, Check, FileText, X,
+  Lock
 } from "lucide-react";
 import { z } from "zod";
 
@@ -257,20 +258,35 @@ const Profile = () => {
     <div className="w-full max-w-7xl mx-auto font-mono">
       <AnimatePresence mode="wait">
         {isCompletelyLoading ? (
-          <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96vh] gap-4">
+          <motion.div key="profile-loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center w-full min-h-[96dvh] gap-4">
             <Loader2 className="size-8 shrink-0 animate-spin" />
           </motion.div>
         ) : profileError ? (
-          <motion.div key="profile-error" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] space-y-4 sm:space-y-5 relative overflow-hidden">
-            <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
-              <User className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
+          <motion.div
+            key="auth-warning"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center w-full min-h-[96dvh] px-4"
+          >
+            <div className="flex flex-col items-center justify-center text-center max-w-md w-full">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
+                <Lock className="w-8 h-8 text-gray-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2 font-sans tracking-tight">
+                Authentication Required
+              </h2>
+              <p className="text-gray-400 text-sm font-mono leading-relaxed mb-8 max-w-[280px]">
+                Please sign in to view and manage your contributions.
+              </p>
+              <Link
+                to="/login"
+                className="flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-200 text-black rounded-xl transition-all duration-300 font-bold text-sm active:scale-95"
+              >
+                Sign In to Continue
+              </Link>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 tracking-tight font-sans relative z-10">
-              Profile not found
-            </h3>
-            <p className="text-sm sm:text-base text-gray-400 max-w-xs sm:max-w-md relative z-10 leading-relaxed">
-              {profileError.message}
-            </p>
           </motion.div>
         ) : (
           <motion.div key="profile-content" variants={pageVariants} initial="fadeInit" animate="fadeShow" exit="fadeExit" className="flex flex-col gap-6 w-full">
@@ -448,7 +464,7 @@ const Profile = () => {
               <div className="flex-1">
                 <AnimatePresence mode="wait">
                   {scriptsError ? (
-                    <motion.div key="scripts-error" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[40vh] space-y-4 sm:space-y-5 relative overflow-hidden">
+                    <motion.div key="scripts-error" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[40dvh] space-y-4 sm:space-y-5 relative overflow-hidden">
                       <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
                         <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
                       </div>

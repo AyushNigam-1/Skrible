@@ -103,7 +103,7 @@ const Bookmarks = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center w-full min-h-[96vh]"
+            className="flex flex-col items-center justify-center w-full min-h-[96dvh]"
           >
             <Loader2 className="size-8 shrink-0 animate-spin" />
           </motion.div>
@@ -116,7 +116,7 @@ const Bookmarks = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="flex flex-col items-center justify-center w-full min-h-[80vh] px-4"
+              className="flex flex-col items-center justify-center w-full min-h-[96dvh] px-4"
             >
               <div className="flex flex-col items-center justify-center text-center max-w-md w-full">
                 <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
@@ -126,7 +126,7 @@ const Bookmarks = () => {
                   Authentication Required
                 </h2>
                 <p className="text-gray-400 text-sm font-mono leading-relaxed mb-8 max-w-[280px]">
-                  Please sign in to view and manage your bookmarked manuscripts.
+                  Please sign in to view and manage your contributions.
                 </p>
                 <Link
                   to="/login"
@@ -212,7 +212,7 @@ const Bookmarks = () => {
                       initial={{ opacity: 0, scale: 0.95, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="flex flex-col items-center justify-center gap-4  text-center min-h-[96vh]"
+                      className="flex flex-col items-center justify-center gap-4 text-center min-h-[96dvh]"
                     >
                       <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
                         <BookmarkX className="w-10 h-10 text-gray-400" />

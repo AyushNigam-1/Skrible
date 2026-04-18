@@ -273,7 +273,7 @@ const DraftSettings: React.FC = () => {
 
   if (loading || !script || !isHydrated) {
     return (
-      <div className="flex items-center justify-center w-full min-h-[70vh]">
+      <div className="flex items-center justify-center w-full min-h-[70dvh]">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
       </div>
     );

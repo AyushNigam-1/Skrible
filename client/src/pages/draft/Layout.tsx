@@ -172,7 +172,7 @@ const DraftLayout = () => {
   };
 
   return (
-    <div className="relative flex flex-col w-full max-w-7xl mx-auto min-h-[60vh]">
+    <div className="relative flex flex-col w-full max-w-7xl mx-auto min-h-[60dvh]">
       {error ? (
         <div className="flex flex-col justify-center items-center h-full text-red-500 font-mono py-20">
           <AlertTriangle className="w-10 h-10 mb-4 opacity-50" />

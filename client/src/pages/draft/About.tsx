@@ -252,7 +252,7 @@ const ScriptDetails = () => {
 
   if (loading && !script) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[70vh]">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center items-center w-full min-h-[70dvh]">
         <Loader2 className="size-8 shrink-0 animate-spin" />
       </motion.div>
     );

@@ -146,12 +146,12 @@ const Requests: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex items-center justify-center w-full min-h-[70vh]"
+            className="flex items-center justify-center w-full min-h-[70dvh]"
           >
             <Loader2 className="size-8 shrink-0 animate-spin" />
           </motion.div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+          <div className="flex flex-col items-center justify-center min-h-[50dvh] text-center px-4">
             <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
             <p className="text-red-400 font-mono text-sm max-w-md">
               Error loading requests. Check if your backend resolver handles the "status" parameter correctly.
@@ -163,7 +163,7 @@ const Requests: React.FC = () => {
             variants={itemVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60vh] md:min-h-[78vh] space-y-4 sm:space-y-5 relative overflow-hidden font-mono"
+            className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[60dvh] md:min-h-[78dvh] space-y-4 sm:space-y-5 relative overflow-hidden font-mono"
           >
             <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
               <Inbox className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -212,7 +212,7 @@ const Requests: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60vh]"
+                className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60dvh]"
               >
                 <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
                   <SearchX className="w-8 h-8 text-white" />

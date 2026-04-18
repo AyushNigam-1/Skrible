@@ -42,10 +42,6 @@ export const authenticate = async (
     const allowedOperations = [
       "Register",
       "Login",
-      "GetAllScripts",
-      "GetScriptById",
-      "GetScriptsByGenres",
-      "ExportDocument",
       "IntrospectionQuery",
     ];
 

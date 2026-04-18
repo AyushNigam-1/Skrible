@@ -126,7 +126,7 @@ const Contributors: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full min-h-[70vh]">
+      <div className="flex items-center justify-center w-full min-h-[70dvh]">
         <Loader2 className="size-8 shrink-0 animate-spin" />
       </div>
     );
@@ -142,7 +142,7 @@ const Contributors: React.FC = () => {
       {paragraphs.length === 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex flex-col items-center justify-center min-h-[60vh] md:min-h-[78vh] px-4 sm:px-6 text-center space-y-4 sm:space-y-5 relative overflow-hidden"
+          className="flex flex-col items-center justify-center min-h-[60dvh] md:min-h-[78dvh] px-4 sm:px-6 text-center space-y-4 sm:space-y-5 relative overflow-hidden"
         >
           <div className="bg-white/5 border border-white/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
             <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -232,7 +232,7 @@ const Contributors: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60vh]"
+              className="flex flex-col items-center justify-center  text-center space-y-2 relative overflow-hidden font-sans w-full min-h-[60dvh]"
             >
               <div className="bg-white/5 border border-white/20 p-4 rounded-full shadow-sm relative z-10">
                 <SearchX className="w-8 h-8 text-white" />

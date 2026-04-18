@@ -162,7 +162,7 @@ const MyContributions = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex flex-col items-center justify-center w-full min-h-[96vh] px-4"
+            className="flex flex-col items-center justify-center w-full min-h-[96dvh] px-4"
           >
             <div className="flex flex-col items-center justify-center text-center max-w-md w-full">
               <div className="bg-white/5 border border-white/10 p-5 rounded-full mb-6">
@@ -188,7 +188,7 @@ const MyContributions = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[96vh] space-y-4 sm:space-y-5 relative overflow-hidden"
+            className="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[96dvh] space-y-4 sm:space-y-5 relative overflow-hidden"
           >
             <div className="bg-red-500/10 border border-red-500/20 p-3 sm:p-4 rounded-full shadow-sm relative z-10">
               <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
@@ -252,7 +252,7 @@ const MyContributions = () => {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[96vh]"
+                className="flex flex-col gap-4 items-center justify-center py-24 text-center min-h-[96dvh]"
               >
                 <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center shadow-inner">
                   <FileExclamationPoint className="w-10 h-10 text-gray-400" />

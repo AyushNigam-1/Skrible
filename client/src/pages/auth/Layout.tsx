@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-primary font-sans text-gray-200 selection:bg-white/20 overflow-hidden relative px-6 py-12 sm:px-12">
+    <div className="h-dvh w-full flex items-center justify-center bg-primary font-sans text-gray-200 selection:bg-white/20 overflow-hidden relative px-6 py-12 sm:px-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

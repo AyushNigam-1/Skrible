@@ -64,7 +64,7 @@ const ZenMode = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="w-full min-h-[96vh] flex-1 flex items-center justify-center"
+          className="w-full min-h-[96dvh] flex-1 flex items-center justify-center"
         >
           <Loader2 className="size-8 shrink-0 animate-spin" />
         </motion.div>
@@ -75,7 +75,7 @@ const ZenMode = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={smoothTransition}
-          className="max-w-5xl mx-auto h-[calc(100vh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 cursor-default"
+          className="max-w-5xl mx-auto h-[calc(100dvh-36px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-none transition-colors duration-500 rounded-2xl space-y-4 cursor-default"
         >
           <div className="sticky top-0 z-50 flex justify-between items-center border-b border-white/5 pb-4 bg-[#0A0A14]">
             <button
@@ -158,7 +158,7 @@ const ZenMode = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, ...smoothTransition }}
-                className="flex flex-col items-center justify-center gap-4 h-full text-center opacity-70 font-mono min-h-[88vh]"
+                className="flex flex-col items-center justify-center gap-4 h-full text-center opacity-70 font-mono min-h-[88dvh]"
               >
                 <FileText className="w-12 h-12 text-gray-600" />
                 <h3 className="text-xl font-bold text-gray-400 tracking-widest uppercase">

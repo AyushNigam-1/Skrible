@@ -4,7 +4,6 @@ import {
   User,
   Award,
   LogOut,
-  LucideIcon,
   ChevronLeft,
   Bookmark,
 } from "lucide-react";
@@ -93,13 +92,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
 
         <button
           onClick={async () => {
-            await authClient.signOut({
-              fetchOptions: {
-                onSuccess: () => {
-                  window.location.href = "/login";
-                },
-              },
-            });
+            await authClient.signOut();
+            window.location.href = "/login";
           }}
           className="group flex w-full items-center gap-3 px-3 py-3 mb-2 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 outline-none border-none bg-transparent cursor-pointer"
         >

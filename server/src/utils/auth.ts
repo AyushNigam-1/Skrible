@@ -17,7 +17,7 @@ export const auth = betterAuth({
         additionalFields: {
             username: {
                 type: "string",
-                required: true,
+                required: false,
                 unique: true,
             },
             favourites: {
